@@ -36,7 +36,8 @@ $properties = [ordered]@{}
 foreach ($key in $keys) { $properties[$key] = Read-Adb -Arguments @('shell', 'getprop', $key) }
 $model = $properties['ro.product.model'].text
 $device = $properties['ro.product.device'].text
-if ($model -notmatch '^SM-G975F(?:/DS)?$' -or $device -notmatch '^beyond2lte') {
+# Samsung stock firmware reports beyond2; the port uses beyond2lte.
+if ($model -notmatch '^SM-G975F(?:/DS)?$' -or $device -notmatch '^(?:beyond2|beyond2lte)$') {
     throw "Dispositivo diverso dal target: $model / $device. Nessun report generato."
 }
 

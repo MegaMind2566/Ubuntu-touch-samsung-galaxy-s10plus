@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $testOutput = Join-Path ([System.IO.Path]::GetTempPath()) ('beyond2lte-test-' + [guid]::NewGuid().ToString() + '.json')
-$global:CollectorTestWrongModel = $false
+$global:CollectorTestModel = 'SM-G975F'
+$global:CollectorTestDevice = 'beyond2lte'
 
 function Mock-Adb {
     param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Parts)
@@ -15,8 +16,8 @@ function Mock-Adb {
     if ($Parts[3] -eq 'getprop') {
         if ($Parts.Count -ne 5) { throw 'Property argument was lost' }
         switch ($Parts[4]) {
-            'ro.product.model' { if ($global:CollectorTestWrongModel) { 'SM-OTHER' } else { 'SM-G975F' } }
-            'ro.product.device' { 'beyond2lte' }
+            'ro.product.model' { $global:CollectorTestModel }
+            'ro.product.device' { $global:CollectorTestDevice }
             'ro.vendor.build.version.release' { '12' }
             default { 'test-value' }
         }
@@ -38,19 +39,33 @@ try {
     if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
     $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'scripts/launch-device-check.ps1'), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
-    & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput
-    $raw = Get-Content -Raw -LiteralPath $testOutput
-    $report = $raw | ConvertFrom-Json
-    if ($report.properties.'ro.vendor.build.version.release'.text -ne '12') { throw 'Property collection failed' }
-    if (-not $report.read_only -or -not $report.partitions.text.StartsWith('boot|')) { throw 'Inventory collection failed' }
-    if ($raw.Contains('TEST-SERIAL')) { throw 'ADB serial was saved' }
-    Remove-Item -LiteralPath $testOutput
-    $global:CollectorTestWrongModel = $true
-    $rejected = $false
-    try { & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput } catch { $rejected = $true }
-    if (-not $rejected -or (Test-Path -LiteralPath $testOutput)) { throw 'Wrong phone was not rejected' }
-    Write-Host 'Device collector parse, arguments, metadata, serial omission and target guard: passed (mock ADB only).'
+    foreach ($model in @('SM-G975F', 'SM-G975F/DS')) {
+        foreach ($device in @('beyond2lte', 'beyond2')) {
+            $global:CollectorTestModel = $model
+            $global:CollectorTestDevice = $device
+            & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput
+            $raw = Get-Content -Raw -LiteralPath $testOutput
+            $report = $raw | ConvertFrom-Json
+            if ($report.properties.'ro.product.device'.text -ne $device) { throw 'Device alias was not preserved' }
+            if ($report.properties.'ro.vendor.build.version.release'.text -ne '12') { throw 'Property collection failed' }
+            if (-not $report.read_only -or -not $report.partitions.text.StartsWith('boot|')) { throw 'Inventory collection failed' }
+            if ($raw.Contains('TEST-SERIAL')) { throw 'ADB serial was saved' }
+            Remove-Item -LiteralPath $testOutput
+        }
+    }
+    foreach ($case in @(
+        @{ Model = 'SM-OTHER'; Device = 'beyond2' },
+        @{ Model = 'SM-G975F'; Device = 'beyond1' },
+        @{ Model = 'SM-G975F'; Device = 'beyond2lte-extra' }
+    )) {
+        $global:CollectorTestModel = $case.Model
+        $global:CollectorTestDevice = $case.Device
+        $rejected = $false
+        try { & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput } catch { $rejected = $true }
+        if (-not $rejected -or (Test-Path -LiteralPath $testOutput)) { throw "Wrong phone was not rejected: $($case.Model) / $($case.Device)" }
+    }
+    Write-Host 'Device collector parse, arguments, metadata, stock and port aliases, serial omission and target guard: passed (mock ADB only).'
 } finally {
     if (Test-Path -LiteralPath $testOutput) { Remove-Item -LiteralPath $testOutput }
-    Remove-Variable -Name CollectorTestWrongModel -Scope Global -ErrorAction SilentlyContinue
+    Remove-Variable -Name CollectorTestModel, CollectorTestDevice -Scope Global -ErrorAction SilentlyContinue
 }
