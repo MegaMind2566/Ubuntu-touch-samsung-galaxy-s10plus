@@ -5,7 +5,15 @@ Target: Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`), stock Android 12 / One UI
 ## Release selection
 - Stable 24.04-2.0 was announced July 2026; 24.04-2.1 release candidates were tested in September/October 2026.
 - **Do not assume 24.04-2.1 stable is published or that S10+ is supported.** Verify release status and device channel before pinning.
-- Goal: boot a known historical Halium port first, then assess 24.04 compatibility and rootfs/partition constraints. Newer Ubuntu Touch rootfs is not a drop-in replacement for an old device port.
+- Active source base: community `halium-12`, commit `06facc6fbc9cfda5f57428a6d7eeb805f5dedb89`, with the pinned Halium 12 kernel. Do not downgrade Samsung bootloader/firmware to match the historical Android 10 port.
+- First compilation target: S10+ device adaptation with Ubuntu Touch 24.04-2.x overlay layout. This does not yet bundle a rootfs or establish a supported update channel.
+- `Ubuntu Touch 24.04 input metadata` checks Jenkins rootfs/GSI build numbers and official device channels separately. Daily rootfs availability does not prove that 24.04-2.1 stable is published.
+
+## Findings from source inspection
+- The Halium 12 Samsung defconfig does not enable AppArmor and explicitly disables `CONFIG_FHANDLE`. Apply the two UBports-linked 4.14 socket/AF_UNIX patches and merge the local UT configuration fragment.
+- Upstream uses boot header v1, ARM64 kernel, a non-dynamic ramdisk, and the `system` partition label. Keep this layout until stock image inspection provides a reason to change it.
+- The vendor download linked in the historical README was published in October 2021. It is not evidence of Android 12 compatibility and is not bundled with this adaptation build.
+- Source pins and recorded input checksums improve traceability. Toolchain and prebuilt binary downloads still need a complete lock before calling the whole image build reproducible.
 
 ## Compatibility gates
 1. Confirm exact source branch, kernel, deviceinfo and firmware/vendor base.

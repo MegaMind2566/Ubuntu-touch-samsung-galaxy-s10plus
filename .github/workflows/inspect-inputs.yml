@@ -1,0 +1,24 @@
+name: Ubuntu Touch 24.04 input metadata
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/inspect-inputs.py'
+      - '.github/workflows/inspect-inputs.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - run: python3 scripts/inspect-inputs.py
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ubuntu-touch-input-metadata
+          path: out/input-report.json
+          if-no-files-found: error
