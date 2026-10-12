@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation built and structurally validated. No on-device validation.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. No on-device boot validation.**
 
 First successful adaptation build: **12 October 2026**, commit
 `b487799c4c0772c2fbd43008888d299d33ea548e`.
@@ -14,9 +14,10 @@ not boot-header/firmware compatibility. All structural/configuration checks pass
 and Windows inventory tests (mock ADB) also passed. These are not hardware tests.
 
 The `S10+ Halium 12 adaptation` workflow compiles the kernel, `boot.img` and the
-device adaptation tarball. It does not produce a complete installation package:
-the Ubuntu Touch rootfs and verified Samsung vendor/runtime compatibility are still
-required. Build success is not evidence that the handset boots.
+device adaptation tarball. The separate system-candidate workflow now includes
+the Ubuntu Touch rootfs and Halium GSI. A complete installation package still
+requires verified Samsung vendor/runtime compatibility and a verified
+installation/recovery route. Build success is not evidence that the handset boots.
 
 Target handset (read-only ADB inventory, 12 October 2026):
 - Android 12, One UI 4.1
@@ -34,6 +35,14 @@ See [device compatibility assessment](docs/device-check-2026-10-12.json).
 
 ## System candidate
 
+First successful system assembly: **12 October 2026**, commit
+`c9e44ce3d38e86b51584a5e6ce05d0f8bb7f3e08`.
+[CI run and experimental system image](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38311673964).
+The actual ext4 checks passed for both the Ubuntu filesystem and embedded
+Halium image. The 5 GiB raw system image leaves 608,174,080 bytes (580 MiB)
+of partition margin, with 1,760,321,536 bytes free inside the filesystem.
+All 21 Python tests passed. See the [system build report](docs/system-build-report-2026-10-12.json).
+
 `S10+ Ubuntu Touch 24.04 system candidate` reuses the verified adaptation from
 build 1 and assembles the official arm64 rootfs build 125 with Halium 12 GSI
 build 1310. Inputs are fixed by URL, size and SHA-256 in
@@ -48,6 +57,8 @@ settings. There is no official S10+ 24.04 update channel.
 This workflow only assembles files. It never connects to or flashes a handset.
 Its output remains an experimental candidate; vendor runtime, stock boot/recovery
 layout and a working Samsung recovery route must be verified before installation.
+See [hardware test preparation](docs/hardware-test-preparation.md) for the
+remaining firmware/CSC, backup, recovery and AVB prerequisites.
 
 ## Build
 

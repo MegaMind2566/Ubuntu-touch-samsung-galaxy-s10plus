@@ -1,0 +1,33 @@
+{
+  "structure_valid": true,
+  "rootfs_assembled": true,
+  "ubuntu_touch_release_target": "24.04-2.x",
+  "architecture": "arm64",
+  "halium": "12",
+  "system_raw_bytes": 5368709120,
+  "system_sparse_expanded_bytes": 5368709120,
+  "system_partition_bytes": 5976883200,
+  "system_partition_remaining_bytes": 608174080,
+  "filesystem_free_bytes": 1760321536,
+  "boot_bytes": 53215232,
+  "boot_partition_remaining_bytes": 4456448,
+  "filesystem_check_passed": true,
+  "hardware_tested": false,
+  "vendor_bundled": false,
+  "vendor_runtime_compatibility_verified": false,
+  "install_ready": false,
+  "official_device_update_channel": false,
+  "limitations": [
+    "No Ubuntu Touch boot on hardware",
+    "Stock Samsung vendor runtime not verified",
+    "Stock boot/recovery layout and installation/recovery route not verified"
+  ],
+  "ci_url": "https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38311673964",
+  "compiled_commit": "c9e44ce3d38e86b51584a5e6ce05d0f8bb7f3e08",
+  "artifact_id": 11775595258,
+  "artifact_name": "beyond2lte-ubuntu24-system-1",
+  "artifact_zip_bytes": 1167934045,
+  "inputs_lock": "docs/assembly-inputs-2026-10-12.json",
+  "handset_assessment": "docs/device-check-2026-10-12.json",
+  "test_result": "21 Python tests passed; actual ext4 filesystem checks, ARM64 userspace, Android 12 Halium image and expanded image bounds passed. No handset boot test."
+}
