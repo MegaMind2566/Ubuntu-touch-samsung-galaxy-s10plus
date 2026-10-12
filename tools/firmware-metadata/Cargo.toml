@@ -1,0 +1,9 @@
+[package]
+name = "beyond2lte-stock-metadata"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+samloader-fus = { git = "https://github.com/topjohnwu/samloader-rs.git", rev = "4dfea027767f3268e70dc130f169d459bd153cbf" }
+serde_json = "1"

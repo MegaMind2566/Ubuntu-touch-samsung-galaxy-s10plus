@@ -10,10 +10,33 @@ on:
       - 'tools/windows/SCARICA-FIRMWARE.cmd'
       - 'tools/windows/LEGGIMI-FIRMWARE.txt'
       - 'third-party/samloader/**'
+      - 'tools/firmware-metadata/**'
       - '.github/workflows/firmware-download.yml'
 permissions:
   contents: read
 jobs:
+  binary-metadata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Query exact binary metadata with the pinned FUS library
+        run: |
+          mkdir -p out
+          set -o pipefail
+          cargo run --release --manifest-path tools/firmware-metadata/Cargo.toml 2>out/stock-metadata-query.log | tee out/stock-binary-metadata.json
+      - name: Save exact binary metadata
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-stock-binary-metadata-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            out/stock-binary-metadata.json
+            out/stock-metadata-query.log
   package:
     runs-on: windows-latest
     timeout-minutes: 10
