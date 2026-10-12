@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'scripts/fetch-upstream.sh'
+      - 'scripts/fetch_sources.py'
+      - 'config/upstream.lock.json'
       - '.github/workflows/upstream-checkout.yml'
 jobs:
   checkout:
@@ -21,4 +23,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: beyond2lte-upstream-revision
-          path: upstream/upstream-revision.txt
+          path: |
+            upstream/upstream-revision.txt
+            upstream/source-manifest.json

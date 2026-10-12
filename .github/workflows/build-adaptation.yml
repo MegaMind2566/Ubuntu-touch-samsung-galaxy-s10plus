@@ -1,0 +1,47 @@
+name: S10+ Halium 12 adaptation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/**'
+      - 'patches/kernel/**'
+      - 'scripts/fetch_sources.py'
+      - 'scripts/prepare_build.py'
+      - 'scripts/build-adaptation.sh'
+      - 'scripts/validate-artifacts.py'
+      - '.github/workflows/build-adaptation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: adaptation-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install kernel build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bc bison build-essential ca-certificates cpio curl fakeroot flex git kmod libelf-dev libssl-dev libtinfo5 lz4 python2 python3 unzip wget xz-utils
+      - name: Compile kernel, boot image and device adaptation
+        run: bash scripts/build-adaptation.sh
+      - name: Save diagnostics and experimental artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-halium12-${{ github.run_number }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            out/build.log
+            out/source-manifest.json
+            out/kernel.config
+            out/ramdisk.sha256
+            out/artifact-report.json
+            out/SHA256SUMS
+            out/boot.img
+            out/device_beyond2lte.tar.xz

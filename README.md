@@ -3,7 +3,12 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Research / preparation only. No bootable or tested images yet. Do not flash.**
+**Experimental Halium 12 build preparation. No on-device validation.**
+
+The `S10+ Halium 12 adaptation` workflow compiles the kernel, `boot.img` and the
+device adaptation tarball. It does not produce a complete installation package:
+the Ubuntu Touch rootfs, matching vendor and verified partition sizes are still
+required. Build success is not evidence that the handset boots.
 
 Target handset (reported):
 - Android 12, One UI 4.1
@@ -11,6 +16,38 @@ Target handset (reported):
 - Build: G975FXXSGHWC1
 - Kernel: 4.14.113-25257816
 - OEM unlock option visible; bootloader unlock **not** verified.
+
+## Build
+
+Source revisions are pinned in `config/upstream.lock.json`. The rootfs migration
+target is Ubuntu Touch **24.04-2.x**; this is a development target, not a claim
+that an S10+ release exists. The historical 16.04 device status does not describe
+this new build.
+
+On Ubuntu 22.04 with the dependencies listed in the workflow:
+
+```bash
+bash scripts/build-adaptation.sh
+```
+
+Run this once in a fresh build directory. For a second attempt, pass a new path
+such as `bash scripts/build-adaptation.sh "$PWD/build/attempt-2"`.
+
+Changes to the upstream Halium 12 tree:
+- Apply the documented 4.14 AppArmor socket/AF_UNIX patches, preserving attribution.
+- Merge `config/ubuntu-touch.config` after the Samsung defconfig. Validate the
+  effective kernel configuration after compilation.
+- Enable the overlay store needed by modern Ubuntu Touch.
+- Align the old session grid setting with the S10+ DeviceInfo value of 27.
+- Preserve the upstream non-dynamic ramdisk, boot header v1 and 4096-byte rootfs
+  sectors. No assumption is made about the actual system partition size.
+
+Artifacts include a source/patch manifest, kernel config, ramdisk checksum,
+build log, boot image and device tarball. `validate-artifacts.py` verifies header,
+ARM64 kernel, ramdisk, required config and tarball contents. It does not validate
+vendor compatibility, hardware functionality or flashing safety.
+
+See [THIRD_PARTY.md](THIRD_PARTY.md) for source attribution and binary-lock limits.
 
 ## Upstream sources
 - [UBports community device port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820) — inspect `halium-12` and historical branches, especially `deviceinfo-beyond2lte`, `build.sh`, CI and overlays.
