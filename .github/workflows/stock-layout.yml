@@ -1,0 +1,41 @@
+name: S10+ stock-layout audit tools
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/inspect_stock_firmware.py'
+      - 'scripts/extract-stock-dtb.ps1'
+      - 'scripts/package-stock-dtb.py'
+      - 'tests/test_stock_layout.py'
+      - 'tests/test-stock-dtb.ps1'
+      - 'tools/windows/ESTRAI-DTB.cmd'
+      - 'tools/windows/LEGGIMI-DTB.txt'
+      - '.github/workflows/stock-layout.yml'
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tests -v
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate offline DTB extraction with Windows PowerShell 5.1
+        shell: powershell
+        run: .\tests\test-stock-dtb.ps1
+      - name: Package the small extraction add-on
+        run: python scripts/package-stock-dtb.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-stock-dtb-addon
+          path: out/UbuntuTouch-S10plus-controllo-DTB-Windows.zip
+          if-no-files-found: error

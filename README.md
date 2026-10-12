@@ -57,8 +57,9 @@ injecting the upstream development-only passwordless SSH/unauthenticated ADB
 settings. There is no official S10+ 24.04 update channel.
 
 This workflow only assembles files. It never connects to or flashes a handset.
-Its output remains an experimental candidate; vendor runtime, stock boot/recovery
-layout and a working Samsung recovery route must be verified before installation.
+Its output remains an experimental candidate; stock boot/recovery layout has
+now been inspected, while vendor runtime and a working Samsung recovery route
+still require verification before installation.
 See [hardware test preparation](docs/hardware-test-preparation.md) for the
 remaining firmware/CSC, backup, recovery and AVB prerequisites.
 
@@ -82,14 +83,36 @@ HWC1/ITV/OXM binary, size 6,364,940,608 bytes, and returns the requested PDA,
 CSC and modem versions. This probe never initializes a firmware-body download.
 See [exact binary metadata](docs/stock-binary-metadata-2026-10-12.json) and
 [successful metadata/Windows validation run](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38315969407).
-The full archive still needs to be retained on the user's PC before the stock
-images and recovery route can be approved.
+The full stock archive has now been downloaded on the user's PC. The supplied
+inspection bundle passes LZ4, boot ID, ARM64/header layout, AVB signature and
+available image-digest checks. The full ZIP's hash and AP MD5 are reported by
+the Windows collector; only the small inspection bundle was independently
+checked here. The Samsung recovery/installation route remains unverified.
 
 On the user's PC, the launcher retains the complete stock ZIP for recovery,
 checks the AP TAR's MD5 and extracts only boot, recovery, dtbo and vbmeta into
-`firmware-inspection-inputs.zip`. This small bundle is the next input for stock
-header/AVB inspection. It performs no handset access or installation.
+`firmware-inspection-inputs.zip`. That bundle has been inspected against build 1.
+It performs no handset access or installation.
 See [stock target](docs/stock-firmware-target-2026-10-12.json).
+
+### Stock layout inspected
+
+The HWC1 stock boot and recovery both use header v1, 2048-byte pages and the
+same kernel/tags addresses as the Halium candidate. Stock boot has no ramdisk;
+the candidate's ramdisk address agrees with stock recovery. The stock recovery
+DTBO matches the standalone table, which contains ten overlays. AVB metadata
+uses SHA256_RSA4096 with flags 0 and protects the original boot plus the
+system/vendor contents and chained recovery, dtb, dtbo and product images.
+These checks do not make the unsigned Halium candidate installable.
+
+See [stock-layout findings](docs/stock-layout-2026-10-13.md) and the
+[machine-readable audit](docs/stock-layout-report-2026-10-13.json).
+The separate stock `dtb.img.lz4` was omitted from the first audit bundle.
+The small `ESTRAI-DTB.cmd` add-on verifies the retained stock ZIP and streams
+that file from AP without writing the whole 6 GB AP to disk. Extract the add-on
+into the existing downloader directory, run it and supply
+`dtb-inspection-inputs.zip`. The phone can remain disconnected.
+Reproduce the add-on with `python3 scripts/package-stock-dtb.py`.
 
 ## Build
 

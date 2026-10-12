@@ -1,0 +1,14 @@
+UBUNTU TOUCH S10+ - CONTROLLO DEL DTB ORIGINALE
+
+1. Estrai questo ZIP nella stessa cartella che contiene SCARICA-FIRMWARE.cmd.
+   Devono restare li firmware-download-report.json e la cartella firmware.
+2. Apri ESTRAI-DTB.cmd.
+3. Attendi il messaggio Completato e invia dtb-inspection-inputs.zip in chat.
+
+Il programma verifica il firmware gia scaricato e legge il DTB dal pacchetto
+AP direttamente. Non deve estrarre su disco l'intero AP da 6 GB.
+La verifica iniziale del file completo puo richiedere alcuni minuti.
+Il telefono puo restare scollegato. Nessun file viene installato sul telefono.
+
+Conserva il firmware completo per il ripristino. Se compare un errore, invia
+dtb-extraction-report.json. Non rilanciare SCARICA-FIRMWARE.cmd per questo passo.

@@ -1,0 +1,554 @@
+{
+  "stock_layout_inspected": true,
+  "hardware_tested": false,
+  "handset_modified": false,
+  "install_ready": false,
+  "inspection_bundle_sha256": "1d1fad0a5e476c9258852b1e92a9c1cc707b9983adf11428aad47db00efc573d",
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "modem": "G975FXXSGHWB3",
+  "region": "ITV",
+  "csc_family": "OXM",
+  "download_reported": {
+    "firmware_zip_sha256": "c7d956cf40cc01b09fccc260540fb65a16ed5ff60fbed1d32abf7fd0f6c32a4d",
+    "firmware_zip_bytes": 6364940601,
+    "ap_md5_verified": true
+  },
+  "avbtool": {
+    "url": "https://raw.githubusercontent.com/AndroidBootloader/platform_external_avb/b27a9aa53d2db7720e4d88d6950dcd979da97de3/avbtool.py",
+    "sha256": "1183d0d19467b24b064e59191e3040260ede45f2bacaa8aa44f47be460909bb5"
+  },
+  "images": {
+    "boot": {
+      "raw_bytes": 57671680,
+      "sha256": "cc4a55cdb00278226a610d7dc129a9383376a545c1191e31f258cec59cbcbc45",
+      "partition_bytes": 57671680,
+      "boot_header": {
+        "header_version": 1,
+        "header_bytes": 1648,
+        "page_bytes": 2048,
+        "kernel_bytes": 45053964,
+        "kernel_address": 268468224,
+        "ramdisk_bytes": 0,
+        "ramdisk_address": 0,
+        "ramdisk_offset": 45058048,
+        "second_bytes": 0,
+        "second_address": 0,
+        "tags_address": 268435712,
+        "recovery_dtbo_bytes": 0,
+        "recovery_dtbo_offset": 0,
+        "os_version": "12.0.0",
+        "security_patch": "2023-03",
+        "cmdline": "androidboot.selinux=permissive androidboot.selinux=permissive loop.max_part=7",
+        "kernel_version": "Linux version 4.14.113-25257816 (dpi@21DK7B11) (Android (4639204-cfp-jopp based on r316199) clang version 6.0.1 (https://android.googlesource.com/toolchain/clang 279c0d3a962121a6d1d535e7b0b5d9d36d3c829d) (https://android.googlesource.com/toolchain/llvm aadd87ffb6a2eafcb577913073d46b20195a9cdc) (based on LLVM 6.0.1svn)) #1 SMP PREEMPT Thu Mar 2 09:51:40 KST 2023",
+        "boot_id_sha1_valid": true,
+        "boot_id_variant": "aosp"
+      },
+      "avb": {
+        "algorithm": "SHA256_RSA4096",
+        "flags": 0,
+        "rollback_index": 0,
+        "rollback_index_location": 0,
+        "release_string": "avbtool 1.2.0",
+        "vbmeta_bytes": 2112,
+        "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f",
+        "embedded_key_signature_valid": true,
+        "bootloader_trust_verified": false,
+        "footer": {
+          "original_image_bytes": 45058848,
+          "vbmeta_offset": 45060096,
+          "vbmeta_bytes": 2112
+        },
+        "descriptors": [
+          {
+            "image_size": 45058848,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "boot",
+            "salt": "b1ead362937cf16814b758a50dd759891f4ee8d00a12c56826d85fa3d78f6f4a",
+            "digest": "f1ae78e4820e1995751dd17cbe20942f9e041e974d40f9c77cd43c129e278202",
+            "type": "AvbHashDescriptor",
+            "image_available": true,
+            "image_digest_valid": true
+          }
+        ]
+      }
+    },
+    "recovery": {
+      "raw_bytes": 67633152,
+      "sha256": "555179b8453c458489ef60cae738865476ade5c0184e00a370b9b711274946d8",
+      "partition_bytes": 67633152,
+      "boot_header": {
+        "header_version": 1,
+        "header_bytes": 1648,
+        "page_bytes": 2048,
+        "kernel_bytes": 45053964,
+        "kernel_address": 268468224,
+        "ramdisk_bytes": 14944246,
+        "ramdisk_address": 285212672,
+        "ramdisk_offset": 45058048,
+        "second_bytes": 0,
+        "second_address": 0,
+        "tags_address": 268435712,
+        "recovery_dtbo_bytes": 1805256,
+        "recovery_dtbo_offset": 60002304,
+        "os_version": "12.0.0",
+        "security_patch": "2023-03",
+        "cmdline": "androidboot.selinux=permissive androidboot.selinux=permissive loop.max_part=7",
+        "kernel_version": "Linux version 4.14.113-25257816 (dpi@21DK7B11) (Android (4639204-cfp-jopp based on r316199) clang version 6.0.1 (https://android.googlesource.com/toolchain/clang 279c0d3a962121a6d1d535e7b0b5d9d36d3c829d) (https://android.googlesource.com/toolchain/llvm aadd87ffb6a2eafcb577913073d46b20195a9cdc) (based on LLVM 6.0.1svn)) #1 SMP PREEMPT Thu Mar 2 09:51:40 KST 2023",
+        "boot_id_sha1_valid": true,
+        "boot_id_variant": "aosp"
+      },
+      "avb": {
+        "algorithm": "SHA256_RSA4096",
+        "flags": 0,
+        "rollback_index": 0,
+        "rollback_index_location": 0,
+        "release_string": "avbtool 1.2.0",
+        "vbmeta_bytes": 2112,
+        "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f",
+        "embedded_key_signature_valid": true,
+        "bootloader_trust_verified": false,
+        "footer": {
+          "original_image_bytes": 61809440,
+          "vbmeta_offset": 61812736,
+          "vbmeta_bytes": 2112
+        },
+        "descriptors": [
+          {
+            "image_size": 61809440,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "recovery",
+            "salt": "ef5cfcca5eb7c666998a9ea613ccf1e80bf03f3efc88e18f236579188de6c268",
+            "digest": "9931df29cce0319205b64aa33512dca0baa136638f65d3adba4667e9acb6853b",
+            "type": "AvbHashDescriptor",
+            "image_available": true,
+            "image_digest_valid": true
+          }
+        ]
+      }
+    },
+    "dtbo": {
+      "raw_bytes": 8388608,
+      "sha256": "72919943b77d65418c47eac57b96d10813864acdc351526b275a154913dd096f",
+      "partition_bytes": 8388608,
+      "boot_header": null,
+      "avb": {
+        "algorithm": "SHA256_RSA4096",
+        "flags": 0,
+        "rollback_index": 0,
+        "rollback_index_location": 0,
+        "release_string": "avbtool 1.2.0",
+        "vbmeta_bytes": 2112,
+        "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f",
+        "embedded_key_signature_valid": true,
+        "bootloader_trust_verified": false,
+        "footer": {
+          "original_image_bytes": 1806040,
+          "vbmeta_offset": 1806336,
+          "vbmeta_bytes": 2112
+        },
+        "descriptors": [
+          {
+            "image_size": 1806040,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "dtbo",
+            "salt": "6e295e516bbe9940b679f00dee4f4396336be4c984afa0d90c7af813c81d0c8e",
+            "digest": "7784bf2a69673ff0604c80eb3ce8f8c9ac91a66e8abd74425bf2e6efcfec65cd",
+            "type": "AvbHashDescriptor",
+            "image_available": true,
+            "image_digest_valid": true
+          }
+        ]
+      }
+    },
+    "vbmeta": {
+      "raw_bytes": 9552,
+      "sha256": "e21423c1c600cc3edb1fa162fd9cacf786cc9bc71dd84b5a4adc6a6a7d53a971",
+      "partition_bytes": 65536,
+      "boot_header": null,
+      "avb": {
+        "algorithm": "SHA256_RSA4096",
+        "flags": 0,
+        "rollback_index": 0,
+        "rollback_index_location": 0,
+        "release_string": "avbtool 1.2.0",
+        "vbmeta_bytes": 8768,
+        "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f",
+        "embedded_key_signature_valid": true,
+        "bootloader_trust_verified": false,
+        "footer": null,
+        "descriptors": [
+          {
+            "rollback_index_location": 5,
+            "partition_name": "recovery",
+            "type": "AvbChainPartitionDescriptor",
+            "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f"
+          },
+          {
+            "rollback_index_location": 6,
+            "partition_name": "dtb",
+            "type": "AvbChainPartitionDescriptor",
+            "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f"
+          },
+          {
+            "rollback_index_location": 7,
+            "partition_name": "dtbo",
+            "type": "AvbChainPartitionDescriptor",
+            "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f"
+          },
+          {
+            "rollback_index_location": 10,
+            "partition_name": "product",
+            "type": "AvbChainPartitionDescriptor",
+            "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f"
+          },
+          {
+            "key": "com.android.build.boot.os_version",
+            "value": "3132",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "key": "com.android.build.boot.security_patch",
+            "value": "323032332d30332d3031",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "key": "com.android.build.system.os_version",
+            "value": "3132",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "key": "com.android.build.system.security_patch",
+            "value": "323032332d30332d3031",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "key": "com.android.build.vendor.os_version",
+            "value": "3132",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "key": "com.android.build.vendor.security_patch",
+            "value": "323032332d30332d3031",
+            "type": "AvbPropertyDescriptor"
+          },
+          {
+            "flags": 1,
+            "kernel_cmdline": "dm=\"1 vroot none ro 1,0 11489240 verity 1 PARTUUID=$(ANDROID_SYSTEM_PARTUUID) PARTUUID=$(ANDROID_SYSTEM_PARTUUID) 4096 4096 1436155 1436155 sha256 c5542d8cbf4d9c42e49e3dc4f981b32a43a70b79ae26b4533a4b6cc4b792537e 41861ee397d2e3cc99ffde26b4fadd3e20b3717747c9e244e705e0b6b0a97561 10 $(ANDROID_VERITY_MODE) ignore_zero_blocks use_fec_from_device PARTUUID=$(ANDROID_SYSTEM_PARTUUID) fec_roots 2 fec_blocks 1447464 fec_start 1447464\" root=/dev/dm-0",
+            "type": "AvbKernelCmdlineDescriptor"
+          },
+          {
+            "flags": 2,
+            "kernel_cmdline": "root=PARTUUID=$(ANDROID_SYSTEM_PARTUUID)",
+            "type": "AvbKernelCmdlineDescriptor"
+          },
+          {
+            "image_size": 45058848,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "boot",
+            "salt": "b1ead362937cf16814b758a50dd759891f4ee8d00a12c56826d85fa3d78f6f4a",
+            "digest": "f1ae78e4820e1995751dd17cbe20942f9e041e974d40f9c77cd43c129e278202",
+            "type": "AvbHashDescriptor",
+            "image_available": true,
+            "image_digest_valid": true
+          },
+          {
+            "image_size": 3556112,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "bootloader",
+            "salt": "e70042f36f8ab2187fe37d6ea6f572f9f894d96cb9ab66c486510246bb1ad7d3",
+            "digest": "d22d857bff980b7f9dd9dd6e6f4ec2f203f07c3a81f414ca955db8c5a0ca25f5",
+            "type": "AvbHashDescriptor",
+            "image_available": false
+          },
+          {
+            "image_size": 4145936,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "cm",
+            "salt": "506980b41d20b3db7af9aeba6bb07640ce268c2f7e730552b664ba9e3518ffce",
+            "digest": "d985d2de9441b27cdf7f66842362c5ef2a2fb3838e8288d8310273e019d0a324",
+            "type": "AvbHashDescriptor",
+            "image_available": false
+          },
+          {
+            "image_size": 8192,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "keystorage",
+            "salt": "75547fa844a47cf506b7a3cd81e98a98b37018f2b32be5f45c2e8cdb53ff1574",
+            "digest": "d5f33013a9b8a1efcaf8862b095b9e7a362728af92aa440e56fe79a84a815fa8",
+            "type": "AvbHashDescriptor",
+            "image_available": false
+          },
+          {
+            "dm_verity_version": 1,
+            "image_size": 5882490880,
+            "tree_offset": 5882490880,
+            "tree_size": 46321664,
+            "data_block_size": 4096,
+            "hash_block_size": 4096,
+            "fec_num_roots": 2,
+            "fec_offset": 5928812544,
+            "fec_size": 46874624,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "system",
+            "salt": "41861ee397d2e3cc99ffde26b4fadd3e20b3717747c9e244e705e0b6b0a97561",
+            "root_digest": "c5542d8cbf4d9c42e49e3dc4f981b32a43a70b79ae26b4533a4b6cc4b792537e",
+            "type": "AvbHashtreeDescriptor",
+            "hashtree_verified": false
+          },
+          {
+            "dm_verity_version": 1,
+            "image_size": 1135144960,
+            "tree_offset": 1135144960,
+            "tree_size": 8945664,
+            "data_block_size": 4096,
+            "hash_block_size": 4096,
+            "fec_num_roots": 2,
+            "fec_offset": 1144090624,
+            "fec_size": 9052160,
+            "hash_algorithm": "sha256",
+            "flags": 0,
+            "partition_name": "vendor",
+            "salt": "3feeadce602dda030a4e820a1e372016c0a8ce6b1473fdc4abe20cb0fd61d816",
+            "root_digest": "f9df87755bb6d9a7af900bd0843ab86c2bdaf46902da56037814e35b7da8021a",
+            "type": "AvbHashtreeDescriptor",
+            "hashtree_verified": false
+          }
+        ]
+      }
+    }
+  },
+  "stock_kernels_identical": true,
+  "recovery_dtbo_matches_standalone": true,
+  "dtbo_table": {
+    "table_bytes": 1805256,
+    "page_bytes": 2048,
+    "version": 0,
+    "entries": [
+      {
+        "bytes": 174596,
+        "offset": 352,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          4,
+          15,
+          0,
+          0
+        ],
+        "sha256": "bba0163da2f5df352b7c46e78eeb0e3397fbd87517c2281b30227c0142225d62"
+      },
+      {
+        "bytes": 174596,
+        "offset": 174948,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          16,
+          16,
+          0,
+          0
+        ],
+        "sha256": "cbcea8180502295c4026c0854238726959d6a71aef06d335455d376d7f1142b2"
+      },
+      {
+        "bytes": 180292,
+        "offset": 349544,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          17,
+          17,
+          0,
+          0
+        ],
+        "sha256": "3e893ffa3dac9a566b45e028facfe4f2dfd5caf43d328644d59ce51428877edd"
+      },
+      {
+        "bytes": 182064,
+        "offset": 529836,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          18,
+          18,
+          0,
+          0
+        ],
+        "sha256": "42dd7523ee03cde59553403935bf4a70e2a6217618c643c41b0848017755b021"
+      },
+      {
+        "bytes": 183400,
+        "offset": 711900,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          19,
+          19,
+          0,
+          0
+        ],
+        "sha256": "2c4fc6f5e8b3a62ad0f82d7efc2f6760fb9efb44d9b72790fbc1c0187809e035"
+      },
+      {
+        "bytes": 183356,
+        "offset": 895300,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          20,
+          22,
+          0,
+          0
+        ],
+        "sha256": "9d2e2b79a197c9f177cabb68fc3f972541425a8bb2ab1e9f4fb27d5c4ca35404"
+      },
+      {
+        "bytes": 181980,
+        "offset": 1078656,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          23,
+          23,
+          0,
+          0
+        ],
+        "sha256": "befac6f3fdafaf34c676ca127e28415dccda80f5c91293d4b99848b146a9e366"
+      },
+      {
+        "bytes": 181808,
+        "offset": 1260636,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          24,
+          24,
+          0,
+          0
+        ],
+        "sha256": "f4ae034ba62be5dad2d35a6b89b09e75de74a2a07ed9e1044d4f5f5ab352eefb"
+      },
+      {
+        "bytes": 181948,
+        "offset": 1442444,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          25,
+          25,
+          0,
+          0
+        ],
+        "sha256": "e01bdecce448a24c7dc87fb1accc06e8c08545f66c5d4887ff378adb5bba53fd"
+      },
+      {
+        "bytes": 180864,
+        "offset": 1624392,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          26,
+          255,
+          0,
+          0
+        ],
+        "sha256": "b34d48cca8dc002d8ecabf914f94438ec5ba0217dc9caf19aafec739ff70ccec"
+      }
+    ]
+  },
+  "recovery_ramdisk_entries": 438,
+  "recovery_build_properties": {
+    "ro.product.system.model": "SM-G975F",
+    "ro.product.system.device": "beyond2",
+    "ro.system.build.fingerprint": "samsung/beyond2ltexx/beyond2:12/SP1A.210812.016/G975FXXSGHWC1:user/release-keys",
+    "ro.system.build.version.release": "12",
+    "ro.system.build.version.sdk": "31"
+  },
+  "recovery_fstab": [
+    "/dev/block/by-name/sec_efs \t/efs        \text4\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/sec_efs\t/sec_efs\text4\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/boot\t/boot\t\temmc\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/recovery\t/recovery  \temmc\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/cache\t/cache      \text4\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/system\t/     \t        ext4\tro\t\trecoveryonly",
+    "/dev/block/by-name/userdata\t/data\text4\tnoatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic\twait,length=-20480",
+    "/dev/block/mmcblk0p1\t/sdcard\t\tsdfat\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/radio\t/modem\t\temmc\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/vendor  /vendor     ext4    defaults     recoveryonly",
+    "/dev/block/by-name/misc\t/misc\t\temmc\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/hidden      /preload        ext4    defaults         recoveryonly",
+    "/dev/block/by-name/cpefs\t/cpefs\t\text4\tdefaults\t\trecoveryonly",
+    "/dev/block/by-name/product  /product     ext4    defaults     recoveryonly",
+    "/dev/block/by-name/dtb\t/dtb\temmc\tdefault\trecoveryonly",
+    "/dev/block/by-name/dtbo\t/dtbo\temmc\tdefault\trecoveryonly",
+    "/dev/block/by-name/keydata    /keydata        ext4    defaults     recoveryonly",
+    "/dev/block/by-name/keyrefuge  /keyrefuge      ext4    defaults     recoveryonly",
+    "/dev/block/by-name/cp_debug\t/cp_debug\temmc\tdefault\trecoveryonly",
+    "/dev/block/by-name/radio2\t/modem2\temmc\tdefault\trecoveryonly",
+    "/dev/block/by-name/vbmeta_samsung\t/vbmeta_samsung\temmc\tdefault\trecoveryonly",
+    "/dev/block/by-name/optics\t/optics\text4\tdefault\trecoveryonly",
+    "/dev/block/by-name/prism\t/prism\text4\tdefault\trecoveryonly",
+    "/dev/block/by-name/vbmeta_system\t/vbmeta_system\temmc\tdefault\trecoveryonly"
+  ],
+  "candidate": {
+    "boot_sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+    "boot_bytes": 53215232,
+    "boot_partition_remaining_bytes": 4456448,
+    "boot_header": {
+      "header_version": 1,
+      "header_bytes": 1648,
+      "page_bytes": 2048,
+      "kernel_bytes": 49102864,
+      "kernel_address": 268468224,
+      "ramdisk_bytes": 4108120,
+      "ramdisk_address": 285212672,
+      "ramdisk_offset": 49106944,
+      "second_bytes": 0,
+      "second_address": 0,
+      "tags_address": 268435712,
+      "recovery_dtbo_bytes": 0,
+      "recovery_dtbo_offset": 0,
+      "os_version": "12.0.0",
+      "security_patch": "2023-04",
+      "cmdline": "systempart=/dev/disk/by-partlabel/system",
+      "kernel_version": "Linux version 4.14.280-gb9b70b29c94c-dirty (runner@runnervmwvtoz) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)) #1 SMP PREEMPT Mon Oct 12 20:24:19 UTC 2026",
+      "boot_id_sha1_valid": true,
+      "boot_id_variant": "lineage-empty-legacy-dt"
+    },
+    "load_layout_matches_stock_recovery": {
+      "header_version": true,
+      "header_bytes": true,
+      "page_bytes": true,
+      "kernel_address": true,
+      "ramdisk_address": true,
+      "tags_address": true
+    },
+    "stock_avb_compatible": false,
+    "note": "Custom kernel/ramdisk differ from signed stock boot. Header agreement is not a hardware boot test."
+  },
+  "unverified_partitions": [
+    "bootloader",
+    "cm",
+    "dtb",
+    "keystorage",
+    "product",
+    "system",
+    "vendor"
+  ],
+  "limitations": [
+    "Full stock ZIP retained on user PC; its hash/MD5 result is reported, not recomputed here",
+    "Separate dtb image and system/vendor/product filesystem contents are absent",
+    "AVB signatures checked against embedded keys; bootloader trust store not read",
+    "Stock recovery contains vbmeta_samsung/vbmeta_system fstab entries; their presence on this handset is not established",
+    "Samsung recovery/AVB installation route and vendor runtime remain unverified"
+  ]
+}

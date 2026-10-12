@@ -20,8 +20,10 @@ unlocked, flashed or rebooted by the diagnostic scripts.
 TeamWin identifies this model as A-only/system-as-root. Its official recovery
 source configures ARM64, boot header v1, 2048-byte pages and the same boot
 base/offsets used by the community Halium port. The source's platform version
-is Android 12 and its patch metadata is January 2023. This is supporting
-evidence, not inspection of the handset's stock recovery image.
+is Android 12 and its patch metadata is January 2023. The supplied HWC1 stock
+boot/recovery images now independently confirm header v1, 2048-byte pages and
+the kernel/tags addresses. Stock recovery also confirms the candidate's ramdisk
+address. This does not test a TWRP binary on the handset.
 
 The official download listing offers `twrp-3.7.0_9-2-beyond2lte.img` as a
 candidate. Exact compatibility with G975FXXSGHWC1 still needs confirmation.
@@ -37,16 +39,27 @@ generic fastboot instructions must not be assumed to work.
 1. Preserve any user data and confirm the backup's coverage. Samsung Smart
    Switch supports PC backups, but secure/encrypted app data and login details
    may need separate backups.
-2. Obtain and inspect the original stock firmware package for SM-G975F,
+2. Retain the original stock firmware package for SM-G975F,
    matching G975FXXSGHWC1 / ITV / OXM and modem G975FXXSGHWB3. The Windows
-   downloader retains the complete ZIP and builds a small stock-image audit
-   bundle; download and image inspection remain pending. Retain the complete recovery
-   set, not just a boot image. Do not downgrade the Samsung bootloader.
-3. Inspect stock boot/recovery headers and vendor metadata, then confirm a
-   compatible recovery and an AVB/vbmeta plan for this exact firmware.
+   downloader completed the exact download and AP MD5 check. The supplied
+   boot/recovery/dtbo/vbmeta audit bundle passes structural, embedded-key signature
+   and available image-digest checks. The full archive is still on the user's PC;
+   its reported hash was not independently recomputed from that full archive here.
+   Retain the complete recovery set, not just a boot image. Do not downgrade the
+   Samsung bootloader.
+3. Obtain the separate DTB with the small `ESTRAI-DTB.cmd` add-on; it reads the
+   existing stock ZIP. Confirm a compatible recovery and an AVB/vbmeta plan for
+   this exact firmware. Stock flags are 0, so replacing boot/system without an
+   appropriate verified installation route remains unsupported. Vendor filesystem
+   contents and runtime have not yet been inspected/tested.
 4. Confirm Download-mode OEM/FRP/KnoxGuard state before any installation.
 5. Only after those prerequisites, perform the separately authorized first
    hardware test. Bootloader unlocking erases user data.
+
+See [stock-layout findings](stock-layout-2026-10-13.md) for the completed audit
+and exact remaining limits. The generic recovery fstab mentions
+`vbmeta_samsung` and `vbmeta_system`; their existence on this handset is not
+established by the limited partition inventory and must not be assumed.
 
 The Android 12 vendor currently on the handset is the candidate baseline;
 the historical October 2021 vendor image must not be substituted. Runtime
