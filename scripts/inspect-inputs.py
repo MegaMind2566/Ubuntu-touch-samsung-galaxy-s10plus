@@ -38,6 +38,20 @@ def inspect():
         report["official_24_04_channels"] = [
             channel for channel in channels if channel.startswith("24.04")
         ]
+        # Inspect release metadata from a supported handset. Do not download
+        # or reuse its device adaptation on the S10+.
+        stable_channel = "24.04-2.x/arm64/android9plus/stable"
+        devices = channels[stable_channel]["devices"]
+        reference = "FP4" if "FP4" in devices else sorted(devices)[0]
+        index_url = "https://system-image.ubports.com" + devices[reference]["index"]
+        index = fetch(index_url)
+        full = max((image for image in index["images"] if image["type"] == "full"), key=lambda image: image["version"])
+        report["stable_release_reference"] = {
+            "device": reference, "index_url": index_url,
+            "image_version": full["version"],
+            "description": full.get("description"),
+            "version_detail": full.get("version_detail"),
+        }
     except Exception as error:
         report["errors"]["channels"] = f"{type(error).__name__}: {error}"
     report["matching_vendor_verified"] = False
