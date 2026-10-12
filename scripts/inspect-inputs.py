@@ -45,12 +45,13 @@ def inspect():
         reference = "FP4" if "FP4" in devices else sorted(devices)[0]
         index_url = "https://system-image.ubports.com" + devices[reference]["index"]
         index = fetch(index_url)
-        full = max((image for image in index["images"] if image["type"] == "full"), key=lambda image: image["version"])
+        latest = max(index["images"], key=lambda image: image["version"])
         report["stable_release_reference"] = {
             "device": reference, "index_url": index_url,
-            "image_version": full["version"],
-            "description": full.get("description"),
-            "version_detail": full.get("version_detail"),
+            "image_version": latest["version"],
+            "image_type": latest["type"],
+            "description": latest.get("description"),
+            "version_detail": latest.get("version_detail"),
         }
     except Exception as error:
         report["errors"]["channels"] = f"{type(error).__name__}: {error}"

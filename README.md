@@ -5,6 +5,13 @@ Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 ## Status
 **Experimental Halium 12 build preparation. No on-device validation.**
 
+First successful adaptation build: **12 October 2026**, commit
+`b487799c4c0772c2fbd43008888d299d33ea548e`.
+[CI run and experimental artifacts](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38301613434).
+The boot image is 53,215,232 bytes; its fit in the actual handset's boot partition
+has not been verified. All structural/configuration checks passed. Python tests
+and Windows inventory tests (mock ADB) also passed. These are not hardware tests.
+
 The `S10+ Halium 12 adaptation` workflow compiles the kernel, `boot.img` and the
 device adaptation tarball. It does not produce a complete installation package:
 the Ubuntu Touch rootfs, matching vendor and verified partition sizes are still
