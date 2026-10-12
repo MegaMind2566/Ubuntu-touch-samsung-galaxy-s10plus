@@ -6,6 +6,8 @@ on:
       - 'scripts/fetch-upstream.sh'
       - 'scripts/fetch_sources.py'
       - 'config/upstream.lock.json'
+      - 'scripts/validate-artifacts.py'
+      - 'tests/**'
       - '.github/workflows/upstream-checkout.yml'
 jobs:
   checkout:
@@ -14,6 +16,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Verify pinned checkout and artifact rejection cases
+        run: python3 -m unittest discover -s tests -v
       - name: Fetch original UBports source
         run: bash scripts/fetch-upstream.sh
       - name: Inspect S10+ device config

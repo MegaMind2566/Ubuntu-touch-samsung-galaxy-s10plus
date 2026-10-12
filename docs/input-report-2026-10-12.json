@@ -1,0 +1,35 @@
+{
+  "target": "24.04-2.x",
+  "hardware_tested": false,
+  "errors": {},
+  "rootfs": {
+    "build": 125,
+    "timestamp": 1791767700448,
+    "url": "https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/125/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz"
+  },
+  "halium_gsi": {
+    "build": 1310,
+    "timestamp": 1791757260458,
+    "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fgeneric_arm64/job/halium-12.0/1310/artifact/halium_halium_arm64.tar.xz"
+  },
+  "official_s10plus_channels": [],
+  "official_24_04_channels": [
+    "24.04-1.x/arm64/android9plus/daily",
+    "24.04-1.x/arm64/android9plus/rc",
+    "24.04-1.x/arm64/android9plus/stable",
+    "24.04-1.x/arm64/hybris/daily",
+    "24.04-1.x/arm64/hybris/rc",
+    "24.04-1.x/arm64/hybris/stable",
+    "24.04-2.x/arm64/android9plus/daily",
+    "24.04-2.x/arm64/android9plus/rc",
+    "24.04-2.x/arm64/android9plus/stable",
+    "24.04-2.x/arm64/android9plus_qt6/daily",
+    "24.04-2.x/arm64/hybris/daily",
+    "24.04-2.x/arm64/hybris/rc",
+    "24.04-2.x/arm64/hybris/stable",
+    "24.04-2.x/arm64/hybris_qt6/daily",
+    "24.04-2.x/armhf/hybris/daily"
+  ],
+  "matching_vendor_verified": false,
+  "note": "Historical 2021 vendor image is not assumed compatible with Halium 12. Rootfs metadata is a development input, not a device release."
+}

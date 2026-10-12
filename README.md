@@ -49,6 +49,20 @@ vendor compatibility, hardware functionality or flashing safety.
 
 See [THIRD_PARTY.md](THIRD_PARTY.md) for source attribution and binary-lock limits.
 
+## Read-only handset inventory
+
+For the next compatibility check, `scripts/collect-device.ps1` reads selected
+Android/vendor properties and boot/system/vendor partition sizes through ADB.
+It does not unlock, reboot or change the phone. Run it on Windows with an already
+authorized ADB connection:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\collect-device.ps1
+```
+
+No IMEI, accounts, phone numbers or ADB serial are saved. Missing properties or
+permissions are recorded as diagnostic results rather than invented values.
+
 ## Upstream sources
 - [UBports community device port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820) — inspect `halium-12` and historical branches, especially `deviceinfo-beyond2lte`, `build.sh`, CI and overlays.
 - [UBports Exynos 9820 kernel](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820) — historical `halium-10.0` kernel, not assumed compatible with stock Android 12 firmware.
