@@ -1,0 +1,19 @@
+{
+  "exact_binary_offered": true,
+  "firmware_bytes": 6364940608,
+  "firmware_downloaded": false,
+  "handset_modified": false,
+  "install_ready": false,
+  "metadata_query_succeeded": true,
+  "model": "SM-G975F",
+  "region": "ITV",
+  "requested_version": "G975FXXSGHWC1/G975FOXMGHWA3/G975FXXSGHWB3/G975FXXSGHWC1",
+  "samloader_source_commit": "4dfea027767f3268e70dc130f169d459bd153cbf",
+  "server_filename": "SM-G975F_5_20230303120230_ft2tl0fnl3_fac.zip.enc4",
+  "server_region": "ITV",
+  "server_version": "G975FXXSGHWC1/G975FOXMGHWA3/G975FXXSGHWB3/G975FXXSGHWC1",
+  "ci_url": "https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38315969407",
+  "compiled_commit": "987adeabb882488306dbd4c54bac1a7f7e789a45",
+  "windows_package_test_ci_url": "https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38314637261",
+  "windows_test_result": "PowerShell 5.1 target/catalog guards, native process version mismatch termination, timeout, quoting and actual samloader 2.2.0 CLI passed"
+}

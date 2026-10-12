@@ -77,6 +77,14 @@ target/catalog guards and the real executable's CLI using PowerShell 5.1.
 It queries Samsung version metadata separately; metadata availability does not
 mean that the complete stock package has been obtained.
 
+The independent BinaryInform probe confirmed that Samsung offers the exact
+HWC1/ITV/OXM binary, size 6,364,940,608 bytes, and returns the requested PDA,
+CSC and modem versions. This probe never initializes a firmware-body download.
+See [exact binary metadata](docs/stock-binary-metadata-2026-10-12.json) and
+[successful metadata/Windows validation run](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38315969407).
+The full archive still needs to be retained on the user's PC before the stock
+images and recovery route can be approved.
+
 On the user's PC, the launcher retains the complete stock ZIP for recovery,
 checks the AP TAR's MD5 and extracts only boot, recovery, dtbo and vbmeta into
 `firmware-inspection-inputs.zip`. This small bundle is the next input for stock
