@@ -9,6 +9,8 @@ on:
       - 'scripts/validate-artifacts.py'
       - 'tests/**'
       - 'scripts/collect-device.ps1'
+      - 'scripts/launch-device-check.ps1'
+      - 'AVVIA-CONTROLLO.cmd'
       - '.github/workflows/upstream-checkout.yml'
 jobs:
   checkout:
@@ -40,5 +42,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate Windows inventory script using mock ADB
-        shell: pwsh
+        shell: powershell
         run: ./tests/test-device-collector.ps1
+      - name: Validate launcher with official ADB and Windows PowerShell 5.1
+        shell: powershell
+        run: ./tests/test-device-launcher.ps1

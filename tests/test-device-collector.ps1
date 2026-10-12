@@ -36,6 +36,8 @@ try {
     $tokens = $null
     $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'scripts/collect-device.ps1'), [ref]$tokens, [ref]$parseErrors)
     if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+    $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'scripts/launch-device-check.ps1'), [ref]$tokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
     & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput
     $raw = Get-Content -Raw -LiteralPath $testOutput
     $report = $raw | ConvertFrom-Json

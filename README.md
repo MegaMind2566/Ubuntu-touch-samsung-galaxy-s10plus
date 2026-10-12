@@ -58,6 +58,18 @@ See [THIRD_PARTY.md](THIRD_PARTY.md) for source attribution and binary-lock limi
 
 ## Read-only handset inventory
 
+The Windows package includes official ADB 37.0.1 and its notices, verified
+against the fixed Google archive SHA-256. Extract the package, enable USB
+debugging on the S10+, then open `AVVIA-CONTROLLO.cmd`. The launcher waits up to
+60 seconds for USB authorization and saves `beyond2lte-device-report.json`.
+It does not enable OEM unlock or install a driver/firmware.
+
+To reproduce the package:
+
+```bash
+python3 scripts/package-device-check.py
+```
+
 For the next compatibility check, `scripts/collect-device.ps1` reads selected
 Android/vendor properties and boot/system/vendor partition sizes through ADB.
 It does not unlock, reboot or change the phone. Run it on Windows with an already

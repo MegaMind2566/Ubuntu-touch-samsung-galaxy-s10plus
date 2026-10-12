@@ -1,0 +1,22 @@
+CONTROLLO GALAXY S10+ - WINDOWS
+
+1. Estrai tutto lo ZIP in una cartella del PC.
+2. Sul S10+ apri Impostazioni > Opzioni sviluppatore e attiva Debug USB.
+   Lascia disattivato Sblocco OEM.
+3. Collega soltanto il S10+ con un cavo USB che trasferisca dati.
+4. Apri AVVIA-CONTROLLO.cmd con un doppio clic.
+5. Accetta sul telefono la richiesta di autorizzazione del PC.
+6. Invia in chat beyond2lte-device-report.json, creato nella stessa cartella.
+
+Il controllo legge modello, firmware vendor, kernel e dimensioni delle partizioni.
+Non sblocca, riavvia, formatta o installa firmware sul telefono.
+Non salva IMEI, numeri di telefono, account o seriale ADB nel report.
+
+Se il telefono non viene rilevato, controlla il cavo e la richiesta sullo schermo.
+Se serve il driver Samsung, la pagina ufficiale e:
+https://developer.samsung.com/android-usb-driver
+Il driver non viene installato automaticamente.
+
+ADB proviene dalle Android Platform-Tools ufficiali di Google, versione 37.0.1.
+Le licenze originali sono incluse in platform-tools/NOTICE.txt.
+https://developer.android.com/tools/releases/platform-tools
