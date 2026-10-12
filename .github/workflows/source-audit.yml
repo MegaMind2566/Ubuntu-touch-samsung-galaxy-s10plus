@@ -1,0 +1,16 @@
+name: Source audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/source-audit.yml'
+      - 'scripts/source-audit.sh'
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect upstream refs without flashing or building
+        run: bash scripts/source-audit.sh
