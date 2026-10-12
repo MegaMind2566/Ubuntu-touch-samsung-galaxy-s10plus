@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 build preparation. No on-device validation.**
+**Experimental Halium 12 adaptation built and structurally validated. No on-device validation.**
 
 First successful adaptation build: **12 October 2026**, commit
 `b487799c4c0772c2fbd43008888d299d33ea548e`.

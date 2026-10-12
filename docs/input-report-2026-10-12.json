@@ -30,6 +30,14 @@
     "24.04-2.x/arm64/hybris_qt6/daily",
     "24.04-2.x/armhf/hybris/daily"
   ],
+  "stable_release_reference": {
+    "device": "FP4",
+    "index_url": "https://system-image.ubports.com/24.04-2.x/arm64/android9plus/stable/FP4/index.json",
+    "image_version": 1,
+    "image_type": "full",
+    "description": "rootfs=2026-07-15T01:34:19Z_arm64_ubports/24.04-2.x_33_608c8ff0ad11cb8c1d7ac291f58289b83a7ad29a,device=20260714-6957,boot=20260715-002056Z,keyring=archive-master,tag=24.04-2.0,version=1",
+    "version_detail": "rootfs=2026-07-15T01:34:19Z_arm64_ubports/24.04-2.x_33_608c8ff0ad11cb8c1d7ac291f58289b83a7ad29a,device=20260714-6957,boot=20260715-002056Z,keyring=archive-master,tag=24.04-2.0,version=1"
+  },
   "matching_vendor_verified": false,
   "note": "Historical 2021 vendor image is not assumed compatible with Halium 12. Rootfs metadata is a development input, not a device release."
 }

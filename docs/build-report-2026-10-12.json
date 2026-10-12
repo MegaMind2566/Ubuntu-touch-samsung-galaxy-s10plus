@@ -1,0 +1,27 @@
+{
+  "structure_valid": true,
+  "hardware_tested": false,
+  "complete_installation_image": false,
+  "boot_header_version": 1,
+  "page_size": 2048,
+  "kernel_bytes": 49102864,
+  "ramdisk_bytes": 4108120,
+  "boot_bytes": 53215232,
+  "cmdline": "systempart=/dev/disk/by-partlabel/system",
+  "limitations": [
+    "No on-device boot test",
+    "No matching vendor bundled",
+    "Ubuntu Touch rootfs not assembled",
+    "Actual partition sizes not verified"
+  ],
+  "ci_url": "https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38301613434",
+  "compiled_commit": "b487799c4c0772c2fbd43008888d299d33ea548e",
+  "target": "SM-G975F/DS beyond2lte, Halium 12, Ubuntu Touch 24.04-2.x migration",
+  "sha256": {
+    "boot.img": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+    "device_beyond2lte.tar.xz": "ab1cdca326c38bfde49dda3ff0d8cfd1278cd291834183c7239fc8c91e618c06",
+    "kernel.config": "b627fffbb7a0156ab25657cbd5e4192f27586559d971a9f5d765fa01ca60d17e",
+    "source-manifest.json": "d5cd246bbd88cfce41c7ae18f844d52e82b31fc748932af493893cbcf56a209a"
+  },
+  "test_result": "10 Python tests passed; Windows inventory parser/mock ADB tests passed. No handset testing."
+}
