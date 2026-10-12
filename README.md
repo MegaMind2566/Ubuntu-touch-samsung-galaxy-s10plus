@@ -27,6 +27,8 @@ Target handset (read-only ADB inventory, 12 October 2026):
 - Android and vendor both report Android 12/API 31.
 - Stock codename `beyond2`; port codename `beyond2lte`.
 - Bootloader reports `locked`, verified boot `green`.
+- Software screenshot confirms active CSC `ITV`, CSC family `OXM`, and
+  service-provider line `SAOMC_SM-G975F_OXM_ITV_12_0012`.
 
 The partition links and `/proc/partitions` agree on the expected separate boot,
 recovery, system and vendor layout. Sysfs size fields returned empty values; the
@@ -59,6 +61,27 @@ Its output remains an experimental candidate; vendor runtime, stock boot/recover
 layout and a working Samsung recovery route must be verified before installation.
 See [hardware test preparation](docs/hardware-test-preparation.md) for the
 remaining firmware/CSC, backup, recovery and AVB prerequisites.
+
+## Exact stock-firmware download on Windows
+
+The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,
+PDA G975FXXSGHWC1, modem G975FXXSGHWB3 and OXM CSC family. It queries Samsung,
+selects the exact installed version and passes it explicitly to samloader.
+A returned version mismatch terminates the download process before acceptance;
+no newer or different firmware is automatically substituted.
+
+The package includes samloader 2.2.0 from its publisher's release, verified
+against GitHub's published archive SHA-256, with Apache/MIT notices. The Windows
+workflow validates native argument quoting, process termination, timeouts,
+target/catalog guards and the real executable's CLI using PowerShell 5.1.
+It queries Samsung version metadata separately; metadata availability does not
+mean that the complete stock package has been obtained.
+
+On the user's PC, the launcher retains the complete stock ZIP for recovery,
+checks the AP TAR's MD5 and extracts only boot, recovery, dtbo and vbmeta into
+`firmware-inspection-inputs.zip`. This small bundle is the next input for stock
+header/AVB inspection. It performs no handset access or installation.
+See [stock target](docs/stock-firmware-target-2026-10-12.json).
 
 ## Build
 

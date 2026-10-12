@@ -1,0 +1,52 @@
+name: S10+ stock firmware downloader
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/stock-firmware-target-2026-10-12.json'
+      - 'scripts/download-stock-firmware.ps1'
+      - 'scripts/package-firmware-download.py'
+      - 'tests/test-stock-firmware.ps1'
+      - 'tools/windows/SCARICA-FIRMWARE.cmd'
+      - 'tools/windows/LEGGIMI-FIRMWARE.txt'
+      - 'third-party/samloader/**'
+      - '.github/workflows/firmware-download.yml'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Package the publisher-verified Windows utility and exact target
+        run: python scripts/package-firmware-download.py
+      - name: Validate on Windows PowerShell 5.1 with the real publisher executable
+        shell: powershell
+        run: |
+          Expand-Archive out/UbuntuTouch-S10plus-scarica-firmware-ITV-Windows.zip out/windows-package
+          ./tests/test-stock-firmware.ps1 -RealTool "$PWD/out/windows-package/tools/samloader.exe"
+      - name: Query Samsung version metadata without downloading or touching hardware
+        shell: powershell
+        continue-on-error: true
+        run: |
+          . ./scripts/download-stock-firmware.ps1
+          $result = [ordered]@{ model = 'SM-G975F'; region = 'ITV'; firmware_downloaded = $false; handset_modified = $false }
+          try {
+            $query = Invoke-Samloader -File "$PWD/out/windows-package/tools/samloader.exe" -Arguments @('check-update', '-m', 'SM-G975F', '-r', 'ITV', '--all') -TimeoutSeconds 90
+            $result.query_exit_code = $query.exit_code
+            $result.version_lines = @($query.lines | Where-Object { $_ -match '^G975F[A-Z0-9]+/' })
+          } catch { $result.error = $_.Exception.Message }
+          $result | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 out/samsung-version-metadata.json
+          Get-Content out/samsung-version-metadata.json
+      - name: Save the verified Windows package and metadata
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-firmware-downloader-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            out/UbuntuTouch-S10plus-scarica-firmware-ITV-Windows.zip
+            out/samsung-version-metadata.json

@@ -6,6 +6,9 @@ unlocked, flashed or rebooted by the diagnostic scripts.
 ## Confirmed from the handset
 
 - Exynos 9820, stock Android/vendor 12, firmware G975FXXSGHWC1.
+- Software screenshot: active CSC ITV, OXM family; modem G975FXXSGHWB3.
+  The displayed carrier-code row is `ITV/ITV,ITV/HUI`, retained verbatim without
+  using its final HUI entry to choose a different download region.
 - Bootloader reports locked; verified boot reports green.
 - Boot image fits the 55 MiB boot partition. System candidate is 5120 MiB
   inside a 5700 MiB partition. Size agreement does not establish bootability.
@@ -35,7 +38,9 @@ generic fastboot instructions must not be assumed to work.
    Switch supports PC backups, but secure/encrypted app data and login details
    may need separate backups.
 2. Obtain and inspect the original stock firmware package for SM-G975F,
-   matching G975FXXSGHWC1 and the handset's CSC. Retain the complete recovery
+   matching G975FXXSGHWC1 / ITV / OXM and modem G975FXXSGHWB3. The Windows
+   downloader retains the complete ZIP and builds a small stock-image audit
+   bundle; download and image inspection remain pending. Retain the complete recovery
    set, not just a boot image. Do not downgrade the Samsung bootloader.
 3. Inspect stock boot/recovery headers and vendor metadata, then confirm a
    compatible recovery and an AVB/vbmeta plan for this exact firmware.

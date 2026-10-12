@@ -1,0 +1,15 @@
+{
+  "model": "SM-G975F",
+  "region": "ITV",
+  "csc_family": "OXM",
+  "pda": "G975FXXSGHWC1",
+  "modem": "G975FXXSGHWB3",
+  "service_provider_line": "SAOMC_SM-G975F_OXM_ITV_12_0012",
+  "carrier_codes_displayed": "ITV/ITV,ITV/HUI",
+  "source": "User-provided software information screenshot, 12 October 2026",
+  "source_image_filename": "image-1791841625370.jpg",
+  "download_server": "Samsung FUS",
+  "exact_firmware_downloaded": false,
+  "stock_layout_inspected": false,
+  "install_ready": false
+}

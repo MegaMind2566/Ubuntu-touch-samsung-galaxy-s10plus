@@ -24,3 +24,18 @@ Kernel additions and patches are subject to the kernel's applicable license.
 Toolchain binaries, ramdisk and later rootfs/vendor inputs are separate upstream
 components. Source pinning alone does not freeze all binary downloads. The first
 build records the ramdisk checksum; full binary input locking remains pending.
+# Windows firmware download utility
+
+The separate Windows downloader package uses samloader 2.2.0 from
+https://github.com/topjohnwu/samloader-rs/releases/tag/2.2.0,
+source commit `4dfea027767f3268e70dc130f169d459bd153cbf`.
+Its original Windows x86_64 archive SHA-256 is
+`0132de1b79e208138f980c467f9a7eaa2ffcb72aae14afc3ed13799803c9b9ed`.
+Apache-2.0 and inherited Heimdall MIT notices are included from that source tag
+under `third-party/samloader/` and in the generated package's licenses folder.
+Only `--version`, `check-update`, `download` and local `verify-md5` are invoked
+by the launcher. It never invokes the utility's device-access/flash commands.
+
+Samsung stock firmware is downloaded on the user's PC from Samsung FUS. It
+is not included in the open-source utility package or committed to this repo.
+

@@ -1,0 +1,29 @@
+DOWNLOAD FIRMWARE DI RIPRISTINO GALAXY S10+ - WINDOWS 10/11
+
+1. Estrai tutto lo ZIP in una nuova cartella del PC.
+2. Prepara almeno 20 GB di spazio libero e una connessione Internet.
+3. Apri SCARICA-FIRMWARE.cmd con un doppio clic.
+4. Aspetta la fine: il firmware completo richiede diversi GB e vari minuti.
+5. Invia in chat firmware-inspection-inputs.zip, creato nella stessa cartella.
+   Se compare un errore, invia invece firmware-download-report.json.
+
+Il telefono puo restare scollegato. Lascia disattivato Sblocco OEM.
+Questo programma scarica file e li estrae sul PC. Non comunica con il telefono.
+
+Modello: SM-G975F (Galaxy S10+ Exynos).
+CSC attivo: ITV. Famiglia CSC: OXM.
+Build richiesta: G975FXXSGHWC1. Modem richiesto: G975FXXSGHWB3.
+Il programma controlla i dati restituiti da Samsung e ferma il download se la
+versione e diversa. L'indisponibilita del firmware viene riportata nel JSON.
+
+Il firmware completo resta nella cartella firmware. Conserva quello ZIP sul PC:
+servira per il ripristino. In chat basta il piccolo ZIP di controllo, che contiene
+boot, recovery, dtbo e vbmeta ancora compressi e il report dei checksum.
+
+Le immagini stock non sono ancora approvate per l'installazione: il report indica
+install_ready=false fino all'ispezione e alla preparazione del test sul telefono.
+
+Utility inclusa: samloader 2.2.0, release del progetto topjohnwu/samloader-rs.
+Lo ZIP originale del programma e verificato con il checksum pubblicato su GitHub.
+Le licenze Apache 2.0 e MIT e le attribuzioni sono incluse nella cartella licenses.
+https://github.com/topjohnwu/samloader-rs/releases/tag/2.2.0
