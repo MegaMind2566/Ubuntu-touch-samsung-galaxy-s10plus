@@ -1,0 +1,7 @@
+upstream/
+out/
+build/
+ota/
+images/
+*.img
+*.tar.xz
