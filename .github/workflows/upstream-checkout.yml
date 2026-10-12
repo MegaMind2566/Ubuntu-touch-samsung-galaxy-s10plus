@@ -8,6 +8,7 @@ on:
       - 'config/upstream.lock.json'
       - 'scripts/validate-artifacts.py'
       - 'tests/**'
+      - 'scripts/collect-device.ps1'
       - '.github/workflows/upstream-checkout.yml'
 jobs:
   checkout:
@@ -30,3 +31,14 @@ jobs:
           path: |
             upstream/upstream-revision.txt
             upstream/source-manifest.json
+  device-inventory-script:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate Windows inventory script using mock ADB
+        shell: pwsh
+        run: ./tests/test-device-collector.ps1
