@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 $testOutput = Join-Path ([System.IO.Path]::GetTempPath()) ('beyond2lte-test-' + [guid]::NewGuid().ToString() + '.json')
-$script:wrongModel = $false
+$global:CollectorTestWrongModel = $false
 
 function Mock-Adb {
     param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Parts)
@@ -15,7 +15,7 @@ function Mock-Adb {
     if ($Parts[3] -eq 'getprop') {
         if ($Parts.Count -ne 5) { throw 'Property argument was lost' }
         switch ($Parts[4]) {
-            'ro.product.model' { if ($script:wrongModel) { 'SM-OTHER' } else { 'SM-G975F' } }
+            'ro.product.model' { if ($global:CollectorTestWrongModel) { 'SM-OTHER' } else { 'SM-G975F' } }
             'ro.product.device' { 'beyond2lte' }
             'ro.vendor.build.version.release' { '12' }
             default { 'test-value' }
@@ -43,11 +43,12 @@ try {
     if (-not $report.read_only -or -not $report.partitions.text.StartsWith('boot|')) { throw 'Inventory collection failed' }
     if ($raw.Contains('TEST-SERIAL')) { throw 'ADB serial was saved' }
     Remove-Item -LiteralPath $testOutput
-    $script:wrongModel = $true
+    $global:CollectorTestWrongModel = $true
     $rejected = $false
     try { & (Join-Path $root 'scripts/collect-device.ps1') -Adb 'Mock-Adb' -Output $testOutput } catch { $rejected = $true }
     if (-not $rejected -or (Test-Path -LiteralPath $testOutput)) { throw 'Wrong phone was not rejected' }
     Write-Host 'Device collector parse, arguments, metadata, serial omission and target guard: passed (mock ADB only).'
 } finally {
     if (Test-Path -LiteralPath $testOutput) { Remove-Item -LiteralPath $testOutput }
+    Remove-Variable -Name CollectorTestWrongModel -Scope Global -ErrorAction SilentlyContinue
 }
