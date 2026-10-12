@@ -1,0 +1,27 @@
+{
+  "rootfs": {
+    "name": "ubuntu-touch-android9plus-rootfs-arm64.tar.gz",
+    "url": "https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/125/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz",
+    "sha256": "fde4a33619101e1009725a18e3f8b4a6da1195935ec6ec69bb2a3f15b326203d",
+    "bytes": 971332425
+  },
+  "halium": {
+    "name": "halium_halium_arm64.tar.xz",
+    "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fgeneric_arm64/job/halium-12.0/1310/artifact/halium_halium_arm64.tar.xz",
+    "sha256": "c1a50985fffd728cc494a4d97e02f23a773b118b2cc5c45c747135f0d5a4a33c",
+    "bytes": 147425832
+  },
+  "schema": 1,
+  "system_image_bytes": 5368709120,
+  "adaptation": {
+    "run_id": 38301613434,
+    "artifact_name": "beyond2lte-halium12-1",
+    "compiled_commit": "b487799c4c0772c2fbd43008888d299d33ea548e",
+    "sha256": {
+      "boot.img": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+      "device_beyond2lte.tar.xz": "ab1cdca326c38bfde49dda3ff0d8cfd1278cd291834183c7239fc8c91e618c06",
+      "kernel.config": "b627fffbb7a0156ab25657cbd5e4192f27586559d971a9f5d765fa01ca60d17e",
+      "source-manifest.json": "d5cd246bbd88cfce41c7ae18f844d52e82b31fc748932af493893cbcf56a209a"
+    }
+  }
+}

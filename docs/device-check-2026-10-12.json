@@ -1,0 +1,76 @@
+{
+  "inventory_valid": true,
+  "captured_utc": "2026-10-12T21:21:12.2714000Z",
+  "model": "SM-G975F",
+  "stock_device_name": "beyond2",
+  "port_codename": "beyond2lte",
+  "hardware": "exynos9820",
+  "android_version": "12",
+  "vendor_version": "12",
+  "firmware_build": "SP1A.210812.016.G975FXXSGHWC1",
+  "bootloader_build": "G975FXXSGHWC1",
+  "vendor_fingerprint": "samsung/beyond2ltexx/beyond2:12/SP1A.210812.016/G975FXXSGHWC1:user/release-keys",
+  "bootloader_locked": true,
+  "verified_boot_state_reported": "green",
+  "knox_warranty_bit_reported": "1",
+  "partitions": {
+    "boot": {
+      "block_device": "/dev/block/sda14",
+      "bytes": 57671680,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "recovery": {
+      "block_device": "/dev/block/sda15",
+      "bytes": 67633152,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "system": {
+      "block_device": "/dev/block/sda25",
+      "bytes": 5976883200,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "vendor": {
+      "block_device": "/dev/block/sda26",
+      "bytes": 1153433600,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "userdata": {
+      "block_device": "/dev/block/sda31",
+      "bytes": 119126622208,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "dtbo": {
+      "block_device": "/dev/block/sda13",
+      "bytes": 8388608,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    },
+    "vbmeta": {
+      "block_device": "/dev/block/sda23",
+      "bytes": 65536,
+      "size_source": "proc-partitions-1024-byte-blocks",
+      "logical_block_bytes": null
+    }
+  },
+  "boot_image": {
+    "bytes": 53215232,
+    "fits": true,
+    "remaining_bytes": 4456448,
+    "sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc"
+  },
+  "halium_vendor_major_matches": true,
+  "vendor_runtime_compatibility_verified": false,
+  "hardware_tested": false,
+  "install_ready": false,
+  "limitations": [
+    "Android 12/API agreement does not establish Samsung vendor runtime compatibility",
+    "Stock boot/recovery headers and Samsung installation route are not verified",
+    "No Ubuntu Touch boot or hardware test has been performed"
+  ],
+  "source_report_sha256": "739f586314ae82f1d6bafbe47b6c4f932ade79e47180fbdd0aec3c39ccaaf92e"
+}

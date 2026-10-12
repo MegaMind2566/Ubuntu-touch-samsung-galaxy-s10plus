@@ -8,21 +8,46 @@ Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 First successful adaptation build: **12 October 2026**, commit
 `b487799c4c0772c2fbd43008888d299d33ea548e`.
 [CI run and experimental artifacts](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38301613434).
-The boot image is 53,215,232 bytes; its fit in the actual handset's boot partition
-has not been verified. All structural/configuration checks passed. Python tests
+The boot image is 53,215,232 bytes; the read-only handset inventory confirms a
+57,671,680-byte boot partition, leaving 4,456,448 bytes. This confirms size only,
+not boot-header/firmware compatibility. All structural/configuration checks passed. Python tests
 and Windows inventory tests (mock ADB) also passed. These are not hardware tests.
 
 The `S10+ Halium 12 adaptation` workflow compiles the kernel, `boot.img` and the
 device adaptation tarball. It does not produce a complete installation package:
-the Ubuntu Touch rootfs, matching vendor and verified partition sizes are still
+the Ubuntu Touch rootfs and verified Samsung vendor/runtime compatibility are still
 required. Build success is not evidence that the handset boots.
 
-Target handset (reported):
+Target handset (read-only ADB inventory, 12 October 2026):
 - Android 12, One UI 4.1
 - Baseband: G975FXXSGHWB3
 - Build: G975FXXSGHWC1
 - Kernel: 4.14.113-25257816
-- OEM unlock option visible; bootloader unlock **not** verified.
+- Android and vendor both report Android 12/API 31.
+- Stock codename `beyond2`; port codename `beyond2lte`.
+- Bootloader reports `locked`, verified boot `green`.
+
+The partition links and `/proc/partitions` agree on the expected separate boot,
+recovery, system and vendor layout. Sysfs size fields returned empty values; the
+inventory analyzer uses the documented 1024-byte units of `/proc/partitions`.
+See [device compatibility assessment](docs/device-check-2026-10-12.json).
+
+## System candidate
+
+`S10+ Ubuntu Touch 24.04 system candidate` reuses the verified adaptation from
+build 1 and assembles the official arm64 rootfs build 125 with Halium 12 GSI
+build 1310. Inputs are fixed by URL, size and SHA-256 in
+[assembly inputs](docs/assembly-inputs-2026-10-12.json).
+The candidate uses a 5 GiB ext4 filesystem inside the measured 5700 MiB system
+partition. The workflow checks raw and sparse expanded sizes, filesystem
+integrity, ARM64 userspace, Halium version and S10+ overlays before compressing
+the raw image. It preserves the upstream rootfs access defaults rather than
+injecting the upstream development-only passwordless SSH/unauthenticated ADB
+settings. There is no official S10+ 24.04 update channel.
+
+This workflow only assembles files. It never connects to or flashes a handset.
+Its output remains an experimental candidate; vendor runtime, stock boot/recovery
+layout and a working Samsung recovery route must be verified before installation.
 
 ## Build
 
