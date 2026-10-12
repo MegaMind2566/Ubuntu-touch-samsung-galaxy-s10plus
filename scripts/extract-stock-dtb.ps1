@@ -115,6 +115,7 @@ function Start-StockDtbExtraction([string]$Root) {
         if ($sha -ne $sourceReport.firmware_zip_sha256) { throw 'Checksum dello ZIP completo diverso dal controllo originale.' }
         $report.firmware_zip_sha256 = $sha
         $report.firmware_zip_bytes = $sourceReport.firmware_zip_bytes
+        Add-Type -AssemblyName System.IO.Compression
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         Initialize-StockTarReader
         $archive = [System.IO.Compression.ZipFile]::OpenRead($source)

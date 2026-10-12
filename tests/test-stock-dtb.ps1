@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 . (Join-Path $root 'scripts/extract-stock-dtb.ps1')
 Initialize-StockTarReader
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $temporary = Join-Path ([System.IO.Path]::GetTempPath()) ('stock dtb test ' + [guid]::NewGuid().ToString())
 $null = New-Item -ItemType Directory -Path $temporary
