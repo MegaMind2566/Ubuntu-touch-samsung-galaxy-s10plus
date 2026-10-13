@@ -178,10 +178,16 @@ stock ZIP and both image hashes; see
 `INSTALLA-RECOVERY-TEST.cmd` is a small add-on for that same preparation folder.
 It locks and revalidates the exact image/firmware inputs, confirms the USB model
 and exact measured PIT, and writes only VBMETA and RECOVERY with no reboot or
-erase. The console write has no wrapper timeout. It produces a sanitized
-`recovery-test-report.zip` and prints the immediate recovery boot procedure.
-The first hardware flash/boot is still pending. Windows CI validates the real
-images and native CMD entry point, with simulated USB responses/writes only.
+erase. Version 2 pauses after the PIT read for a fresh manual Download Mode
+entry, then rechecks the same handset before the separate flash handshake.
+The console streams are drained concurrently without a wrapper timeout, and
+bounded, redacted native messages are retained in `recovery-test-report.zip`.
+The latest user console identifies a handshake failure before beginning a
+session or transmitting image payloads. The fresh-session workaround and the
+first recovery/Ubuntu Touch boots still need hardware verification; see
+[the failure record](docs/recovery-handshake-failure-2026-10-13.json).
+Windows CI validates the real images and native CMD entry point, with simulated
+USB responses/writes and a local console stub only.
 Reproduce the add-on with `python3 scripts/package-recovery-test.py`.
 
 ## Build

@@ -1,4 +1,4 @@
-PRIMO AVVIO DELLA RECOVERY - SAMSUNG S10+ SM-G975F / EXYNOS
+PRIMO AVVIO DELLA RECOVERY - SAMSUNG S10+ SM-G975F / EXYNOS - VERSIONE 2
 
 1. Estrai questo ZIP DENTRO la cartella in cui hai eseguito PREPARA-RECOVERY.cmd.
    INSTALLA-RECOVERY-TEST.cmd deve trovarsi accanto a PREPARA-RECOVERY.cmd
@@ -13,7 +13,14 @@ PRIMO AVVIO DELLA RECOVERY - SAMSUNG S10+ SM-G975F / EXYNOS
 
 3. Apri INSTALLA-RECOVERY-TEST.cmd. Il programma ricontrolla le impronte dei
    file, il firmware completo di ripristino, il modello USB e la tabella PIT.
-   Il controllo del firmware puo richiedere alcuni minuti. Poi scrive
+   Il controllo del firmware puo richiedere alcuni minuti. Dopo la lettura
+   della PIT, il programma SI FERMA e chiede una nuova entrata in Download Mode.
+   Lascia USB collegato, tieni Volume Giu + Power fino allo schermo nero;
+   appena diventa nero rilascia Power e tieni Volume Giu + Bixby.
+   Alla schermata di avviso premi brevemente Volume Su.
+   Se parte Android: spegni, tieni Volume Giu + Bixby e collega USB al PC.
+   Premi INVIO nella finestra SOLO quando sei di nuovo in Downloading.
+   Poi il programma ricontrolla che sia lo stesso telefono e scrive
    VBMETA (64 KiB) e RECOVERY, senza riavvio automatico.
    Questa fase modifica il telefono; il primo avvio deve ancora essere provato.
    Durante la scrittura non scollegare il cavo e non chiudere la finestra.
@@ -32,6 +39,9 @@ PRIMO AVVIO DELLA RECOVERY - SAMSUNG S10+ SM-G975F / EXYNOS
 Se il programma si ferma, invia il rapporto creato. Se la scrittura e stata
 avviata, potrebbe essere parziale: lascia il telefono in Download Mode.
 Nessun ripristino o secondo tentativo viene eseguito automaticamente.
+La versione 2 conserva il messaggio del flash nel rapporto, rimuovendo
+percorsi del PC e identificativi del telefono. Se fallisce il collegamento
+iniziale (handshake), distingue quel caso da una scrittura interrotta.
 
 Il pacchetto usa samloader 2.2.0, Windows VCOM e i driver Samsung gia
 funzionanti. Non servono Zadig, fastboot o una nuova installazione di Python.

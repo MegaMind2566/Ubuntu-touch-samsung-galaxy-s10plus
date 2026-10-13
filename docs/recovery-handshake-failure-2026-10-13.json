@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-13",
+  "input_zip_sha256": "50262c31dbbfe5dd2ca6f1ffb7879fc3732f8e1a30390f4cd78acd4d50248e34",
+  "user_pc_report": {
+    "schema": 1,
+    "test_tool_version": 1,
+    "date_utc": "2026-10-13T09:17:23.0445866Z",
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "detected_model": "SM-G975F",
+    "backup_verified": true,
+    "local_files_verified": true,
+    "pit_verified": true,
+    "target_partitions": [
+      "VBMETA",
+      "RECOVERY"
+    ],
+    "write_attempted": true,
+    "flash_tool_succeeded": false,
+    "flash_exit_code": 1,
+    "reboot_requested": false,
+    "erase_requested": false,
+    "recovery_boot_verified": false,
+    "ubuntu_touch_boot_verified": false,
+    "success": false,
+    "error": "flash_failed",
+    "steps": [
+      {
+        "operation": "version",
+        "timed_out": false,
+        "exit_code": 0
+      },
+      {
+        "operation": "detect",
+        "timed_out": false,
+        "exit_code": 0
+      },
+      {
+        "operation": "dump-pit",
+        "timed_out": false,
+        "exit_code": 0
+      }
+    ],
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+    "pit": {
+      "entry_count": 41,
+      "project_name": "COM_TAR2",
+      "cpu_bootloader_tag": "LSI9820",
+      "size_bytes": 8192,
+      "sha256": "aa3555ff93ff568186d64aa0e71b6f50bcf2edf26aecec7c6d74410cf4e7b58a"
+    }
+  },
+  "additional_user_console_evidence": [
+    "Initializing protocol...",
+    "ERROR: Unexpected handshake response!",
+    "Failed to receive handshake response."
+  ],
+  "observed_failure_stage": "connection_init_before_begin_session",
+  "partition_payload_sent_in_this_attempt": false,
+  "earlier_attempts_without_console_details": "write progress remains unconfirmed",
+  "likely_cause": "Separate dump-pit and flash commands perform independent ODIN/LOKE handshakes without refreshing Download Mode",
+  "fix": "Keep exact PIT preflight, pause for a fresh manual Download Mode entry, recheck model and serial in memory, then flash without another external Odin session",
+  "hardware_fix_validated": false,
+  "recovery_boot_verified": false,
+  "ubuntu_touch_boot_verified": false,
+  "references": [
+    "https://docs.rs/samloader-odin/2.2.0/src/samloader_odin/odin.rs.html",
+    "https://github.com/topjohnwu/samloader-rs/blob/2.2.0/samloader/src/flash.rs",
+    "https://github.com/Benjamin-Dobell/Heimdall/blob/master/Win32/README.txt"
+  ]
+}

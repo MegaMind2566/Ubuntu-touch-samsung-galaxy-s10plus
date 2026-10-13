@@ -6,6 +6,8 @@ $testDirectory = Join-Path ([IO.Path]::GetTempPath()) ('S10 recovery test ' + [G
 $script:RecoveryFixtureMode = ''
 $script:RecoveryFixtureReads = @()
 $script:RecoveryFixtureWrites = @()
+$script:RecoveryFixtureRestarts = 0
+$script:RecoveryFixtureDetects = 0
 $script:RecoveryFixturePit = [Convert]::FromBase64String([IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures\beyond2lte-pit.base64')))
 
 function Assert-RecoveryTest {
@@ -21,12 +23,15 @@ $readRunner = {
         $result.Stdout = 'samloader 2.2.0'
         if ($script:RecoveryFixtureMode -eq 'version') { $result.Stdout = 'samloader 9.0.0' }
     } elseif ($Arguments[2] -eq 'detect') {
+        $script:RecoveryFixtureDetects++
         $model = 'SM-G975F'
         if ($script:RecoveryFixtureMode -eq 'model') { $model = 'SM-G975U' }
+        if ($script:RecoveryFixtureMode -eq 'post-model' -and $script:RecoveryFixtureDetects -eq 2) { $model = 'SM-G975U' }
         if ($script:RecoveryFixtureMode -eq 'blank-model') { $model = '' }
         $result.Stdout = '{"modelName":"' + $model + '","serialNumber":"PRIVATE-USB-MARKER"}'
         if ($script:RecoveryFixtureMode -eq 'json') { $result.Stdout = '{invalid' }
-        if ($script:RecoveryFixtureMode -eq 'detect') { $result.ExitCode = 1 }
+        if ($script:RecoveryFixtureMode -eq 'detect' -or
+            ($script:RecoveryFixtureMode -eq 'post-detect' -and $script:RecoveryFixtureDetects -eq 2)) { $result.ExitCode = 1 }
         if ($script:RecoveryFixtureMode -eq 'timeout') { $result.TimedOut = $true }
     } elseif ($Arguments[2] -eq 'dump-pit') {
         $bytes = $script:RecoveryFixturePit.Clone()
@@ -49,8 +54,22 @@ $writeRunner = {
         $writer.Dispose()
     } catch [IO.IOException] { $blocked = $true }
     Assert-RecoveryTest $blocked 'image cannot change during native flash'
-    if ($script:RecoveryFixtureMode -eq 'flash') { return 1 }
-    return 0
+    Assert-RecoveryTest ($script:RecoveryFixtureRestarts -eq 1) 'fresh Download Mode acknowledgement precedes write'
+    $result = [pscustomobject]@{ ExitCode = 0; Stdout = 'Initializing protocol...'; Stderr = '' }
+    if ($script:RecoveryFixtureMode -eq 'flash') {
+        $result.ExitCode = 1
+        $result.Stderr = 'Failed to send file from ' + $Arguments[8] + ' Serial: PRIVATE-USB-MARKER'
+    }
+    if ($script:RecoveryFixtureMode -eq 'handshake') {
+        $result.ExitCode = 1
+        $result.Stderr = "ERROR: Unexpected handshake response!`nFailed to receive handshake response."
+    }
+    return $result
+}
+
+$restartRunner = {
+    $script:RecoveryFixtureRestarts++
+    return ($script:RecoveryFixtureMode -ne 'restart-cancel')
 }
 
 $preflightRunner = {
@@ -69,7 +88,9 @@ function Invoke-RecoveryFixture {
     $script:RecoveryFixtureMode = $Mode
     $script:RecoveryFixtureReads = @()
     $script:RecoveryFixtureWrites = @()
-    $result = Invoke-RecoveryTest -Root $script:RecoveryFixtureRoot -ReadRunner $readRunner -WriteRunner $writeRunner -PreflightRunner $preflightRunner
+    $script:RecoveryFixtureRestarts = 0
+    $script:RecoveryFixtureDetects = 0
+    $result = Invoke-RecoveryTest -Root $script:RecoveryFixtureRoot -ReadRunner $readRunner -WriteRunner $writeRunner -PreflightRunner $preflightRunner -RestartRunner $restartRunner
     Assert-RecoveryTest ($result.Success -eq ($Mode -eq 'success')) ($Mode + ': success')
     Assert-RecoveryTest (([string]$result.Report.error) -ceq ([string]$ExpectedError)) ($Mode + ': failure stage')
     Assert-RecoveryTest ($result.Report.write_attempted -eq $ExpectedWrite) ($Mode + ': write stage')
@@ -77,10 +98,19 @@ function Invoke-RecoveryFixture {
     Assert-RecoveryTest (-not $result.Report.recovery_boot_verified -and -not $result.Report.ubuntu_touch_boot_verified) 'no runtime success claim'
     Assert-RecoveryTest (-not $result.Report.reboot_requested -and -not $result.Report.erase_requested) 'no erase/reboot'
     if ($ExpectedWrite) {
+        Assert-RecoveryTest ($result.Report.download_restart_acknowledged -and $result.Report.model_rechecked_after_restart) 'post-restart USB confirmation'
         $flashArguments = $script:RecoveryFixtureWrites[0]
         Assert-RecoveryTest (($flashArguments[0..4] -join '|') -ceq '--usb-backend|vcom|flash|--partition|VBMETA') 'first write target'
         Assert-RecoveryTest ($flashArguments[6] -ceq '--partition' -and $flashArguments[7] -ceq 'RECOVERY' -and $flashArguments[9] -ceq '--no-reboot') 'second target and no reboot'
         Assert-RecoveryTest ($flashArguments.Count -eq 10) 'exact two-partition command without extra flags'
+    }
+    if ($Mode -eq 'handshake') {
+        Assert-RecoveryTest ($result.Report.partition_data_sent -ceq 'no_handshake_failed_before_session') 'handshake failure does not falsely claim partition data was sent'
+        Assert-RecoveryTest ($result.Report.flash_stderr -match 'Unexpected handshake response') 'precise native error retained'
+    }
+    if ($Mode -eq 'flash') {
+        Assert-RecoveryTest ($result.Report.partition_data_sent -ceq 'unknown') 'later failure leaves progress unknown'
+        Assert-RecoveryTest ($result.Report.flash_stderr -match 'Failed to send file') 'later error retained'
     }
     $zip = [IO.Compression.ZipFile]::OpenRead($result.ZipPath)
     try {
@@ -141,7 +171,11 @@ print('PASS: exact real recovery/vbmeta pins on embedded Windows runtime; missin
         @('blank-model','model_not_confirmed',$false), @('json','usb_response_invalid',$false),
         @('detect','usb_detection_failed',$false), @('timeout','usb_detection_failed',$false),
         @('dump','pit_read_failed',$false), @('pit','pit_mismatch',$false),
-        @('backup','local_verification_failed',$false), @('flash','flash_failed',$true)
+        @('backup','local_verification_failed',$false), @('flash','flash_failed',$true),
+        @('restart-cancel','download_restart_not_acknowledged',$false),
+        @('post-model','post_restart_model_not_confirmed',$false),
+        @('post-detect','post_restart_detection_failed',$false),
+        @('handshake','handshake_failed',$true)
     )) { $null = Invoke-RecoveryFixture $case[0] $case[1] $case[2] }
     $state = [IO.File]::ReadAllText((Join-Path $script:RecoveryFixtureRoot 'recovery-local-state.json')) | ConvertFrom-Json
     $vbmetaPath = Join-Path $state.prepared_directory 'vbmeta-test.img'
@@ -161,6 +195,32 @@ print('PASS: exact real recovery/vbmeta pins on embedded Windows runtime; missin
         catch { $blocked = $_.Exception.Message -eq 'write_command_not_allowed' }
         Assert-RecoveryTest $blocked 'write allowlist rejects extra or different targets'
     }
+    # The first tool version only tested an inherited console with mocked
+    # writes. Exercise the actual concurrent C# stream collector now, with a
+    # local stub executable that cannot open USB or write any partition.
+    $stub = Join-Path $testDirectory 'native flash stub.exe'
+    Add-Type -TypeDefinition @'
+using System;
+using System.Threading;
+public class S10FakeFlashConsole {
+    public static void Main(string[] args) {
+        Console.WriteLine("Initializing protocol...");
+        Thread.Sleep(100);
+        Console.Error.WriteLine("ERROR: Unexpected handshake response!");
+        Console.Error.WriteLine("Failed to receive handshake response.");
+        Environment.Exit(1);
+    }
+}
+'@ -OutputAssembly $stub -OutputType ConsoleApplication
+    $nativeArguments = @('--usb-backend','vcom','flash','--partition','VBMETA','v.img','--partition','RECOVERY','r.img','--no-reboot')
+    $nativeResult = Invoke-RecoveryTestWrite $stub $nativeArguments 'r.img' 'v.img'
+    Assert-RecoveryTest ($nativeResult.ExitCode -eq 1 -and $nativeResult.Stdout -match 'Initializing protocol' -and
+        $nativeResult.Stderr -match 'Unexpected handshake response') 'real native collector preserves both streams and exit code'
+    $privateText = "ERROR C:\Users\PRIVATE\recovery-test.img serialNumber=PRIVATE-USB-MARKER DID: 2018768D49468011"
+    $clean = Protect-RecoveryTestText $privateText @('C:\Users\PRIVATE\recovery-test.img','PRIVATE-USB-MARKER')
+    Assert-RecoveryTest ($clean -notmatch 'PRIVATE|2018768D49468011') 'paths, serial and DID redacted'
+    $large = Protect-RecoveryTestText ('x' * 50000) @()
+    Assert-RecoveryTest ($large.Length -lt 16500 -and $large -match '\[truncated\]') 'bounded diagnostic text'
     # Exercise the real CMD and Windows PowerShell -File entry point. Missing
     # state must return a report and exit before any USB request or flash.
     Remove-Item -LiteralPath (Join-Path $script:RecoveryFixtureRoot 'recovery-local-state.json')
@@ -185,5 +245,5 @@ print('PASS: exact real recovery/vbmeta pins on embedded Windows runtime; missin
         try { $lastReport = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
         Assert-RecoveryTest (-not $lastReport.write_attempted -and $lastReport.steps.Count -eq 0) 'real launcher stops before USB on missing state'
     } finally { $zip.Dispose() }
-    Write-Host 'PASS: 12 simulated success/failure cases, immutable flash inputs, exact targets, no reboot/erase, sanitized diagnostics and native CMD in a spaced path. No hardware write performed by CI.'
+    Write-Host 'PASS: 16 simulated success/failure cases, mandatory Download Mode restart, post-restart identity check, real concurrent native log capture, precise handshake classification, immutable inputs, sanitized diagnostics and native CMD. No hardware write performed by CI.'
 } finally { Remove-Item -LiteralPath $testDirectory -Recurse -Force }

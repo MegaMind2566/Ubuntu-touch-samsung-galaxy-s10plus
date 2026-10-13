@@ -1,6 +1,6 @@
 @echo off
 setlocal
-echo Primo test della recovery sul Samsung S10+ SM-G975F
+echo Primo test della recovery sul Samsung S10+ SM-G975F - versione 2
 echo Questo programma scrive le partizioni VBMETA e RECOVERY.
 echo Il telefono deve essere sbloccato, in Download Mode e collegato via USB.
 echo.

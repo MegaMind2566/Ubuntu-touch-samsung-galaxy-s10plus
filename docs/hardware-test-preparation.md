@@ -4,8 +4,11 @@ The current candidate is an offline image build. On 13 October the user
 unlocked the bootloader, accepted the factory reset and completed Android
 setup. The subsequent Download-mode photo confirms OEM `OFF(U)`, FRP `OFF`
 and KG `Checking`. The diagnostic scripts have not unlocked, flashed or
-rebooted the handset. No recovery or Ubuntu Touch image has been installed
-or tested on it.
+rebooted the handset. An initial flash invocation has now failed; in the latest
+attempt the console proves that initialization stopped at the ODIN/LOKE
+handshake, before beginning a session or sending image payloads. The earlier
+reports without console details leave their write progress unconfirmed.
+Neither a recovery boot nor an Ubuntu Touch boot has been verified.
 
 ## Confirmed from the handset
 
@@ -109,12 +112,20 @@ generic fastboot instructions must not be assumed to work.
    rechecks the USB model and exact handset PIT before writing. It permits
    only named VBMETA and RECOVERY payloads with `--no-reboot`; there is no erase,
    repartition, additional image, size-check bypass or automatic recovery attempt.
-   The native write inherits the console and is never killed by a wrapper timeout.
-   Its diagnostic ZIP contains only sanitized JSON, without paths or identifiers.
+   Version 2 pauses after the PIT read for a fresh manual entry into Download
+   Mode, then verifies the model and the same serial in memory before the
+   separate flash command. This addresses the most likely cause of the observed
+   second-handshake failure; the hardware result is still pending. The console
+   streams are drained concurrently without a wrapper timeout or forced kill.
+   Its diagnostic ZIP retains bounded, redacted flash stdout/stderr in JSON,
+   without PC paths or device identifiers. Handshake failures are distinguished
+   from failures at an unknown later point; there is no automatic write retry.
    After a successful write, boot immediately to recovery with USB connected,
    select Keep Read Only and cancel any data-password prompt. A failed write
    may be partial: stay in Download Mode and inspect its report before retrying.
-7. The first recovery boot and then a controlled Ubuntu Touch boot test remain
+7. The latest supplied attempt failed the handshake before image transfer;
+   see [observed failure and fix](recovery-handshake-failure-2026-10-13.json).
+   The first recovery boot and then a controlled Ubuntu Touch boot test remain
    pending. Preparation success is not a claim that the handset boots.
 
 See [stock-layout findings](stock-layout-2026-10-13.md) for the completed audit
