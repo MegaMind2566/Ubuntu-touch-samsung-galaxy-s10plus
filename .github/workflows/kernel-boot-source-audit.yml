@@ -1,0 +1,24 @@
+name: S10+ pinned kernel boot source audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/audit_kernel_boot_sources.py'
+      - '.github/workflows/kernel-boot-source-audit.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Fetch and inspect immutable upstream boot sources
+        run: python3 scripts/audit_kernel_boot_sources.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-kernel-boot-source-audit
+          path: out/kernel-boot-source-audit/
+          if-no-files-found: error
