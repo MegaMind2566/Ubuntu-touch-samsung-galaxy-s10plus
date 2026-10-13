@@ -145,12 +145,16 @@ the native CMD and console capture. ARM64 emulation runs the actual TWRP
 BusyBox copy/hash/sync/stat tools against disposable files, including a final
 partial copy block and 5 GiB size reporting; it is not a hardware flash test.
 
-The first normal boot after the user-reported successful TWRP installation
-remains on the Galaxy S10+ logo. The received `dmesg.log` is the current TWRP
-kernel (4.14.113), not the compiled Ubuntu kernel (4.14.280). VENDOR mounts
-successfully and has a populated ext4 filesystem; its complete stock content
-has not been compared. No Ubuntu kernel or userspace boot is confirmed yet.
-See [the first-boot observation](docs/first-boot-logo-2026-10-13.json).
+The first normal boot remains on the Galaxy S10+ logo. The hardware report
+now confirms both SYSTEM/BOOT physical readbacks and the unchanged expected
+BOOT/RECOVERY/VBMETA prefixes. VENDOR passes all five read-only filesystem
+check stages with exit code 0; its complete stock content has not been compared.
+The received `dmesg.log` is the current TWRP kernel (4.14.113). `last_kmsg`
+contains Samsung S-Boot selecting RECOVERY and loading TWRP's measured image,
+not a Linux log from the compiled Ubuntu kernel (4.14.280). Its AVB/footer
+warnings concern the working custom recovery and do not establish the cause
+of the Ubuntu stop. No Ubuntu kernel or userspace boot is confirmed yet.
+See [the hardware readback and log provenance](docs/first-boot-readback-2026-10-13.json).
 
 `CONTROLLA-PRIMO-AVVIO.cmd` reuses the existing pinned Windows tools to read
 `/proc/last_kmsg` and available console/dmesg pstore records before collecting
@@ -165,6 +169,19 @@ the small add-on with `python3 scripts/package-first-boot-check.py`; follow
 passes nine evidence/guard cases and the actual CMD with embedded Python in a
 path containing spaces. USB replies in the unit cases are simulated; the
 native launch test has no handset.
+
+`CONTROLLA-USB-AVVIO.cmd` reads three host PnP/CIM snapshots while the user
+manually boots normally and leaves the phone at the logo. It includes only
+the selected USB descriptors and currently present USB network adapters,
+omits serial suffixes and excludes cached disconnected adapters. It sends
+no phone commands and changes no drivers or network settings. A Halium panic
+gadget can establish that the kernel/initramfs ran; absent USB evidence is
+inconclusive. Reproduce the standalone small package with
+`python3 scripts/package-boot-usb-check.py` and follow
+[the live USB instructions](tools/windows/LEGGIMI-USB-AVVIO.txt).
+[Windows CI](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38434679157)
+checks filters, serial omission, disconnected-adapter exclusion and the
+actual CMD/PowerShell 5.1 PnP/CIM queries. No handset is attached in CI.
 
 ## Exact stock-firmware download on Windows
 
