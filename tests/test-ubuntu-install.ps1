@@ -28,14 +28,19 @@ $inventory={
 $metadata={
     param([string]$Executable,[string[]]$Arguments,[string]$Operation)
     Assert-UtTest ($Arguments.Count -eq 3 -and $Arguments[0] -ceq '-d' -and $Arguments[1] -ceq 'shell') 'metadata uses USB only'
-    Assert-UtTest ($Arguments[2] -notmatch '\bof=|format|mount|reboot' -and $Arguments[2] -match '^dd if=/dev/block/sda31') 'fixed metadata query only reads'
+    $expected='/sbin/busybox hexdump -v -s 1128 -n 16 -e ''1/1 "%02x"'' /dev/block/sda31'
+    if ($Operation -eq 'data-magic') { $expected='/sbin/busybox hexdump -v -s 1080 -n 2 -e ''1/1 "%02x"'' /dev/block/sda31' }
+    Assert-UtTest ($Arguments[2] -ceq $expected) 'exact bounded BusyBox metadata query only reads'
     $value='53 ef'
     if ($Operation -eq 'data-uuid') {
         $script:UtTestUuidReads++
         $value='aa '*16
         if ($script:UtTestUuidReads -eq 2 -and $script:UtTestMode -ne 'same-uuid') { $value='bb '*16 }
     } elseif ($script:UtTestMode -eq 'not-ext4') { $value='00 00' }
-    return [pscustomobject]@{ExitCode=0;TimedOut=$false;Stdout=$value;Stderr=''}
+    $code=0;$error=''
+    if ($script:UtTestMode -eq 'metadata-command') { $code=1;$error='hexdump: read error' }
+    if ($script:UtTestMode -eq 'metadata-hex') { $value='not metadata' }
+    return [pscustomobject]@{ExitCode=$code;TimedOut=$false;Stdout=$value;Stderr=$error}
 }
 $physical={
     param([string]$Step)
@@ -80,6 +85,11 @@ function Invoke-UtFixture {
     Assert-UtTest ($result.Report.flash_invoked -eq $Writes -and $script:UtTestWrites.Count -eq [int]$Writes) ($Mode+': write only after all checks')
     Assert-UtTest (-not $result.Report.automatic_erase_requested -and -not $result.Report.automatic_reboot_requested -and -not $result.Report.repartition_requested) 'no automated erase, reboot or repartition'
     Assert-UtTest (-not $result.Report.ubuntu_touch_boot_verified) 'CI never claims hardware Ubuntu boot'
+    Assert-UtTest ($result.Report.installer_version -eq 2) 'updated installer version recorded'
+    if ($Mode -cin @('metadata-command','metadata-hex')) {
+        Assert-UtTest ($script:UtTestPhysical.Count -eq 0 -and $script:UtTestUsb.Count -eq 0) 'failed metadata stops before any format prompt or Download request'
+        Assert-UtTest ($result.Report.data_metadata_steps.Count -eq 1 -and $result.Report.data_metadata_steps[0].error) 'metadata failure diagnosed without saving UUID'
+    }
     $zip=[IO.Compression.ZipFile]::OpenRead($result.ZipPath)
     try {
         Assert-UtTest ($zip.Entries.Count -eq 1 -and $zip.Entries[0].Name -ceq 'ubuntu-install-report.json') 'only sanitized JSON is shared'
@@ -123,8 +133,9 @@ try {
     $null=Invoke-UtFixture 'success' $null $true
     foreach ($case in @(
         @('backup','image_or_backup_verification_failed',$false),@('recovery','recovery_preflight_failed',$false),
-        @('vendor-mounted','system_or_vendor_mounted',$false),@('format-data-cancel','userdata_format_not_completed',$false),
-        @('same-uuid','userdata_format_not_completed',$false),@('not-ext4','userdata_format_not_completed',$false),
+        @('vendor-mounted','system_or_vendor_mounted',$false),@('format-data-cancel','userdata_format_not_acknowledged',$false),
+        @('same-uuid','userdata_format_not_completed',$false),@('not-ext4','userdata_metadata_after_format_failed',$false),
+        @('metadata-command','userdata_metadata_before_format_failed',$false),@('metadata-hex','userdata_metadata_before_format_failed',$false),
         @('download-mode-cancel','download_mode_not_confirmed',$false),@('model','usb_model_not_confirmed',$false),
         @('usb','usb_model_not_confirmed',$false),@('handshake','handshake_failed',$true),@('flash','flash_failed',$true)
     )) { $result=Invoke-UtFixture $case[0] $case[1] $case[2]
@@ -155,5 +166,5 @@ public class S10UtFakeConsole {
     $native=Invoke-UtNativeLauncher (Join-Path $script:UtTestRoot 'PREPARA-UBUNTU-TOUCH.cmd') '-SystemArtifact "missing system.zip" -StockFirmware "missing stock.zip"'
     Assert-UtTest ($native.ExitCode -eq 1 -and $native.Stdout -match 'Preparazione fermata') ('native preparer: '+$native.Stdout+$native.Stderr)
     Assert-UtTest (-not (Test-Path -LiteralPath (Join-Path $script:UtTestRoot 'ubuntu-local-state.json'))) 'native failed preparation cannot retain a ready state'
-    Write-Host 'PASS: actual boot/SYSTEM hashes, 13 staged success/failure cases, immutable inputs, manual fresh-data proof, exact SYSTEM/BOOT command, native collector and both CMD entry points. USB and writes simulated; hardware boot remains unverified.'
+    Write-Host 'PASS: actual boot/SYSTEM hashes, 15 staged success/failure cases, reduced BusyBox metadata queries, precise metadata/confirmation failures, immutable inputs, manual fresh-data proof, exact SYSTEM/BOOT command, native collector and both CMD entry points. USB and writes simulated; hardware boot remains unverified.'
 } finally { Remove-Item -LiteralPath $script:UtTestRoot -Recurse -Force }

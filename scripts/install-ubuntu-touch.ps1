@@ -52,20 +52,35 @@ public static class S10UtNativeConsole {
 }
 
 function Invoke-UtMetadata {
-    param([string]$Executable,[string]$Operation,[scriptblock]$Runner)
+    param([string]$Executable,[string]$Operation,[scriptblock]$Runner,[System.Collections.IList]$Trace)
     # Read only filesystem magic/UUID metadata, never personal files.
+    # Recovery's reduced BusyBox od does not support desktop -A/-t options.
+    # Invoke its known hexdump applet explicitly, with bounded offset/count.
     $queries = @{
-        'data-magic' = 'dd if=/dev/block/sda31 bs=1 skip=1080 count=2 2>/dev/null | od -An -v -tx1'
-        'data-uuid' = 'dd if=/dev/block/sda31 bs=1 skip=1128 count=16 2>/dev/null | od -An -v -tx1'
+        'data-magic' = '/sbin/busybox hexdump -v -s 1080 -n 2 -e ''1/1 "%02x"'' /dev/block/sda31'
+        'data-uuid' = '/sbin/busybox hexdump -v -s 1128 -n 16 -e ''1/1 "%02x"'' /dev/block/sda31'
     }
     if (-not $queries.ContainsKey($Operation)) { throw 'metadata_query_not_allowed' }
-    if ($Runner) { $result = & $Runner $Executable @('-d','shell',$queries[$Operation]) $Operation }
-    else { $result = Invoke-DownloadCheckNative $Executable @('-d','shell',$queries[$Operation]) 30 }
-    if ($result.ExitCode -ne 0 -or $result.TimedOut) { throw 'data_metadata_unavailable' }
-    $value = [regex]::Replace($result.Stdout,'\s','')
-    if ($Operation -eq 'data-magic' -and $value -cne '53ef') { throw 'data_not_ext4' }
-    if ($Operation -eq 'data-uuid' -and $value -cnotmatch '^[0-9a-f]{32}$') { throw 'data_uuid_unavailable' }
-    return $value
+    $step=[ordered]@{operation=$Operation;exit_code=$null;timed_out=$false;hex_valid=$false;error=$null;stderr=$null}
+    try {
+        if ($Runner) { $result = & $Runner $Executable @('-d','shell',$queries[$Operation]) $Operation }
+        else { $result = Invoke-DownloadCheckNative $Executable @('-d','shell',$queries[$Operation]) 30 }
+        $step.exit_code=$result.ExitCode;$step.timed_out=$result.TimedOut
+        $step.stderr=Protect-RecoveryTestText ([string]$result.Stderr) @()
+        if ($result.ExitCode -ne 0 -or $result.TimedOut) { $step.error='data_metadata_command_failed';throw $step.error }
+        $value = [regex]::Replace($result.Stdout,'\s','')
+        if (($Operation -eq 'data-magic' -and $value -cnotmatch '^[0-9a-f]{4}$') -or
+            ($Operation -eq 'data-uuid' -and $value -cnotmatch '^[0-9a-f]{32}$')) { $step.error='data_metadata_invalid_hex';throw $step.error }
+        $step.hex_valid=$true
+        if ($Operation -eq 'data-magic' -and $value -cne '53ef') { $step.error='data_not_ext4';throw $step.error }
+        return $value
+    } catch {
+        if (-not $step.error) { $step.error='data_metadata_unavailable' }
+        throw
+    } finally {
+        # UUID/stdout never enter the diagnostic report.
+        if ($null -ne $Trace) { $Trace.Add([pscustomobject]$step) | Out-Null }
+    }
 }
 
 function Confirm-UtPhysicalStep {
@@ -100,8 +115,9 @@ function Invoke-UtInstallation {
     $samloader = Join-Path $Root 'tools\samloader\samloader.exe'
     $adb = Join-Path $Root 'platform-tools\adb.exe'
     $locks = New-Object 'System.Collections.Generic.List[System.IO.FileStream]'
+    $metadataSteps = New-Object System.Collections.ArrayList
     $report = [ordered]@{
-        schema=1; installer_version=1; date_utc=[DateTime]::UtcNow.ToString('o'); model='SM-G975F'; pda='G975FXXSGHWC1'
+        schema=1; installer_version=2; date_utc=[DateTime]::UtcNow.ToString('o'); model='SM-G975F'; pda='G975FXXSGHWC1'
         target_partitions=@('SYSTEM','BOOT'); local_images_verified=$false; stock_backup_verified=$false
         recovery_checks_passed=$false; data_format_acknowledged=$false; data_uuid_changed_after_format=$false
         download_mode_acknowledged=$false; model_confirmed_by_usb=$false; flash_invoked=$false
@@ -109,6 +125,7 @@ function Invoke-UtInstallation {
         automatic_erase_requested=$false; repartition_requested=$false; automatic_reboot_requested=$false
         current_pit_read_inside_flash_session=$true; native_size_checks_enabled=$true
         ubuntu_touch_boot_verified=$false; success=$false; error=$null; native_stdout=$null; native_stderr=$null
+        data_metadata_steps=$metadataSteps
     }
     $reason='package_dependencies_invalid';$privateValues=@($Root,$directory,$python,$samloader,$adb)
     try {
@@ -152,12 +169,15 @@ function Invoke-UtInstallation {
             if ($mount.target -cin @('/system','/system_root','/vendor')) { $reason='system_or_vendor_mounted';throw $reason }
         }
         $report.recovery_checks_passed=$true
-        $reason='userdata_format_not_completed'
-        $uuidBefore=Invoke-UtMetadata $adb 'data-uuid' $MetadataRunner
+        $reason='userdata_metadata_before_format_failed'
+        $uuidBefore=Invoke-UtMetadata $adb 'data-uuid' $MetadataRunner $metadataSteps
+        $reason='userdata_format_not_acknowledged'
         if (-not (Confirm-UtPhysicalStep 'format-data' $PhysicalRunner)) { throw $reason }
         $report.data_format_acknowledged=$true
-        $null=Invoke-UtMetadata $adb 'data-magic' $MetadataRunner
-        $uuidAfter=Invoke-UtMetadata $adb 'data-uuid' $MetadataRunner
+        $reason='userdata_metadata_after_format_failed'
+        $null=Invoke-UtMetadata $adb 'data-magic' $MetadataRunner $metadataSteps
+        $uuidAfter=Invoke-UtMetadata $adb 'data-uuid' $MetadataRunner $metadataSteps
+        $reason='userdata_format_not_completed'
         if ($uuidBefore -ceq $uuidAfter) { throw $reason }
         $report.data_uuid_changed_after_format=$true
         # UUID values stay in memory and are never saved in the report.

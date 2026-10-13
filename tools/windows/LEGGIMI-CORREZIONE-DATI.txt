@@ -1,0 +1,25 @@
+CORREZIONE CONTROLLO DATI - INSTALLER UBUNTU TOUCH S10+ VERSIONE 2
+
+Il precedente installer si fermava prima della richiesta Format Data.
+I file BOOT/SYSTEM e il firmware conservato hanno superato i controlli.
+Nessuna scrittura BOOT/SYSTEM e stata avviata in quell'operazione.
+
+1. Estrai questo ZIP. Contiene una cartella scripts.
+2. Copia la cartella scripts dentro la cartella gia usata:
+   UbuntuTouch-S10plus-installa-Ubuntu-Windows
+   Accetta Sostituisci per install-ubuntu-touch.ps1.
+3. Lascia il telefono in TWRP e collegato via USB.
+4. Apri di nuovo INSTALLA-UBUNTU-TOUCH.cmd nella cartella gia usata.
+
+Non serve riscaricare le immagini o ripetere PREPARA-UBUNTU-TOUCH.cmd.
+Il programma ricontrolla i file presenti e usa un comando compatibile con
+la recovery per leggere i metadati della memoria dati.
+
+Esegui Wipe > Format Data > yes solo quando il programma lo richiede.
+QUESTO CANCELLA TUTTA LA MEMORIA INTERNA DEL TELEFONO.
+Il programma verifica il nuovo filesystem, poi chiede Reboot > Download
+e scrive SYSTEM e BOOT. Non scollegare USB durante la scrittura.
+
+Se si ferma, invia il nuovo ubuntu-install-report-N.zip indicato nella
+finestra. Il rapporto distingue lettura metadati, conferma e formattazione,
+senza salvare l'UUID della memoria dati.

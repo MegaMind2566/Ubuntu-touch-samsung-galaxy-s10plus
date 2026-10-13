@@ -9,6 +9,7 @@ on:
       - 'scripts/package-ubuntu-install.py'
       - 'tests/test_ubuntu_install.py'
       - 'tests/test-ubuntu-install.ps1'
+      - 'tests/test_twrp_userdata_tools.py'
       - 'tools/windows/*UBUNTU*'
       - 'config/install-images.lock.json'
       - '.github/workflows/ubuntu-install.yml'
@@ -16,6 +17,17 @@ permissions:
   contents: read
   actions: read
 jobs:
+  recovery-runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install ARM64 user-space emulator
+        run: sudo apt-get update && sudo apt-get install -y qemu-user
+      - name: Run the original TWRP BusyBox metadata commands on a local fixture
+        run: python3 tests/test_twrp_userdata_tools.py
   windows:
     runs-on: windows-2022
     timeout-minutes: 20
