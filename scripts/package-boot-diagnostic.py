@@ -54,7 +54,8 @@ def validate(folder):
         if name=='init': expect[6]=len(b[name]['data'])
         if expect!=b[name]['values'] or (name!='init' and old['data']!=b[name]['data']):
             raise ValueError('unrelated_ramdisk_entry_changed')
-    if (b['init']['data']!=(ROOT/'tools/boot-diagnostic/init').read_bytes() or
+    expected_init=(ROOT/'tools/boot-diagnostic/init').read_text(encoding='ascii').encode('ascii')
+    if (b['init']['data']!=expected_init or
             b['ut-diag-original-init']['data']!=a['init']['data'] or
             hashlib.sha256(b['ut-diag-display']['data']).hexdigest()!=lock['display_helper_sha256']):
         raise ValueError('diagnostic_payload')

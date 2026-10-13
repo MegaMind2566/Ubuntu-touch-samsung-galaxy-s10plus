@@ -1,0 +1,2 @@
+# Linux PID 1 script is a binary firmware payload; keep LF on Windows too.
+tools/boot-diagnostic/init text eol=lf
