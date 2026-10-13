@@ -8,7 +8,9 @@ rebooted the handset. An initial flash invocation has now failed; in the latest
 attempt the console proves that initialization stopped at the ODIN/LOKE
 handshake, before beginning a session or sending image payloads. The earlier
 reports without console details leave their write progress unconfirmed.
-Neither a recovery boot nor an Ubuntu Touch boot has been verified.
+The later user photograph confirms the TWRP 3.7.0_9-2 home screen. The Ubuntu
+Touch kernel/system has not yet booted on the handset. See
+[recovery boot evidence](recovery-boot-2026-10-13.json).
 
 ## Confirmed from the handset
 
@@ -125,8 +127,11 @@ generic fastboot instructions must not be assumed to work.
    may be partial: stay in Download Mode and inspect its report before retrying.
 7. The latest supplied attempt failed the handshake before image transfer;
    see [observed failure and fix](recovery-handshake-failure-2026-10-13.json).
-   The first recovery boot and then a controlled Ubuntu Touch boot test remain
-   pending. Preparation success is not a claim that the handset boots.
+   The subsequent recovery photograph confirms TWRP boot. Complete the read-only
+   ADB checks of the exact installed images, mounts and userdata encryption with
+   `CONTROLLA-RECOVERY.cmd` before the first Ubuntu Touch installation. It reads
+   only selected metadata and recovery/vbmeta image bytes, without mounting,
+   writing, formatting or rebooting. Ubuntu Touch boot remains pending.
 
 See [stock-layout findings](stock-layout-2026-10-13.md) for the completed audit
 and exact remaining limits. The generic recovery fstab mentions

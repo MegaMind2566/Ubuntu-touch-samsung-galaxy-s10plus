@@ -3,11 +3,14 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. No on-device boot validation.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. TWRP recovery boots on the handset; Ubuntu Touch boot is still pending.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
-Samsung stock system still installed. No image from this project has been flashed.
+Samsung stock system still installed at that point. The user subsequently
+installed the prepared recovery and supplied a photograph of the TWRP
+3.7.0_9-2 home screen. This confirms recovery boot, not Ubuntu Touch boot or
+vendor runtime. See [first recovery boot evidence](docs/recovery-boot-2026-10-13.json).
 See [current Download-mode observation](docs/download-mode-state-2026-10-13.json).
 
 First successful adaptation build: **12 October 2026**, commit
@@ -168,7 +171,8 @@ The package includes the official Python 3.14.4 embedded Windows runtime,
 verified against the publisher's SHA-256, and the applicable licenses.
 It never accesses a handset or flashes images, and does not bundle/mirror TWRP.
 Original images and modified outputs remain on the user's PC; only the small
-preparation report is returned for review. The first hardware boot is pending.
+preparation report is returned for review. The first recovery boot is now
+confirmed by the user's photograph; Ubuntu Touch boot remains pending.
 
 Reproduce with `python3 scripts/package-recovery-preparation.py`.
 
@@ -184,11 +188,28 @@ The console streams are drained concurrently without a wrapper timeout, and
 bounded, redacted native messages are retained in `recovery-test-report.zip`.
 The latest user console identifies a handshake failure before beginning a
 session or transmitting image payloads. The fresh-session workaround and the
-first recovery/Ubuntu Touch boots still need hardware verification; see
+Ubuntu Touch boot still needs hardware verification; the later recovery
+photograph confirms that TWRP does boot. See
 [the failure record](docs/recovery-handshake-failure-2026-10-13.json).
 Windows CI validates the real images and native CMD entry point, with simulated
 USB responses/writes and a local console stub only.
 Reproduce the add-on with `python3 scripts/package-recovery-test.py`.
+
+## Read-only checks in the running recovery
+
+The TWRP photograph confirms the recovery home screen. `CONTROLLA-RECOVERY.cmd`
+uses the official, checksum-pinned Google ADB 37.0.1 for USB-only read queries.
+It checks root recovery identity, measured partition sizes, the modified init
+and no-op script, and hashes of the exact installed recovery prefix and bounded
+VBMETA image. It reads selected mount metadata, static fstab configuration and
+TWRP encryption/decryption state. It never mounts, pushes, formats, flashes or
+reboots the handset, and does not read personal files from USERDATA.
+
+The report ZIP retains selected metadata, without general property dumps,
+ADB serials or raw errors. Failures also produce a report. These results guide
+the first Ubuntu Touch installation; recovery success does not establish
+compatibility of the Ubuntu Touch kernel/container with Samsung vendor.
+Reproduce with `python3 scripts/package-recovery-check.py`.
 
 ## Build
 

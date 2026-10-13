@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-13",
+  "source": "User photograph image-1791888565641.jpg and reported successful recovery installation",
+  "device_model": "SM-G975F",
+  "device_model_source": "Previously confirmed USB model and continued work on the same handset",
+  "twrp_version_visible": "3.7.0_9-2",
+  "twrp_home_screen_visible": true,
+  "recovery_boot_confirmed_by_photo": true,
+  "exact_flash_success_report_received": false,
+  "installed_recovery_and_vbmeta_hashes_verified_on_device": false,
+  "adb_in_recovery_verified": false,
+  "userdata_encryption_inspected": false,
+  "system_and_vendor_mount_state_inspected": false,
+  "ubuntu_touch_boot_verified": false,
+  "vendor_runtime_compatibility_verified": false,
+  "install_ready": false,
+  "next_step": "Run the read-only ADB recovery collector before preparing the first Ubuntu Touch installation"
+}

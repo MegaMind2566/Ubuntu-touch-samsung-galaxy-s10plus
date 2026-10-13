@@ -1,0 +1,32 @@
+name: S10+ read-only recovery check
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/check-recovery.ps1'
+      - 'scripts/package-recovery-check.py'
+      - 'scripts/check-download-mode.ps1'
+      - 'tests/test-recovery-check.ps1'
+      - 'tools/windows/CONTROLLA-RECOVERY.cmd'
+      - 'tools/windows/LEGGIMI-CONTROLLO-RECOVERY.txt'
+      - '.github/workflows/recovery-check.yml'
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Package pinned official Google ADB and read-only collector
+        run: python scripts/package-recovery-check.py
+      - name: Verify native Windows entry points and recovery guards
+        shell: powershell
+        run: .\tests\test-recovery-check.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-read-only-recovery-check
+          path: out/UbuntuTouch-S10plus-controllo-recovery-Windows.zip
+          if-no-files-found: error

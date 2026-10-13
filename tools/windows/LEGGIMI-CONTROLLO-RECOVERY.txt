@@ -1,0 +1,21 @@
+CONTROLLO DELLA RECOVERY PRIMA DI UBUNTU TOUCH - SAMSUNG S10+ SM-G975F
+
+1. Estrai tutto lo ZIP in una nuova cartella sul PC Windows.
+2. Lascia il telefono sulla schermata principale di TWRP, collegato via USB.
+   Se compare una richiesta di password, premi Cancel. Usa Keep Read Only.
+3. Apri CONTROLLA-RECOVERY.cmd e attendi la fine.
+4. Invia il file recovery-check-report.zip creato nella stessa cartella.
+
+Il programma legge le informazioni della recovery, le dimensioni delle
+partizioni, gli hash dei file installati, i montaggi e lo stato della cifratura
+della memoria dati. Non monta, formatta, riavvia o installa nulla.
+Non legge foto, documenti, account o contenuti personali della memoria dati.
+Per controllare le immagini legge solo RECOVERY e VBMETA; delle altre
+partizioni legge le dimensioni. La cifratura viene interrogata tramite TWRP.
+
+La foto ricevuta conferma il primo avvio di TWRP. Questo controllo completa
+le verifiche prima di preparare l'installazione e il primo avvio Ubuntu Touch.
+
+Il pacchetto include ADB ufficiale Google 37.0.1 con le relative licenze.
+Non serve installare Python o aprire una finestra PowerShell a mano.
+Se il telefono non viene trovato, invia comunque il rapporto prodotto.
