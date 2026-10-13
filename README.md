@@ -291,11 +291,53 @@ The subsequent handset Apply report confirms the version 1 to version 2
 BOOT transition, transferred-image checks, repeated recovery/current-BOOT
 checks, successful raw write and exact SHA-256 physical-prefix readback.
 All ten remote actions return exit code 0. SYSTEM/VENDOR were not written,
-userdata was not formatted and reboot remains manual. Normal-boot feedback
-has not yet been supplied; preserve the checkpoint and do not repeat Apply.
-See [the hardware write/readback evidence](docs/boot-update-2-handset-2026-10-13.json).
+userdata was not formatted and reboot remains manual. The user reports that
+BOOT 2 still stops at the Samsung logo. The subsequent dmesg/recovery logs
+describe only the active TWRP kernel 4.14.113, so normal Ubuntu kernel/init
+execution remains unconfirmed. Preserve the checkpoint and do not repeat Apply.
+See [the hardware write/readback evidence](docs/boot-update-2-handset-2026-10-13.json)
+and [the unsuccessful normal-boot result](docs/boot-update-2-logo-2026-10-13.json).
 
 Ubuntu hardware boot and full stock restoration remain unverified.
+
+
+## Controlled boot-stage ramdisk diagnostic
+
+The next handset test uses the byte-identical BOOT 2 kernel and a reduced
+PID 1 ramdisk. It does not execute the full Ubuntu init. It attempts an
+optional userspace fbdev status screen, an ACM USB enumeration signal without
+shell/network services, and bounded logs in a newly created exclusive
+`/data/ubuntu-touch-boot-diagnostic-1` directory. SYSTEM and VENDOR are inspected
+with `ro,noload,nosuid,nodev,noexec` mounts; there is no runtime raw block write,
+fsck, resize, format or automatic reboot. Data is synced and unmounted after
+capture. An existing diagnostic log directory is preserved.
+
+The pinned DECON driver has neither fb_copyarea/fb_imageblit callbacks nor a
+persistent screen_base, and the installed configuration disables fbcon.
+Simply enabling a kernel text console would therefore require additional
+driver work. This controlled test instead isolates ramdisk execution while
+keeping the kernel unchanged. A captured PID 1 marker establishes that this
+ramdisk executed. Absence of screen/USB/log markers alone cannot identify the
+failing kernel stage. See [the diagnostic design and source audit](docs/boot-diagnostic-design-2026-10-13.json).
+
+`INSTALLA-TEST-AVVIO.cmd` applies the diagnostic only from the exact physically
+verified BOOT 2. It retains the measured installer's BOOT-only write/readback,
+unchanged-current-image and TWRP guards, file locks, full PC stock backup
+verification and separate diagnostic checkpoints. `RIPRISTINA-BOOT-2.cmd`
+restores the included byte-exact BOOT 2 only from the diagnostic hash.
+`LEGGI-TEST-AVVIO.cmd` reads the bounded diagnostic logs after manual return
+to TWRP; it never mounts, writes or reboots the phone. See
+[the Windows test instructions](tools/windows/LEGGIMI-TEST-AVVIO.txt).
+
+The static ARM64 display helper and the actual installed BusyBox shell are
+checked in emulation. Real-image validation verifies kernel/header
+preservation and every unrelated original CPIO entry. The Windows validation
+uses the actual original/BOOT 2/diagnostic images, simulated USB/raw writes,
+24 installer guard/restore cases, and three actual CMD launchers with portable
+Python under Windows PowerShell 5.1. These checks do not establish a handset
+boot. The diagnostic itself still awaits its first hardware result.
+The [final Linux/Windows validation run](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38462590908)
+passes. See [the exact delivered build and image metadata](docs/boot-diagnostic-build-2026-10-13.json).
 
 ## Exact stock-firmware download on Windows
 
@@ -510,5 +552,6 @@ permissions are recorded as diagnostic results rather than invented values.
 
 ## Safety
 Unlocking the bootloader wipes user data and may permanently trip Samsung Knox. Never flash an image simply because CI succeeded. Phone functions (including calls, dual SIM, VoLTE, cameras) remain unverified.
+
 
 

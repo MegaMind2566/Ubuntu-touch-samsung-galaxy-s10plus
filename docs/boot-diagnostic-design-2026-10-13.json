@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "reason": "BOOT 2 physically verified but handset remains at Samsung logo. New logs contain only active TWRP kernel 4.14.113.",
+  "kernel_recompiled": false,
+  "boot_2_kernel_preserved": true,
+  "hypothesis": "A reduced PID 1 diagnostic can distinguish execution of this ramdisk from the full Ubuntu init path when a marker is captured.",
+  "negative_signal_limit": "No display/USB/log marker alone does not prove the kernel never executed or identify its failing stage.",
+  "pinned_source_audit": {
+    "run": 38459470552,
+    "commit": "38ec19feae537642d78a39247e2c7ead37599d43",
+    "artifact_id": 11844828067,
+    "archive_sha256": "f7d1d1a00556190c59a1b1e3a4b7626c36927b5a4fa1245c36a18e24ce34f6d2",
+    "reviewed_files": [
+      {
+        "project": "ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820",
+        "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+        "path": "drivers/video/fbdev/core/fbcon.c",
+        "bytes": 84158,
+        "git_blob_sha1": "0cfbdfa01d295431a3562d4f8ac6b7d84b30e42d",
+        "sha256": "f9b89984959aadc23d8d3b09bca5bb827493a1bb592975ed27461337e88ba54c"
+      },
+      {
+        "project": "ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820",
+        "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+        "path": "drivers/video/fbdev/exynos/dpu20/decon_core.c",
+        "bytes": 130440,
+        "git_blob_sha1": "5abd657fff43b9f39b72561b50c6466f632551c2",
+        "sha256": "e0f979ac1050852b66d94b5d1ee1e7d57f303cab6567ed4ab50302b6658628b8"
+      },
+      {
+        "project": "ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820",
+        "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+        "path": "drivers/samsung/misc/sec_log.c",
+        "bytes": 13145,
+        "git_blob_sha1": "d9de736306ea03659c61c5130e6b4407f13fc5a9",
+        "sha256": "2b7fc4a38aadfe9a39e24d2bd0012f23bd680fc49108d4c945332e99b76f5169"
+      }
+    ]
+  },
+  "display_reason": "CONFIG_FRAMEBUFFER_CONSOLE is disabled. Pinned DECON fb_ops has no fb_copyarea/fb_imageblit and its memory allocator clears screen_base. Do not enable fbcon without driver changes. Diagnostic uses optional bounded userspace fbdev instead.",
+  "runtime": {
+    "init_replaced_for_controlled_test": true,
+    "original_init_retained_but_not_executed": true,
+    "busybox_preserved": true,
+    "kernel_unchanged": true,
+    "system_vendor_mounts": "ro,noload,nosuid,nodev,noexec",
+    "userdata": "Only new exclusive mode-0700 /data/ubuntu-touch-boot-diagnostic-1 directory and bounded diagnostic logs; ext4 RW mount, sync, unmount after capture",
+    "raw_block_writes": false,
+    "fsck_resize_format": false,
+    "usb": "ACM enumeration only; no interactive shell or network service",
+    "automatic_reboot": false
+  },
+  "installer": {
+    "target_device": "/dev/block/sda14",
+    "starting_boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0",
+    "rollback": "Byte-exact BOOT 2 included; guarded restore from the diagnostic hash",
+    "new_versioned_checkpoints": true,
+    "original_full_stock_backup_reverified": true
+  },
+  "collector": "Known files only; bounded reads via pinned USB-only ADB in TWRP, redacted reports, no mount/write/reboot requested",
+  "hardware_tested": false,
+  "ubuntu_touch_boot_verified": false
+}
