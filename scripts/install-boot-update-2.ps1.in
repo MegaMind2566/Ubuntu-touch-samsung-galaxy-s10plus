@@ -1,0 +1,191 @@
+# BOOT-only update/restore through the measured TWRP. Generated pins are
+# populated by package-boot-update-2.py from the verified build artifact.
+[CmdletBinding()]
+param([string]$PackageRoot,[ValidateSet('Apply','Restore')][string]$Mode='Apply')
+$utBootUpdateDirectory=[IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
+if ([string]::IsNullOrEmpty($PackageRoot)) { $PackageRoot=Join-Path $utBootUpdateDirectory '..' }
+$utBootUpdateRoot=[IO.Path]::GetFullPath($PackageRoot);$utBootUpdateEntryMode=$Mode
+$script:BootUpdateHash='__BOOT_UPDATE_SHA256__'
+$script:BootUpdateBytes=__BOOT_UPDATE_BYTES__
+$script:BootPreviousHash='d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993'
+$script:BootPreviousBytes=53215232
+. (Join-Path $utBootUpdateDirectory 'install-ubuntu-twrp.ps1')
+
+function Get-BootUpdateArguments {
+    param([string]$Action,[string]$Stage,[string]$Image,[uint64]$Bytes)
+    if ($Stage -cnotmatch '^/data/ubuntu-touch-boot-update-[a-f0-9]{32}$') { throw 'staging_path_invalid' }
+    if ($Bytes -lt 1648 -or $Bytes -gt 57671680) { throw 'boot_size_invalid' }
+    switch ($Action) {
+        'read-current' { $command="/sbin/busybox head -c $Bytes /dev/block/sda14 | /sbin/busybox sha256sum" }
+        'data-space' { $command='/sbin/busybox df -k /data' }
+        'stage-create' { $command="test ! -e '$Stage' && /sbin/busybox mkdir -m 700 '$Stage'" }
+        'push-boot' { return @('-d','push','-Z',$Image,($Stage+'/boot.img')) }
+        'size-boot' { $command="/sbin/busybox stat -t '$Stage/boot.img'" }
+        'hash-boot' { $command="/sbin/busybox sha256sum '$Stage/boot.img'" }
+        'write-boot' { $command="/sbin/busybox dd if='$Stage/boot.img' of=/dev/block/sda14 bs=4194304 && /sbin/busybox sync" }
+        'readback-boot' { $command="/sbin/busybox head -c $Bytes /dev/block/sda14 | /sbin/busybox sha256sum" }
+        'stage-cleanup' { $command="/sbin/busybox rm -f '$Stage/boot.img' && /sbin/busybox rmdir '$Stage'" }
+        default { throw 'boot_update_action_not_allowed' }
+    }
+    return @('-d','shell',$command)
+}
+
+function Invoke-BootUpdateAction {
+    param([string]$Executable,[string]$Action,[string]$Stage,[string]$Image,[uint64]$Bytes,
+          [scriptblock]$Runner,[System.Collections.IList]$Trace,[string[]]$PrivateValues)
+    $arguments=@(Get-BootUpdateArguments $Action $Stage $Image $Bytes)
+    if ($Runner) { $value=& $Runner $Executable $arguments $Action $Bytes }
+    else { $value=Invoke-UtTwrpNative $Executable $arguments }
+    $Trace.Add([pscustomobject]@{operation=$Action;exit_code=$value.ExitCode;stderr=(Protect-RecoveryTestText ([string]$value.Stderr) $PrivateValues)}) | Out-Null
+    if ($value.ExitCode -ne 0) { throw ('boot_'+$Action+'_failed') }
+    return $value
+}
+
+function Invoke-BootUpdateInstallation {
+    param([string]$Root,[ValidateSet('Apply','Restore')][string]$UpdateMode,
+          [scriptblock]$PreflightRunner,[scriptblock]$InventoryRunner,[scriptblock]$ImageVerifier,[scriptblock]$ActionRunner)
+    $ErrorActionPreference='Stop';Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $Root=[IO.Path]::GetFullPath($Root)
+    $directory=Join-Path $Root ('boot-update-check-'+[Guid]::NewGuid().ToString('N'))
+    [IO.Directory]::CreateDirectory($directory) | Out-Null
+    $private=Join-Path $directory 'private-check.json'
+    $new=Join-Path $Root 'boot-update-2\boot.img'
+    $previousImage=Join-Path $Root 'boot-update-1\boot.img'
+    $python=Join-Path $Root 'tools\python\python.exe';$adb=Join-Path $Root 'platform-tools\adb.exe'
+    $stage='/data/ubuntu-touch-boot-update-'+[Guid]::NewGuid().ToString('N')
+    $checkpoint=Join-Path $Root ('ubuntu-boot-update-2-'+$UpdateMode.ToLowerInvariant()+'-state.json')
+    $locks=New-Object 'System.Collections.Generic.List[System.IO.FileStream]'
+    $trace=New-Object System.Collections.ArrayList
+    $report=[ordered]@{
+        schema=1;update_version=2;route='root_twrp_boot_only';mode=$UpdateMode;date_utc=[DateTime]::UtcNow.ToString('o')
+        model='SM-G975F';pda='G975FXXSGHWC1';target_partitions=@('BOOT');target_device='/dev/block/sda14'
+        local_images_verified=$false;stock_backup_verified=$false;recovery_checks_passed=$false
+        current_boot_verified=$false;staged_boot_verified=$false;prewrite_checks_passed=$false
+        boot_write_requested=$false;boot_readback_verified=$false;staging_cleanup_succeeded=$false
+        system_write_requested=$false;vendor_write_requested=$false;data_format_requested=$false
+        repartition_requested=$false;automatic_reboot_requested=$false;ubuntu_touch_boot_verified=$false
+        partition_progress='not_requested';success=$false;error=$null;steps=$trace
+    }
+    $reason='package_dependencies_invalid';$stageCreated=$false
+    $privateValues=@($Root,$directory,$private,$new,$previousImage,$python,$adb,$stage)
+    try {
+        foreach ($name in @('ubuntu-twrp-session.lock','ubuntu-boot-update-session.lock')) {
+            $locks.Add([IO.File]::Open((Join-Path $Root $name),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None))
+        }
+        $reason='previous_boot_update_needs_review'
+        if (Test-Path -LiteralPath $checkpoint) { throw $reason }
+        $reason='package_dependencies_invalid'
+        foreach ($path in @($python,$new,$previousImage)) { $locks.Add([IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)) }
+        if ((Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant() -cne $script:RecoveryTestPythonHash) { throw $reason }
+        foreach ($name in $script:RecoveryAdbHashes.Keys) {
+            $path=Join-Path $Root ('platform-tools\'+$name)
+            $locks.Add([IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read))
+            if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $script:RecoveryAdbHashes[$name]) { throw $reason }
+        }
+        $reason='updated_boot_mismatch'
+        if ((Get-Item -LiteralPath $new).Length -ne $script:BootUpdateBytes -or
+            (Get-FileHash -LiteralPath $new -Algorithm SHA256).Hash.ToLowerInvariant() -cne $script:BootUpdateHash) { throw $reason }
+        $reason='previous_boot_image_mismatch'
+        if ((Get-Item -LiteralPath $previousImage).Length -ne $script:BootPreviousBytes -or
+            (Get-FileHash -LiteralPath $previousImage -Algorithm SHA256).Hash.ToLowerInvariant() -cne $script:BootPreviousHash) { throw $reason }
+        $reason='updated_boot_structure_invalid'
+        if ($ImageVerifier) { & $ImageVerifier $Root $new | ForEach-Object { Write-Host $_ } }
+        else {
+            & $python -I (Join-Path $Root 'scripts\verify_boot_update_2.py') --image $new | ForEach-Object { Write-Host $_ }
+            if ($LASTEXITCODE -ne 0) { throw $reason }
+        }
+        $reason='preparation_state_invalid'
+        $state=Join-Path $Root 'ubuntu-local-state.json'
+        if ((Get-Item -LiteralPath $state).Length -gt 131072) { throw $reason }
+        $ready=[IO.File]::ReadAllText($state) | ConvertFrom-Json
+        $prepared=[IO.Path]::GetFullPath([string]$ready.prepared_directory)
+        if ([IO.Path]::GetDirectoryName($prepared).TrimEnd('\') -ine $Root.TrimEnd('\') -or
+            [IO.Path]::GetFileName($prepared) -cnotmatch '^prepared-ubuntu-[a-f0-9]{32}$') { throw $reason }
+        $old=Join-Path $prepared 'boot.img';$system=Join-Path $prepared 'system.img';$stock=[IO.Path]::GetFullPath([string]$ready.stock_firmware_path)
+        $privateValues+=@($prepared,$old,$system,$stock)
+        foreach ($path in @($old,$system,$stock,$state)) { $locks.Add([IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)) }
+        $reason='image_or_backup_verification_failed'
+        Write-Host 'Verifica dei file preparati e del firmware completo di ripristino...'
+        if ($PreflightRunner) { $files=& $PreflightRunner $Root }
+        else {
+            & $python -I (Join-Path $Root 'scripts\prepare_ubuntu_install.py') --root $Root --verify-output $private | ForEach-Object { Write-Host $_ }
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $private)) { throw $reason }
+            $files=[IO.File]::ReadAllText($private) | ConvertFrom-Json
+        }
+        if (-not $files.success -or -not $files.backup_verified -or
+            [IO.Path]::GetFullPath([string]$files.boot_path) -ine $old -or [IO.Path]::GetFullPath([string]$files.system_path) -ine $system -or
+            [IO.Path]::GetFullPath([string]$files.stock_firmware_path) -ine $stock -or
+            (Get-Item -LiteralPath $old).Length -ne 53215232 -or
+            (Get-FileHash -LiteralPath $old -Algorithm SHA256).Hash.ToLowerInvariant() -cne '0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc') { throw $reason }
+        $report.local_images_verified=$true;$report.stock_backup_verified=$true
+        if ($UpdateMode -ceq 'Apply') {
+            $image=$new;$bytes=[uint64]$script:BootUpdateBytes;$expected=$script:BootUpdateHash
+            $previousBytes=[uint64]$script:BootPreviousBytes;$previous=$script:BootPreviousHash
+        } else {
+            $image=$previousImage;$bytes=[uint64]$script:BootPreviousBytes;$expected=$script:BootPreviousHash
+            $previousBytes=[uint64]$script:BootUpdateBytes;$previous=$script:BootUpdateHash
+        }
+        $report.expected_boot_sha256=$expected;$report.expected_boot_bytes=$bytes
+        $report.expected_previous_boot_sha256=$previous
+        $reason='recovery_preflight_failed'
+        if ($InventoryRunner) { $inventory=& $InventoryRunner $Root } else { $inventory=Invoke-RecoveryInventory -Root $Root }
+        Assert-UtTwrpInventory $inventory;$report.recovery_checks_passed=$true
+        $reason='current_boot_not_expected'
+        $value=Invoke-BootUpdateAction $adb 'read-current' $stage '' $previousBytes $ActionRunner $trace $privateValues
+        if ($value.Stdout.Trim() -cnotmatch '^([0-9a-f]{64})\s+-?$' -or $Matches[1] -cne $previous) { throw $reason }
+        $report.current_boot_verified=$true
+        $reason='insufficient_staging_space'
+        $space=Invoke-BootUpdateAction $adb 'data-space' $stage '' $bytes $ActionRunner $trace $privateValues
+        if ($space.Stdout -notmatch '(?m)\b([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+[0-9]+%\s+/data\s*$' -or
+            [uint64]$Matches[3]*1024 -lt $bytes+67108864) { throw $reason }
+        $reason='staging_transfer_failed'
+        $null=Invoke-BootUpdateAction $adb 'stage-create' $stage '' $bytes $ActionRunner $trace $privateValues;$stageCreated=$true
+        $null=Invoke-BootUpdateAction $adb 'push-boot' $stage $image $bytes $ActionRunner $trace $privateValues
+        $reason='staged_boot_verification_failed'
+        $value=Invoke-BootUpdateAction $adb 'size-boot' $stage '' $bytes $ActionRunner $trace $privateValues
+        $fields=$value.Stdout.Trim() -split '\s+'
+        if ($fields.Count -lt 2 -or $fields[0] -cne ($stage+'/boot.img') -or [uint64]$fields[1] -ne $bytes) { throw $reason }
+        $value=Invoke-BootUpdateAction $adb 'hash-boot' $stage '' $bytes $ActionRunner $trace $privateValues
+        if ($value.Stdout.Trim() -cnotmatch '^([0-9a-f]{64})\s+\S+$' -or $Matches[1] -cne $expected) { throw $reason }
+        $report.staged_boot_verified=$true
+        $reason='prewrite_recovery_changed'
+        if ($InventoryRunner) { $inventory=& $InventoryRunner $Root } else { $inventory=Invoke-RecoveryInventory -Root $Root }
+        Assert-UtTwrpInventory $inventory
+        $value=Invoke-BootUpdateAction $adb 'read-current' $stage '' $previousBytes $ActionRunner $trace $privateValues
+        if ($value.Stdout.Trim() -cnotmatch '^([0-9a-f]{64})\s+-?$' -or $Matches[1] -cne $previous) { throw $reason }
+        $report.prewrite_checks_passed=$true
+        [IO.File]::WriteAllText($checkpoint,'{"write_started":true,"success":false}')
+        $report.boot_write_requested=$true;$report.partition_progress='boot_unknown';$reason='boot_write_failed'
+        Write-Host 'Scrittura di BOOT. Lascia USB collegato e questa finestra aperta.'
+        $null=Invoke-BootUpdateAction $adb 'write-boot' $stage '' $bytes $ActionRunner $trace $privateValues
+        $reason='boot_readback_failed'
+        $value=Invoke-BootUpdateAction $adb 'readback-boot' $stage '' $bytes $ActionRunner $trace $privateValues
+        if ($value.Stdout.Trim() -cnotmatch '^([0-9a-f]{64})\s+-?$' -or $Matches[1] -cne $expected) { throw $reason }
+        $report.boot_readback_verified=$true;$report.partition_progress='boot_readback_verified';$report.success=$true
+        [IO.File]::WriteAllText($checkpoint,'{"write_started":true,"success":true}')
+        Write-Host 'AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO.'
+        Write-Host 'Ora in TWRP: Reboot > System. Se propone l app TWRP, scegli Do Not Install.'
+        Write-Host 'Invia il rapporto e la schermata ottenuta al primo avvio.'
+    } catch {
+        $report.error=$reason;Write-Host ('Operazione fermata: '+$reason)
+        Write-Host 'Resta in TWRP e invia il rapporto. Non ripetere la scrittura.'
+    } finally {
+        if ($stageCreated -and ($report.success -or -not $report.boot_write_requested)) {
+            try { $null=Invoke-BootUpdateAction $adb 'stage-cleanup' $stage '' ([uint64]$script:BootUpdateBytes) $ActionRunner $trace $privateValues;$report.staging_cleanup_succeeded=$true } catch {}
+        }
+        foreach ($handle in $locks) { $handle.Dispose() }
+        if (Test-Path -LiteralPath $private) { Remove-Item -LiteralPath $private -Force }
+        [IO.File]::WriteAllText((Join-Path $directory 'boot-update-report.json'),($report | ConvertTo-Json -Depth 8),(New-Object Text.UTF8Encoding($false)))
+        $zip=Join-Path $Root 'ubuntu-boot-update-2-report.zip';$index=1
+        while (Test-Path -LiteralPath $zip) { $zip=Join-Path $Root ('ubuntu-boot-update-2-report-'+$index+'.zip');$index++ }
+        [IO.Compression.ZipFile]::CreateFromDirectory($directory,$zip,[IO.Compression.CompressionLevel]::Optimal,$false)
+        Remove-Item -LiteralPath $directory -Recurse -Force
+    }
+    Write-Host ('Invia questo rapporto: '+$zip)
+    return [pscustomobject]@{Success=$report.success;Report=$report;ZipPath=$zip}
+}
+
+if ($MyInvocation.InvocationName -ne '.') {
+    try { $result=Invoke-BootUpdateInstallation -Root $utBootUpdateRoot -UpdateMode $utBootUpdateEntryMode;if ($result.Success) { exit 0 };exit 1 }
+    catch { Write-Host 'Impossibile creare il rapporto. Usa la cartella originale estratta e scrivibile.';exit 2 }
+}

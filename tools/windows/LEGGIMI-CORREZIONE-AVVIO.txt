@@ -1,0 +1,37 @@
+Samsung S10+ SM-G975F - BOOT versione 2, passaggio al ramdisk Ubuntu
+
+Il test sul codice originale riproduce un problema preciso: il kernel carica
+il ramdisk Samsung SAR ma poi salta /init e sceglie /sbin/init. Nel ramdisk
+installato /sbin/init e BusyBox, senza inittab o rcS per avviare Halium.
+La correzione ripristina il comando /init dopo il caricamento tardivo.
+Il risultato sul telefono richiede ancora il test di avvio.
+
+1. Copia TUTTO il contenuto di questo ZIP nella cartella originale
+   UbuntuTouch-S10plus-installa-Ubuntu-Windows, accettando le sostituzioni.
+   Conserva i file preparati, il firmware completo e i rapporti precedenti.
+2. Rientra in TWRP con USB collegato al PC: Volume giu + Power fino allo
+   schermo nero, poi subito Volume su + Bixby + Power fino alla recovery.
+3. Lascia TWRP nella schermata principale e avvia
+   INSTALLA-CORREZIONE-AVVIO.cmd. Non usare Format Data.
+4. Solo dopo AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO:
+   TWRP > Reboot > System. Se propone l'app TWRP, scegli Do Not Install.
+5. Invia ubuntu-boot-update-2-report.zip (o il file numerato indicato) e
+   una foto della schermata ottenuta. Se compare un errore nel programma,
+   resta in TWRP e invia il rapporto prima di qualsiasi altra scrittura.
+
+Il programma verifica i file originali e il firmware completo sul PC, il
+nuovo BOOT e il BOOT versione 1 incluso per il ritorno manuale. Controlla
+recovery, VBMETA, dimensioni e mount. Il BOOT sul telefono deve corrispondere
+esattamente alla versione 1 gia scritta e riletta nel rapporto precedente.
+Copia il nuovo BOOT in una cartella privata del telefono e ne verifica
+dimensioni e SHA-256. Ripete i controlli prima di scrivere solo /dev/block/sda14.
+Rilegge il prefisso dell'immagine e richiede il nuovo SHA-256 prima del successo.
+
+SYSTEM, VENDOR, RECOVERY, VBMETA, modem e EFS non sono destinazioni di scrittura.
+Non cancella dati, non cambia le partizioni e non riavvia automaticamente.
+I checkpoint di versione 1 restano conservati; la versione 2 usa checkpoint
+separati e ferma i tentativi ripetuti dopo una scrittura.
+
+RIPRISTINA-BOOT-1.cmd torna solo al BOOT sperimentale versione 1, conservato
+in questo ZIP. Richiede il nuovo BOOT versione 2 riconosciuto sul telefono.
+Non e un ripristino Android. Il rapporto va controllato prima del ritorno.
