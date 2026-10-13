@@ -83,9 +83,9 @@ function Invoke-BootUpdateInstallation {
         if ((Get-Item -LiteralPath $new).Length -ne $script:BootUpdateBytes -or
             (Get-FileHash -LiteralPath $new -Algorithm SHA256).Hash.ToLowerInvariant() -cne $script:BootUpdateHash) { throw $reason }
         $reason='updated_boot_structure_invalid'
-        if ($ImageVerifier) { & $ImageVerifier $Root $new }
+        if ($ImageVerifier) { & $ImageVerifier $Root $new | ForEach-Object { Write-Host $_ } }
         else {
-            & $python -I (Join-Path $Root 'scripts\verify_boot_update.py') --image $new
+            & $python -I (Join-Path $Root 'scripts\verify_boot_update.py') --image $new | ForEach-Object { Write-Host $_ }
             if ($LASTEXITCODE -ne 0) { throw $reason }
         }
         $reason='preparation_state_invalid'

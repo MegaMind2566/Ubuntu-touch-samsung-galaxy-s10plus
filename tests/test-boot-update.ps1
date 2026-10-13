@@ -106,6 +106,7 @@ function Invoke-BootFixture {
     $checkpoint=Join-Path $script:BootTestRoot ('ubuntu-boot-update-'+$Mode.ToLowerInvariant()+'-state.json')
     if ($Case -ne 'retry' -and (Test-Path -LiteralPath $checkpoint)) { Remove-Item -LiteralPath $checkpoint }
     $result=Invoke-BootUpdateInstallation -Root $script:BootTestRoot -UpdateMode $Mode -PreflightRunner $bootPreflight -InventoryRunner $bootInventory -ImageVerifier $bootImageVerifier -ActionRunner $bootActions
+    Assert-BootTest ($result -is [pscustomobject] -and $result -isnot [array]) 'diagnostic output does not contaminate the returned result'
     Assert-BootTest ($result.Success -eq ($Case -eq 'success')) ($Mode+'/'+$Case+': success')
     Assert-BootTest (([string]$result.Report.error) -ceq ([string]$ExpectedError)) ($Mode+'/'+$Case+': error stage')
     Assert-BootTest ($result.Report.boot_write_requested -eq $Write) ($Mode+'/'+$Case+': write gate')
@@ -206,3 +207,4 @@ public class S10BootUpdateFakeConsole {
     Assert-BootTest ($LASTEXITCODE -eq 1) 'old uncorrected BOOT cannot be mistaken for the update'
     Write-Host 'PASS: 22 update/restore cases with actual pinned original/corrected BOOT, embedded Python verification, physical BOOT target, unchanged-current-BOOT and recovery guards, staged hashes, readbacks, partial-write checkpoints, immutable inputs, private reports and both real Windows 5.1 CMD launchers. USB/raw writes simulated; hardware Ubuntu boot unverified.'
 } finally { Remove-Item -LiteralPath $script:BootTestRoot -Recurse -Force }
+exit 0
