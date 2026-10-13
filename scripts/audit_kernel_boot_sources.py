@@ -43,6 +43,16 @@ def main():
     for path in paths:
         manifest['files'].append(fetch(KERNEL,KERNEL_COMMIT,path))
     manifest['files'].append(fetch(PORT,PORT_COMMIT,'deviceinfo-beyond2lte'))
+    tree_url=('https://gitlab.com/api/v4/projects/'+urllib.parse.quote(KERNEL,safe='')+
+              '/repository/tree?path=init%2Fsar_ramdisk&recursive=true&per_page=100&ref='+KERNEL_COMMIT)
+    with urllib.request.urlopen(tree_url,timeout=45) as response:
+        sar_files=json.loads(response.read(1024*1024))
+    if not isinstance(sar_files,list) or len(sar_files)>50:raise ValueError('sar_tree_unexpected')
+    for entry in sar_files:
+        path=entry['path']
+        if (entry['type']=='blob' and re.fullmatch(r'init/sar_ramdisk/[A-Za-z0-9_./-]+',path)
+                and '..' not in path.split('/') and path.endswith(('.c','.h','Makefile','Kconfig'))):
+            manifest['files'].append(fetch(KERNEL,KERNEL_COMMIT,path));paths.append(path)
     makefile=(OUTPUT/'kernel/init/Makefile').read_text()
     for line in makefile.splitlines():
         if 'ANDROID_SAR_RAMDISK' in line:
