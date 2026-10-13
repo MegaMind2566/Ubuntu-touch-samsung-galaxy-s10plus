@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. SYSTEM/BOOT physical readbacks pass on the handset, but normal boot remains at the Samsung logo. A tested BOOT-only kernel correction is ready for the next hardware attempt.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. The original normal boot stopped at the Samsung logo. The corrected BOOT is now installed and its physical readback passes; its normal-boot result remains pending.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -229,6 +229,13 @@ passes 22 update/restore guard cases using both actual immutable BOOT images,
 embedded Python and both real CMD entry points in a directory with spaces.
 USB responses/raw writes are simulated; hardware Ubuntu boot remains
 unverified. See [the correction evidence](docs/boot-update-1-2026-10-13.json).
+The subsequent handset reports confirm the corrected 53,215,232-byte BOOT
+was written and read back with the expected SHA-256. Both recovery inventory
+reports pass, and the local Apply checkpoint records success. SYSTEM/VENDOR
+were not written and no data format/repartition was requested. The normal
+boot result has not yet been supplied; do not repeat Apply or erase userdata.
+See [the hardware correction result](docs/boot-update-1-handset-2026-10-13.json).
+
 Reproduce with `scripts/prepare_boot_update.py`,
 `scripts/fetch_boot_update_artifact.py` and `scripts/package-boot-update.py`;
 the workflow fixes the original and corrected artifact identities.

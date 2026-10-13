@@ -1,0 +1,445 @@
+{
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "sources": [
+    {
+      "filename": "ubuntu-boot-update-report-1.zip",
+      "bytes": 899,
+      "sha256": "d22c9a4f3150a10dc8178ddf2fa94de674116f1928817d193c13553d457095ac"
+    },
+    {
+      "filename": "recovery-check-report-15.zip",
+      "bytes": 1627,
+      "sha256": "58b763f2d2fd589c1b18c6140273e7dcde66c7fbb7f32b00996ea1e8959b2969"
+    },
+    {
+      "filename": "recovery-check-report-16.zip",
+      "bytes": 1627,
+      "sha256": "6718ba5dd4dff0000d1f4ad03c30868382787884eb58422dad5e09f8c50a80d0"
+    },
+    {
+      "filename": "ubuntu-boot-update-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    }
+  ],
+  "apply_report": {
+    "schema": 1,
+    "update_version": 1,
+    "route": "root_twrp_boot_only",
+    "mode": "Apply",
+    "date_utc": "2026-10-13T18:20:37.0265824Z",
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "target_partitions": [
+      "BOOT"
+    ],
+    "target_device": "/dev/block/sda14",
+    "local_images_verified": true,
+    "stock_backup_verified": true,
+    "recovery_checks_passed": true,
+    "current_boot_verified": true,
+    "staged_boot_verified": true,
+    "prewrite_checks_passed": true,
+    "boot_write_requested": true,
+    "boot_readback_verified": true,
+    "staging_cleanup_succeeded": true,
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "repartition_requested": false,
+    "automatic_reboot_requested": false,
+    "ubuntu_touch_boot_verified": false,
+    "partition_progress": "boot_readback_verified",
+    "success": true,
+    "error": null,
+    "steps": [
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "data-space",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-create",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "push-boot",
+        "exit_code": 0,
+        "stderr": "[redacted]: 1 file pushed, 0 skipped. 122.3 MB/s (53215232 bytes in 0.415s)\n"
+      },
+      {
+        "operation": "size-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "hash-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "write-boot",
+        "exit_code": 0,
+        "stderr": "12+1 records in\n12+1 records out\n53215232 bytes (50.8MB) copied, 0.395553 seconds, 128.3MB/s\n"
+      },
+      {
+        "operation": "readback-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-cleanup",
+        "exit_code": 0,
+        "stderr": ""
+      }
+    ],
+    "expected_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+    "expected_boot_bytes": 53215232,
+    "expected_previous_boot_sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc"
+  },
+  "recovery_inventory_reports": [
+    {
+      "filename": "recovery-check-report-15.zip",
+      "report": {
+        "schema": 1,
+        "collector_version": 1,
+        "date_utc": "2026-10-13T18:21:03.2761578Z",
+        "target_model": "SM-G975F",
+        "expected_firmware": "G975FXXSGHWC1",
+        "adb_usb_only": true,
+        "partition_writes": false,
+        "erase_requested": false,
+        "reboot_requested": false,
+        "mount_changes_requested": false,
+        "recovery_boot_confirmed_by_adb": true,
+        "ubuntu_touch_boot_verified": false,
+        "success": true,
+        "error": null,
+        "properties": {
+          "ro.boot.bootloader": "G975FXXSGHWC1",
+          "ro.crypto.type": "",
+          "ro.product.model": "Galaxy S10+",
+          "ro.boot.slot_suffix": "",
+          "ro.twrp.version": "3.7.0_9-2",
+          "ro.boot.verifiedbootstate": "orange",
+          "ro.boot.vbmeta.device_state": "",
+          "ro.bootloader": "G975FXXSGHWC1",
+          "ro.product.device": "beyond2lte",
+          "ro.boot.flash.locked": "",
+          "ro.crypto.state": "",
+          "ro.hardware": "exynos9820"
+        },
+        "partitions": {
+          "boot": {
+            "bytes": 57671680,
+            "block_device": "/dev/block/sda14"
+          },
+          "dtb": {
+            "bytes": 8388608,
+            "block_device": "/dev/block/sda12"
+          },
+          "recovery": {
+            "bytes": 67633152,
+            "block_device": "/dev/block/sda15"
+          },
+          "dtbo": {
+            "bytes": 8388608,
+            "block_device": "/dev/block/sda13"
+          },
+          "system": {
+            "bytes": 5976883200,
+            "block_device": "/dev/block/sda25"
+          },
+          "userdata": {
+            "bytes": 119126622208,
+            "block_device": "/dev/block/sda31"
+          },
+          "vbmeta": {
+            "bytes": 65536,
+            "block_device": "/dev/block/sda23"
+          },
+          "vendor": {
+            "bytes": 1153433600,
+            "block_device": "/dev/block/sda26"
+          }
+        },
+        "selected_mounts": [
+          {
+            "filesystem": "ext4",
+            "target": "/data",
+            "source": "/dev/block/platform/13d60000.ufs/by-name/userdata",
+            "options": "rw,seclabel,relatime,data=ordered"
+          },
+          {
+            "filesystem": "ext4",
+            "target": "/cache",
+            "source": "/dev/block/platform/13d60000.ufs/by-name/cache",
+            "options": "rw,seclabel,relatime,data=ordered"
+          }
+        ],
+        "twrp_data_state": {
+          "tw_mount_system_ro": 1,
+          "tw_is_encrypted": 0,
+          "tw_is_decrypted": 0
+        },
+        "steps": [
+          {
+            "operation": "state",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "uid",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "properties",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "partitions",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "startup-hashes",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "recovery-hash",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "vbmeta-hash",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "mounts",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "fstab",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "data-state",
+            "timed_out": false,
+            "exit_code": 0
+          }
+        ],
+        "optional_query_failures": [],
+        "automatic_vendor_mutation_patch_confirmed": true,
+        "installed_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+        "installed_vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+        "recovery_fstab_lines": [
+          "/system_root    ext4   /dev/block/platform/13d60000.ufs/by-name/system        flags=backup=0;display=\"System\"",
+          "/vendor         ext4   /dev/block/platform/13d60000.ufs/by-name/vendor        flags=backup=0;display=\"Vendor\";wipeingui",
+          "/product        ext4   /dev/block/platform/13d60000.ufs/by-name/product       flags=backup=0;display=\"Product\";wipeingui",
+          "/boot           emmc   /dev/block/platform/13d60000.ufs/by-name/boot",
+          "/recovery       emmc   /dev/block/platform/13d60000.ufs/by-name/recovery      flags=backup=1",
+          "/system_image   emmc   /dev/block/platform/13d60000.ufs/by-name/system        flags=backup=1",
+          "/vendor_image   emmc   /dev/block/platform/13d60000.ufs/by-name/vendor        flags=backup=1",
+          "/product_image  emmc   /dev/block/platform/13d60000.ufs/by-name/product       flags=backup=1;flashimg;display=\"Product Image\"",
+          "/data           ext4   /dev/block/platform/13d60000.ufs/by-name/userdata      flags=encryptable=footer;length=-20480",
+          "/dtb            emmc   /dev/block/platform/13d60000.ufs/by-name/dtb           flags=backup=1;display=\"DTB\"",
+          "/dtbo           emmc   /dev/block/platform/13d60000.ufs/by-name/dtbo          flags=backup=1;display=\"DTBO\"",
+          "/modem          emmc   /dev/block/platform/13d60000.ufs/by-name/radio         flags=backup=1;display=\"Baseband\"",
+          "/efs            ext4   /dev/block/platform/13d60000.ufs/by-name/efs           flags=backup=1;display=\"EFS\"",
+          "/misc           emmc   /dev/block/platform/13d60000.ufs/by-name/misc          flags=display=\"Misc\"",
+          "/cache          ext4   /dev/block/platform/13d60000.ufs/by-name/cache         flags=display=\"Cache\"",
+          "/external_sd    vfat   /dev/block/mmcblk0p1 /dev/block/mmcblk0                flags=display=\"Micro SDcard\";storage;wipeingui;removable",
+          "/usb-otg        vfat   /dev/block/sdf1 /dev/block/sdf                         flags=display=\"USB-OTG\";storage;wipeingui;removable"
+        ]
+      }
+    },
+    {
+      "filename": "recovery-check-report-16.zip",
+      "report": {
+        "schema": 1,
+        "collector_version": 1,
+        "date_utc": "2026-10-13T18:21:08.2441296Z",
+        "target_model": "SM-G975F",
+        "expected_firmware": "G975FXXSGHWC1",
+        "adb_usb_only": true,
+        "partition_writes": false,
+        "erase_requested": false,
+        "reboot_requested": false,
+        "mount_changes_requested": false,
+        "recovery_boot_confirmed_by_adb": true,
+        "ubuntu_touch_boot_verified": false,
+        "success": true,
+        "error": null,
+        "properties": {
+          "ro.boot.bootloader": "G975FXXSGHWC1",
+          "ro.crypto.type": "",
+          "ro.product.model": "Galaxy S10+",
+          "ro.boot.slot_suffix": "",
+          "ro.twrp.version": "3.7.0_9-2",
+          "ro.boot.verifiedbootstate": "orange",
+          "ro.boot.vbmeta.device_state": "",
+          "ro.bootloader": "G975FXXSGHWC1",
+          "ro.product.device": "beyond2lte",
+          "ro.boot.flash.locked": "",
+          "ro.crypto.state": "",
+          "ro.hardware": "exynos9820"
+        },
+        "partitions": {
+          "boot": {
+            "bytes": 57671680,
+            "block_device": "/dev/block/sda14"
+          },
+          "dtb": {
+            "bytes": 8388608,
+            "block_device": "/dev/block/sda12"
+          },
+          "recovery": {
+            "bytes": 67633152,
+            "block_device": "/dev/block/sda15"
+          },
+          "dtbo": {
+            "bytes": 8388608,
+            "block_device": "/dev/block/sda13"
+          },
+          "system": {
+            "bytes": 5976883200,
+            "block_device": "/dev/block/sda25"
+          },
+          "userdata": {
+            "bytes": 119126622208,
+            "block_device": "/dev/block/sda31"
+          },
+          "vbmeta": {
+            "bytes": 65536,
+            "block_device": "/dev/block/sda23"
+          },
+          "vendor": {
+            "bytes": 1153433600,
+            "block_device": "/dev/block/sda26"
+          }
+        },
+        "selected_mounts": [
+          {
+            "filesystem": "ext4",
+            "target": "/data",
+            "source": "/dev/block/platform/13d60000.ufs/by-name/userdata",
+            "options": "rw,seclabel,relatime,data=ordered"
+          },
+          {
+            "filesystem": "ext4",
+            "target": "/cache",
+            "source": "/dev/block/platform/13d60000.ufs/by-name/cache",
+            "options": "rw,seclabel,relatime,data=ordered"
+          }
+        ],
+        "twrp_data_state": {
+          "tw_mount_system_ro": 1,
+          "tw_is_encrypted": 0,
+          "tw_is_decrypted": 0
+        },
+        "steps": [
+          {
+            "operation": "state",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "uid",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "properties",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "partitions",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "startup-hashes",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "recovery-hash",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "vbmeta-hash",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "mounts",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "fstab",
+            "timed_out": false,
+            "exit_code": 0
+          },
+          {
+            "operation": "data-state",
+            "timed_out": false,
+            "exit_code": 0
+          }
+        ],
+        "optional_query_failures": [],
+        "automatic_vendor_mutation_patch_confirmed": true,
+        "installed_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+        "installed_vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+        "recovery_fstab_lines": [
+          "/system_root    ext4   /dev/block/platform/13d60000.ufs/by-name/system        flags=backup=0;display=\"System\"",
+          "/vendor         ext4   /dev/block/platform/13d60000.ufs/by-name/vendor        flags=backup=0;display=\"Vendor\";wipeingui",
+          "/product        ext4   /dev/block/platform/13d60000.ufs/by-name/product       flags=backup=0;display=\"Product\";wipeingui",
+          "/boot           emmc   /dev/block/platform/13d60000.ufs/by-name/boot",
+          "/recovery       emmc   /dev/block/platform/13d60000.ufs/by-name/recovery      flags=backup=1",
+          "/system_image   emmc   /dev/block/platform/13d60000.ufs/by-name/system        flags=backup=1",
+          "/vendor_image   emmc   /dev/block/platform/13d60000.ufs/by-name/vendor        flags=backup=1",
+          "/product_image  emmc   /dev/block/platform/13d60000.ufs/by-name/product       flags=backup=1;flashimg;display=\"Product Image\"",
+          "/data           ext4   /dev/block/platform/13d60000.ufs/by-name/userdata      flags=encryptable=footer;length=-20480",
+          "/dtb            emmc   /dev/block/platform/13d60000.ufs/by-name/dtb           flags=backup=1;display=\"DTB\"",
+          "/dtbo           emmc   /dev/block/platform/13d60000.ufs/by-name/dtbo          flags=backup=1;display=\"DTBO\"",
+          "/modem          emmc   /dev/block/platform/13d60000.ufs/by-name/radio         flags=backup=1;display=\"Baseband\"",
+          "/efs            ext4   /dev/block/platform/13d60000.ufs/by-name/efs           flags=backup=1;display=\"EFS\"",
+          "/misc           emmc   /dev/block/platform/13d60000.ufs/by-name/misc          flags=display=\"Misc\"",
+          "/cache          ext4   /dev/block/platform/13d60000.ufs/by-name/cache         flags=display=\"Cache\"",
+          "/external_sd    vfat   /dev/block/mmcblk0p1 /dev/block/mmcblk0                flags=display=\"Micro SDcard\";storage;wipeingui;removable",
+          "/usb-otg        vfat   /dev/block/sdf1 /dev/block/sdf                         flags=display=\"USB-OTG\";storage;wipeingui;removable"
+        ]
+      }
+    }
+  ],
+  "apply_checkpoint": {
+    "write_started": true,
+    "success": true
+  },
+  "conclusion": "Corrected BOOT was installed through root TWRP and its exact physical image prefix readback matched the expected SHA-256. No normal-boot result supplied yet.",
+  "corrected_boot_hardware_write_and_readback_verified": true,
+  "ubuntu_touch_kernel_or_userspace_boot_verified": false,
+  "source_fix_is_confirmed_logo_stop_cause": false,
+  "next_step": "Manual TWRP Reboot > System, observe normal boot and provide its result/photo. Do not repeat Apply or erase userdata."
+}
