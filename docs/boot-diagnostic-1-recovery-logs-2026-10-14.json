@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-14",
+  "diagnostic_version": 1,
+  "supplied_files": [
+    {
+      "filename": "dmesg(2).log",
+      "bytes": 721015,
+      "sha256": "8054059128ed045986c9740ae4a1802e59e173243f152984dfdc8d13bec4732e"
+    },
+    {
+      "filename": "recovery(3).log",
+      "bytes": 23389,
+      "sha256": "ca5f9177a5b7bc0ab8035c7adbe610e6f7fb5cabdb0f2669c9324c5fea5fa366"
+    }
+  ],
+  "observed_kernel": "4.14.113-g55f042627",
+  "observed_recovery": "3.7.0_9-2-ddaccbe7",
+  "recovery_start_utc": "2026-10-13T22:18:14Z",
+  "diagnostic_pid1_markers_present_in_these_logs": false,
+  "ubuntu_sar_markers_present_in_these_logs": false,
+  "diagnostic_data_log_report_supplied": false,
+  "normal_boot_screen_result_supplied": false,
+  "interpretation": "Both supplied logs describe the active TWRP recovery, not the diagnostic normal-boot kernel. The pre-existing read-only LEGGI-TEST-AVVIO.cmd collector is needed to read the diagnostic userdata logs and previous-boot buffers; no new write or repeat installation is required."
+}
