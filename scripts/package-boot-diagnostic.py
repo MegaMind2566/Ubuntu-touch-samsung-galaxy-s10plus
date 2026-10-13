@@ -69,9 +69,19 @@ def package(folder,output):
     script=script.replace("$script:BootPreviousHash='d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993'",
                           "$script:BootPreviousHash='"+PREVIOUS_SHA256+"'")
     script=script.replace('schema=1;update_version=2;','schema=1;update_version=3;diagnostic_version=1;purpose="controlled_boot_diagnostic";')
-    script=script.replace('AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO.','BOOT DEL TEST COMPLETATO E VERIFICATO.')
-    script=script.replace('Invia il rapporto e la schermata ottenuta al primo avvio.',
-                          'Dopo avvio System attendi 60 secondi, fotografa la schermata, torna in TWRP e usa LEGGI-TEST-AVVIO.cmd.')
+    footer="""        Write-Host 'AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO.'
+        Write-Host 'Ora in TWRP: Reboot > System. Se propone l app TWRP, scegli Do Not Install.'
+        Write-Host 'Invia il rapporto e la schermata ottenuta al primo avvio.'"""
+    if footer not in script: raise ValueError('mode_footer_anchor')
+    script=script.replace(footer,"""        if ($UpdateMode -ceq 'Apply') {
+            Write-Host 'BOOT DEL TEST COMPLETATO E VERIFICATO.'
+            Write-Host 'Ora in TWRP: Reboot > System. Se propone l app TWRP, scegli Do Not Install.'
+            Write-Host 'Attendi 60 secondi, fotografa la schermata, torna in TWRP e usa LEGGI-TEST-AVVIO.cmd.'
+        } else {
+            Write-Host 'BOOT 2 PRECEDENTE RIPRISTINATO E VERIFICATO.'
+            Write-Host 'Il test diagnostico non e piu in BOOT. I suoi log restano disponibili da TWRP.'
+            Write-Host 'Invia il rapporto di ripristino; nessun riavvio e stato eseguito.'
+        }""",1)
     verifier=(ROOT/'scripts/verify_boot_update_2.py.in').read_text()
     verifier=verifier.replace(ORIGINAL_RAM_SHA256,lock['ramdisk_sha256']).replace('rsize!=4108120','rsize!='+str(lock['ramdisk_bytes']))
     verifier=verifier.replace('BOOT corretto verificato. Ramdisk e selettore di SYSTEM conservati.',
