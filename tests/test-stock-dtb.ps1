@@ -47,13 +47,13 @@ function Reject-Tar([byte[]]$Data, [string]$Name, [bool]$RequireException = $tru
     $stream = New-Object System.IO.MemoryStream(,$Data)
     $scan = New-Object StockDtbTarScan
     $found = $false; $threw = $false
-    try { $found = [StockDtbTarReaderV2]::Extract($stream, $directory, $scan) }
+    try { $found = [StockDtbTarReaderV3]::Extract($stream, $directory, $scan) }
     catch { $threw = $true }
     finally { $stream.Dispose() }
     if ($found -or $scan.Found -or ($RequireException -and -not $threw)) { throw ('Invalid TAR accepted: ' + $Name) }
 }
 
-function Make-Fixture([string]$Name, [string]$Location, [bool]$Raw = $false) {
+function Make-Fixture([string]$Name, [string]$Location, [bool]$Raw = $false, [string]$SamsungName = '') {
     $fixture = Join-Path $temporary $Name
     $firmware = Join-Path $fixture 'firmware'
     $null = New-Item -ItemType Directory -Path $firmware
@@ -64,7 +64,7 @@ function Make-Fixture([string]$Name, [string]$Location, [bool]$Raw = $false) {
             $version = if ($part -eq 'CP') { 'G975FXXSGHWB3' } else { 'G975FXXSGHWC1' }
             $entry = $zip.CreateEntry($part + '_' + $version + '_test.tar.md5')
             if ($part -eq $Location) {
-                $dtbName = if ($Raw) { 'dtb.img' } else { 'dtb.img.lz4' }
+                $dtbName = if ($SamsungName) { $SamsungName } elseif ($Raw) { 'dtb.img' } else { 'dtb.img.lz4' }
                 $data = Make-Tar -DtbName $dtbName -Raw $Raw
             } else { $data = Make-Tar -NoDtb $true }
             $stream = $entry.Open()
@@ -90,9 +90,11 @@ try {
     Reject-Tar ([byte[]]$full[0..1700]) 'truncated'
     Reject-Tar (Make-Tar -DtbName 'dtb.img' -Raw $false) 'invalid-raw-format'
 
-    foreach ($location in @('BL', 'AP', 'CP', 'NONE', 'RAW')) {
-        $part = if ($location -eq 'RAW') { 'BL' } else { $location }
-        $fixture = Make-Fixture ('folder with spaces ' + $location) $part ($location -eq 'RAW')
+    foreach ($location in @('BL', 'AP', 'CP', 'NONE', 'RAW', 'AP_DT', 'AP_DT_RAW')) {
+        $part = if ($location -eq 'RAW') { 'BL' } elseif ($location.StartsWith('AP_DT')) { 'AP' } else { $location }
+        $raw = $location -eq 'RAW' -or $location -eq 'AP_DT_RAW'
+        $samsungName = if ($location -eq 'AP_DT') { 'dt.img.lz4' } elseif ($location -eq 'AP_DT_RAW') { 'dt.img' } else { '' }
+        $fixture = Make-Fixture ('folder with spaces ' + $location) $part $raw $samsungName
         $source = Join-Path $fixture 'firmware\SM-G975F-ITV-G975FXXSGHWC1.zip'
         $before = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
         $oldWork = Join-Path $fixture 'dtb-inspection-work'
@@ -108,7 +110,7 @@ try {
         }
         $reportPath = Join-Path $fixture 'dtb-extraction-report.json'
         $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
-        if ($report.tool_version -ne 2 -or -not $report.inspection_inputs_created -or
+        if ($report.tool_version -ne 3 -or -not $report.inspection_inputs_created -or
             $report.handset_modified -or $report.install_ready) { throw 'Incorrect completion flags' }
         $output = [IO.Compression.ZipFile]::OpenRead((Join-Path $fixture 'dtb-inspection-inputs.zip'))
         try {
@@ -121,7 +123,7 @@ try {
                     if (-not $scan.listing_complete -or -not $scan.members.Count) { throw 'Missing TAR member catalog' }
                 }
             } else {
-                $expected = if ($location -eq 'RAW') { 'dtb.img' } else { 'dtb.img.lz4' }
+                $expected = if ($samsungName) { $samsungName } elseif ($raw) { 'dtb.img' } else { 'dtb.img.lz4' }
                 if (-not $report.dtb_extracted -or $output.Entries.Count -ne 2 -or
                     $output.GetEntry($expected).Length -ne 256) { throw 'Incorrect DTB output' }
                 if (-not $report.stock_dtb.package_name.StartsWith($part + '_')) { throw 'Incorrect source archive recorded' }
@@ -131,8 +133,38 @@ try {
             }
         } finally { $output.Dispose() }
         $savedReportSha = (Get-FileHash -LiteralPath $reportPath -Algorithm SHA256).Hash
-        if (Start-StockDtbExtraction $fixture) { throw 'Existing output accepted for overwrite' }
-        if ((Get-FileHash -LiteralPath $reportPath -Algorithm SHA256).Hash -ne $savedReportSha) { throw 'Successful report overwritten' }
+        if ($location -eq 'NONE') {
+            $bundlePath = Join-Path $fixture 'dtb-inspection-inputs.zip'
+            $originalBundleSha = (Get-FileHash -LiteralPath $bundlePath -Algorithm SHA256).Hash
+            if (-not (Start-StockDtbExtraction $fixture)) { throw 'Report-only bundle prevented retry' }
+            $newReport = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+            $backup = Join-Path $fixture $newReport.previous_diagnostic_bundle
+            if ((Get-FileHash -LiteralPath $backup -Algorithm SHA256).Hash -ne $originalBundleSha) { throw 'Prior diagnostics not preserved' }
+        } else {
+            if (Start-StockDtbExtraction $fixture) { throw 'Existing image output accepted for overwrite' }
+            if ((Get-FileHash -LiteralPath $reportPath -Algorithm SHA256).Hash -ne $savedReportSha) { throw 'Successful report overwritten' }
+        }
+    }
+
+    # Reproduce the actual user's version-2 report-only ZIP, then find dt.img.lz4 in AP.
+    $fixture = Make-Fixture 'v2 diagnostic retry' 'AP' $false 'dt.img.lz4'
+    $previous = Get-Content -Raw -LiteralPath (Join-Path $fixture 'firmware-download-report.json') | ConvertFrom-Json
+    $previous | Add-Member -NotePropertyName tool_version -NotePropertyValue 2
+    $previous | Add-Member -NotePropertyName dtb_extracted -NotePropertyValue $false
+    $previous | Add-Member -NotePropertyName inspection_inputs_created -NotePropertyValue $true
+    $oldZipPath = Join-Path $fixture 'dtb-inspection-inputs.zip'
+    $archive = [IO.Compression.ZipFile]::Open($oldZipPath, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $entry = $archive.CreateEntry('dtb-extraction-report.json')
+        $writer = New-Object System.IO.StreamWriter($entry.Open())
+        try { $writer.Write(($previous | ConvertTo-Json)) } finally { $writer.Dispose() }
+    } finally { $archive.Dispose() }
+    $oldZipSha = (Get-FileHash -LiteralPath $oldZipPath -Algorithm SHA256).Hash
+    if (-not (Start-StockDtbExtraction $fixture)) { throw 'Actual v2 diagnostic retry failed' }
+    $retryReport = Get-Content -Raw -LiteralPath (Join-Path $fixture 'dtb-extraction-report.json') | ConvertFrom-Json
+    if (-not $retryReport.dtb_extracted -or $retryReport.stock_dtb.name -ne 'dt.img.lz4') { throw 'Actual Samsung filename not extracted' }
+    if ((Get-FileHash -LiteralPath (Join-Path $fixture $retryReport.previous_diagnostic_bundle) -Algorithm SHA256).Hash -ne $oldZipSha) {
+        throw 'Actual v2 diagnostics changed during backup'
     }
 
     $fixture = Make-Fixture 'guard checks' 'BL'
@@ -145,5 +177,5 @@ try {
     $download | ConvertTo-Json | Set-Content -Encoding UTF8 -LiteralPath $downloadPath
     if (Start-StockDtbExtraction $fixture) { throw 'Changed firmware ZIP accepted' }
     if (@(Get-ChildItem -Directory -LiteralPath $fixture -Filter 'dtb-inspection-work-*').Count) { throw 'Guard failure left temporary work' }
-    Write-Host 'Windows PowerShell 5.1: BL-first search, AP/other fallback, raw DTB, missing-DTB catalog, retry after failure, archive corruption/truncation, target/hash guards and source preservation passed.'
+    Write-Host 'Windows PowerShell 5.1: Samsung dt.img.lz4/raw aliases, preserved v2 report-only retry, BL-first search, AP/other fallback, raw DTB, missing-DTB catalog, retry after failure, archive corruption/truncation, target/hash guards and source preservation passed.'
 } finally { Remove-Item -LiteralPath $temporary -Recurse -Force }

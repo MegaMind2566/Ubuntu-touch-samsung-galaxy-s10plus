@@ -97,6 +97,18 @@ actual DTB location is not established by that report. Version 2 addresses
 both gaps; no claim is made that the DTB has already been obtained. See
 [original failed attempt](dtb-extraction-attempt-2026-10-13.json).
 
+The subsequently supplied v2 catalog identifies **`dt.img.lz4` inside AP**.
+The v2 tool had searched generic `dtb.img`/`dtb.bin` names, so its small ZIP
+contains the complete catalogs rather than the image bytes. The actual filename
+is now added in v3. The AVB chain calls its expected partition `dtb`; the filename
+and AVB partition name must not be conflated. Its image footer/digest still need
+inspection after the bytes arrive. See [file identification](stock-dt-file-identification-2026-10-13.json).
+
+V3 also preserves a prior report-only bundle with a unique backup name and then
+retries extraction. Bundles containing images and unknown archives remain
+untouched. The backup is made only after validating the original firmware hash
+and matching the prior diagnostic target/hash/size.
+
 Vendor/system/product filesystem contents and vendor runtime remain outside
 this small bundle. Recovery compatibility, the Download-mode OEM/FRP/KnoxGuard
 state and backup coverage remain prerequisites to a separately authorized

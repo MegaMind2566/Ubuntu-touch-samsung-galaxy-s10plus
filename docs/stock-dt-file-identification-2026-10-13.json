@@ -1,0 +1,20 @@
+{
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "modem": "G975FXXSGHWB3",
+  "region": "ITV",
+  "csc_family": "OXM",
+  "source_bundle_sha256": "cdaa0fc46307421068c822776daef4985475179cf92d71475a2be5832510a947",
+  "firmware_zip_sha256_reported": "c7d956cf40cc01b09fccc260540fb65a16ed5ff60fbed1d32abf7fd0f6c32a4d",
+  "firmware_zip_bytes_reported": 6364940601,
+  "firmware_package": "AP_G975FXXSGHWC1_CL25257816_QB62768724_REV01_user_low_ship_meta_OS12.tar.md5",
+  "device_tree_image_filename": "dt.img.lz4",
+  "expected_avb_partition_name": "dtb",
+  "avb_partition_name_verified_from_dt_image": false,
+  "file_presence_evidence": "Complete AP TAR member catalog supplied by the Windows v2 collector",
+  "image_bytes_received": false,
+  "image_contents_inspected": false,
+  "handset_modified": false,
+  "install_ready": false,
+  "note": "The v2 bundle contains only the catalog report. V3 recognizes dt.img.lz4 and preserves the report-only bundle before retrying."
+}

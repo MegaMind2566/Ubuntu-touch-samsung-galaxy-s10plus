@@ -1,4 +1,4 @@
-UBUNTU TOUCH S10+ - CONTROLLO DEL DTB ORIGINALE - VERSIONE 2
+UBUNTU TOUCH S10+ - CONTROLLO DEL DTB ORIGINALE - VERSIONE 3
 
 1. Estrai questo ZIP nella stessa cartella che contiene SCARICA-FIRMWARE.cmd,
    sostituendo i file del precedente estrattore.
@@ -9,9 +9,14 @@ UBUNTU TOUCH S10+ - CONTROLLO DEL DTB ORIGINALE - VERSIONE 2
 Il programma verifica il firmware gia scaricato e cerca il DTB prima in BL,
 poi in AP e negli altri pacchetti. Gestisce sia immagini LZ4 sia DTB non
 compresso. Non deve estrarre su disco l'intero AP da 6 GB.
+Nel firmware HWC1 il nome trovato nell'elenco AP e dt.img.lz4: questa
+versione riconosce anche quel nome.
 Se non trova il DTB, lo ZIP di controllo contiene gli elenchi dei file per
 identificare il formato. Invia comunque dtb-inspection-inputs.zip.
 Le cartelle rimaste dal tentativo precedente possono restare dove sono.
+Se lo ZIP precedente contiene solo il report senza il DTB, viene conservato
+con un nome diverso e la ricerca riparte. Gli ZIP con un'immagine vengono
+conservati senza sostituirli.
 La verifica iniziale del file completo puo richiedere alcuni minuti.
 Il telefono puo restare scollegato. Nessun file viene installato sul telefono.
 

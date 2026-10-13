@@ -2,7 +2,7 @@ param([string]$PackageRoot = (Split-Path -Parent $PSScriptRoot))
 $ErrorActionPreference = 'Stop'
 
 function Initialize-StockTarReader {
-    if ('StockDtbTarReaderV2' -as [type]) { return }
+    if ('StockDtbTarReaderV3' -as [type]) { return }
     Add-Type -TypeDefinition @'
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ public sealed class StockDtbTarScan {
     public bool Found;
     public string ImageName;
 }
-public static class StockDtbTarReaderV2 {
+public static class StockDtbTarReaderV3 {
     static void ReadExact(Stream stream, byte[] bytes, int count) {
         int offset = 0;
         while (offset < count) {
@@ -57,8 +57,8 @@ public static class StockDtbTarReaderV2 {
             scan.Members.Add(name);
             long size = Octal(header, 124, 12);
             string normal = (name.StartsWith("./") ? name.Substring(2) : name).ToLowerInvariant();
-            bool compressed = normal == "dtb.img.lz4" || normal == "dtb.bin.lz4";
-            bool wanted = compressed || normal == "dtb.img" || normal == "dtb.bin";
+            bool compressed = normal == "dtb.img.lz4" || normal == "dtb.bin.lz4" || normal == "dt.img.lz4";
+            bool wanted = compressed || normal == "dtb.img" || normal == "dtb.bin" || normal == "dt.img";
             if (wanted && (header[156] != 0 && header[156] != 48))
                 throw new InvalidDataException("Il DTB non e un file regolare.");
             if (wanted && (size < 4 || size > 32 * 1024 * 1024))
@@ -100,15 +100,39 @@ public static class StockDtbTarReaderV2 {
 '@
 }
 
+function Read-PreviousDtbDiagnostics([string]$Path) {
+    if ((Get-Item -LiteralPath $Path).Length -gt 1048576) { return $null }
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = $null
+    try {
+        $archive = [IO.Compression.ZipFile]::OpenRead($Path)
+        $entry = $archive.GetEntry('dtb-extraction-report.json')
+        if ($archive.Entries.Count -ne 1 -or -not $entry -or $entry.Length -gt 1048576) { return $null }
+        $stream = $entry.Open()
+        $reader = New-Object System.IO.StreamReader($stream)
+        try { $previous = $reader.ReadToEnd() | ConvertFrom-Json }
+        finally { $reader.Dispose(); $stream.Dispose() }
+        if ($previous.dtb_extracted -ne $false -or $previous.inspection_inputs_created -ne $true -or
+            $previous.firmware_zip_sha256 -notmatch '^[0-9a-f]{64}$') { return $null }
+        return @{ report = $previous; archive_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash }
+    } catch { return $null }
+    finally { if ($archive) { $archive.Dispose() } }
+}
+
 function Start-StockDtbExtraction([string]$Root) {
     $bundle = Join-Path $Root 'dtb-inspection-inputs.zip'
+    $previous = $null
     if (Test-Path -LiteralPath $bundle) {
-        Write-Host 'Esiste gia dtb-inspection-inputs.zip. Conservalo e invialo in chat.'
-        return $false
+        $previous = Read-PreviousDtbDiagnostics $bundle
+        if (-not $previous) {
+            Write-Host 'Esiste gia dtb-inspection-inputs.zip. Conservalo e invialo in chat.'
+            return $false
+        }
     }
     $reportPath = Join-Path $Root 'dtb-extraction-report.json'
     $work = $null
-    $report = [ordered]@{ tool_version = 2; captured_utc = [DateTime]::UtcNow.ToString('o'); model = 'SM-G975F'
+    $report = [ordered]@{ tool_version = 3; captured_utc = [DateTime]::UtcNow.ToString('o'); model = 'SM-G975F'
         pda = 'G975FXXSGHWC1'; region = 'ITV'; csc_family = 'OXM'; modem = 'G975FXXSGHWB3'
         handset_modified = $false; install_ready = $false; dtb_extracted = $false
         inspection_inputs_created = $false; archives_scanned = @() }
@@ -116,6 +140,9 @@ function Start-StockDtbExtraction([string]$Root) {
         $sourceReport = Get-Content -Raw -LiteralPath (Join-Path $Root 'firmware-download-report.json') | ConvertFrom-Json
         foreach ($field in @('model', 'pda', 'region', 'csc_family', 'modem')) {
             if ($sourceReport.$field -ne $report[$field]) { throw ('Firmware diverso dal target: ' + $field) }
+            if ($previous -and $previous.report.$field -ne $report[$field]) {
+                throw 'Il precedente ZIP di controllo appartiene a un firmware diverso. Conservalo.'
+            }
         }
         if (-not $sourceReport.firmware_download_complete -or -not $sourceReport.ap_md5_verified -or
             $sourceReport.firmware_zip_sha256 -notmatch '^[0-9a-f]{64}$') {
@@ -125,12 +152,24 @@ function Start-StockDtbExtraction([string]$Root) {
         if ((Get-Item -LiteralPath $source).Length -ne $sourceReport.firmware_zip_bytes) {
             throw 'La dimensione del firmware completo e cambiata.'
         }
-        Write-Host 'Estrattore DTB v2: ricerca in BL, AP e altri pacchetti.'
+        if ($previous -and ($previous.report.firmware_zip_sha256 -ne $sourceReport.firmware_zip_sha256 -or
+            $previous.report.firmware_zip_bytes -ne $sourceReport.firmware_zip_bytes)) {
+            throw 'Il precedente ZIP di controllo appartiene a un archivio diverso. Conservalo.'
+        }
+        Write-Host 'Estrattore DTB v3: include il file Samsung dt.img.lz4.'
         Write-Host 'Verifico il firmware completo gia scaricato. Puo richiedere alcuni minuti.'
         $sha = (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash.ToLowerInvariant()
         if ($sha -ne $sourceReport.firmware_zip_sha256) { throw 'Checksum dello ZIP completo diverso dal controllo originale.' }
         $report.firmware_zip_sha256 = $sha
         $report.firmware_zip_bytes = $sourceReport.firmware_zip_bytes
+        if ($previous) {
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath $bundle).Hash -ne $previous.archive_sha256) {
+                throw 'Il precedente ZIP di controllo e cambiato durante la verifica. Conservalo.'
+            }
+            $backupName = 'dtb-inspection-inputs-report-only-' + [guid]::NewGuid().ToString('N') + '.zip'
+            Move-Item -LiteralPath $bundle -Destination (Join-Path $Root $backupName)
+            $report.previous_diagnostic_bundle = $backupName
+        }
         Add-Type -AssemblyName System.IO.Compression
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         Initialize-StockTarReader
@@ -154,7 +193,7 @@ function Start-StockDtbExtraction([string]$Root) {
                 $stream = $entry.Open()
                 try {
                     Write-Host ('Cerco il DTB in ' + $entry.Name)
-                    $found = [StockDtbTarReaderV2]::Extract($stream, $work, $scan)
+                    $found = [StockDtbTarReaderV3]::Extract($stream, $work, $scan)
                 } finally {
                     $item.members = @($scan.Members.ToArray())
                     $item.listing_complete = $scan.ListingComplete

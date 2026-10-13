@@ -107,7 +107,11 @@ These checks do not make the unsigned Halium candidate installable.
 
 See [stock-layout findings](docs/stock-layout-2026-10-13.md) and the
 [machine-readable audit](docs/stock-layout-report-2026-10-13.json).
-The separate stock `dtb.img.lz4` was omitted from the first audit bundle.
+The separate stock device-tree image was omitted from the first audit bundle.
+The supplied v2 AP catalog identifies its actual Samsung filename as
+`dt.img.lz4`. V3 recognizes it and can retry while preserving the previous
+report-only bundle. Image contents and their expected AVB `dtb` chain are not
+yet verified; see [file identification](docs/stock-dt-file-identification-2026-10-13.json).
 The small `ESTRAI-DTB.cmd` add-on verifies the retained stock ZIP and streams
 that file from BL, AP or the other firmware packages without writing the whole
 6 GB AP to disk. It supports compressed/raw DTBs and saves TAR member lists
