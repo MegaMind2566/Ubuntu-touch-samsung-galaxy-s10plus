@@ -1,0 +1,36 @@
+{
+  "captured_utc": "2026-10-13T00:34:15.9716970Z",
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "region": "ITV",
+  "csc_family": "OXM",
+  "modem": "G975FXXSGHWB3",
+  "handset_modified": false,
+  "install_ready": false,
+  "dtb_extracted": false,
+  "firmware_zip_sha256": "c7d956cf40cc01b09fccc260540fb65a16ed5ff60fbed1d32abf7fd0f6c32a4d",
+  "firmware_zip_bytes": 6364940601,
+  "packages": [
+    {
+      "bytes": 6062257,
+      "name": "BL_G975FXXSGHWC1_CL25257816_QB62768724_REV01_user_low_ship.tar.md5"
+    },
+    {
+      "bytes": 6397429950,
+      "name": "AP_G975FXXSGHWC1_CL25257816_QB62768724_REV01_user_low_ship_meta_OS12.tar.md5"
+    },
+    {
+      "bytes": 28068029,
+      "name": "CP_G975FXXSGHWB3_CP23788346_CL25257816_QB62585694_REV01_user_low_ship.tar.md5"
+    },
+    {
+      "bytes": 508385469,
+      "name": "HOME_CSC_OXM_G975FOXMGHWA3_CL25257816_QB61057987_REV01_user_low_ship.tar.md5"
+    },
+    {
+      "bytes": 508426424,
+      "name": "CSC_OXM_G975FOXMGHWA3_CL25257816_QB61057987_REV01_user_low_ship.tar.md5"
+    }
+  ],
+  "error": "Eccezione durante la chiamata di \"Extract\" con \"2\" argomento/i: \"dtb.img.lz4 non trovato nel pacchetto AP.\""
+}

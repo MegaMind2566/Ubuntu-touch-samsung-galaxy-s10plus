@@ -81,10 +81,21 @@ vbmeta_system; that alone does not establish their presence on this handset.
 
 The first collector omitted the separate `dtb.img.lz4`. Use the small Windows
 `ESTRAI-DTB.cmd` add-on in the existing downloader folder. It compares the
-retained full ZIP's SHA-256 and size with the original download report, streams
-the DTB from AP, checks TAR headers and saves `dtb-inspection-inputs.zip`.
-It does not write a second 6 GB AP file or access a handset. It stops after the
-DTB and clearly marks its AP member listing as incomplete.
+retained full ZIP's SHA-256 and size with the original download report, searches
+BL first, then AP and the other TAR packages, checks TAR headers and saves
+`dtb-inspection-inputs.zip`. Both compressed and raw DTB names are recognized.
+It does not write a second 6 GB AP file or access a handset. A successful scan
+stops after the DTB and marks the package listing as incomplete. If no DTB is
+found, the bundle instead contains complete member catalogs for diagnosis.
+Each run uses a new temporary directory and cleans up only that directory;
+folders left by earlier versions remain untouched.
+
+The first add-on incorrectly searched only AP. The supplied failed-attempt
+report confirms that the full ZIP still has the recorded SHA-256 and size, but
+`dtb.img.lz4` was not found in AP. It did not retain AP's TAR listing, so the
+actual DTB location is not established by that report. Version 2 addresses
+both gaps; no claim is made that the DTB has already been obtained. See
+[original failed attempt](dtb-extraction-attempt-2026-10-13.json).
 
 Vendor/system/product filesystem contents and vendor runtime remain outside
 this small bundle. Recovery compatibility, the Download-mode OEM/FRP/KnoxGuard

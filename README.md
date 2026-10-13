@@ -109,7 +109,9 @@ See [stock-layout findings](docs/stock-layout-2026-10-13.md) and the
 [machine-readable audit](docs/stock-layout-report-2026-10-13.json).
 The separate stock `dtb.img.lz4` was omitted from the first audit bundle.
 The small `ESTRAI-DTB.cmd` add-on verifies the retained stock ZIP and streams
-that file from AP without writing the whole 6 GB AP to disk. Extract the add-on
+that file from BL, AP or the other firmware packages without writing the whole
+6 GB AP to disk. It supports compressed/raw DTBs and saves TAR member lists
+even when none is found. A failed prior attempt does not block a retry. Extract the add-on
 into the existing downloader directory, run it and supply
 `dtb-inspection-inputs.zip`. The phone can remain disconnected.
 Reproduce the add-on with `python3 scripts/package-stock-dtb.py`.
