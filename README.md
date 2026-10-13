@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. The corrected BOOT is installed and its physical readback passes. The subsequent normal-boot photograph still shows the Samsung logo; Ubuntu kernel/userspace execution remains unconfirmed.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 1 is installed and its physical readback passes, but normal boot still shows the Samsung logo with no new host USB device reported. A reproduced late-SAR init handoff defect is fixed in BOOT version 2; its Windows package passes validation and awaits the handset test.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -244,6 +244,51 @@ Reproduce with `scripts/prepare_boot_update.py`,
 `scripts/fetch_boot_update_artifact.py` and `scripts/package-boot-update.py`;
 the workflow fixes the original and corrected artifact identities.
 
+## BOOT version 2: late SAR init handoff
+
+The user reports that Windows sees no new USB device with BOOT version 1.
+Static review found a second, deterministic defect in the exact kernel/ramdisk
+combination: `kernel_init_freeable()` clears `ramdisk_execute_command` before
+`prepare_namespace()`. The Samsung SAR path loads `/init` during that call,
+but the init command remains NULL. Kernel fallback then selects `/sbin/init`,
+which the actual installed ramdisk contains as an ARM64 BusyBox hardlink,
+without `/etc/inittab` or `/etc/init.d/rcS` to start Halium.
+
+The new patch retains the requested ramdisk init and restores it after
+namespace preparation only when SAR support is enabled and that command
+exists. The file-only regression compiles the actual pinned namespace and
+execution-selection code. It reproduces the original `/sbin/init` fallback
+and corrected `/init` selection, and covers preloaded init, missing init,
+custom `rdinit` and non-SAR behavior. The exact installed CPIO metadata and
+BusyBox hardlinks are verified. These results prove the source-level defect;
+its role in the handset stop still requires a hardware boot test.
+See [the handoff defect](docs/boot-init-handoff-2026-10-13.json).
+
+[Kernel build](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38452662502)
+and [Windows 5.1 validation](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38453616310)
+pass. BOOT version 2 is 53,215,232 bytes, with SHA-256
+`cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0`.
+The installed ramdisk/header parameters are preserved and the earlier offset
+fix remains applied. The package includes the immutable version 1 BOOT for
+manual rollback.
+
+`INSTALLA-CORREZIONE-AVVIO.cmd` writes only BOOT and accepts only the exact
+physically verified version 1 as its starting state. It uses separate
+version 2 checkpoints, preserves the earlier reports, locks/verifies both
+new/previous BOOT images and the original inputs/full stock backup, stages
+one selected BOOT and requires its physical-prefix SHA-256 readback.
+`RIPRISTINA-BOOT-1.cmd` provides a guarded, manual version 2 to version 1
+transition only. Neither route formats data, repartitions, writes SYSTEM/
+VENDOR/RECOVERY/VBMETA or reboots automatically.
+
+Windows validation passes 24 guard/rollback cases, including altered local
+new/previous images, preservation of version 1 checkpoints, all three actual
+BOOT inputs and both native CMD launchers with embedded Python in a path
+containing spaces. USB replies and raw writes are simulated. See
+[the package/build evidence](docs/boot-update-2-2026-10-13.json) and
+[the Windows instructions](tools/windows/LEGGIMI-CORREZIONE-AVVIO.txt).
+Ubuntu hardware boot and full stock restoration remain unverified.
+
 ## Exact stock-firmware download on Windows
 
 The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,
@@ -400,6 +445,7 @@ such as `bash scripts/build-adaptation.sh "$PWD/build/attempt-2"`.
 
 Changes to the upstream Halium 12 tree:
 - Initialize the Samsung SAR ramdisk offset before computing the BOOT payload position.
+- Restore the requested ramdisk init after the Samsung SAR namespace loader populates it.
 - Apply the documented 4.14 AppArmor socket/AF_UNIX patches, preserving attribution.
 - Merge `config/ubuntu-touch.config` after the Samsung defconfig. Validate the
   effective kernel configuration after compilation.
@@ -456,4 +502,5 @@ permissions are recorded as diagnostic results rather than invented values.
 
 ## Safety
 Unlocking the bootloader wipes user data and may permanently trip Samsung Knox. Never flash an image simply because CI succeeded. Phone functions (including calls, dual SIM, VoLTE, cameras) remain unverified.
+
 

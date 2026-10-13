@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "kernel_build": {
+    "run": 38452662502,
+    "commit": "6b46ada66199005fa7df03c8d4a42f3a6d9c510c",
+    "job": 115487271765,
+    "artifact_id": 11843035830,
+    "conclusion": "success"
+  },
+  "windows_validation": {
+    "run": 38453616310,
+    "commit": "6f2737a9cd2d2bf50947483cf3c0ea2be2a75bcb",
+    "job": 115490552505,
+    "conclusion": "success",
+    "guard_cases": 24,
+    "actual_original_version_1_and_version_2_boot_inputs": true,
+    "native_cmd_apply_and_restore_with_spaces": true,
+    "windows_powershell_5_1": true,
+    "usb_and_raw_writes_simulated": true,
+    "sparse_system_and_stock_used_only_in_test_callbacks": true
+  },
+  "package": {
+    "filename": "UbuntuTouch-S10plus-correzione-AVVIO-Windows.zip",
+    "bytes": 43500991,
+    "sha256": "af9029158460f60690ea3f446c1e20be68d7d4d1ad20e048bc9ebc6f472b2081",
+    "tested_artifact_id": 11841964255
+  },
+  "build_artifact_references": [
+    {
+      "run": 38452662502,
+      "commit": "6b46ada66199005fa7df03c8d4a42f3a6d9c510c",
+      "artifact_id": 11843035830,
+      "filename": "corrected-adaptation-2.zip",
+      "zip_bytes": 37241998,
+      "sha256": "00974b1d2b48523a8b0bbf23c6eb22db1f8f2165150adc064196018e6e1f28fd"
+    },
+    {
+      "run": 38439532393,
+      "commit": "a6390494079bdaa8fb479644fa902835dafddee2",
+      "artifact_id": 11835412882,
+      "filename": "previous-adaptation.zip",
+      "zip_bytes": 37243715,
+      "sha256": "6acda3c4f5d4746aa1c83845ab51bc155e2a3ee9d2923aa339a7d1b6ebac800e"
+    }
+  ],
+  "boot_pins": {
+    "schema": 1,
+    "update_version": 2,
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "target_partition": "BOOT",
+    "target_device": "/dev/block/sda14",
+    "previous_boot_bytes": 53215232,
+    "previous_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+    "boot_bytes": 53215232,
+    "boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0",
+    "boot_partition_bytes": 57671680,
+    "ramdisk_bytes": 4108120,
+    "ramdisk_sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "correction": "Restore the requested init command after Samsung SAR loads the installed ramdisk",
+    "hardware_boot_verified": false
+  },
+  "build_evidence": {
+    "schema": 1,
+    "update_version": 2,
+    "correction": "Restore the requested init command after Samsung SAR loads the installed ramdisk",
+    "original_boot_sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+    "original_boot_bytes": 53215232,
+    "previous_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+    "previous_boot_bytes": 53215232,
+    "boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0",
+    "boot_bytes": 53215232,
+    "boot_partition_bytes": 57671680,
+    "ramdisk_sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+    "ramdisk_bytes": 4108120,
+    "ramdisk_preserved": true,
+    "unrelated_header_fields_preserved": true,
+    "system_changes_requested": false,
+    "vendor_changes_requested": false,
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "fixed_loader_source_sha256": "1346047001ea1b50a90a56e213202118f762783f8287060c69a6243c228ec886",
+    "fixed_init_source_sha256": "2b4684d53f7a756f97ba9deb9310e7156ecddae7ffbae629661ec36c7634401b",
+    "kernel_patches": [
+      {
+        "path": "patches/kernel/0001-apparmor-socket-mediation.patch",
+        "sha256": "00f1bf609436cef86dcf227f9b98c944accf82368ede62239cc62866d4e3d6ff"
+      },
+      {
+        "path": "patches/kernel/0002-apparmor-af-unix-mediation.patch",
+        "sha256": "7bebc2494dc4ca578e71e333bedaad7e93f8f6096508f5b2bd603ec0bebc905b"
+      },
+      {
+        "path": "patches/kernel/0003-initialize-sar-ramdisk-offset.patch",
+        "sha256": "351f141b24ab9afa292a4eb14bbab3e78a9e12b0c88fadc1e98544c1f1d8e175"
+      },
+      {
+        "path": "patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch",
+        "sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6"
+      }
+    ],
+    "kernel_header": {
+      "header_version": 1,
+      "header_bytes": 1648,
+      "page_bytes": 2048,
+      "kernel_bytes": 49102864,
+      "kernel_address": 268468224,
+      "ramdisk_bytes": 4108120,
+      "ramdisk_address": 285212672,
+      "ramdisk_offset": 49106944,
+      "second_bytes": 0,
+      "second_address": 0,
+      "tags_address": 268435712,
+      "recovery_dtbo_bytes": 0,
+      "recovery_dtbo_offset": 0,
+      "os_version": "12.0.0",
+      "security_patch": "2023-04",
+      "cmdline": "systempart=/dev/disk/by-partlabel/system",
+      "kernel_version": "Linux version 4.14.280-gb9b70b29c94c-dirty (runner@runnervmwvtoz) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)) #1 SMP PREEMPT Tue Oct 13 19:34:04 UTC 2026",
+      "boot_id_sha1_valid": true,
+      "boot_id_variant": "lineage-empty-legacy-dt"
+    },
+    "hardware_boot_verified": false
+  },
+  "compiled_selection_regression": {
+    "schema": 1,
+    "source_sha256": "2ede32b77f1e055a21d88caf393a71d35a027f85a00fbc1f9c6d73e1949e7f86",
+    "patch_sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6",
+    "compiler": "clang",
+    "actual_pinned_namespace_and_execute_selection_compiled": true,
+    "namespace_and_syscalls_mocked": true,
+    "handset_accessed": false,
+    "installed_ramdisk": {
+      "sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+      "init_script_sha256": "cda3570b6edc38c6aebf8a058bf75f5ada94e63a32b27da4d2f1eabf2200d0dc",
+      "init_script_executable": true,
+      "sbin_init_is_arm64_busybox_hardlink": true,
+      "busybox_sha256": "27ba89e925a4d9cf0406c4daf4a4bfaca78f71dfc1ef11746c4a8a4f819621c8",
+      "busybox_inittab_present": false,
+      "busybox_rcs_present": false,
+      "halium_mount_script_present": true
+    },
+    "cases": {
+      "original_sar": {
+        "late_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        }
+      },
+      "corrected_sar": {
+        "late_init": {
+          "selected_init": "/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/custom-init",
+          "namespace_calls": 1
+        }
+      },
+      "corrected_without_sar": {
+        "late_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        }
+      }
+    },
+    "fixed_source_sha256": "2b4684d53f7a756f97ba9deb9310e7156ecddae7ffbae629661ec36c7634401b",
+    "confirmed_host_reproduction": "Original SAR path skips the newly loaded /init and selects the actual ramdisk BusyBox /sbin/init; correction selects /init while preserving preloaded/custom/non-SAR behavior.",
+    "handset_root_cause_confirmed": false
+  },
+  "required_starting_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+  "phone_targets": [
+    "BOOT"
+  ],
+  "target_device": "/dev/block/sda14",
+  "data_format_requested": false,
+  "system_or_vendor_write_requested": false,
+  "repartition_requested": false,
+  "automatic_reboot_requested": false,
+  "rollback": "Guarded manual version 2 to version 1 BOOT only; prior image included in package",
+  "full_stock_restore_hardware_verified": false,
+  "ubuntu_hardware_boot_verified": false,
+  "handoff_defect_is_proven_handset_root_cause": false
+}
