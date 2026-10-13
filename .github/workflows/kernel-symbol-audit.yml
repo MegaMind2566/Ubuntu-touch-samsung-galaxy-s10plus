@@ -1,0 +1,76 @@
+name: S10+ offline kernel symbols and device tree tools
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/audit_kernel_symbols.py'
+      - '.github/workflows/kernel-symbol-audit.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  symbols:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install offline disassembler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends binutils-aarch64-linux-gnu
+      - name: Obtain immutable converter including its kernel metadata database
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: marin-m/vmlinux-to-elf
+          ref: 19683fb95b29cd31362d49e6f48ab8368f96cbdf
+          path: out/vmlinux-to-elf-source
+          persist-credentials: false
+      - name: Install converter in an isolated environment
+        run: |
+          python3 -m venv out/kernel-analysis-venv
+          out/kernel-analysis-venv/bin/python -m pip install out/vmlinux-to-elf-source
+      - name: Fetch and hash the previously tested BOOT 1 and BOOT 2 build artifacts
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: python3 scripts/audit_kernel_symbols.py fetch
+      - name: Recover symbols and check raw bytes with an independent ELF reader
+        run: out/kernel-analysis-venv/bin/python scripts/audit_kernel_symbols.py analyze
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: beyond2lte-kernel-symbol-audit
+          path: out/kernel-symbol-audit/
+          if-no-files-found: error
+  dtc:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dgibson/dtc
+          ref: f3451d12532b9d382707c458a2ae2e5aa0e1eee4
+          persist-credentials: false
+      - name: Install compiler dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends meson ninja-build flex bison
+      - name: Build unmodified DTC with static libfdt
+        run: |
+          meson setup build -Ddefault_library=static -Dpython=disabled -Dyaml=disabled -Dvalgrind=disabled
+          meson compile -C build
+          meson test -C build --print-errorlogs
+      - name: Record immutable source and tool identities
+        run: |
+          mkdir -p out/dtc-tools
+          cp build/dtc build/fdtget build/fdtoverlay out/dtc-tools/
+          git rev-parse HEAD > out/dtc-tools/source-commit.txt
+          build/dtc --version > out/dtc-tools/version.txt
+          cp build/meson-logs/testlog.txt out/dtc-tools/upstream-tests.txt
+          sha256sum out/dtc-tools/dtc out/dtc-tools/fdtget out/dtc-tools/fdtoverlay > out/dtc-tools/checksums.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-pinned-dtc-tools
+          path: out/dtc-tools/
+          if-no-files-found: error
