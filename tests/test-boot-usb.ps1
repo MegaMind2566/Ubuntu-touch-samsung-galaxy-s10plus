@@ -10,6 +10,21 @@ Assert-BootUsb (-not (Test-BootUsbCandidate 'PCI\VEN_8086\fixture' 'Remote NDIS'
 Assert-BootUsb ((ConvertTo-BootUsbName 'serialno=PRIVATE_SERIAL_FIXTURE') -cnotmatch 'PRIVATE_SERIAL_FIXTURE') 'Explicit serial fields must be redacted'
 Assert-BootUsb ((Get-BootUsbIdentifier 'malformed') -eq $null) 'Malformed ID must not be copied'
 
+# A cached RNDIS adapter from an earlier connection is not live boot evidence.
+function Get-PnpDevice {
+    [CmdletBinding()]param([switch]$PresentOnly)
+    return [pscustomobject]@{InstanceId=$privateId;FriendlyName='Halium initrd Failed to boot';Class='Net';Status='OK'}
+}
+function Get-CimInstance {
+    [CmdletBinding()]param([string]$ClassName)
+    return @(
+        [pscustomobject]@{PNPDeviceID=$privateId;Name='RNDIS';NetEnabled=$true;NetConnectionStatus=2},
+        [pscustomobject]@{PNPDeviceID='USB\VID_18D1&PID_D001&MI_00\DISCONNECTED_SERIAL';Name='RNDIS';NetEnabled=$false;NetConnectionStatus=7}
+    )
+}
+$snapshot=Get-BootUsbSnapshot
+Assert-BootUsb ($snapshot.usb_network_adapters.Count -eq 1) 'Disconnected cached network adapter must be excluded'
+
 # Simulated snapshots exercise report serialization. The actual cmdlet calls
 # are tested separately by the native CMD invocation on this disposable VM.
 function Get-BootUsbSnapshot {

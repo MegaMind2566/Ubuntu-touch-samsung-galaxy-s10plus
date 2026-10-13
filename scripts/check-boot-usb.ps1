@@ -32,9 +32,13 @@ function ConvertTo-BootUsbName {
 
 function Get-BootUsbSnapshot {
     $snapshot = [ordered]@{date_utc=[DateTime]::UtcNow.ToString('o');devices=@();usb_network_adapters=@();errors=@()}
+    $presentUsbIds = @{}
     try {
         foreach ($device in @(Get-PnpDevice -PresentOnly -ErrorAction Stop)) {
             if (-not (Test-BootUsbCandidate ([string]$device.InstanceId) ([string]$device.FriendlyName))) { continue }
+            # Keep full IDs in memory only, to exclude disconnected cached
+            # network adapters; never serialize their serial suffixes.
+            $presentUsbIds[([string]$device.InstanceId).ToUpperInvariant()] = $true
             $snapshot.devices += [ordered]@{
                 usb_id=Get-BootUsbIdentifier ([string]$device.InstanceId)
                 class=ConvertTo-BootUsbName ([string]$device.Class)
@@ -47,6 +51,7 @@ function Get-BootUsbSnapshot {
     try {
         foreach ($adapter in @(Get-CimInstance Win32_NetworkAdapter -ErrorAction Stop)) {
             if (-not (Test-BootUsbCandidate ([string]$adapter.PNPDeviceID) ([string]$adapter.Name))) { continue }
+            if (-not $presentUsbIds.ContainsKey(([string]$adapter.PNPDeviceID).ToUpperInvariant())) { continue }
             $snapshot.usb_network_adapters += [ordered]@{
                 usb_id=Get-BootUsbIdentifier ([string]$adapter.PNPDeviceID)
                 description=ConvertTo-BootUsbName ([string]$adapter.Name)
