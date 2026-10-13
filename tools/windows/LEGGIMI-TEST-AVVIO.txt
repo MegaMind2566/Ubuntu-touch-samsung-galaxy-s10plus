@@ -1,0 +1,33 @@
+TEST TEMPORANEO DI AVVIO - SAMSUNG S10+ SM-G975F / HWC1
+
+Serve a verificare se il kernel del BOOT 2 riesce a eseguire un ramdisk ridotto.
+Il kernel e byte per byte quello gia installato. Il test non avvia Ubuntu.
+Puoi vedere UBUNTU TOUCH TEST 1 e KERNEL/RAMDISK: RUNNING sul display.
+Il messaggio dipende dal funzionamento del driver video: la sua assenza da sola
+non dimostra che il kernel non sia partito. Lo stesso vale per la USB.
+
+Il programma sul PC scrive solo BOOT. Il ramdisk del test crea una piccola
+cartella di log /data/ubuntu-touch-boot-diagnostic-1, senza sovrascrivere log
+gia presenti. SYSTEM e VENDOR vengono esaminate con mount ro,noload.
+Non esegue Format Data, fsck, resize, scritture raw o riavvii automatici.
+La USB del test e un segnale di enumerazione ACM; non offre shell o rete.
+
+1. Copia tutto il contenuto dello ZIP nella cartella gia usata per installare
+   Ubuntu, unendo le cartelle e sostituendo i file omonimi. Non avviare PREPARA.
+2. Telefono nella schermata principale TWRP e USB collegato. In Mount, SYSTEM
+   e VENDOR devono essere deselezionate; lascia Data disponibile.
+3. Avvia INSTALLA-TEST-AVVIO.cmd. Non chiudere la finestra durante la scrittura.
+   Se si ferma, resta in TWRP e invia il rapporto. Non ripetere la scrittura.
+4. Solo dopo BOOT DEL TEST COMPLETATO E VERIFICATO: TWRP > Reboot > System.
+   Se propone l'app TWRP, scegli Do Not Install. Lascia USB collegato.
+5. Attendi 60 secondi anche se resta il logo Samsung. Fotografa la schermata.
+   Windows potrebbe mostrare un nuovo dispositivo USB/porta seriale: basta
+   annotarlo, non installare o cambiare driver per questo test.
+6. Torna in TWRP con il metodo gia usato. Se necessario: Power + Volume giu
+   fino a schermo nero; passa subito a Volume su + Bixby + Power, USB collegato.
+7. In TWRP avvia LEGGI-TEST-AVVIO.cmd e invia ubuntu-boot-diagnostic-log-report.zip,
+   il rapporto ubuntu-boot-diagnostic-1-report.zip della scrittura e la foto.
+
+Per rimettere il BOOT 2 precedente: da TWRP usa RIPRISTINA-BOOT-2.cmd.
+Ripristina il BOOT 2 Ubuntu sperimentale; il ripristino completo Android e
+una procedura diversa. Non cancella i log del test.

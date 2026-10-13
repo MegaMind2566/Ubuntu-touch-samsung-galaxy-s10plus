@@ -1,0 +1,92 @@
+name: S10+ controlled BOOT ramdisk diagnostic
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tools/boot-diagnostic/**'
+      - 'scripts/prepare_boot_diagnostic.py'
+      - 'scripts/package-boot-diagnostic.py'
+      - 'scripts/collect-boot-diagnostic.py'
+      - 'scripts/fetch_boot_diagnostic_inputs.py'
+      - 'tests/test_boot_diagnostic.py'
+      - 'tests/test-boot-update-2.ps1'
+      - 'tools/windows/*TEST-AVVIO*'
+      - 'tools/windows/RIPRISTINA-BOOT-2.cmd'
+      - '.github/workflows/boot-diagnostic.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install only diagnostic helper build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu qemu-user
+      - name: Obtain the exact BOOT 2 artifact
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: python3 scripts/fetch_boot_diagnostic_inputs.py previous
+      - name: Compile and execute the static ARM64 display helper in emulation
+        run: |
+          aarch64-linux-gnu-gcc -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -O2 -static -s -o out/ut-diag-display tools/boot-diagnostic/display.c
+          qemu-aarch64 out/ut-diag-display --self-test
+      - name: Build diagnostic ramdisk and validate unchanged kernel, bounded logs and rollback
+        run: |
+          python3 scripts/prepare_boot_diagnostic.py --previous-archive out/diagnostic-previous-adaptation.zip --helper out/ut-diag-display
+          python3 tests/test_boot_diagnostic.py --images out/boot-diagnostic-images --qemu qemu-aarch64
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-boot-diagnostic-images
+          path: out/boot-diagnostic-images/
+          if-no-files-found: error
+  windows:
+    needs: images
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Obtain this workflow's tested diagnostic, original BOOT and portable tools
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/fetch_boot_diagnostic_inputs.py images
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/prepare_boot_update.py inputs --out out
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-ubuntu-install.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-boot-diagnostic.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Extract into existing tools at a path with spaces
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/BOOT diagnostic with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-test-AVVIO-Windows.zip'))
+          try {
+            foreach ($entry in $zip.Entries) {
+              $destination=Join-Path $root $entry.FullName
+              [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($destination)) | Out-Null
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$destination,$true)
+            }
+          } finally { $zip.Dispose() }
+      - name: Test actual diagnostic/BOOT 2 pins, BOOT-only guards and both native CMDs
+        shell: powershell
+        run: .\tests\test-boot-diagnostic.generated.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-boot-diagnostic-windows
+          path: |
+            out/UbuntuTouch-S10plus-test-AVVIO-Windows.zip
+            out/boot-diagnostic-artifact-reference.json
+          if-no-files-found: error

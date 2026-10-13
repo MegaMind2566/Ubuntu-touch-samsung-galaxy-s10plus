@@ -1,0 +1,90 @@
+#!/bin/sh
+# Controlled PID 1 diagnostic. The original Ubuntu init is retained but not run.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+BB=/bin/busybox
+$BB mkdir -p /dev /proc /sys /run /data /system-probe /vendor-probe /config
+$BB mount -t proc -o nosuid,nodev,noexec proc /proc
+$BB mount -t sysfs -o nosuid,nodev,noexec sysfs /sys
+$BB mount -t devtmpfs -o nosuid,mode=0755 devtmpfs /dev
+$BB mount -t tmpfs -o nosuid,nodev,mode=0700 tmpfs /run
+exec >/run/ut-diag-init.log 2>&1
+echo 'UT_DIAG_1: PID 1 STARTED; original Ubuntu init is not executed'
+echo 'UT_DIAG_1: PID 1 STARTED' >/dev/kmsg
+$BB uname -a
+$BB cat /proc/cmdline
+DATA='NO LOG'
+SYSTEM='UNREADABLE'
+VENDOR='UNREADABLE'
+USB='NOT CONFIGURED'
+LOGDIR=''
+
+/ut-diag-display "UBUNTU TOUCH TEST 1" "KERNEL: RUNNING" "RAMDISK: RUNNING" "CHECKING STORAGE" >/run/ut-diag-display-start.log 2>&1 &
+# A USB ACM function is an enumeration signal only: no shell or network service.
+if $BB mount -t configfs -o nosuid,nodev,noexec configfs /config; then
+    G=/config/usb_gadget/utdiag1
+    if $BB mkdir "$G" &&
+       echo 0x1d6b >"$G/idVendor" && echo 0x0104 >"$G/idProduct" &&
+       $BB mkdir "$G/strings/0x409" &&
+       echo UT-S10P-DIAG-1 >"$G/strings/0x409/serialnumber" &&
+       echo UBports >"$G/strings/0x409/manufacturer" &&
+       echo 'Ubuntu Touch S10+ boot diagnostic 1' >"$G/strings/0x409/product" &&
+       $BB mkdir "$G/configs/c.1" "$G/configs/c.1/strings/0x409" &&
+       echo 'Diagnostic enumeration only' >"$G/configs/c.1/strings/0x409/configuration" &&
+       $BB mkdir "$G/functions/acm.usb0" &&
+       $BB ln -s "$G/functions/acm.usb0" "$G/configs/c.1/acm.usb0" &&
+       [ -e /sys/class/udc/10c00000.dwc3 ] && echo 10c00000.dwc3 >"$G/UDC"; then
+        USB='CONFIGURED'
+    fi
+fi
+echo "UT_DIAG_1: USB=$USB"
+$BB cat /proc/mounts
+
+# No fsck, resize, format, journal replay on SYSTEM/VENDOR or raw block writes.
+if $BB mount -t ext4 -o rw,nosuid,nodev,noexec /dev/sda31 /data; then
+    if $BB mkdir -m 0700 /data/ubuntu-touch-boot-diagnostic-1; then
+        LOGDIR=/data/ubuntu-touch-boot-diagnostic-1
+        DATA='LOG READY'
+        echo 'UT_DIAG_1: OWNED LOG DIRECTORY CREATED'
+    else
+        echo 'UT_DIAG_1: existing log directory is preserved; no log overwritten'
+    fi
+else
+    echo 'UT_DIAG_1: userdata mount failed'
+fi
+if $BB mount -t ext4 -o ro,noload,nosuid,nodev,noexec /dev/sda25 /system-probe; then
+    if [ -f /system-probe/var/lib/lxc/android/android-rootfs.img ]; then
+        SYSTEM='READABLE'
+        $BB ls -l /system-probe/var/lib/lxc/android/android-rootfs.img
+    else
+        SYSTEM='LAYOUT MISSING'
+    fi
+    $BB umount /system-probe
+fi
+if $BB mount -t ext4 -o ro,noload,nosuid,nodev,noexec /dev/sda26 /vendor-probe; then
+    VENDOR='READABLE'
+    $BB ls -ld /vendor-probe/etc /vendor-probe/lib64 /vendor-probe/firmware
+    $BB umount /vendor-probe
+fi
+echo "UT_DIAG_1: DATA=$DATA SYSTEM=$SYSTEM VENDOR=$VENDOR"
+
+save_logs() {
+    [ -n "$LOGDIR" ] || return 0
+    $BB head -c 262144 /run/ut-diag-init.log >"$LOGDIR/init.log"
+    $BB dmesg | $BB head -c 2097152 >"$LOGDIR/kernel.log"
+    [ ! -f /run/ut-diag-display.log ] || $BB head -c 32768 /run/ut-diag-display.log >"$LOGDIR/display.log"
+    $BB sync
+}
+save_logs
+if [ -n "$LOGDIR" ]; then DATA='LOG SAVED'; fi
+# Display uses standard, bounded userspace fbdev operations. Failure is optional.
+/ut-diag-display "UBUNTU TOUCH TEST 1" 'KERNEL: RUNNING' 'RAMDISK: RUNNING' \
+    "DATA: $DATA" "SYSTEM: $SYSTEM" "VENDOR: $VENDOR" "USB: $USB" \
+    'WAIT 60 SECONDS' 'THEN RETURN TO TWRP' >/run/ut-diag-display.log 2>&1 &
+$BB sleep 10
+save_logs
+$BB sleep 10
+save_logs
+$BB umount /data
+echo 'UT_DIAG_1: diagnostic complete; waiting for manual recovery reboot'
+echo 'UT_DIAG_1: diagnostic complete' >/dev/kmsg
+while :; do $BB sleep 3600; done
