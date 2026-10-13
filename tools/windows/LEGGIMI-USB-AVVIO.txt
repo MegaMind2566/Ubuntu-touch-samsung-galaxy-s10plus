@@ -1,0 +1,21 @@
+Samsung S10+ - controllo del collegamento USB durante il logo
+
+Il precedente rapporto conferma SYSTEM e BOOT scritti e riletti correttamente.
+Il controllo del filesystem VENDOR non ha trovato errori.
+last_kmsg contiene il bootloader verso RECOVERY, non il kernel Ubuntu.
+
+1. Estrai tutti i file di questo ZIP in una cartella scrivibile sul PC.
+   Puoi usare anche la cartella di installazione gia presente.
+2. Sul telefono, da TWRP scegli Reboot > System. Lascia USB collegato al PC.
+   Attendi circa un minuto sul logo per dare tempo al collegamento USB.
+3. Avvia CONTROLLA-USB-AVVIO.cmd mentre il telefono resta sul logo.
+   La raccolta dura circa dieci secondi, oltre al tempo delle query Windows.
+4. Invia ubuntu-boot-usb-report.zip (o il file numerato indicato).
+
+Il programma legge dispositivi USB presenti e adattatori di rete USB sul PC.
+Non cambia driver, indirizzi di rete o impostazioni del telefono.
+Non invia comandi al telefono e non accede alle sue partizioni.
+Non riavvia il telefono. Il riavvio del punto 2 e manuale.
+Non raccoglie numeri seriali, MAC o dispositivi estranei ai filtri USB.
+Un'interfaccia USB assente non dimostra che il kernel non sia partito.
+Non ripetere flash o Format Data per eseguire questo controllo.
