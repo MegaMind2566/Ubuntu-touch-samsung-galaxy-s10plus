@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 2 is installed on the handset and its exact physical image-prefix readback passes, but normal boot still remains on the Samsung logo. Ubuntu kernel/userspace execution is not yet confirmed. The next test must expose a boot-stage signal independently of the Ubuntu USB connection.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 2 remained on the Samsung logo after a verified write/readback. A controlled diagnostic BOOT is now installed and its exact physical-prefix readback passes. Kernel/diagnostic PID 1 execution and Ubuntu userspace boot remain unconfirmed until the normal-boot test and log collection.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -335,7 +335,13 @@ preservation and every unrelated original CPIO entry. The Windows validation
 uses the actual original/BOOT 2/diagnostic images, simulated USB/raw writes,
 24 installer guard/restore cases, and three actual CMD launchers with portable
 Python under Windows PowerShell 5.1. These checks do not establish a handset
-boot. The diagnostic itself still awaits its first hardware result.
+boot. The handset Apply report now confirms the BOOT 2 to diagnostic BOOT 1
+transition: all ten remote actions succeed and the exact 53,475,328-byte
+physical-prefix SHA-256 readback matches. Both recovery checks pass, the
+neutralized recovery/VBMETA hashes match and SYSTEM/VENDOR remain unmounted
+through prewrite. The successful checkpoint is retained. Diagnostic PID 1
+execution still awaits manual normal boot and log collection; do not repeat
+Apply. See [the handset write/readback evidence](docs/boot-diagnostic-1-handset-2026-10-14.json).
 The [final Linux/Windows validation run](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38462590908)
 passes. See [the exact delivered build and image metadata](docs/boot-diagnostic-build-2026-10-13.json).
 

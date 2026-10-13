@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-14",
+  "date_utc": "2026-10-13T22:14:49.0812918Z",
+  "diagnostic_version": 1,
+  "files": [
+    {
+      "filename": "ubuntu-boot-diagnostic-1-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    },
+    {
+      "filename": "ubuntu-boot-diagnostic-1-report.zip",
+      "bytes": 930,
+      "sha256": "76dedffd8e54b5f4991de94694263ad1c7e4379e051ba4ad0fb07b75c6442bc7"
+    },
+    {
+      "filename": "recovery-check-report-19.zip",
+      "bytes": 1626,
+      "sha256": "568cbe1c5883fa5df2d4791f8f6c303e97592bef2c0f47d0f104f1b866113f72"
+    },
+    {
+      "filename": "recovery-check-report-20.zip",
+      "bytes": 1627,
+      "sha256": "c2c8449ffa29caabf8ebd47a7f5e1c15ee495bff0681948bd04e493d7e433aa3"
+    }
+  ],
+  "checkpoint": {
+    "write_started": true,
+    "success": true
+  },
+  "apply_report": {
+    "schema": 1,
+    "update_version": 3,
+    "diagnostic_version": 1,
+    "purpose": "controlled_boot_diagnostic",
+    "route": "root_twrp_boot_only",
+    "mode": "Apply",
+    "date_utc": "2026-10-13T22:14:49.0812918Z",
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "target_partitions": [
+      "BOOT"
+    ],
+    "target_device": "/dev/block/sda14",
+    "local_images_verified": true,
+    "stock_backup_verified": true,
+    "recovery_checks_passed": true,
+    "current_boot_verified": true,
+    "staged_boot_verified": true,
+    "prewrite_checks_passed": true,
+    "boot_write_requested": true,
+    "boot_readback_verified": true,
+    "staging_cleanup_succeeded": true,
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "repartition_requested": false,
+    "automatic_reboot_requested": false,
+    "ubuntu_touch_boot_verified": false,
+    "partition_progress": "boot_readback_verified",
+    "success": true,
+    "error": null,
+    "steps": [
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "data-space",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-create",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "push-boot",
+        "exit_code": 0,
+        "stderr": "[redacted]: 1 file pushed, 0 skipped. 100.8 MB/s (53475328 bytes in 0.506s)\n"
+      },
+      {
+        "operation": "size-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "hash-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "write-boot",
+        "exit_code": 0,
+        "stderr": "12+1 records in\n12+1 records out\n53475328 bytes (51.0MB) copied, 0.406740 seconds, 125.4MB/s\n"
+      },
+      {
+        "operation": "readback-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-cleanup",
+        "exit_code": 0,
+        "stderr": ""
+      }
+    ],
+    "expected_boot_sha256": "2b51b9a0950744dc59d63f8847ff65549830e8c870d7f4f49a4d2ee7cc65fe25",
+    "expected_boot_bytes": 53475328,
+    "expected_previous_boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0"
+  },
+  "recovery_checks": [
+    {
+      "filename": "recovery-check-report-19.zip",
+      "success": true,
+      "date_utc": "2026-10-13T22:15:27.5351235Z",
+      "partitions": {
+        "boot": {
+          "bytes": 57671680,
+          "block_device": "/dev/block/sda14"
+        },
+        "dtb": {
+          "bytes": 8388608,
+          "block_device": "/dev/block/sda12"
+        },
+        "recovery": {
+          "bytes": 67633152,
+          "block_device": "/dev/block/sda15"
+        },
+        "dtbo": {
+          "bytes": 8388608,
+          "block_device": "/dev/block/sda13"
+        },
+        "system": {
+          "bytes": 5976883200,
+          "block_device": "/dev/block/sda25"
+        },
+        "userdata": {
+          "bytes": 119126622208,
+          "block_device": "/dev/block/sda31"
+        },
+        "vbmeta": {
+          "bytes": 65536,
+          "block_device": "/dev/block/sda23"
+        },
+        "vendor": {
+          "bytes": 1153433600,
+          "block_device": "/dev/block/sda26"
+        }
+      },
+      "selected_mounts": [
+        {
+          "filesystem": "ext4",
+          "target": "/data",
+          "source": "/dev/block/platform/13d60000.ufs/by-name/userdata",
+          "options": "rw,seclabel,relatime,data=ordered"
+        },
+        {
+          "filesystem": "ext4",
+          "target": "/cache",
+          "source": "/dev/block/platform/13d60000.ufs/by-name/cache",
+          "options": "rw,seclabel,relatime,data=ordered"
+        }
+      ],
+      "installed_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+      "installed_vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+      "automatic_vendor_mutation_patch_confirmed": true,
+      "all_queries_successful": true
+    },
+    {
+      "filename": "recovery-check-report-20.zip",
+      "success": true,
+      "date_utc": "2026-10-13T22:15:38.1761857Z",
+      "partitions": {
+        "boot": {
+          "bytes": 57671680,
+          "block_device": "/dev/block/sda14"
+        },
+        "dtb": {
+          "bytes": 8388608,
+          "block_device": "/dev/block/sda12"
+        },
+        "recovery": {
+          "bytes": 67633152,
+          "block_device": "/dev/block/sda15"
+        },
+        "dtbo": {
+          "bytes": 8388608,
+          "block_device": "/dev/block/sda13"
+        },
+        "system": {
+          "bytes": 5976883200,
+          "block_device": "/dev/block/sda25"
+        },
+        "userdata": {
+          "bytes": 119126622208,
+          "block_device": "/dev/block/sda31"
+        },
+        "vbmeta": {
+          "bytes": 65536,
+          "block_device": "/dev/block/sda23"
+        },
+        "vendor": {
+          "bytes": 1153433600,
+          "block_device": "/dev/block/sda26"
+        }
+      },
+      "selected_mounts": [
+        {
+          "filesystem": "ext4",
+          "target": "/data",
+          "source": "/dev/block/platform/13d60000.ufs/by-name/userdata",
+          "options": "rw,seclabel,relatime,data=ordered"
+        },
+        {
+          "filesystem": "ext4",
+          "target": "/cache",
+          "source": "/dev/block/platform/13d60000.ufs/by-name/cache",
+          "options": "rw,seclabel,relatime,data=ordered"
+        }
+      ],
+      "installed_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+      "installed_vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+      "automatic_vendor_mutation_patch_confirmed": true,
+      "all_queries_successful": true
+    }
+  ],
+  "diagnostic_boot_physical_prefix_verified": true,
+  "diagnostic_pid1_execution_verified": false,
+  "normal_boot_result_supplied": false,
+  "diagnostic_log_report_supplied": false,
+  "ubuntu_touch_boot_verified": false,
+  "interpretation": "The diagnostic BOOT image was written and its exact physical prefix read back successfully. This does not establish kernel/PID 1 execution; manual normal boot and the bounded diagnostic log collector are the next hardware step."
+}
