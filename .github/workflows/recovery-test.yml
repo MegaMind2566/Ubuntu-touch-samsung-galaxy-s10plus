@@ -1,0 +1,48 @@
+name: S10+ first recovery test tools
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/flash-recovery-test.ps1'
+      - 'scripts/verify_recovery_test.py'
+      - 'scripts/package-recovery-test.py'
+      - 'scripts/check-download-mode.ps1'
+      - 'tests/test_recovery_test.py'
+      - 'tests/test-recovery-test.ps1'
+      - 'tests/fixtures/beyond2lte-pit.base64'
+      - 'tools/windows/INSTALLA-RECOVERY-TEST.cmd'
+      - 'tools/windows/LEGGIMI-RECOVERY-TEST.txt'
+      - '.github/workflows/recovery-test.yml'
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate preparation, parsing and preflight guards
+        run: python3 -m unittest discover -s tests -v
+      - name: Package the pinned flasher without images
+        run: python3 scripts/package-recovery-test.py
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Package existing preparation and small test add-on
+        run: |
+          python scripts/package-recovery-preparation.py
+          python scripts/package-recovery-test.py
+      - name: Validate Windows 5.1 entry points, real images and mocked USB writes
+        shell: powershell
+        run: .\tests\test-recovery-test.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-first-recovery-test-tools
+          path: out/UbuntuTouch-S10plus-installa-recovery-test-Windows.zip
+          if-no-files-found: error

@@ -96,10 +96,25 @@ generic fastboot instructions must not be assumed to work.
    The pinned AOSP avbtool produces a 64 KiB unsigned, descriptor-free vbmeta
    with flags 3, rollback index 0 and minimum libavb 1.0. These flags disable
    verification and hashtree enforcement for an unlocked-device test; they do
-   not validate Samsung acceptance or the hardware. The future test writes
+   not validate Samsung acceptance or the hardware. The first test writes
    only RECOVERY and VBMETA by their verified PIT names, after checking this
    preparation result. No flash command is included in the preparation package.
-6. The first recovery boot and then a controlled Ubuntu Touch boot test remain
+6. The user's `recovery-preparation-report.zip` confirms production preparation
+   success and a retained, full-size stock firmware with the exact expected
+   SHA-256. Both prepared image hashes match the independent Linux and Windows
+   audits. See [reviewed preparation report](recovery-preparation-2026-10-13.json).
+   The small `INSTALLA-RECOVERY-TEST.cmd` add-on is extracted into the existing
+   preparation folder. It requires that verified production state, locks the
+   retained firmware and image inputs before validating their contents, and
+   rechecks the USB model and exact handset PIT before writing. It permits
+   only named VBMETA and RECOVERY payloads with `--no-reboot`; there is no erase,
+   repartition, additional image, size-check bypass or automatic recovery attempt.
+   The native write inherits the console and is never killed by a wrapper timeout.
+   Its diagnostic ZIP contains only sanitized JSON, without paths or identifiers.
+   After a successful write, boot immediately to recovery with USB connected,
+   select Keep Read Only and cancel any data-password prompt. A failed write
+   may be partial: stay in Download Mode and inspect its report before retrying.
+7. The first recovery boot and then a controlled Ubuntu Touch boot test remain
    pending. Preparation success is not a claim that the handset boots.
 
 See [stock-layout findings](stock-layout-2026-10-13.md) for the completed audit

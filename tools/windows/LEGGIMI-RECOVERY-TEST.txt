@@ -1,0 +1,48 @@
+PRIMO AVVIO DELLA RECOVERY - SAMSUNG S10+ SM-G975F / EXYNOS
+
+1. Estrai questo ZIP DENTRO la cartella in cui hai eseguito PREPARA-RECOVERY.cmd.
+   INSTALLA-RECOVERY-TEST.cmd deve trovarsi accanto a PREPARA-RECOVERY.cmd
+   e a recovery-local-state.json. Se Windows chiede di sostituire
+   scripts/check-download-mode.ps1, conferma: e lo stesso controllo gia usato.
+   Non spostare o rinominare le cartelle prepared-recovery-*.
+
+2. Chiudi Odin e Smart Switch. Collega il telefono al PC in Download Mode.
+   La schermata gia verificata deve mostrare OEM LOCK: OFF(U) e FRP LOCK: OFF.
+   Se sei in Android: spegni, tieni Volume Giu + Bixby e collega USB al PC;
+   alla schermata di avviso premi brevemente Volume Su per continuare.
+
+3. Apri INSTALLA-RECOVERY-TEST.cmd. Il programma ricontrolla le impronte dei
+   file, il firmware completo di ripristino, il modello USB e la tabella PIT.
+   Il controllo del firmware puo richiedere alcuni minuti. Poi scrive
+   VBMETA (64 KiB) e RECOVERY, senza riavvio automatico.
+   Questa fase modifica il telefono; il primo avvio deve ancora essere provato.
+   Durante la scrittura non scollegare il cavo e non chiudere la finestra.
+
+4. Solo dopo SCRITTURA COMPLETATA, lascia USB collegato al PC e avvia subito
+   la recovery: tieni Volume Giu + Power fino allo schermo nero (circa 8-10 s),
+   poi passa IMMEDIATAMENTE a Volume Su + Bixby + Power.
+   Al logo Samsung rilascia Power e Bixby; tieni Volume Su fino alla recovery.
+   Se compare l'avviso sul bootloader sbloccato, segui l'eventuale richiesta
+   di Power per proseguire e riprendi la combinazione di recovery.
+
+5. In TWRP scegli Keep Read Only. Se chiede una password, premi Cancel.
+   Non usare Wipe, Format Data o Reboot System durante questo primo test.
+   Invia recovery-test-report.zip e una foto della schermata ottenuta.
+
+Se il programma si ferma, invia il rapporto creato. Se la scrittura e stata
+avviata, potrebbe essere parziale: lascia il telefono in Download Mode.
+Nessun ripristino o secondo tentativo viene eseguito automaticamente.
+
+Il pacchetto usa samloader 2.2.0, Windows VCOM e i driver Samsung gia
+funzionanti. Non servono Zadig, fastboot o una nuova installazione di Python.
+Non include immagini TWRP: usa esclusivamente quelle gia preparate sul PC.
+Le modifiche automatiche di TWRP a system/vendor sono state disattivate;
+le altre funzioni dell'interfaccia restano disponibili e non vanno usate ora.
+
+Ubuntu Touch non viene installato da questo programma. Il test verifica
+prima che la recovery possa avviarsi con l'AVB predisposto sul telefono.
+
+Riferimenti tecnici:
+https://twrp.me/samsung/samsunggalaxys10plus.html
+https://wiki.lineageos.org/devices/beyond2lte/install/
+https://github.com/topjohnwu/samloader-rs/tree/2.2.0

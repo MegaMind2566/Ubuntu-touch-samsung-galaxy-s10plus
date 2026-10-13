@@ -172,6 +172,18 @@ preparation report is returned for review. The first hardware boot is pending.
 
 Reproduce with `python3 scripts/package-recovery-preparation.py`.
 
+The user's production preparation report now confirms the complete retained
+stock ZIP and both image hashes; see
+[the reviewed result](docs/recovery-preparation-2026-10-13.json).
+`INSTALLA-RECOVERY-TEST.cmd` is a small add-on for that same preparation folder.
+It locks and revalidates the exact image/firmware inputs, confirms the USB model
+and exact measured PIT, and writes only VBMETA and RECOVERY with no reboot or
+erase. The console write has no wrapper timeout. It produces a sanitized
+`recovery-test-report.zip` and prints the immediate recovery boot procedure.
+The first hardware flash/boot is still pending. Windows CI validates the real
+images and native CMD entry point, with simulated USB responses/writes only.
+Reproduce the add-on with `python3 scripts/package-recovery-test.py`.
+
 ## Build
 
 Source revisions are pinned in `config/upstream.lock.json`. The rootfs migration

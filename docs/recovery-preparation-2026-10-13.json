@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-13",
+  "input_zip_sha256": "c2cd0709cbd28192fe45b1b61a7a7f00aa723f07ce40297f551fd0cdeb9ddf53",
+  "user_pc_report": {
+    "schema": 1,
+    "preparer_version": 1,
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "expected_pit_sha256": "aa3555ff93ff568186d64aa0e71b6f50bcf2edf26aecec7c6d74410cf4e7b58a",
+    "hardware_tested": false,
+    "install_ready": false,
+    "handset_accessed": false,
+    "partition_writes": false,
+    "success": true,
+    "backup_verified": true,
+    "error": null,
+    "stock_firmware": {
+      "size_bytes": 6364940601,
+      "sha256": "c7d956cf40cc01b09fccc260540fb65a16ed5ff60fbed1d32abf7fd0f6c32a4d",
+      "full_recovery_set_retained": true
+    },
+    "recovery": {
+      "original_sha256": "c61eafa9146d4b148648d1ab6a0d9d2d4a2456ef6b95ce17df9a4f413b2cb07d",
+      "prepared_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+      "bytes": 57556992,
+      "partition_bytes": 67633152,
+      "partition_margin_bytes": 10076160,
+      "kernel_sha256": "9cadd2db1c57b3a176fb34286ae57ec66a8b134c20489edd4f277251f9efa8ed",
+      "embedded_dtbo_sha256": "8f37aa2c33f6463a8b96f55c696deec7caaf9d4c61747ee30e5184ae9aa7da1a",
+      "kernel_unchanged": true,
+      "embedded_dtbo_unchanged": true,
+      "ramdisk_entries": 3546,
+      "modified_files": [
+        "init.recovery.exynos9820.rc",
+        "sbin/nuker.sh"
+      ],
+      "automatic_nuker_trigger_removed": true,
+      "nuker_script_replaced_by_no_op": true,
+      "all_other_ramdisk_contents_and_metadata_preserved": true,
+      "header": {
+        "header_version": 1,
+        "header_bytes": 1648,
+        "page_bytes": 2048,
+        "kernel_bytes": 44838924,
+        "kernel_address": 268468224,
+        "ramdisk_bytes": 10906104,
+        "ramdisk_address": 285212672,
+        "ramdisk_offset": 44843008,
+        "second_bytes": 0,
+        "second_address": 284164096,
+        "tags_address": 268435712,
+        "recovery_dtbo_bytes": 1805256,
+        "recovery_dtbo_offset": 55750656,
+        "os_version": "12.0.0",
+        "security_patch": "2023-01",
+        "cmdline": "buildvariant=eng",
+        "kernel_version": "Linux version 4.14.113-g55f042627 (runner@fv-az572-167) (Android (7485623, based on r416183b1) clang version 12.0.7 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)) #1 SMP PREEMPT Sat Feb 4 21:04:26 UTC 2023",
+        "boot_id_sha1_valid": true,
+        "boot_id_variant": "lineage-empty-legacy-dt"
+      }
+    },
+    "vbmeta": {
+      "sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+      "bytes": 65536,
+      "algorithm": "NONE",
+      "flags": 3,
+      "rollback_index": 0,
+      "required_libavb": "1.0",
+      "cryptographic_signature": false,
+      "purpose": "Disable verification/hashtree enforcement for an unlocked-device hardware test"
+    }
+  },
+  "prepared_image_hashes_match_independent_windows_and_linux_audits": true,
+  "handset_flash_performed": false,
+  "recovery_boot_verified": false,
+  "ubuntu_touch_boot_verified": false
+}
