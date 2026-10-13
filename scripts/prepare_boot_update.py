@@ -27,6 +27,8 @@ RAMDISK_BYTES=4108120
 RAMDISK_SHA256='439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c'
 BOOT_PARTITION_BYTES=57671680
 KERNEL_COMMIT='b9b70b29c94c41365704fcc2ed33be09b4617907'
+PREVIOUS_BOOT_SHA256='d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993'
+SAR_INIT_SHA256='2b4684d53f7a756f97ba9deb9310e7156ecddae7ffbae629661ec36c7634401b'
 
 
 def digest(data):return hashlib.sha256(data).hexdigest()
@@ -121,13 +123,15 @@ def finalize(out, work):
     rebuilt,header=compose(original,(out/'boot.img').read_bytes())
     source=work/'workdir/downloads/kernel-samsung-exynos9820/init/sar_ramdisk/sar_ramdisk.c'
     if 'unsigned int rd_offset = 0;' not in source.read_text():raise ValueError('sar_offset_fix_missing')
+    init_source=work/'workdir/downloads/kernel-samsung-exynos9820/init/main.c'
+    if digest(init_source.read_bytes())!=SAR_INIT_SHA256:raise ValueError('sar_init_handoff_fix_missing')
     config=(out/'kernel.config').read_text()
     if 'CONFIG_ANDROID_SAR_RAMDISK=y' not in config or 'CONFIG_ANDROID_BOOT_PARTITION="/dev/sda14"' not in config:
         raise ValueError('normal_boot_ramdisk_path_changed')
     manifest=json.loads((out/'source-manifest.json').read_text())
     if manifest['sources']['sources']['kernel']['commit']!=KERNEL_COMMIT:raise ValueError('kernel_source_changed')
     patch_names=[Path(p['path']).name for p in manifest['kernel_patches']]
-    if patch_names!=['0001-apparmor-socket-mediation.patch','0002-apparmor-af-unix-mediation.patch','0003-initialize-sar-ramdisk-offset.patch']:
+    if patch_names!=['0001-apparmor-socket-mediation.patch','0002-apparmor-af-unix-mediation.patch','0003-initialize-sar-ramdisk-offset.patch','0004-restore-init-after-sar-ramdisk-load.patch']:
         raise ValueError('kernel_patch_set_changed')
     tarpath=out/'device_beyond2lte.tar.xz';temporary=out/'device_beyond2lte.tar.corrected.xz'
     count=0
@@ -141,21 +145,23 @@ def finalize(out, work):
     (out/'ramdisk.sha256').write_text(RAMDISK_SHA256+'  original-installed-ramdisk.img\n')
     manifest['ramdisk_preserved_from_installed_candidate']={'bytes':RAMDISK_BYTES,'sha256':RAMDISK_SHA256,'baseline_boot_sha256':ORIGINAL_BOOT_SHA256}
     (out/'source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    report={'schema':1,'correction':'Initialize Samsung SAR ramdisk offset before calculating the boot image payload position',
+    report={'schema':1,'update_version':2,'correction':'Restore the requested init command after Samsung SAR loads the installed ramdisk',
             'original_boot_sha256':ORIGINAL_BOOT_SHA256,'original_boot_bytes':ORIGINAL_BOOT_BYTES,
+            'previous_boot_sha256':PREVIOUS_BOOT_SHA256,'previous_boot_bytes':ORIGINAL_BOOT_BYTES,
             'boot_sha256':digest(rebuilt),'boot_bytes':len(rebuilt),'boot_partition_bytes':BOOT_PARTITION_BYTES,
             'ramdisk_sha256':RAMDISK_SHA256,'ramdisk_bytes':RAMDISK_BYTES,'ramdisk_preserved':True,
             'unrelated_header_fields_preserved':True,'system_changes_requested':False,'vendor_changes_requested':False,
             'kernel_source_commit':KERNEL_COMMIT,'fixed_loader_source_sha256':digest(source.read_bytes()),
+            'fixed_init_source_sha256':SAR_INIT_SHA256,
             'kernel_patches':manifest['kernel_patches'],'kernel_header':header,'hardware_boot_verified':False}
     (out/'boot-fix-report.json').write_text(json.dumps(report,indent=2)+'\n')
-    lock={'schema':1,'update_version':1,'model':'SM-G975F','pda':'G975FXXSGHWC1',
+    lock={'schema':1,'update_version':2,'model':'SM-G975F','pda':'G975FXXSGHWC1',
           'target_partition':'BOOT','target_device':'/dev/block/sda14',
-          'previous_boot_bytes':ORIGINAL_BOOT_BYTES,'previous_boot_sha256':ORIGINAL_BOOT_SHA256,
+          'previous_boot_bytes':ORIGINAL_BOOT_BYTES,'previous_boot_sha256':PREVIOUS_BOOT_SHA256,
           'boot_bytes':len(rebuilt),'boot_sha256':digest(rebuilt),'boot_partition_bytes':BOOT_PARTITION_BYTES,
           'ramdisk_bytes':RAMDISK_BYTES,'ramdisk_sha256':RAMDISK_SHA256,'kernel_source_commit':KERNEL_COMMIT,
           'correction':report['correction'],'hardware_boot_verified':False}
-    (out/'boot-update-1.lock.json').write_text(json.dumps(lock,indent=2)+'\n')
+    (out/'boot-update-2.lock.json').write_text(json.dumps(lock,indent=2)+'\n')
     print(json.dumps(report,indent=2))
 
 

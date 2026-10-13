@@ -1,0 +1,25 @@
+--- a/init/main.c
++++ b/init/main.c
+@@ -1400,12 +1400,22 @@
+ 
+ 	if (!ramdisk_execute_command)
+ 		ramdisk_execute_command = "/init";
+ 
+ 	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
++#ifdef CONFIG_ANDROID_SAR_RAMDISK
++		char *sar_ramdisk_init = ramdisk_execute_command;
++#endif
+ 		ramdisk_execute_command = NULL;
+ 		prepare_namespace();
++#ifdef CONFIG_ANDROID_SAR_RAMDISK
++		/* The Samsung SAR loader populates /init in prepare_namespace(). */
++		if (sys_access((const char __user *) sar_ramdisk_init, 0) == 0) {
++			ramdisk_execute_command = sar_ramdisk_init;
++			pr_info("SAR_RD: Restored ramdisk init %s\n", sar_ramdisk_init);
++		}
++#endif
+ 	}
+ 
+ 	/*
+ 	 * Ok, we have completed the initial bootup, and
+ 	 * we're essentially up and running. Get rid of the

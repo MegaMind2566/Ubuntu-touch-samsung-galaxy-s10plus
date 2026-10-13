@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "user_observation": "Windows sees no new USB device during normal boot with corrected BOOT version 1",
+  "installed_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+  "finding": "Pinned kernel clears ramdisk_execute_command before prepare_namespace(); Samsung SAR loads /init later, but the kernel then falls back to /sbin/init, which is BusyBox in the exact installed ramdisk.",
+  "scope": "This deterministic handoff defect is reproduced in the compiled source fixture. Handset execution of the late-SAR route is not yet evidenced by a Ubuntu kernel log.",
+  "proposed_fix": "Retain the requested ramdisk init across prepare_namespace and restore it only if it exists afterward with CONFIG_ANDROID_SAR_RAMDISK enabled. Preloaded init, missing init, custom rdinit and non-SAR paths covered.",
+  "patch": "patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch",
+  "regression": {
+    "schema": 1,
+    "source_sha256": "2ede32b77f1e055a21d88caf393a71d35a027f85a00fbc1f9c6d73e1949e7f86",
+    "patch_sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6",
+    "compiler": "gcc",
+    "actual_pinned_namespace_and_execute_selection_compiled": true,
+    "namespace_and_syscalls_mocked": true,
+    "handset_accessed": false,
+    "installed_ramdisk": {
+      "sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+      "init_script_sha256": "cda3570b6edc38c6aebf8a058bf75f5ada94e63a32b27da4d2f1eabf2200d0dc",
+      "init_script_executable": true,
+      "sbin_init_is_arm64_busybox_hardlink": true,
+      "busybox_sha256": "27ba89e925a4d9cf0406c4daf4a4bfaca78f71dfc1ef11746c4a8a4f819621c8",
+      "busybox_inittab_present": false,
+      "busybox_rcs_present": false,
+      "halium_mount_script_present": true
+    },
+    "cases": {
+      "original_sar": {
+        "late_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        }
+      },
+      "corrected_sar": {
+        "late_init": {
+          "selected_init": "/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/custom-init",
+          "namespace_calls": 1
+        }
+      },
+      "corrected_without_sar": {
+        "late_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "preloaded_init": {
+          "selected_init": "/init",
+          "namespace_calls": 0
+        },
+        "missing_init": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        },
+        "late_custom_rdinit": {
+          "selected_init": "/sbin/init",
+          "namespace_calls": 1
+        }
+      }
+    },
+    "fixed_source_sha256": "2b4684d53f7a756f97ba9deb9310e7156ecddae7ffbae629661ec36c7634401b",
+    "confirmed_host_reproduction": "Original SAR path skips the newly loaded /init and selects the actual ramdisk BusyBox /sbin/init; correction selects /init while preserving preloaded/custom/non-SAR behavior.",
+    "handset_root_cause_confirmed": false
+  },
+  "kernel_or_userspace_hardware_boot_confirmed": false,
+  "handset_root_cause_confirmed": false,
+  "next_step": "Compile this source correction; prepare a verified BOOT-only version 2 transition from the actual installed version 1, with manual version 1 rollback.",
+  "system_vendor_or_data_rewrite_required": false
+}

@@ -9,6 +9,7 @@ on:
       - 'scripts/prepare_build.py'
       - 'scripts/prepare_boot_update.py'
       - 'tests/test_sar_ramdisk_loader.py'
+      - 'tests/test_sar_init_handoff.py'
       - 'tests/test_boot_update_image.py'
       - 'scripts/build-adaptation.sh'
       - 'scripts/validate-artifacts.py'
@@ -38,6 +39,7 @@ jobs:
           python3 scripts/audit_kernel_boot_sources.py
           python3 scripts/prepare_boot_update.py inputs --out out
           python3 tests/test_sar_ramdisk_loader.py --source out/kernel-boot-source-audit/kernel/init/sar_ramdisk --boot out/boot-baseline/boot.img --ramdisk out/boot-baseline/ramdisk.img --output out/sar-loader-test.json
+          python3 tests/test_sar_init_handoff.py --source out/kernel-boot-source-audit/kernel/init/main.c --patch patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch --ramdisk out/boot-baseline/ramdisk.img --output out/sar-init-handoff-test.json
           python3 tests/test_boot_update_image.py
       - name: Compile kernel, boot image and device adaptation
         env:
@@ -56,8 +58,9 @@ jobs:
             out/kernel.config
             out/ramdisk.sha256
             out/boot-fix-report.json
-            out/boot-update-1.lock.json
+            out/boot-update-2.lock.json
             out/sar-loader-test.json
+            out/sar-init-handoff-test.json
             out/artifact-report.json
             out/SHA256SUMS
             out/boot.img
