@@ -83,7 +83,8 @@ function Invoke-Fixture {
         try { $json = $reader.ReadToEnd() } finally { $reader.Dispose() }
         Assert-Check ($json -notmatch 'PRIVATE-SERIAL-MARKER|PRIVATE-IMEI-MARKER|serialNumber|imei') ($Mode + ': identifiers discarded')
         $report = $json | ConvertFrom-Json
-        Assert-Check ($report.error -eq $ExpectedError) ($Mode + ': error category')
+        Assert-Check (([string]$report.error) -ceq ([string]$ExpectedError)) ($Mode + ': error category')
+        if ($ExpectedSuccess) { Assert-Check ($null -eq $report.error) ($Mode + ': success error remains null') }
         Assert-Check (-not $report.partition_writes -and -not $report.erase_requested -and -not $report.reboot_requested) ($Mode + ': read-only report')
         Assert-Check (($null -ne $zip.GetEntry('beyond2lte.pit')) -eq $ExpectedSuccess) ($Mode + ': only valid PIT retained')
         if ($ExpectedSuccess) {
