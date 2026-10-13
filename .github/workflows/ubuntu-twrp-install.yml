@@ -1,0 +1,50 @@
+name: S10+ first boot via verified TWRP
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/install-ubuntu-twrp.ps1'
+      - 'scripts/package-ubuntu-twrp.py'
+      - 'tests/test-ubuntu-twrp.ps1'
+      - 'tests/fixtures/ubuntu-install-report-10.base64'
+      - 'tools/windows/INSTALLA-UBUNTU-TWRP.cmd'
+      - 'tools/windows/LEGGIMI-UBUNTU-TWRP.txt'
+      - '.github/workflows/ubuntu-twrp-install.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build the existing portable tools and small TWRP add-on
+        run: |
+          python scripts/package-ubuntu-install.py
+          python scripts/package-ubuntu-twrp.py
+      - name: Obtain the immutable original system for real input checks
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python -c "import sys;from pathlib import Path;sys.path.insert(0,'scripts');from audit_install_artifact import download_artifact;download_artifact(Path('out/original-system.zip'))"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Expand and verify the original images on embedded Python
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/Ubuntu install with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          & "$root/tools/python/python.exe" -I tests/test_ubuntu_install.py --root $root --source out/original-system.zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify Windows 5.1 TWRP guard stages and the real CMD launcher
+        shell: powershell
+        run: .\tests\test-ubuntu-twrp.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-ubuntu-twrp-first-boot-tools
+          path: out/UbuntuTouch-S10plus-installa-da-TWRP-Windows.zip
+          if-no-files-found: error

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import hashlib
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 from prepare_recovery import download_original,decode_ramdisk,cpio_records
@@ -31,6 +32,23 @@ def main():
             raise AssertionError(result.stderr.decode('utf-8','replace')+' unexpected metadata output: '+repr(result.stdout))
     assert fixture.read_bytes()==payload,'Read command changed fixture'
     print('PASS: exact installed-recovery BusyBox runtime reads ext4 magic and 16-byte UUID with bounded hexdump commands. ARM64 emulation only; no handset access.')
+    # Exercise the exact recovery applets used by the TWRP route on disposable
+    # ordinary files, never block devices. Include the final partial dd block.
+    source=root/'copy-source.fixture';target=root/'copy-target.fixture'
+    content=b'UT-copy-verification\n'*(600000);source.write_bytes(content)
+    result=subprocess.run(prefix+['dd','if='+str(source),'of='+str(target),'bs=4194304'],capture_output=True,timeout=60)
+    assert result.returncode==0 and target.read_bytes()==content,result.stderr.decode('utf-8','replace')
+    result=subprocess.run(prefix+['sha256sum',str(target)],capture_output=True,timeout=60)
+    assert result.returncode==0 and result.stdout.decode().split()[0]==hashlib.sha256(content).hexdigest()
+    result=subprocess.run(prefix+['sync'],capture_output=True,timeout=30);assert result.returncode==0
+    sparse=root/'large-size.fixture'
+    with sparse.open('wb') as output:output.truncate(5368709120)
+    result=subprocess.run(prefix+['stat','-c','%s',str(sparse)],capture_output=True,timeout=30)
+    assert result.returncode==0 and result.stdout.strip()==b'5368709120',result.stderr
+    # Small numeric count/bs fields avoid a >4 GiB head-count dependency.
+    result=subprocess.run(prefix+['dd','if='+str(target),'bs=4194304','count=2'],capture_output=True,timeout=30)
+    assert result.returncode==0 and result.stdout==content[:8388608]
+    print('PASS: exact TWRP BusyBox dd/sync/stat/sha256sum applets, partial final copy block, 5 GiB size reporting and bounded readback. Only disposable local files modified; no hardware writes.')
 
 
 if __name__=='__main__':main()

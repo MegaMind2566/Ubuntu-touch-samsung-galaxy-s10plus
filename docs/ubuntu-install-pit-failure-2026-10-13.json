@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-13",
+  "source_zip_sha256": "edc71291bba36652d8fd67afb1affb73f5bbcc6f3dfc40dfc54c7120f1566edb",
+  "report": {
+    "schema": 1,
+    "installer_version": 2,
+    "date_utc": "2026-10-13T15:12:01.9312090Z",
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "target_partitions": [
+      "SYSTEM",
+      "BOOT"
+    ],
+    "local_images_verified": true,
+    "stock_backup_verified": true,
+    "recovery_checks_passed": true,
+    "data_format_acknowledged": true,
+    "data_uuid_changed_after_format": true,
+    "download_mode_acknowledged": true,
+    "model_confirmed_by_usb": true,
+    "flash_invoked": true,
+    "flash_exit_code": 1,
+    "flash_tool_succeeded": false,
+    "partition_data_sent": "unknown",
+    "automatic_erase_requested": false,
+    "repartition_requested": false,
+    "automatic_reboot_requested": false,
+    "current_pit_read_inside_flash_session": true,
+    "native_size_checks_enabled": true,
+    "ubuntu_touch_boot_verified": false,
+    "success": false,
+    "error": "flash_failed",
+    "native_stdout": "Initializing protocol...\nProtocol initialization successful.\n\nBeginning session...\n\nSome devices may take up to 2 minutes to respond.\nPlease be patient!\n\nSession begun.\n\nDownloading device's PIT file\n",
+    "native_stderr": "ERROR: Odin error: Failed to receive chunk response!\n",
+    "data_metadata_steps": [
+      {
+        "operation": "data-uuid",
+        "exit_code": 0,
+        "timed_out": false,
+        "hex_valid": true,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "operation": "data-magic",
+        "exit_code": 0,
+        "timed_out": false,
+        "hex_valid": true,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "operation": "data-uuid",
+        "exit_code": 0,
+        "timed_out": false,
+        "hex_valid": true,
+        "error": null,
+        "stderr": ""
+      }
+    ]
+  },
+  "source_review_confirms_failure_before_boot_system_payloads": true,
+  "fresh_userdata_format_completed_and_verified": true,
+  "ubuntu_touch_boot_verified": false,
+  "next_route": "Root TWRP ADB staging, fixed physical SYSTEM/BOOT writes and raw-prefix readback hashes; no new format or Download-mode flash"
+}

@@ -1,0 +1,41 @@
+INSTALLAZIONE UBUNTU TOUCH TRAMITE TWRP - S10+ SM-G975F HWC1
+
+Questo aggiornamento usa BOOT/SYSTEM gia preparati sul PC e la memoria dati
+gia formattata e verificata nel rapporto ubuntu-install-report-10.zip.
+Non serve riscaricare le immagini, ripetere PREPARA o Format Data.
+Il rapporto precedente deve restare nella cartella gia usata.
+
+1. Estrai lo ZIP. Copia TUTTO il contenuto nella cartella gia usata:
+   UbuntuTouch-S10plus-installa-Ubuntu-Windows
+   Accetta Sostituisci per i file gia presenti. Chiudi le vecchie finestre.
+
+2. Dal telefono in Download Mode, con USB collegato:
+   tieni Volume Giu + Power fino allo schermo nero;
+   appena diventa nero passa a Volume Su + Bixby + Power per entrare in TWRP.
+   Non avviare Android nel mezzo. Lascia TWRP nella schermata principale.
+
+3. Apri INSTALLA-UBUNTU-TWRP.cmd nella cartella gia usata.
+   Il programma verifica file, firmware di ripristino, recovery e partizioni.
+   Copia SYSTEM (5 GiB) e BOOT in una cartella temporanea sul telefono,
+   controlla dimensioni e SHA-256 e ricontrolla la recovery prima di scrivere.
+   Scrive solo SYSTEM e BOOT, poi legge le stesse immagini dalle partizioni
+   per verificarle. Non cambiare schermata in TWRP durante l'operazione.
+   Non scollegare USB e non chiudere la finestra durante la scrittura.
+
+4. Solo dopo INSTALLAZIONE COMPLETATA E VERIFICATA, scegli Reboot > System.
+   Se propone l'app TWRP, scegli Do Not Install.
+   Se segnala No OS Installed dopo il successo verificato, conferma il riavvio:
+   la nuova SYSTEM contiene Ubuntu Touch, non il layout Android atteso da TWRP.
+   Il primo avvio resta sperimentale. Invia una foto e ubuntu-twrp-install-report.zip.
+
+Se si ferma, lascia il telefono in TWRP e invia il rapporto indicato.
+Dopo una scrittura iniziata, il programma impedisce una nuova esecuzione
+automatica: serve esaminare il risultato prima di ripetere l'operazione.
+
+Non usa Download Mode per scrivere, non ripartiziona, non formatta DATA,
+non modifica recovery/VBMETA/vendor/DTB/DTBO/modem/EFS o bootloader.
+Elimina solo i due file temporanei creati da questa esecuzione.
+Una verifica riuscita conferma le immagini scritte, non l'avvio o le funzioni del telefono.
+
+Tasti recovery (riferimento LineageOS per beyond2lte):
+https://wiki.lineageos.org/devices/beyond2lte/
