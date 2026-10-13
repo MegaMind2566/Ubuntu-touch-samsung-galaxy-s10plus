@@ -1,0 +1,44 @@
+UBUNTU TOUCH 24.04 / HALIUM 12 - PRIMO AVVIO SPERIMENTALE SU SAMSUNG S10+ SM-G975F
+
+La recovery e VBMETA installate sono state verificate sul telefono.
+Ubuntu Touch non e ancora stato avviato su questo modello con questa build.
+
+1. Scarica il file immagini da questo artefatto GitHub, accedendo con il tuo
+   account se richiesto. Dimensione: circa 1,17 GB.
+   https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38311673964/artifacts/11775595258
+   Mantieni lo ZIP intero; non estrarlo a mano.
+
+2. Estrai questo pacchetto strumenti in una nuova cartella sul PC Windows.
+   Servono almeno 6 GiB liberi oltre agli ZIP gia scaricati.
+   Apri PREPARA-UBUNTU-TOUCH.cmd e seleziona lo ZIP immagini di GitHub.
+   Se richiesto, seleziona anche il firmware originale HWC1 gia conservato.
+   Attendi File pronti. Questa fase non modifica il telefono.
+
+3. Lascia l'S10+ in TWRP, USB collegato, e apri INSTALLA-UBUNTU-TOUCH.cmd.
+   Il programma ricontrolla file, firmware di ripristino, recovery e partizioni.
+
+4. Quando lo chiede, sul telefono apri Wipe > Format Data, scrivi yes e conferma.
+   QUESTO CANCELLA TUTTA LA MEMORIA INTERNA. Serve una memoria dati pulita
+   per la prima installazione. I file di installazione e ripristino restano sul PC.
+   Torna alla schermata principale TWRP e premi INVIO sul PC solo dopo la fine.
+   Non usare Advanced Wipe. Il programma verifica che il filesystem sia nuovo.
+
+5. Quando lo chiede, sul telefono apri Reboot > Download.
+   Premi INVIO sul PC solo dopo che compare Downloading.
+   Il programma scrive SYSTEM e poi BOOT nella stessa sessione Download Mode.
+   Non scollegare USB e non chiudere la finestra durante la scrittura.
+
+6. Solo dopo INSTALLAZIONE COMPLETATA, tieni Volume Giu + Power fino allo
+   schermo nero; poi rilascia tutti i tasti per il primo avvio Ubuntu Touch.
+   Attendi alcuni minuti e invia una foto e ubuntu-install-report.zip.
+
+Se la procedura si ferma, invia il rapporto e lascia la schermata del telefono
+com'e. Non eseguire altri flash o ripristini prima di esaminare l'errore.
+La recovery resta disponibile per raccogliere i log di un eventuale avvio fallito.
+
+Il pacchetto usa Python 3.14.4 portabile, ADB Google 37.0.1 e samloader 2.2.0
+con i driver Samsung gia usati. Non richiede WSL, fastboot o Zadig.
+L'installazione usa le partizioni BOOT e SYSTEM. Non scrive vendor, dtb, dtbo,
+modem, EFS o bootloader, non ripartiziona e non riavvia automaticamente.
+Il controllo PIT e dimensioni del flash avviene internamente nella stessa
+sessione, evitando l'errore del secondo collegamento incontrato in precedenza.

@@ -1,0 +1,50 @@
+name: S10+ Ubuntu Touch first boot installer
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/prepare_ubuntu_install.py'
+      - 'scripts/prepare-ubuntu-install.ps1'
+      - 'scripts/install-ubuntu-touch.ps1'
+      - 'scripts/package-ubuntu-install.py'
+      - 'tests/test_ubuntu_install.py'
+      - 'tests/test-ubuntu-install.ps1'
+      - 'tools/windows/*UBUNTU*'
+      - 'config/install-images.lock.json'
+      - '.github/workflows/ubuntu-install.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Package pinned portable Windows tools
+        run: python scripts/package-ubuntu-install.py
+      - name: Fetch the immutable original system artifact for real extraction tests
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python -c "import sys;from pathlib import Path;sys.path.insert(0,'scripts');from audit_install_artifact import download_artifact;download_artifact(Path('out/original-system.zip'))"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify original 5 GiB SYSTEM on the embedded Python runtime
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/Ubuntu install with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          & "$root/tools/python/python.exe" -I tests/test_ubuntu_install.py --root $root --source out/original-system.zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify Windows 5.1 staged guards and native launchers
+        shell: powershell
+        run: .\tests\test-ubuntu-install.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-ubuntu-first-boot-tools
+          path: out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip
+          if-no-files-found: error

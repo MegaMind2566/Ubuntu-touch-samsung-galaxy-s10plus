@@ -12,6 +12,25 @@ The later user photograph confirms the TWRP 3.7.0_9-2 home screen. The Ubuntu
 Touch kernel/system has not yet booted on the handset. See
 [recovery boot evidence](recovery-boot-2026-10-13.json).
 
+The later [successful read-only recovery report](recovery-check-2026-10-13.json)
+supersedes the pending recovery-check steps below. On the actual handset,
+root ADB, the modified init/no-op script, exact recovery/VBMETA hashes and all
+eight partition sizes are confirmed. SYSTEM and VENDOR were unmounted. Data
+is directly mounted ext4, and TWRP reports encryption disabled; legacy
+directory encryption policies are not inferred from that flag. The planned
+first installation uses a fresh manual Format Data only after all PC image
+and complete-stock-backup verification has passed.
+
+The original system artifact has now been independently expanded and hashed;
+see [the locked image identities](../config/install-images.lock.json). The
+actual boot header selects `systempart=/dev/disk/by-partlabel/system`, so the
+first test targets SYSTEM and BOOT. The Windows installer verifies a changed
+ext4 UUID after the user's manual Format Data, requires a manual move from
+TWRP to Download Mode, and uses one native VCOM flash session with its internal
+PIT and size checks. It does not precede that session with another PIT read,
+write vendor/DTB/DTBO/modem/EFS, retry a failed write, repartition or automatically
+reboot. This is a first hardware test, not an established working UT port.
+
 ## Confirmed from the handset
 
 - Exynos 9820, stock Android/vendor 12, firmware G975FXXSGHWC1.
@@ -129,7 +148,7 @@ generic fastboot instructions must not be assumed to work.
    see [observed failure and fix](recovery-handshake-failure-2026-10-13.json).
    The subsequent recovery photograph confirms TWRP boot. Complete the read-only
    ADB checks of the exact installed images, mounts and userdata encryption with
-   `CONTROLLA-RECOVERY.cmd` before the first Ubuntu Touch installation. It reads
+   `CONTROLLA-RECOVERY.cmd` are now complete. It reads
    only selected metadata and recovery/vbmeta image bytes, without mounting,
    writing, formatting or rebooting. Ubuntu Touch boot remains pending.
 

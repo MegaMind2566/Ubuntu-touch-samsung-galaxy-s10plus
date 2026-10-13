@@ -9,8 +9,13 @@ On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
 Samsung stock system still installed at that point. The user subsequently
 installed the prepared recovery and supplied a photograph of the TWRP
-3.7.0_9-2 home screen. This confirms recovery boot, not Ubuntu Touch boot or
-vendor runtime. See [first recovery boot evidence](docs/recovery-boot-2026-10-13.json).
+3.7.0_9-2 home screen. The subsequent read-only ADB report confirms the exact
+modified recovery/VBMETA hashes, root ADB, all measured partition sizes,
+unmounted SYSTEM/VENDOR and directly mounted ext4 userdata. TWRP reports
+userdata encryption as disabled; that alone does not exclude old directory
+encryption policies, so a fresh Format Data is planned before the first UT boot.
+See [confirmed recovery checks](docs/recovery-check-2026-10-13.json).
+Ubuntu Touch boot and vendor runtime remain unverified.
 See [current Download-mode observation](docs/download-mode-state-2026-10-13.json).
 
 First successful adaptation build: **12 October 2026**, commit
@@ -23,9 +28,9 @@ and Windows inventory tests (mock ADB) also passed. These are not hardware tests
 
 The `S10+ Halium 12 adaptation` workflow compiles the kernel, `boot.img` and the
 device adaptation tarball. The separate system-candidate workflow now includes
-the Ubuntu Touch rootfs and Halium GSI. A complete installation package still
-requires verified Samsung vendor/runtime compatibility and a verified
-installation/recovery route. Build success is not evidence that the handset boots.
+the Ubuntu Touch rootfs and Halium GSI. The measured Samsung recovery route is
+now available for the first experimental kernel/system test. Build success is
+not evidence that the handset boots or that Samsung vendor services work.
 
 Target handset (read-only ADB inventory, 12 October 2026):
 - Android 12, One UI 4.1
@@ -67,11 +72,40 @@ injecting the upstream development-only passwordless SSH/unauthenticated ADB
 settings. There is no official S10+ 24.04 update channel.
 
 This workflow only assembles files. It never connects to or flashes a handset.
-Its output remains an experimental candidate; stock boot/recovery layout has
-now been inspected, while vendor runtime and a working Samsung recovery route
-still require verification before installation.
+Its output remains an experimental candidate. Stock image/PIT layout and the
+modified recovery route have now been checked; vendor runtime still needs the
+first on-device kernel/container test.
 See [hardware test preparation](docs/hardware-test-preparation.md) for the
 remaining firmware/CSC, backup, recovery and AVB prerequisites.
+
+## First experimental Ubuntu Touch installation
+
+`PREPARA-UBUNTU-TOUCH.cmd` verifies the complete retained HWC1 stock ZIP and
+the immutable [original system artifact](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38311673964/artifacts/11775595258).
+It expands the 5 GiB raw ext4 image using embedded Python 3.14.4, validates the
+fixed BOOT/SYSTEM hashes and the actual boot cmdline selecting
+`/dev/disk/by-partlabel/system`. Inputs are recorded in
+[the independent image audit](config/install-images.lock.json).
+
+`INSTALLA-UBUNTU-TOUCH.cmd` locks and revalidates the images and retained stock
+firmware, then repeats the measured recovery checks. Only after those pass does
+it ask for a manual **Wipe > Format Data > yes** in TWRP, which erases internal
+userdata. Read-only filesystem metadata must show a new ext4 UUID. The user
+then manually chooses **Reboot > Download**. One VCOM flash session writes
+**SYSTEM then BOOT**, with native PIT/name/size checks and `--no-reboot`.
+There is no separate PIT handshake, automated erase, repartition, write retry
+or automatic reboot. Recovery, VBMETA, vendor, DTB/DTBO, modem and EFS are not
+targets of this installer. After a successful write, manually reboot normally
+for the first Ubuntu Touch attempt and collect its report and a photograph.
+
+The tools package contains portable Python, official Google ADB 37.0.1 and
+samloader 2.2.0 with publisher checksums and notices. It contains no TWRP,
+stock firmware or multi-gigabyte handset image. Windows CI expands the actual
+original image and tests native CMD/PowerShell entry points in a path with
+spaces. USB replies and partition writes in CI are simulated; CI does not
+establish hardware boot or functionality. Reproduce with
+`python3 scripts/package-ubuntu-install.py` and follow
+[the Windows instructions](tools/windows/LEGGIMI-INSTALLAZIONE-UBUNTU.txt).
 
 ## Exact stock-firmware download on Windows
 
@@ -97,7 +131,8 @@ The full stock archive has now been downloaded on the user's PC. The supplied
 inspection bundle passes LZ4, boot ID, ARM64/header layout, AVB signature and
 available image-digest checks. The full ZIP's hash and AP MD5 are reported by
 the Windows collector; only the small inspection bundle was independently
-checked here. The Samsung recovery/installation route remains unverified.
+checked here. The subsequent preparation and recovery ADB reports confirm
+the retained full ZIP hash and the installed recovery route; Ubuntu boot is pending.
 
 On the user's PC, the launcher retains the complete stock ZIP for recovery,
 checks the AP TAR's MD5 and extracts only boot, recovery, dtbo and vbmeta into
@@ -187,9 +222,8 @@ entry, then rechecks the same handset before the separate flash handshake.
 The console streams are drained concurrently without a wrapper timeout, and
 bounded, redacted native messages are retained in `recovery-test-report.zip`.
 The latest user console identifies a handshake failure before beginning a
-session or transmitting image payloads. The fresh-session workaround and the
-Ubuntu Touch boot still needs hardware verification; the later recovery
-photograph confirms that TWRP does boot. See
+session or transmitting image payloads. The later recovery photograph and ADB hash checks confirm that TWRP does boot.
+The Ubuntu Touch kernel/system still needs hardware verification. See
 [the failure record](docs/recovery-handshake-failure-2026-10-13.json).
 Windows CI validates the real images and native CMD entry point, with simulated
 USB responses/writes and a local console stub only.

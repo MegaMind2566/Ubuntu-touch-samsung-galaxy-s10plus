@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "artifact_id": 11775595258,
+  "artifact_bytes": 1167934045,
+  "artifact_sha256": "8440d83ab7ddffc8d76d1f0894be89cf24b91396b447041a1ffc7e5177695f0d",
+  "members": {
+    "boot.img": "system-candidate/boot.img",
+    "rootfs.img.zst": "system-candidate/rootfs.img.zst",
+    "SHA256SUMS": "system-candidate/SHA256SUMS",
+    "system-report.json": "system-candidate/system-report.json",
+    "assembly-manifest.json": "system-candidate/assembly-manifest.json"
+  },
+  "boot_bytes": 53215232,
+  "boot_sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+  "system_bytes": 5368709120,
+  "system_sha256": "d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3",
+  "system_zstd_bytes": 1114706918,
+  "system_zstd_sha256": "6729e58ca7924a7682a332c4a58a1e1ad1dc3b31437707fb49366b518da99928",
+  "system_boot_cmdline": "systempart=/dev/disk/by-partlabel/system",
+  "ubuntu_touch_target": "24.04-2.x",
+  "halium": "12",
+  "raw_ext4_magic_and_geometry_valid": true,
+  "handset_accessed": false,
+  "hardware_boot_verified": false
+}
