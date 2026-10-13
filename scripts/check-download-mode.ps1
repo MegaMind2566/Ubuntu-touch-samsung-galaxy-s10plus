@@ -1,9 +1,20 @@
 # Download-mode inventory only. No partition write, erase or reboot command.
 [CmdletBinding()]
 param(
-    [string]$SamloaderPath = (Join-Path $PSScriptRoot '..\tools\samloader\samloader.exe'),
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..')
+    [string]$SamloaderPath,
+    [string]$OutputDirectory
 )
+
+# With Windows PowerShell 5.1 -File, script automatic variables can be empty
+# during default-parameter evaluation. Resolve defaults inside the body.
+$collectorScriptDirectory = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
+if ([string]::IsNullOrEmpty($collectorScriptDirectory)) { throw 'collector_directory_unavailable' }
+if ([string]::IsNullOrEmpty($SamloaderPath)) {
+    $SamloaderPath = Join-Path $collectorScriptDirectory '..\tools\samloader\samloader.exe'
+}
+if ([string]::IsNullOrEmpty($OutputDirectory)) {
+    $OutputDirectory = Join-Path $collectorScriptDirectory '..'
+}
 
 $script:DownloadCheckExeHash = 'b83b8244ecc86ecb4f5efc08e1604214d869838ca59b329e02a34e70832d175b'
 
@@ -82,7 +93,7 @@ function Invoke-DownloadModeCheck {
     [IO.Directory]::CreateDirectory($runDirectory) | Out-Null
     $pitPath = Join-Path $runDirectory 'beyond2lte.pit'
     $report = [ordered]@{
-        schema = 1; collector_version = 1; date_utc = [DateTime]::UtcNow.ToString('o')
+        schema = 1; collector_version = 2; date_utc = [DateTime]::UtcNow.ToString('o')
         target_model = 'SM-G975F'; expected_samloader_version = '2.2.0'
         partition_writes = $false; erase_requested = $false; reboot_requested = $false
         detected_model = $null; model_confirmed_by_usb = $false; steps = @(); success = $false; error = $null

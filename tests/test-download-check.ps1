@@ -167,5 +167,52 @@ public class DownloadArgumentEcho {
     $result = Invoke-DownloadCheckNative $echoExe @('wait') 1
     Assert-Check $result.TimedOut 'native process timeout terminates child'
     $passed++
-    Write-Host ('PASS: ' + $passed + ' Windows Download-mode checks; no handset access in these tests.')
+    # Test the actual packaged entry points, not just dot-sourced functions.
+    # Hosted Windows CI has no Samsung handset: native detection must produce
+    # a useful missing-device diagnostic rather than failing at initialization.
+    $package = Join-Path $PSScriptRoot '..\out\UbuntuTouch-S10plus-controllo-Download-Windows.zip'
+    foreach ($entryPoint in @('file', 'cmd')) {
+        $packageRoot = Join-Path $root ('packaged start ' + $entryPoint)
+        [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath($package), $packageRoot)
+        if ($entryPoint -eq 'file') {
+            $collector = Join-Path $packageRoot 'scripts\check-download-mode.ps1'
+            $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+            $result = Invoke-DownloadCheckNative $windowsPowerShell @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $collector) 60
+        } else {
+            $launcher = Join-Path $packageRoot 'CONTROLLA-DOWNLOAD.cmd'
+            $info = New-Object Diagnostics.ProcessStartInfo
+            $info.FileName = $env:ComSpec
+            $info.Arguments = '/d /s /c ""' + $launcher + '" <nul"'
+            $info.WorkingDirectory = $root
+            $info.UseShellExecute = $false
+            $info.RedirectStandardOutput = $true
+            $info.RedirectStandardError = $true
+            $process = New-Object Diagnostics.Process
+            $process.StartInfo = $info
+            try {
+                Assert-Check ($process.Start()) 'CMD process starts'
+                $stdout = $process.StandardOutput.ReadToEndAsync()
+                $stderr = $process.StandardError.ReadToEndAsync()
+                if (-not $process.WaitForExit(60000)) { $process.Kill(); throw 'CMD process timeout' }
+                $process.WaitForExit()
+                $result = [pscustomobject]@{
+                    ExitCode = $process.ExitCode; TimedOut = $false
+                    Stdout = $stdout.GetAwaiter().GetResult(); Stderr = $stderr.GetAwaiter().GetResult()
+                }
+            } finally { $process.Dispose() }
+        }
+        Assert-Check (-not $result.TimedOut -and $result.ExitCode -eq 1) ($entryPoint + ': completed without handset')
+        $diagnosticPath = Join-Path $packageRoot 'download-mode-check.zip'
+        Assert-Check (Test-Path -LiteralPath $diagnosticPath) ($entryPoint + ': default output directory resolved')
+        $zip = [IO.Compression.ZipFile]::OpenRead($diagnosticPath)
+        try {
+            $reader = New-Object IO.StreamReader($zip.GetEntry('download-mode-report.json').Open())
+            try { $report = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+            Assert-Check ($report.collector_version -eq 2 -and $report.error -eq 'usb_detection_failed') ($entryPoint + ': USB reached after defaults resolved')
+            Assert-Check ($report.steps.Count -eq 2 -and $report.steps[0].exit_code -eq 0) ($entryPoint + ': real publisher executable found')
+            Assert-Check (-not $report.partition_writes -and -not $report.erase_requested -and -not $report.reboot_requested) ($entryPoint + ': diagnostic-only entry point')
+        } finally { $zip.Dispose() }
+        $passed++
+    }
+    Write-Host ('PASS: ' + $passed + ' Windows Download-mode checks, including packaged CMD and native -File launch; no handset present.')
 } finally { Remove-Item -LiteralPath $root -Recurse -Force }

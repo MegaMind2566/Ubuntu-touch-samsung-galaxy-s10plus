@@ -1,4 +1,5 @@
 CONTROLLO DOWNLOAD MODE - SAMSUNG S10+ SM-G975F/DS
+Versione 2: avvio dal file CMD verificato con Windows PowerShell 5.1.
 
 1. Estrai tutto questo ZIP in una cartella del PC Windows.
 2. Collega solo il tuo S10+ in Download Mode. Chiudi Odin e Smart Switch.
