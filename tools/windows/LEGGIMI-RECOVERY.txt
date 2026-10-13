@@ -1,0 +1,38 @@
+PREPARAZIONE RECOVERY - SAMSUNG S10+ SM-G975F/DS, FIRMWARE HWC1
+
+1. Estrai tutto questo ZIP in una nuova cartella del PC Windows.
+2. Apri PREPARA-RECOVERY.cmd. Python e incluso e non deve essere installato.
+3. Se appare la finestra di scelta, seleziona il firmware originale gia
+   scaricato: SM-G975F-ITV-G975FXXSGHWC1.zip (circa 6 GB).
+   Puoi anche trascinare quel file ZIP sopra PREPARA-RECOVERY.cmd.
+4. Attendi la verifica del firmware, il download TWRP e la preparazione.
+5. Invia recovery-preparation-report.zip, creato accanto al file CMD.
+
+Questa fase non usa USB o ADB e non cambia il telefono. Puoi lasciarlo in
+Download Mode. Non contiene un comando di installazione.
+
+Il programma controlla SHA-256 e dimensione del firmware originale, poi
+scarica la recovery 3.7.0_9-2 per beyond2lte dal sito ufficiale TeamWin.
+Verifica il checksum del produttore prima di modificarne la copia locale.
+La pagina ufficiale e:
+https://eu.dl.twrp.me/beyond2lte/twrp-3.7.0_9-2-beyond2lte.img.html
+
+La TWRP originale avvia uno script che modifica system/vendor. La copia
+preparata rimuove quel richiamo e sostituisce lo script con uno che non
+esegue operazioni. Mantiene kernel, DTBO e il resto della ramdisk.
+La copia originale scaricata rimane nella cartella inputs.
+
+Viene creato anche vbmeta-test.img con verifica AVB disabilitata (flags 3),
+per il futuro test sul telefono gia sbloccato. Questo file NON e firmato
+da Samsung. I controlli dei file non provano che il telefono li avvii.
+
+I file preparati restano nella cartella prepared-recovery-... sul PC.
+Il rapporto da inviare non include immagini o percorsi personali del PC.
+Non inviare recovery-local-state.json: e un file di stato locale.
+Il successivo passaggio sara il test della recovery, dopo il controllo
+del rapporto. Conserva il firmware originale per il ripristino.
+
+Componenti inclusi: Python 3.14.4 ufficiale (licenza nella sua cartella),
+avbtool 1.2.0 da AOSP (Apache 2.0) e i nostri script. I componenti scaricati
+sono fissati tramite SHA-256. La recovery viene scaricata sul tuo PC e
+non e distribuita dentro questo pacchetto.

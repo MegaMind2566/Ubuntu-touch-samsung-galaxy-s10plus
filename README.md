@@ -117,8 +117,9 @@ See [stock-layout findings](docs/stock-layout-2026-10-13.md) and the
 The separate stock device-tree image has now been supplied by the v3 collector
 as `dt.img.lz4`. Its AVB partition is `dtb`. Signature, salted payload digest,
 stock vbmeta chain key and Exynos 9820 base-tree checks pass. The raw factory
-image is 8 MiB with one base FDT; the measured handset DTB partition size is
-still unknown. See [completed DTB audit](docs/stock-dtb-2026-10-13.md).
+image is 8 MiB with one base FDT. The subsequent real Download-mode PIT confirms
+an 8 MiB DTB partition. See [completed DTB audit](docs/stock-dtb-2026-10-13.md)
+and [actual PIT audit](docs/download-mode-pit-2026-10-13.json).
 The small `ESTRAI-DTB.cmd` add-on verifies the retained stock ZIP and streams
 that file from BL, AP or the other firmware packages without writing the whole
 6 GB AP to disk. It supports compressed/raw DTBs and saves TAR member lists
@@ -144,6 +145,32 @@ close Odin/Smart Switch and open the CMD launcher. Send the generated
 of this check. ADB is not the Download-mode transport.
 
 Reproduce with `python3 scripts/package-download-check.py`.
+
+The user completed collector v2 on 13 October: VCOM detection and the PIT read
+succeeded, the USB model is SM-G975F, and the 41-entry UFS table confirms the
+previous boot/recovery/system/vendor measurements. DTB/DTBO are 8 MiB and
+VBMETA is 64 KiB. There is no VBMETA_SYSTEM/VBMETA_SAMSUNG entry. USERDATA's
+zero PIT block count means remaining space, not a zero-byte partition.
+
+## Local preparation of the first recovery test
+
+`PREPARA-RECOVERY.cmd` verifies the complete stock recovery ZIP retained on
+the user's PC and downloads the publisher-pinned beyond2lte TWRP image there.
+It removes the automatic `nuker` trigger and replaces that script with a no-op,
+preserving attribution. Kernel, embedded DTBO, other ramdisk bytes/metadata,
+header addresses and version/patch fields are unchanged. Only the ramdisk size,
+DTBO offset and boot-ID checksum are regenerated with the original layout.
+
+The preparation also creates a 64 KiB flags-3/algorithm-NONE vbmeta using
+the checksum-pinned AOSP avbtool. It is unsigned and intended for an unlocked
+device test. Valid metadata/layout does not prove Samsung acceptance or boot.
+The package includes the official Python 3.14.4 embedded Windows runtime,
+verified against the publisher's SHA-256, and the applicable licenses.
+It never accesses a handset or flashes images, and does not bundle/mirror TWRP.
+Original images and modified outputs remain on the user's PC; only the small
+preparation report is returned for review. The first hardware boot is pending.
+
+Reproduce with `python3 scripts/package-recovery-preparation.py`.
 
 ## Build
 

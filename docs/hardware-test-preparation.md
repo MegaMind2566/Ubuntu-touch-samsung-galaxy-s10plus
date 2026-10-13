@@ -72,7 +72,7 @@ generic fastboot instructions must not be assumed to work.
    appropriate verified installation route remains unsupported. Vendor filesystem
    contents and runtime have not yet been inspected/tested.
 4. Download-mode OEM/FRP/KnoxGuard state is confirmed from the new photo.
-   The next action is `CONTROLLA-DOWNLOAD.cmd`: the pinned samloader 2.2.0
+   The user completed `CONTROLLA-DOWNLOAD.cmd`: the pinned samloader 2.2.0
    executable uses Windows VCOM, queries the device model and reads its PIT
    with `--no-reboot`. The launcher performs no partition write, erase or
    reboot. It saves a bounded PIT, a locally decoded partition table and a
@@ -81,14 +81,30 @@ generic fastboot instructions must not be assumed to work.
    the supplied photo identifies SM-G975F. Windows PowerShell 5.1 tests use
    synthetic handset responses and the real publisher executable only for
    offline version/PIT decoding; they do not establish hardware compatibility.
-5. After the connection/PIT and recovery/AVB prerequisites, proceed to the
-   first recovery test and then a controlled Ubuntu Touch boot test. These
-   stages remain pending; unlocking alone does not make the build install-ready.
+   The real VCOM detection/PIT read succeeded with the confirmed SM-G975F.
+   The PIT has 41 UFS entries and matches the ADB boot/recovery/system/vendor
+   sizes. DTB and DTBO are both 8 MiB; VBMETA is 64 KiB. No separate
+   VBMETA_SYSTEM or VBMETA_SAMSUNG entry is present. USERDATA's PIT block count
+   is zero with the `remained` marker, so its size remains the previous ADB
+   measurement, not zero. See [actual PIT audit](download-mode-pit-2026-10-13.json).
+5. `PREPARA-RECOVERY.cmd` prepares files locally without accessing the phone.
+   It verifies the retained complete HWC1 stock ZIP by size and SHA-256, then
+   obtains the publisher-pinned TWRP image on the user's PC. The patch removes
+   the `nuker` init trigger and replaces its script with a no-op while preserving
+   its attribution; kernel, embedded DTBO, all remaining ramdisk contents and
+   metadata are unchanged. It rebuilds the original LZMA/header/boot-ID layout.
+   The pinned AOSP avbtool produces a 64 KiB unsigned, descriptor-free vbmeta
+   with flags 3, rollback index 0 and minimum libavb 1.0. These flags disable
+   verification and hashtree enforcement for an unlocked-device test; they do
+   not validate Samsung acceptance or the hardware. The future test writes
+   only RECOVERY and VBMETA by their verified PIT names, after checking this
+   preparation result. No flash command is included in the preparation package.
+6. The first recovery boot and then a controlled Ubuntu Touch boot test remain
+   pending. Preparation success is not a claim that the handset boots.
 
 See [stock-layout findings](stock-layout-2026-10-13.md) for the completed audit
 and exact remaining limits. The generic recovery fstab mentions
-`vbmeta_samsung` and `vbmeta_system`; their existence on this handset is not
-established by the limited partition inventory and must not be assumed.
+`vbmeta_samsung` and `vbmeta_system`; the actual PIT has neither partition.
 
 The Android 12 vendor currently on the handset is the candidate baseline;
 the historical October 2021 vendor image must not be substituted. Runtime

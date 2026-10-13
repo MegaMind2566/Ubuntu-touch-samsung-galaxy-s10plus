@@ -1,0 +1,63 @@
+name: S10+ recovery preparation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/prepare_recovery.py'
+      - 'scripts/prepare-recovery.ps1'
+      - 'scripts/package-recovery-preparation.py'
+      - 'scripts/inspect_stock_firmware.py'
+      - 'tests/test_recovery_preparation.py'
+      - 'tests/test-recovery-preparation.ps1'
+      - 'tools/windows/PREPARA-RECOVERY.cmd'
+      - 'tools/windows/LEGGIMI-RECOVERY.txt'
+      - '.github/workflows/recovery-preparation.yml'
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate parsers and firmware/recovery guards
+        run: python3 -m unittest discover -s tests -v
+      - name: Package pinned portable runtime and AOSP tools
+        run: python3 scripts/package-recovery-preparation.py
+      - name: Inspect and adapt the real publisher recovery locally
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys, zipfile
+          sys.path.insert(0, 'scripts')
+          from prepare_recovery import download_original, prepare
+          root = Path('out/linux-audit').resolve()
+          root.mkdir()
+          with zipfile.ZipFile('out/UbuntuTouch-S10plus-prepara-recovery-Windows.zip') as archive:
+              archive.extractall(root)
+          original = download_original(root)
+          report = prepare(root, audit_image=original)
+          assert report['success'] and not report['backup_verified']
+          assert report['recovery']['kernel_unchanged'] and report['recovery']['embedded_dtbo_unchanged']
+          assert report['recovery']['automatic_nuker_trigger_removed']
+          assert report['vbmeta']['flags'] == 3 and report['vbmeta']['bytes'] == 65536
+          PY
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Package pinned portable runtime and AOSP tools
+        run: python scripts/package-recovery-preparation.py
+      - name: Validate embedded runtime, real recovery and CMD with PowerShell 5.1
+        shell: powershell
+        run: .\tests\test-recovery-preparation.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-recovery-preparation-tools
+          path: out/UbuntuTouch-S10plus-prepara-recovery-Windows.zip
+          if-no-files-found: error
