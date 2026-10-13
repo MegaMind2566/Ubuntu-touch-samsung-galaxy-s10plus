@@ -43,8 +43,8 @@ def main():
     result=subprocess.run(prefix+['sync'],capture_output=True,timeout=30);assert result.returncode==0
     sparse=root/'large-size.fixture'
     with sparse.open('wb') as output:output.truncate(5368709120)
-    result=subprocess.run(prefix+['stat','-c','%s',str(sparse)],capture_output=True,timeout=30)
-    assert result.returncode==0 and result.stdout.strip()==b'5368709120',result.stderr
+    result=subprocess.run(prefix+['stat','-t',str(sparse)],capture_output=True,timeout=30)
+    assert result.returncode==0 and result.stdout.decode().split()[:2]==[str(sparse),'5368709120'],result.stderr
     # Small numeric count/bs fields avoid a >4 GiB head-count dependency.
     result=subprocess.run(prefix+['dd','if='+str(target),'bs=4194304','count=2'],capture_output=True,timeout=30)
     assert result.returncode==0 and result.stdout==content[:8388608]

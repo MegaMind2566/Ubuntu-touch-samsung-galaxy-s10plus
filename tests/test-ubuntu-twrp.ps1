@@ -47,8 +47,8 @@ $actions={
         }
         'data-clean' { if ($script:TwrpTestMode -eq 'android-data') { $result.ExitCode=1 } }
         'push-system' { if ($script:TwrpTestMode -eq 'transfer') { $result.ExitCode=1 } }
-        'size-system' { $result.Stdout='5368709120';if ($script:TwrpTestMode -eq 'size') { $result.Stdout='1024' } }
-        'size-boot' { $result.Stdout='53215232' }
+        'size-system' { $size='5368709120';if ($script:TwrpTestMode -eq 'size') { $size='1024' };$result.Stdout=$stage+'/system.img '+$size+' 0 81a4 0 0' }
+        'size-boot' { $result.Stdout=$stage+'/boot.img 53215232 0 81a4 0 0' }
         'hash-system' { $result.Stdout='d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3  '+$stage+'/system.img';if ($script:TwrpTestMode -eq 'hash') { $result.Stdout='wrong hash' } }
         'hash-boot' { $result.Stdout='0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc  '+$stage+'/boot.img' }
         'readback-system' { $result.Stdout='d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3  -';if ($script:TwrpTestMode -eq 'readback-system') { $result.Stdout='wrong readback' } }
@@ -137,9 +137,9 @@ public class S10TwrpFakeConsole {
     public static void Main(string[] args) { Console.WriteLine(string.Join("|",args));Console.Error.WriteLine("local stub error");Environment.Exit(1); }
 }
 '@ -OutputAssembly $stub -OutputType ConsoleApplication
-    $args=@(Get-UtTwrpArguments 'write-system' ('/data/ubuntu-touch-first-boot-'+('a'*32)) '')
-    $native=Invoke-UtTwrpNative $stub $args
-    Assert-TwrpTest ($native.ExitCode -eq 1 -and $native.Stdout.Trim() -ceq ($args -join '|') -and $native.Stderr -match 'local stub error') 'real native quoting, concurrent output and exit code; stub cannot access USB'
+    $nativeArguments=@(Get-UtTwrpArguments 'write-system' ('/data/ubuntu-touch-first-boot-'+('a'*32)) '')
+    $native=Invoke-UtTwrpNative $stub $nativeArguments
+    Assert-TwrpTest ($native.ExitCode -eq 1 -and $native.Stdout.Trim() -ceq ($nativeArguments -join '|') -and $native.Stderr -match 'local stub error') 'real native quoting, concurrent output and exit code; stub cannot access USB'
     $info=New-Object Diagnostics.ProcessStartInfo;$info.FileName=$env:ComSpec
     $info.Arguments='/d /s /c ""'+(Join-Path $script:TwrpTestRoot 'INSTALLA-UBUNTU-TWRP.cmd')+'" <nul"'
     $info.UseShellExecute=$false;$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true

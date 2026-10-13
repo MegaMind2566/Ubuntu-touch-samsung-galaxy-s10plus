@@ -16,8 +16,8 @@ function Get-UtTwrpArguments {
         'data-clean' { $command='test ! -e /data/system && test ! -e /data/misc/vold' }
         'data-space' { $command='/sbin/busybox df -k /data' }
         'stage-create' { $command="test ! -e '$Stage' && /sbin/busybox mkdir -m 700 '$Stage'" }
-        'size-system' { $command="/sbin/busybox stat -c %s '$Stage/system.img'" }
-        'size-boot' { $command="/sbin/busybox stat -c %s '$Stage/boot.img'" }
+        'size-system' { $command="/sbin/busybox stat -t '$Stage/system.img'" }
+        'size-boot' { $command="/sbin/busybox stat -t '$Stage/boot.img'" }
         'hash-system' { $command="/sbin/busybox sha256sum '$Stage/system.img'" }
         'hash-boot' { $command="/sbin/busybox sha256sum '$Stage/boot.img'" }
         'write-system' { $command="/sbin/busybox dd if='$Stage/system.img' of=/dev/block/sda25 bs=4194304 && /sbin/busybox sync" }
@@ -189,7 +189,10 @@ function Invoke-UtTwrpInstallation {
         foreach ($item in @(@('system',5368709120,'d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3'),
                             @('boot',53215232,'0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc'))) {
             $size=Invoke-UtTwrpAction $adb ('size-'+$item[0]) $stage '' $ActionRunner $trace $privateValues
-            if ($size.Stdout.Trim() -cne [string]$item[1]) { throw $reason }
+            # Reduced recovery BusyBox supports terse -t, not custom -c.
+            # Owned staging paths contain no whitespace; fields 0/1 are path/size.
+            $fields=$size.Stdout.Trim() -split '\s+'
+            if ($fields.Count -lt 3 -or $fields[0] -cne ($stage+'/'+$item[0]+'.img') -or $fields[1] -cne [string]$item[1]) { throw $reason }
             $hash=Invoke-UtTwrpAction $adb ('hash-'+$item[0]) $stage '' $ActionRunner $trace $privateValues
             $expected=[regex]::Escape([string]$item[2])+'\s+'+[regex]::Escape($stage+'/'+$item[0]+'.img')
             if ($hash.Stdout.Trim() -cnotmatch ('^'+$expected+'$')) { throw $reason }
