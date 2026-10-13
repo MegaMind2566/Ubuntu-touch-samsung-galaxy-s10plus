@@ -1,0 +1,12 @@
+diff --git a/init/sar_ramdisk/sar_ramdisk.c b/init/sar_ramdisk/sar_ramdisk.c
+--- a/init/sar_ramdisk/sar_ramdisk.c
++++ b/init/sar_ramdisk/sar_ramdisk.c
+@@ -18,7 +18,7 @@
+ 
+ __init int mount_sar_ramdisk(char* name) {
+ 	struct boot_img_hdr_v1 header;
+-	unsigned int rd_offset;
++	unsigned int rd_offset = 0;
+ 	int fd;
+ 	int res = 0;
+ 	char* buf;

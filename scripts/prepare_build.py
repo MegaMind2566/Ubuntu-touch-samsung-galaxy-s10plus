@@ -45,8 +45,10 @@ def main():
         git(kernel, "apply", "--check", str(patch))
         git(kernel, "apply", str(patch))
         patches.append({"path": str(patch.relative_to(ROOT)), "sha256": hashlib.sha256(patch.read_bytes()).hexdigest()})
-    if len(patches) != 2:
-        raise RuntimeError("Both documented AppArmor patches are required")
+    expected_patches = ["0001-apparmor-socket-mediation.patch", "0002-apparmor-af-unix-mediation.patch",
+                        "0003-initialize-sar-ramdisk-offset.patch"]
+    if [Path(patch["path"]).name for patch in patches] != expected_patches:
+        raise RuntimeError("The two AppArmor patches and the SAR ramdisk fix are required")
     fragment = ROOT / "config/ubuntu-touch.config"
     shutil.copy2(fragment, kernel / "arch/arm64/configs/ubuntu-touch.config")
     info = (work / "deviceinfo-beyond2lte").read_text()
@@ -71,3 +73,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

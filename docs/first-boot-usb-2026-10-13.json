@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "source_zip_bytes": 591,
+  "source_zip_sha256": "772f733dc98dc100a036805e40b2ee730885990a994cf87813e76032c0f2fe4e",
+  "collector_succeeded": true,
+  "valid_snapshots": 3,
+  "usb_devices_per_snapshot": [
+    0,
+    0,
+    0
+  ],
+  "usb_network_adapters_per_snapshot": [
+    0,
+    0,
+    0
+  ],
+  "query_errors_per_snapshot": [
+    [],
+    [],
+    []
+  ],
+  "user_stage": "Normal boot remains on Samsung logo",
+  "conclusion": "No selected USB descriptor or USB network adapter observed. This does not establish that the kernel never ran.",
+  "partition_integrity_reference": "first-boot-readback-2026-10-13.json",
+  "next_investigation": "Pinned kernel normal-boot ramdisk path and comparison with the known running TWRP kernel.",
+  "ubuntu_touch_boot_verified": false
+}

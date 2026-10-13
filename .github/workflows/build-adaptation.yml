@@ -7,11 +7,15 @@ on:
       - 'patches/kernel/**'
       - 'scripts/fetch_sources.py'
       - 'scripts/prepare_build.py'
+      - 'scripts/prepare_boot_update.py'
+      - 'tests/test_sar_ramdisk_loader.py'
+      - 'tests/test_boot_update_image.py'
       - 'scripts/build-adaptation.sh'
       - 'scripts/validate-artifacts.py'
       - '.github/workflows/build-adaptation.yml'
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: adaptation-${{ github.ref }}
   cancel-in-progress: false
@@ -26,8 +30,18 @@ jobs:
       - name: Install kernel build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends bc bison build-essential ca-certificates cpio curl fakeroot flex git kmod libelf-dev libssl-dev libtinfo5 lz4 python2 python3 unzip wget xz-utils
+          sudo apt-get install -y --no-install-recommends bc bison build-essential ca-certificates clang cpio curl fakeroot flex git kmod libelf-dev libssl-dev libtinfo5 lz4 python2 python3 unzip wget xz-utils
+      - name: Check the exact normal-boot loader with the installed ramdisk
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/audit_kernel_boot_sources.py
+          python3 scripts/prepare_boot_update.py inputs --out out
+          python3 tests/test_sar_ramdisk_loader.py --source out/kernel-boot-source-audit/kernel/init/sar_ramdisk --boot out/boot-baseline/boot.img --ramdisk out/boot-baseline/ramdisk.img --output out/sar-loader-test.json
+          python3 tests/test_boot_update_image.py
       - name: Compile kernel, boot image and device adaptation
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
         run: bash scripts/build-adaptation.sh
       - name: Save diagnostics and experimental artifacts
         if: always()
@@ -41,6 +55,9 @@ jobs:
             out/source-manifest.json
             out/kernel.config
             out/ramdisk.sha256
+            out/boot-fix-report.json
+            out/boot-update-1.lock.json
+            out/sar-loader-test.json
             out/artifact-report.json
             out/SHA256SUMS
             out/boot.img
