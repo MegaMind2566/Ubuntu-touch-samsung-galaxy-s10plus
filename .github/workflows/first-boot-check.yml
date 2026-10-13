@@ -1,0 +1,34 @@
+name: S10+ read-only first-boot collector
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/collect-first-boot.py'
+      - 'scripts/package-first-boot-check.py'
+      - 'tests/test_first_boot_collector.py'
+      - 'tools/windows/CONTROLLA-PRIMO-AVVIO.cmd'
+      - 'tools/windows/LEGGIMI-PRIMO-AVVIO.txt'
+      - '.github/workflows/first-boot-check.yml'
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check evidence retention and the read-only command boundary
+        run: python tests/test_first_boot_collector.py
+      - name: Package the small add-on and obtain the existing pinned runtimes
+        run: |
+          python scripts/package-first-boot-check.py
+          python scripts/package-ubuntu-install.py
+      - name: Run the real CMD with spaces in the path on embedded Python
+        run: python tests/test_first_boot_collector.py --native-windows .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-first-boot-check-tools
+          path: out/UbuntuTouch-S10plus-controllo-primo-avvio-Windows.zip
+          if-no-files-found: error

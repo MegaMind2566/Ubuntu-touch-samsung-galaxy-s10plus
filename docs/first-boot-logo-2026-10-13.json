@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "ubuntu_boot_verified": false,
+  "user_report": "TWRP installer completed; first normal boot remains on Galaxy S10+ logo",
+  "installation_report_received": false,
+  "logs_received": {
+    "dmesg.log": {
+      "bytes": 793872,
+      "sha256": "ed1c6bfea31afeef8f42452c11b21eaaf6d8a13e93cce7e848bb027ff53799a1"
+    },
+    "recovery.log": {
+      "bytes": 29801,
+      "sha256": "2f1c6bcc0e3aae6334a3641a5ebf07e9c9048dd23d07dfe4c44ebb645e114598"
+    }
+  },
+  "log_provenance": "Current TWRP boot, not the Ubuntu attempt",
+  "recovery_kernel": "4.14.113-g55f042627",
+  "expected_ubuntu_kernel": "4.14.280",
+  "vendor_mount_succeeded_in_recovery": true,
+  "vendor_ext4_detected": true,
+  "vendor_stock_content_integrity_verified": false,
+  "recovery_last_kmsg_proc_created": true,
+  "recovery_sec_debug_save_last_kmsg_succeeded": true,
+  "next_step": "Read /proc/last_kmsg and pstore over USB, preserve installation report and verify BOOT/RECOVERY/VBMETA prefixes and VENDOR filesystem in read-only mode",
+  "partition_writes_requested_for_diagnosis": false
+}

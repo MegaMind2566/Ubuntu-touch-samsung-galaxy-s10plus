@@ -1,0 +1,26 @@
+Samsung Galaxy S10+ SM-G975F - controllo del primo avvio Ubuntu Touch
+
+1. Copia tutti i file di questo ZIP nella cartella originale
+   UbuntuTouch-S10plus-installa-Ubuntu-Windows.
+   Riutilizza gli strumenti gia presenti. Nessun nuovo download di immagini.
+2. Rientra direttamente in TWRP dopo il tentativo fermo al logo Samsung.
+   USB collegato al PC. Volume giu + Power fino allo schermo nero;
+   subito dopo Volume su + Bixby + Power fino alla recovery.
+   Non avviare nuovamente System prima della raccolta.
+3. Lascia TWRP nella schermata principale e avvia
+   CONTROLLA-PRIMO-AVVIO.cmd sul PC.
+4. Invia ubuntu-first-boot-report.zip (o il nuovo file numerato indicato).
+   Mantieni nella cartella anche ubuntu-twrp-install-report.zip.
+
+Il controllo legge i log persistenti disponibili, i metadati della recovery,
+gli hash di BOOT/RECOVERY/VBMETA e la firma ext4 di SYSTEM.
+Legge le dimensioni e la firma ext4 di VENDOR. Se VENDOR non e montato,
+esegue e2fsck -f -n: solo controllo, senza riparazioni o journal replay.
+Questo controllo non equivale al confronto completo con il contenuto stock.
+Include il rapporto dell'installazione TWRP, se presente nella cartella.
+Non scrive sul telefono, non monta partizioni, non cancella file, non riavvia.
+Non ripetere Format Data o l'installazione per eseguire questo controllo.
+I file recovery-* descrivono TWRP; non sono i log dell'avvio Ubuntu.
+Un log persistente assente non dimostra che il kernel non sia partito.
+I log sono limitati agli ultimi 512 KiB per file; alcuni identificatori comuni
+vengono rimossi. Non legge foto, messaggi o altri file personali.
