@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "update_version": 2,
+  "boot_write_and_readback_verified": true,
+  "normal_boot_user_report": "Still stopped at Samsung Galaxy S10+ logo after BOOT version 2",
+  "ubuntu_kernel_execution_verified": false,
+  "ubuntu_userspace_execution_verified": false,
+  "usb_version_2_result_supplied": false,
+  "files": [
+    {
+      "name": "dmesg(1).log",
+      "bytes": 703868,
+      "sha256": "51764fe1b01305f268c3fce97f2886f5b50e5aeeee18ccc54ed2a9be6c132306"
+    },
+    {
+      "name": "recovery(2).log",
+      "bytes": 23389,
+      "sha256": "0148dbc338000830e16c8b80c2b49cec6cb1e482b3d33fe9ad185bfb8d210957"
+    }
+  ],
+  "interpretation": "These new logs describe the active TWRP recovery kernel, not the preceding Ubuntu normal-boot kernel. A further speculative fix is not justified by these logs.",
+  "recovery_kernel": "4.14.113-g55f042627",
+  "recovery_version": "3.7.0_9-2-ddaccbe7",
+  "recovery_fb": {
+    "driver": "fbdev",
+    "width": 1440,
+    "height": 3040,
+    "bits_per_pixel": 32
+  }
+}

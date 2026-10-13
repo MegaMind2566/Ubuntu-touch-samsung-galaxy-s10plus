@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 2 is now installed on the handset and its exact physical image-prefix readback passes. Its first normal-boot result remains pending; Ubuntu kernel/userspace execution is not yet confirmed.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 2 is installed on the handset and its exact physical image-prefix readback passes, but normal boot still remains on the Samsung logo. Ubuntu kernel/userspace execution is not yet confirmed. The next test must expose a boot-stage signal independently of the Ubuntu USB connection.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the

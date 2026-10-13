@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/audit_kernel_boot_sources.py'
+      - 'scripts/audit_boot_observability.py'
       - '.github/workflows/kernel-boot-source-audit.yml'
 permissions:
   contents: read
@@ -17,6 +18,8 @@ jobs:
           persist-credentials: false
       - name: Fetch and inspect immutable upstream boot sources
         run: python3 scripts/audit_kernel_boot_sources.py
+      - name: Inspect pinned boot observability sources
+        run: python3 scripts/audit_boot_observability.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: beyond2lte-kernel-boot-source-audit
