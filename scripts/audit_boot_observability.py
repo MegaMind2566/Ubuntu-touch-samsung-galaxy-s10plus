@@ -33,7 +33,7 @@ def main():
     manifest = {'schema': 1, 'kernel_commit': KERNEL_COMMIT,
                 'upstream_code_executed': False, 'trees': {}, 'files': []}
     selected = ['arch/arm64/kernel/setup.c', 'arch/arm64/kernel/head.S',
-                'drivers/video/fbdev/core/fbmem.c', 'drivers/video/console/fbcon.c',
+                'drivers/video/fbdev/core/fbmem.c', 'drivers/video/fbdev/core/fbcon.c',
                 'fs/pstore/ram.c', 'fs/pstore/ram_core.c']
     names = {'decon_core.c', 'decon.h', 'dsim_drv.c', 'Kconfig', 'Makefile',
              'sec_debug.c', 'sec_log.c', 'sec_debug_log.c',
@@ -51,6 +51,7 @@ def main():
     if 'drivers/video/fbdev/exynos/dpu20/decon_core.c' not in selected:
         raise ValueError('decon_source_not_found')
     for path in dict.fromkeys(selected):
+        print('Fetching pinned source: ' + path, flush=True)
         manifest['files'].append(fetch(KERNEL, KERNEL_COMMIT, path))
     target = OUTPUT / 'observability-manifest.json'
     target.write_text(json.dumps(manifest, indent=2) + '\n')
