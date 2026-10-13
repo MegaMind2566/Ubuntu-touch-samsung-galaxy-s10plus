@@ -32,9 +32,20 @@ boot/recovery images now independently confirm header v1, 2048-byte pages and
 the kernel/tags addresses. Stock recovery also confirms the candidate's ramdisk
 address. This does not test a TWRP binary on the handset.
 
-The official download listing offers `twrp-3.7.0_9-2-beyond2lte.img` as a
-candidate. Exact compatibility with G975FXXSGHWC1 still needs confirmation.
+The actual `twrp-3.7.0_9-2-beyond2lte.img` now passes the publisher's SHA-256,
+boot ID, ARM64/header/address, bounded LZMA/newc and DTBO checks. It is
+57,554,944 bytes and fits the measured recovery partition with 10,078,208
+bytes spare. Its entire embedded DTBO table matches the supplied HWC1 stock
+table. These static checks do not verify bootloader acceptance or runtime.
 No recovery image is bundled or mirrored here.
+
+The ramdisk's init configuration starts `sbin/nuker.sh` when ADB becomes
+ready. That script attempts to remount system/vendor read-write and change
+encryption/security configuration and stock recovery restoration files.
+An unmodified TWRP boot is therefore not a test that preserves the Android
+12 vendor baseline. Account for or neutralize those automatic writes before
+a recovery test, and separately resolve AVB. Nothing from that script has
+been executed on the handset. See the [actual binary audit](twrp-binary-audit-2026-10-13.json).
 
 TeamWin specifically notes the vbmeta/Android Verified Boot dependency for
 this device. Flashing only a replacement boot or recovery image is not a
