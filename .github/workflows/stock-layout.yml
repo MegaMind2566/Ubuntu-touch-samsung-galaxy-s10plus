@@ -7,11 +7,17 @@ on:
       - 'scripts/inspect_stock_dtb.py'
       - 'scripts/extract-stock-dtb.ps1'
       - 'scripts/package-stock-dtb.py'
+      - 'scripts/check-download-mode.ps1'
+      - 'scripts/package-download-check.py'
       - 'tests/test_stock_layout.py'
       - 'tests/test_stock_dtb.py'
       - 'tests/test-stock-dtb.ps1'
+      - 'tests/test-download-check.ps1'
       - 'tools/windows/ESTRAI-DTB.cmd'
       - 'tools/windows/LEGGIMI-DTB.txt'
+      - 'tools/windows/CONTROLLA-DOWNLOAD.cmd'
+      - 'tools/windows/LEGGIMI-DOWNLOAD.txt'
+      - 'tools/windows/licenses/samloader-LICENSE-*'
       - '.github/workflows/stock-layout.yml'
 permissions:
   contents: read
@@ -36,8 +42,21 @@ jobs:
         run: .\tests\test-stock-dtb.ps1
       - name: Package the small extraction add-on
         run: python scripts/package-stock-dtb.py
+      - name: Package pinned Download-mode inventory
+        run: python scripts/package-download-check.py
+      - name: Test read-only Download-mode collector with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          Expand-Archive out/UbuntuTouch-S10plus-controllo-Download-Windows.zip out/download-check-test
+          .\tests\test-download-check.ps1 -SamloaderPath .\out\download-check-test\tools\samloader\samloader.exe
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-download-check
+          path: out/UbuntuTouch-S10plus-controllo-Download-Windows.zip
+          if-no-files-found: error
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: beyond2lte-stock-dtb-addon
           path: out/UbuntuTouch-S10plus-controllo-DTB-Windows.zip
           if-no-files-found: error
+

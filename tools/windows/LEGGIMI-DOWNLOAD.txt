@@ -1,0 +1,29 @@
+CONTROLLO DOWNLOAD MODE - SAMSUNG S10+ SM-G975F/DS
+
+1. Estrai tutto questo ZIP in una cartella del PC Windows.
+2. Collega solo il tuo S10+ in Download Mode. Chiudi Odin e Smart Switch.
+3. Apri CONTROLLA-DOWNLOAD.cmd.
+4. Invia download-mode-check.zip, creato accanto al file CMD.
+
+Il controllo legge la tabella delle partizioni dal telefono. Non installa
+immagini, non cancella dati, non modifica le partizioni e non chiede il riavvio.
+Il telefono resta in Download Mode. ADB non viene usato in questa modalita.
+
+Se la lettura fallisce, viene comunque creato un rapporto da inviare.
+Se lo strumento non trova il telefono, controlla cavo e porta USB. Il driver
+ufficiale Samsung per Windows e qui:
+https://developer.samsung.com/android-usb-driver
+Non serve sostituire il driver con Zadig: viene usato il collegamento VCOM.
+
+Questo pacchetto non contiene Ubuntu Touch o TWRP. Serve a verificare il
+collegamento che useremo per l'installazione e a raccogliere il layout reale.
+Il rapporto non conserva IMEI, DID, seriale o account. La tabella PIT contiene
+nomi, dimensioni e altre informazioni sulle partizioni.
+
+Samloader 2.2.0: https://github.com/topjohnwu/samloader-rs/releases/tag/2.2.0
+La copia inclusa e verificata con SHA-256. La licenza Apache 2.0 e le note MIT
+del codice derivato da Heimdall sono incluse nella cartella licenses.
+
+I nostri script invocano solo versione, rilevamento e lettura/decodifica PIT.
+L'eseguibile originale del produttore offre anche altri comandi: per questo
+controllo apri esclusivamente CONTROLLA-DOWNLOAD.cmd.

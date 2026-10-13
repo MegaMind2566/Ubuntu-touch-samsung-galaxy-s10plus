@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "source": "User-supplied Download Mode photo after the user performed unlock and Android setup",
+  "source_filename": "image-1791876079817.jpg",
+  "model": "SM-G975F",
+  "current_binary": "Samsung Official",
+  "oem_lock": "OFF(U)",
+  "frp_lock": "OFF",
+  "kg_state": "Checking",
+  "secure_download": "Enabled",
+  "bootloader_unlocked": true,
+  "user_reported_factory_reset_and_android_setup_complete": true,
+  "user_data_priority": "User reports no important data to preserve",
+  "no_image_installation_reported": true,
+  "ubuntu_touch_boot_tested": false,
+  "install_ready": false,
+  "remaining": [
+    "Validate the Windows Download Mode connection and retrieve the actual PIT without partition writes or reboot",
+    "Confirm recovery binary layout and firmware compatibility",
+    "Complete and inspect the AVB/vbmeta procedure before a recovery or Ubuntu Touch test",
+    "Validate vendor runtime and handset functions on hardware"
+  ],
+  "identifiers_saved": false
+}

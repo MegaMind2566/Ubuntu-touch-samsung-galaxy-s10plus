@@ -5,6 +5,11 @@ Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 ## Status
 **Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. No on-device boot validation.**
 
+On 13 October 2026 the user unlocked and reset the handset. The new
+Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
+Samsung stock system still installed. No image from this project has been flashed.
+See [current Download-mode observation](docs/download-mode-state-2026-10-13.json).
+
 First successful adaptation build: **12 October 2026**, commit
 `b487799c4c0772c2fbd43008888d299d33ea548e`.
 [CI run and experimental artifacts](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38301613434).
@@ -27,6 +32,8 @@ Target handset (read-only ADB inventory, 12 October 2026):
 - Android and vendor both report Android 12/API 31.
 - Stock codename `beyond2`; port codename `beyond2lte`.
 - Bootloader reports `locked`, verified boot `green`.
+  This is the original inventory; the later Download-mode observation above
+  confirms that the user has since unlocked it.
 - Software screenshot confirms active CSC `ITV`, CSC family `OXM`, and
   service-provider line `SAOMC_SM-G975F_OXM_ITV_12_0012`.
 
@@ -119,6 +126,24 @@ even when none is found. A failed prior attempt does not block a retry.
 The supplied DTB has completed this extraction/audit step; the add-on remains
 for reproducing it. It does not access a handset.
 Reproduce the add-on with `python3 scripts/package-stock-dtb.py`.
+
+## Windows Download-mode connection and PIT check
+
+After unlocking, `CONTROLLA-DOWNLOAD.cmd` checks the actual Download-mode
+connection and reads the handset's partition information table (PIT). It uses
+the publisher's samloader 2.2.0 Windows binary, pinned by archive/executable
+SHA-256, with the VCOM backend. It does not replace the Samsung USB driver.
+Its command allowlist only permits version, JSON detection, `dump-pit` with
+`--no-reboot`, and local PIT decoding. Detection identifiers are discarded;
+the report retains only a validated model. A diagnostic ZIP is also produced
+after failures, and earlier reports are preserved on retry.
+
+Extract the package on Windows, connect only the SM-G975F in Download Mode,
+close Odin/Smart Switch and open the CMD launcher. Send the generated
+`download-mode-check.zip`. No image, partition write, erase or reboot is part
+of this check. ADB is not the Download-mode transport.
+
+Reproduce with `python3 scripts/package-download-check.py`.
 
 ## Build
 
