@@ -1,0 +1,27 @@
+name: S10+ installation image audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/audit_install_artifact.py'
+      - '.github/workflows/audit-install-images.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify the immutable existing full system artifact and raw image hash
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: python3 scripts/audit_install_artifact.py --work build/install-image-audit --output out/install-image-lock.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-install-image-lock
+          path: out/install-image-lock.json
+          if-no-files-found: error
