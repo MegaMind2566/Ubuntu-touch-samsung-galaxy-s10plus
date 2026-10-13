@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. TWRP recovery boots on the handset; Ubuntu Touch boot is still pending.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. SYSTEM/BOOT physical readbacks pass on the handset, but normal boot remains at the Samsung logo. A tested BOOT-only kernel correction is ready for the next hardware attempt.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -11,9 +11,9 @@ Samsung stock system still installed at that point. The user subsequently
 installed the prepared recovery and supplied a photograph of the TWRP
 3.7.0_9-2 home screen. The subsequent read-only ADB report confirms the exact
 modified recovery/VBMETA hashes, root ADB, all measured partition sizes,
-unmounted SYSTEM/VENDOR and directly mounted ext4 userdata. TWRP reports
-userdata encryption as disabled; that alone does not exclude old directory
-encryption policies, so a fresh Format Data is planned before the first UT boot.
+unmounted SYSTEM/VENDOR and directly mounted ext4 userdata. The user subsequently completed Format Data and installed the experimental
+SYSTEM/BOOT through TWRP. Both physical image prefixes were read back and
+matched their fixed SHA-256 hashes. No new Format Data is requested.
 See [confirmed recovery checks](docs/recovery-check-2026-10-13.json).
 Ubuntu Touch boot and vendor runtime remain unverified.
 See [current Download-mode observation](docs/download-mode-state-2026-10-13.json).
@@ -183,6 +183,56 @@ inconclusive. Reproduce the standalone small package with
 checks filters, serial omission, disconnected-adapter exclusion and the
 actual CMD/PowerShell 5.1 PnP/CIM queries. No handset is attached in CI.
 
+## BOOT-only SAR loader correction
+
+The host USB report contains three successful PnP/CIM snapshots with no
+selected USB device or USB network adapter. This does not establish where
+normal boot stopped. See [the USB evidence](docs/first-boot-usb-2026-10-13.json).
+
+The exact pinned Halium kernel source declares `rd_offset` without an initial
+value in `init/sar_ramdisk/sar_ramdisk.c` and then adds the header/kernel sizes
+to it. The new patch initializes it to zero. This fixes a source-level defect;
+it is not yet a demonstrated cause of the handset's logo stop. File-only
+regression tests compile the actual pinned loader before/after the patch:
+both host cases read the correct ramdisk, and only the original produces the
+uninitialized-variable warning. These are not handset or Android-toolchain
+kernel-runtime tests.
+
+[Corrected kernel build](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38439532393)
+compiles successfully. The resulting 53,215,232-byte BOOT has SHA-256
+`d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993`.
+It contains the new kernel while preserving the installed ramdisk byte for
+byte, the old boot header addresses/parameters and its SYSTEM selector.
+Only the kernel-size and boot-ID fields are recomputed. It fits the measured
+57,671,680-byte BOOT partition. No new SYSTEM/VENDOR image is required.
+
+`INSTALLA-CORREZIONE-BOOT.cmd` is a small add-on for the existing prepared
+Windows directory. It revalidates and locks the original images, retained
+full stock backup, corrected BOOT and portable tools. Root TWRP identity,
+recovery/VBMETA/startup hashes, partition sizes and unmounted SYSTEM/VENDOR
+are checked before staging. The current BOOT must match the reviewed old
+image. After transfer, both the recovery inventory and current BOOT hash are
+checked again. The installer writes only `/dev/block/sda14`, performs an
+exact image-prefix readback and requires its new SHA-256 before success.
+It requests no format, repartition, SYSTEM/VENDOR write or automatic reboot.
+A pre-write checkpoint blocks repeated writes; a possible partial write is
+preserved for report review.
+
+`RIPRISTINA-BOOT-PRECEDENTE.cmd` is a separate manual previous-BOOT restore.
+It accepts only the exact corrected BOOT as its current input state, applies
+the same guards and restores the retained original experimental BOOT. This
+is not a full Android restore, and full stock restoration remains untested
+on hardware. See [the Windows instructions](tools/windows/LEGGIMI-CORREZIONE-BOOT.txt).
+
+[Windows 5.1 validation](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38444246956)
+passes 22 update/restore guard cases using both actual immutable BOOT images,
+embedded Python and both real CMD entry points in a directory with spaces.
+USB responses/raw writes are simulated; hardware Ubuntu boot remains
+unverified. See [the correction evidence](docs/boot-update-1-2026-10-13.json).
+Reproduce with `scripts/prepare_boot_update.py`,
+`scripts/fetch_boot_update_artifact.py` and `scripts/package-boot-update.py`;
+the workflow fixes the original and corrected artifact identities.
+
 ## Exact stock-firmware download on Windows
 
 The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,
@@ -338,13 +388,15 @@ Run this once in a fresh build directory. For a second attempt, pass a new path
 such as `bash scripts/build-adaptation.sh "$PWD/build/attempt-2"`.
 
 Changes to the upstream Halium 12 tree:
+- Initialize the Samsung SAR ramdisk offset before computing the BOOT payload position.
 - Apply the documented 4.14 AppArmor socket/AF_UNIX patches, preserving attribution.
 - Merge `config/ubuntu-touch.config` after the Samsung defconfig. Validate the
   effective kernel configuration after compilation.
 - Enable the overlay store needed by modern Ubuntu Touch.
 - Align the old session grid setting with the S10+ DeviceInfo value of 27.
-- Preserve the upstream non-dynamic ramdisk, boot header v1 and 4096-byte rootfs
-  sectors. No assumption is made about the actual system partition size.
+- Preserve the exact already installed non-dynamic ramdisk, boot header v1 and
+  its original parameters while rebuilding the corrected kernel. Preserve
+  4096-byte rootfs sectors and check against measured partition bounds.
 
 Artifacts include a source/patch manifest, kernel config, ramdisk checksum,
 build log, boot image and device tarball. `validate-artifacts.py` verifies header,
@@ -393,3 +445,4 @@ permissions are recorded as diagnostic results rather than invented values.
 
 ## Safety
 Unlocking the bootloader wipes user data and may permanently trip Samsung Knox. Never flash an image simply because CI succeeded. Phone functions (including calls, dual SIM, VoLTE, cameras) remain unverified.
+

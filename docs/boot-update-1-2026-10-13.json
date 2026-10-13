@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "observed_problem": "Normal boot remains on Samsung Galaxy S10+ logo; Ubuntu kernel/userspace progress unknown",
+  "confirmed_source_defect": "Uninitialized rd_offset in the pinned Samsung SAR loader; initialized to zero by patch 0003",
+  "source_defect_is_proven_handset_root_cause": false,
+  "kernel_build": {
+    "run": 38439532393,
+    "commit": "a6390494079bdaa8fb479644fa902835dafddee2",
+    "artifact_id": 11835412882,
+    "archive_bytes": 37243715,
+    "archive_sha256": "6acda3c4f5d4746aa1c83845ab51bc155e2a3ee9d2923aa339a7d1b6ebac800e",
+    "conclusion": "success"
+  },
+  "build_evidence": {
+    "schema": 1,
+    "correction": "Initialize Samsung SAR ramdisk offset before calculating the boot image payload position",
+    "original_boot_sha256": "0992a55b228b97119139a845d9bd51821598fdb0fd18b4b823931f7f4ac8f0fc",
+    "original_boot_bytes": 53215232,
+    "boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+    "boot_bytes": 53215232,
+    "boot_partition_bytes": 57671680,
+    "ramdisk_sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+    "ramdisk_bytes": 4108120,
+    "ramdisk_preserved": true,
+    "unrelated_header_fields_preserved": true,
+    "system_changes_requested": false,
+    "vendor_changes_requested": false,
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "fixed_loader_source_sha256": "1346047001ea1b50a90a56e213202118f762783f8287060c69a6243c228ec886",
+    "kernel_patches": [
+      {
+        "path": "patches/kernel/0001-apparmor-socket-mediation.patch",
+        "sha256": "00f1bf609436cef86dcf227f9b98c944accf82368ede62239cc62866d4e3d6ff"
+      },
+      {
+        "path": "patches/kernel/0002-apparmor-af-unix-mediation.patch",
+        "sha256": "7bebc2494dc4ca578e71e333bedaad7e93f8f6096508f5b2bd603ec0bebc905b"
+      },
+      {
+        "path": "patches/kernel/0003-initialize-sar-ramdisk-offset.patch",
+        "sha256": "351f141b24ab9afa292a4eb14bbab3e78a9e12b0c88fadc1e98544c1f1d8e175"
+      }
+    ],
+    "kernel_header": {
+      "header_version": 1,
+      "header_bytes": 1648,
+      "page_bytes": 2048,
+      "kernel_bytes": 49102864,
+      "kernel_address": 268468224,
+      "ramdisk_bytes": 4108120,
+      "ramdisk_address": 285212672,
+      "ramdisk_offset": 49106944,
+      "second_bytes": 0,
+      "second_address": 0,
+      "tags_address": 268435712,
+      "recovery_dtbo_bytes": 0,
+      "recovery_dtbo_offset": 0,
+      "os_version": "12.0.0",
+      "security_patch": "2023-04",
+      "cmdline": "systempart=/dev/disk/by-partlabel/system",
+      "kernel_version": "Linux version 4.14.280-gb9b70b29c94c-dirty (runner@runnervmwvtoz) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)) #1 SMP PREEMPT Tue Oct 13 17:52:03 UTC 2026",
+      "boot_id_sha1_valid": true,
+      "boot_id_variant": "lineage-empty-legacy-dt"
+    },
+    "hardware_boot_verified": false
+  },
+  "host_file_only_regression": {
+    "schema": 1,
+    "source_sha256": "4e0e305dab896293315ba7ce45ca34ba4d09baf2086dd103ae308cc8e01e9fae",
+    "compiler": "clang",
+    "uses_actual_pinned_loader": true,
+    "syscalls_are_file_only_mocks": true,
+    "handset_accessed": false,
+    "cases": {
+      "original": {
+        "loaded_exact_ramdisk": true,
+        "seek_offset": 49106944,
+        "exit_code": 0,
+        "uninitialized_offset_warning": true
+      },
+      "corrected": {
+        "loaded_exact_ramdisk": true,
+        "seek_offset": 49106944,
+        "exit_code": 0,
+        "uninitialized_offset_warning": false
+      }
+    }
+  },
+  "windows_validation": {
+    "run": 38444246956,
+    "commit": "952234c5a1a28083e78736e3b1cd671a0eec51fd",
+    "job": 115458368055,
+    "conclusion": "success",
+    "guard_cases": 22,
+    "actual_original_and_corrected_boot_inputs": true,
+    "embedded_python_verifier": true,
+    "both_native_windows_5_1_cmd_launchers_tested": true,
+    "path_contains_spaces": true,
+    "usb_responses_and_raw_writes_simulated": true,
+    "fake_sparse_system_and_stock_accepted_only_by_test_callbacks": true
+  },
+  "common_validation": {
+    "run": 38444246746,
+    "conclusion": "success"
+  },
+  "delivered_package": {
+    "filename": "UbuntuTouch-S10plus-correzione-BOOT-Windows.zip",
+    "bytes": 21769716,
+    "sha256": "063dc6cf3fec7e592be2eedca40fa2da8f501635d7c3b55860b3c7c80a488104",
+    "tested_artifact_id": 11836614315
+  },
+  "phone_targets": [
+    "BOOT"
+  ],
+  "phone_target_device": "/dev/block/sda14",
+  "system_or_vendor_write_requested": false,
+  "format_requested": false,
+  "repartition_requested": false,
+  "automatic_reboot_requested": false,
+  "rollback": "Guarded manual restore of the previous experimental BOOT only; requires exact current corrected BOOT",
+  "full_stock_restore_hardware_tested": false,
+  "ubuntu_touch_hardware_boot_verified": false
+}
