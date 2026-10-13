@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. The original normal boot stopped at the Samsung logo. The corrected BOOT is now installed and its physical readback passes; its normal-boot result remains pending.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. The corrected BOOT is installed and its physical readback passes. The subsequent normal-boot photograph still shows the Samsung logo; Ubuntu kernel/userspace execution remains unconfirmed.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -233,7 +233,11 @@ The subsequent handset reports confirm the corrected 53,215,232-byte BOOT
 was written and read back with the expected SHA-256. Both recovery inventory
 reports pass, and the local Apply checkpoint records success. SYSTEM/VENDOR
 were not written and no data format/repartition was requested. The normal
-boot result has not yet been supplied; do not repeat Apply or erase userdata.
+boot photograph still shows the Galaxy S10+ logo and Samsung's modified-software
+warning, without an Ubuntu UI. This single image does not prove whether the
+kernel/initramfs ran. A fresh host USB snapshot with the corrected BOOT is the
+next read-only check; do not repeat Apply or erase userdata. See
+[the corrected-BOOT logo observation](docs/boot-update-1-logo-2026-10-13.json).
 See [the hardware correction result](docs/boot-update-1-handset-2026-10-13.json).
 
 Reproduce with `scripts/prepare_boot_update.py`,
