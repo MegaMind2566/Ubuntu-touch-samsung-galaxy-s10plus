@@ -107,6 +107,17 @@ establish hardware boot or functionality. Reproduce with
 `python3 scripts/package-ubuntu-install.py` and follow
 [the Windows instructions](tools/windows/LEGGIMI-INSTALLAZIONE-UBUNTU.txt).
 
+Installer version 1 stopped before the Format Data prompt on the handset:
+the recovery's BusyBox 1.22.1 `od` rejects the desktop `-A` option. This exact
+failure was reproduced under ARM64 emulation using the original recovery
+runtime. Version 2 reads the same bounded ext4 metadata using explicitly
+selected BusyBox `hexdump`, and separates metadata-read errors, missing user
+confirmation and an unchanged filesystem UUID. Diagnostic reports retain
+stage/exit details without saving the UUID. The small
+`UbuntuTouch-S10plus-correzione-dati-Windows.zip` replaces only the installer
+script in the already prepared folder; images/preparation do not need to be
+downloaded or repeated. See [the observed stop and reproduced cause](docs/ubuntu-install-metadata-failure-2026-10-13.json).
+
 ## Exact stock-firmware download on Windows
 
 The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,

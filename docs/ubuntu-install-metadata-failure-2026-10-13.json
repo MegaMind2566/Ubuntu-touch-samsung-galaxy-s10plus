@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-13",
+  "installation_attempt": {
+    "source_zip_sha256": "af979f2bb52fef64ff8e7f07aa5f69f1f254ea9e03c649a1e41bfbe0ecb19828",
+    "report": {
+      "schema": 1,
+      "installer_version": 1,
+      "date_utc": "2026-10-13T14:47:57.5556053Z",
+      "model": "SM-G975F",
+      "pda": "G975FXXSGHWC1",
+      "target_partitions": [
+        "SYSTEM",
+        "BOOT"
+      ],
+      "local_images_verified": true,
+      "stock_backup_verified": true,
+      "recovery_checks_passed": true,
+      "data_format_acknowledged": false,
+      "data_uuid_changed_after_format": false,
+      "download_mode_acknowledged": false,
+      "model_confirmed_by_usb": false,
+      "flash_invoked": false,
+      "flash_exit_code": null,
+      "flash_tool_succeeded": false,
+      "partition_data_sent": "not_requested",
+      "automatic_erase_requested": false,
+      "repartition_requested": false,
+      "automatic_reboot_requested": false,
+      "current_pit_read_inside_flash_session": true,
+      "native_size_checks_enabled": true,
+      "ubuntu_touch_boot_verified": false,
+      "success": false,
+      "error": "userdata_format_not_completed",
+      "native_stdout": null,
+      "native_stderr": null
+    }
+  },
+  "recovery_report_zip_sha256": "785331f3b10b4254de67080885e4c9d169940c3b776828cc4a564e6fc634570b",
+  "recovery_checks_passed": true,
+  "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+  "vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+  "console_confirms_failure_before_format_prompt": true,
+  "format_status_from_this_attempt": "not_established; metadata read failed before acknowledgement",
+  "boot_system_flash_invoked": false,
+  "root_cause": "Installed TWRP BusyBox 1.22.1 od rejects desktop -A option used in the UUID read command",
+  "root_cause_reproduced_using_publisher_recovery_runtime_in_arm64_emulator": true,
+  "fix": "Read fixed 2/16-byte ext4 magic/UUID offsets with explicitly selected BusyBox hexdump; retain sanitized stage/exit diagnostics without UUIDs",
+  "runtime_validation_run": 38418054186,
+  "runtime_validation_job": 115367668001,
+  "ubuntu_touch_hardware_boot_verified": false
+}
