@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'scripts/inspect_stock_firmware.py'
+      - 'scripts/inspect_stock_dtb.py'
       - 'scripts/extract-stock-dtb.ps1'
       - 'scripts/package-stock-dtb.py'
       - 'tests/test_stock_layout.py'
+      - 'tests/test_stock_dtb.py'
       - 'tests/test-stock-dtb.ps1'
       - 'tools/windows/ESTRAI-DTB.cmd'
       - 'tools/windows/LEGGIMI-DTB.txt'

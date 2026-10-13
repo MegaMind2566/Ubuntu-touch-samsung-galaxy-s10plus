@@ -1,0 +1,147 @@
+{
+  "stock_dtb_inspected": true,
+  "dtb_extracted": true,
+  "model": "SM-G975F",
+  "pda": "G975FXXSGHWC1",
+  "region": "ITV",
+  "inspection_bundle_sha256": "495947374c9a13e24787e4e0a0e5f2968b3fa7a3864101653efd5db7625e2536",
+  "collector_tool_version": 3,
+  "collector_report_captured_utc": "2026-10-13T01:04:56.8429575Z",
+  "source_firmware_zip_sha256_reported": "c7d956cf40cc01b09fccc260540fb65a16ed5ff60fbed1d32abf7fd0f6c32a4d",
+  "source_firmware_package": "AP_G975FXXSGHWC1_CL25257816_QB62768724_REV01_user_low_ship_meta_OS12.tar.md5",
+  "source_image_name": "dt.img.lz4",
+  "compressed_bytes": 108449,
+  "compressed_sha256": "f2a8299393a2b4515c5f64962337904429ab048c2190dd43e8fbfcad09129bc7",
+  "raw_bytes": 8388608,
+  "raw_sha256": "3c533aa9c658bd0ba7e3837da3fe8faa3e1e4185272c6052065ce4904801db36",
+  "avb_partition_name": "dtb",
+  "stock_vbmeta_chain_key_matches": true,
+  "chain_rollback_index_location": 6,
+  "avb": {
+    "algorithm": "SHA256_RSA4096",
+    "flags": 0,
+    "rollback_index": 0,
+    "rollback_index_location": 0,
+    "release_string": "avbtool 1.2.0",
+    "vbmeta_bytes": 2112,
+    "public_key_sha256": "08b2b5c6ec8f54c00c505756e1ef516bb4537b2f02d640410d287a43fcf92e3f",
+    "embedded_key_signature_valid": true,
+    "bootloader_trust_verified": false,
+    "footer": {
+      "original_image_bytes": 240528,
+      "vbmeta_offset": 241664,
+      "vbmeta_bytes": 2112
+    },
+    "descriptors": [
+      {
+        "image_size": 240528,
+        "hash_algorithm": "sha256",
+        "flags": 0,
+        "partition_name": "dtb",
+        "salt": "373a206f690e1c40067152fc65009d7d1cf9bfe85034864e7fceb87cb26150f0",
+        "digest": "73516c71ca2835a3b70163e1b754c9c548eb224ae72eb9313d15b8a795510449",
+        "type": "AvbHashDescriptor",
+        "image_available": true,
+        "image_digest_valid": true
+      }
+    ]
+  },
+  "device_tree_table": {
+    "table_bytes": 239744,
+    "page_bytes": 2048,
+    "version": 0,
+    "entries": [
+      {
+        "bytes": 239680,
+        "offset": 64,
+        "id": 0,
+        "revision": 0,
+        "custom": [
+          0,
+          255,
+          0,
+          0
+        ],
+        "sha256": "6d2d4dae723f3e763ba5ca5a0accfdce79485d133b86a27394b0846ec9a0ad06"
+      }
+    ]
+  },
+  "fdts": [
+    {
+      "bytes": 239680,
+      "version": 17,
+      "node_count": 1117,
+      "property_count": 8367,
+      "root_properties": {
+        "compatible": [
+          "samsung,armv8",
+          "samsung,exynos9820"
+        ],
+        "dtb-hw_rev": 0,
+        "dtb-hw_rev_end": 255,
+        "#address-cells": 2,
+        "#size-cells": 1
+      },
+      "selected_compatible_nodes": {
+        "/mali@18500000": [
+          "arm,mali"
+        ],
+        "/cpus/cpu@0000": [
+          "arm,ananke",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0001": [
+          "arm,ananke",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0002": [
+          "arm,ananke",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0003": [
+          "arm,ananke",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0004": [
+          "arm,prometheus",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0005": [
+          "arm,prometheus",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0100": [
+          "arm,cheetah",
+          "arm,armv8"
+        ],
+        "/cpus/cpu@0101": [
+          "arm,cheetah",
+          "arm,armv8"
+        ],
+        "/ufs@0x13D60000": [
+          "samsung,exynos-ufs"
+        ],
+        "/displayport@0x130B0000": [
+          "samsung,exynos-displayport"
+        ],
+        "/usb@10C00000": [
+          "samsung,exynos-dwusb"
+        ],
+        "/usb@10C00000/dwc3": [
+          "synopsys,dwc3"
+        ]
+      }
+    }
+  ],
+  "soc_matches_handset_assessment": true,
+  "handset_dtb_partition_bytes": null,
+  "hardware_tested": false,
+  "handset_modified": false,
+  "install_ready": false,
+  "limitations": [
+    "DTB partition size was not collected from the handset; factory image size alone is not a measurement",
+    "Embedded-key signature/chain checks do not read the bootloader trust store",
+    "Stock DTB parsing and SoC agreement do not verify every binding against the custom kernel",
+    "Vendor runtime and Samsung recovery/AVB installation route remain untested"
+  ]
+}

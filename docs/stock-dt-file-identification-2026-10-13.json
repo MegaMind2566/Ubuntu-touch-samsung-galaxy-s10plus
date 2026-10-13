@@ -10,11 +10,13 @@
   "firmware_package": "AP_G975FXXSGHWC1_CL25257816_QB62768724_REV01_user_low_ship_meta_OS12.tar.md5",
   "device_tree_image_filename": "dt.img.lz4",
   "expected_avb_partition_name": "dtb",
-  "avb_partition_name_verified_from_dt_image": false,
+  "avb_partition_name_verified_from_dt_image": true,
   "file_presence_evidence": "Complete AP TAR member catalog supplied by the Windows v2 collector",
-  "image_bytes_received": false,
-  "image_contents_inspected": false,
+  "image_bytes_received": true,
+  "image_contents_inspected": true,
   "handset_modified": false,
   "install_ready": false,
-  "note": "The v2 bundle contains only the catalog report. V3 recognizes dt.img.lz4 and preserves the report-only bundle before retrying."
+  "note": "V3 supplied the actual dt.img.lz4. Its AVB partition is dtb; signature, salted payload digest, stock vbmeta chain key and Exynos 9820 base-tree checks pass. Hardware boot remains untested.",
+  "verified_avb_partition_name": "dtb",
+  "audit_report": "docs/stock-dtb-report-2026-10-13.json"
 }

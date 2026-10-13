@@ -47,9 +47,10 @@ generic fastboot instructions must not be assumed to work.
    its reported hash was not independently recomputed from that full archive here.
    Retain the complete recovery set, not just a boot image. Do not downgrade the
    Samsung bootloader.
-3. Obtain the separate DTB with the small `ESTRAI-DTB.cmd` add-on; it reads the
-   existing stock ZIP. Confirm a compatible recovery and an AVB/vbmeta plan for
-   this exact firmware. Stock flags are 0, so replacing boot/system without an
+3. The separate Samsung `dt.img.lz4` (AVB partition `dtb`) has now passed
+   signature, salted payload digest, vbmeta chain-key and Exynos 9820 FDT
+   checks; see [completed DTB audit](stock-dtb-2026-10-13.md). Confirm a
+   compatible recovery and an AVB/vbmeta plan for this exact firmware. Stock flags are 0, so replacing boot/system without an
    appropriate verified installation route remains unsupported. Vendor filesystem
    contents and runtime have not yet been inspected/tested.
 4. Confirm Download-mode OEM/FRP/KnoxGuard state before any installation.

@@ -107,17 +107,17 @@ These checks do not make the unsigned Halium candidate installable.
 
 See [stock-layout findings](docs/stock-layout-2026-10-13.md) and the
 [machine-readable audit](docs/stock-layout-report-2026-10-13.json).
-The separate stock device-tree image was omitted from the first audit bundle.
-The supplied v2 AP catalog identifies its actual Samsung filename as
-`dt.img.lz4`. V3 recognizes it and can retry while preserving the previous
-report-only bundle. Image contents and their expected AVB `dtb` chain are not
-yet verified; see [file identification](docs/stock-dt-file-identification-2026-10-13.json).
+The separate stock device-tree image has now been supplied by the v3 collector
+as `dt.img.lz4`. Its AVB partition is `dtb`. Signature, salted payload digest,
+stock vbmeta chain key and Exynos 9820 base-tree checks pass. The raw factory
+image is 8 MiB with one base FDT; the measured handset DTB partition size is
+still unknown. See [completed DTB audit](docs/stock-dtb-2026-10-13.md).
 The small `ESTRAI-DTB.cmd` add-on verifies the retained stock ZIP and streams
 that file from BL, AP or the other firmware packages without writing the whole
 6 GB AP to disk. It supports compressed/raw DTBs and saves TAR member lists
-even when none is found. A failed prior attempt does not block a retry. Extract the add-on
-into the existing downloader directory, run it and supply
-`dtb-inspection-inputs.zip`. The phone can remain disconnected.
+even when none is found. A failed prior attempt does not block a retry.
+The supplied DTB has completed this extraction/audit step; the add-on remains
+for reproducing it. It does not access a handset.
 Reproduce the add-on with `python3 scripts/package-stock-dtb.py`.
 
 ## Build

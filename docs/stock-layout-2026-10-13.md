@@ -137,3 +137,11 @@ Full parsed headers, descriptors, partition limits and hashes are in
 Local Python validation passed all 30 tests. The dedicated Windows CI validates
 the extraction add-on using PowerShell 5.1 and synthetic AP/ZIP fixtures; it
 does not download the 6 GB stock package or test the device.
+
+## DTB audit follow-up
+
+The actual v3 image has now been received and inspected. The filename maps to
+AVB partition `dtb`; its signature, salted payload hash, stock vbmeta chain key
+and Exynos 9820 base-tree checks pass. The earlier pending-byte statements
+describe the prior catalog-only stage. See [completed DTB audit](stock-dtb-2026-10-13.md)
+and [parsed results](stock-dtb-report-2026-10-13.json). No handset test has occurred.
