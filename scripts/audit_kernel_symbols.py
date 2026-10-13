@@ -25,7 +25,7 @@ BUILDS = {
 FUNCTIONS = ('start_kernel', 'kernel_init', 'kernel_init_freeable',
              'prepare_namespace', 'mount_sar_ramdisk', 'unpack_to_rootfs',
              'wait_for_device_probe', 'load_default_modules')
-VARIABLES = ('_text', '_stext', '_end', 'ramdisk_execute_command',
+VARIABLES = ('_text', '_stext', '_edata', '_end', 'ramdisk_execute_command',
              'kallsyms_relative_base', 'kallsyms_offsets')
 
 
@@ -136,7 +136,12 @@ def analyze(inputs, out, source, objdump):
             mappings.append(dict(section=s['name'], raw_offset=pos, bytes=s['bytes'], sha256=sha(mapped)))
         by_name = {s['name']: s for s in symbols}
         require(by_name['_text']['address'] == base, 'base address agrees with _text')
-        require(by_name['_end']['address'] >= base + len(raw), 'kernel end exceeds file-backed bytes')
+        # Some Samsung linkers omit _end from kallsyms. The raw ARM64 header
+        # and the independently verified section byte ranges remain available.
+        arm64_image_bytes = struct.unpack_from('<Q', raw, 16)[0]
+        require(arm64_image_bytes >= len(raw), 'ARM64 image memory size covers raw bytes')
+        if '_end' in by_name:
+            require(by_name['_end']['address'] >= base + len(raw), 'kernel end exceeds file-backed bytes')
         for required in ('start_kernel', 'kernel_init_freeable', 'mount_sar_ramdisk'):
             require(required in by_name, 'required boot symbol: ' + required)
         selected = {}
@@ -163,7 +168,8 @@ def analyze(inputs, out, source, objdump):
             'address\ttype\tbinding\tname\n' + ''.join(
                 f"{s['address']:016x}\t{s['type']}\t{s['binding']}\t{s['name']}\n" for s in symbols))
         results.append(dict(ref, elf_bytes=len(data), elf_sha256=sha(data),
-                            symbol_count=len(symbols), inferred_base_address=hex(base),
+                            symbol_count=len(symbols), arm64_image_memory_bytes=arm64_image_bytes,
+                            inferred_base_address=hex(base),
                             elf_entry_point=hex(entry), sections=sections, mapped_bytes_verified=mappings,
                             selected_symbols=selected))
     report = dict(schema=1, tool_repository='marin-m/vmlinux-to-elf', tool_commit=actual_commit,
