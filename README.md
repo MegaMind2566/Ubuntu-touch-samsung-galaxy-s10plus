@@ -118,6 +118,33 @@ stage/exit details without saving the UUID. The small
 script in the already prepared folder; images/preparation do not need to be
 downloaded or repeated. See [the observed stop and reproduced cause](docs/ubuntu-install-metadata-failure-2026-10-13.json).
 
+The later report 10 confirms the corrected metadata reads, completed fresh
+Format Data, recovery checks and USB model detection. Odin then fails while
+receiving PIT chunks. Source review confirms that this precedes BOOT/SYSTEM
+payload transfer; see [the actual attempt](docs/ubuntu-install-pit-failure-2026-10-13.json).
+
+`INSTALLA-UBUNTU-TWRP.cmd` is the alternate first-test route for this already
+prepared handset. It requires the exact reviewed reset report retained on
+the PC, revalidates/locks the complete stock backup and both image inputs,
+checks root recovery, all measured sizes and unmounted SYSTEM/VENDOR, and
+refuses Android-initialized userdata. It stages files in one new, private
+userdata folder, validates their sizes and fixed SHA-256 hashes, then repeats
+recovery/mount checks and checks that the userdata UUID has not changed.
+It writes only `/dev/block/sda25` (SYSTEM) and `/dev/block/sda14` (BOOT), with
+the real recovery BusyBox `dd` and `sync`. Each exact image prefix is read
+back and hashed before declaring success. Only the two owned temporary files
+are cleaned up. There is no new Format Data, Download-mode protocol,
+repartition or automatic reboot/retry. A local pre-write checkpoint blocks
+repeat execution after an interrupted or completed write. Hardware UT boot
+and vendor functions remain pending even if readback passes.
+
+Reproduce the small add-on with `python3 scripts/package-ubuntu-twrp.py` and
+follow [the TWRP instructions](tools/windows/LEGGIMI-UBUNTU-TWRP.txt). Windows
+tests use the original pinned images, simulate USB/raw writes and exercise
+the native CMD and console capture. ARM64 emulation runs the actual TWRP
+BusyBox copy/hash/sync/stat tools against disposable files, including a final
+partial copy block and 5 GiB size reporting; it is not a hardware flash test.
+
 ## Exact stock-firmware download on Windows
 
 The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,
