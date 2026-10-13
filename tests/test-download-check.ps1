@@ -2,13 +2,14 @@
 param([Parameter(Mandatory = $true)][string]$SamloaderPath)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
+$publisherExe = (Resolve-Path -LiteralPath $SamloaderPath).Path
 . (Join-Path $PSScriptRoot '..\scripts\check-download-mode.ps1')
 $root = Join-Path ([IO.Path]::GetTempPath()) ('S10 download tests ' + [Guid]::NewGuid().ToString('N'))
 [IO.Directory]::CreateDirectory($root) | Out-Null
 $binaryDirectory = Join-Path $root 'binary folder'
 [IO.Directory]::CreateDirectory($binaryDirectory) | Out-Null
 $exe = Join-Path $binaryDirectory 'samloader.exe'
-Copy-Item -LiteralPath $SamloaderPath -Destination $exe
+Copy-Item -LiteralPath $publisherExe -Destination $exe
 $script:FixtureMode = ''
 $script:FixtureCalls = @()
 $script:FixtureExe = $exe
