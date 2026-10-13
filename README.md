@@ -145,6 +145,27 @@ the native CMD and console capture. ARM64 emulation runs the actual TWRP
 BusyBox copy/hash/sync/stat tools against disposable files, including a final
 partial copy block and 5 GiB size reporting; it is not a hardware flash test.
 
+The first normal boot after the user-reported successful TWRP installation
+remains on the Galaxy S10+ logo. The received `dmesg.log` is the current TWRP
+kernel (4.14.113), not the compiled Ubuntu kernel (4.14.280). VENDOR mounts
+successfully and has a populated ext4 filesystem; its complete stock content
+has not been compared. No Ubuntu kernel or userspace boot is confirmed yet.
+See [the first-boot observation](docs/first-boot-logo-2026-10-13.json).
+
+`CONTROLLA-PRIMO-AVVIO.cmd` reuses the existing pinned Windows tools to read
+`/proc/last_kmsg` and available console/dmesg pstore records before collecting
+current recovery metadata, BOOT/RECOVERY/VBMETA prefix hashes and the local
+TWRP installation report. VENDOR size/ext4 checks and an unmounted-only
+`e2fsck -f -n` check gather filesystem evidence without repairs or journal
+replay. The collector requests no phone writes, mounts or reboot. Missing
+persistent logs are not proof that the Ubuntu kernel never ran. Reproduce
+the small add-on with `python3 scripts/package-first-boot-check.py`; follow
+[the collection instructions](tools/windows/LEGGIMI-PRIMO-AVVIO.txt).
+[Windows CI](https://github.com/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/runs/38431158880)
+passes nine evidence/guard cases and the actual CMD with embedded Python in a
+path containing spaces. USB replies in the unit cases are simulated; the
+native launch test has no handset.
+
 ## Exact stock-firmware download on Windows
 
 The new `SCARICA-FIRMWARE.cmd` package targets the screenshot's SM-G975F/ITV,
