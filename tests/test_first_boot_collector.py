@@ -146,15 +146,22 @@ def native_windows_check(root: Path):
                     z.extract(name, folder)
         with zipfile.ZipFile(root / "out/UbuntuTouch-S10plus-controllo-primo-avvio-Windows.zip") as z:
             z.extractall(folder)
-        value = subprocess.run(["cmd.exe", "/d", "/c", str(folder / "CONTROLLA-PRIMO-AVVIO.cmd")],
-                               input="\n", text=True, capture_output=True, timeout=90)
-        assert value.returncode == 1, value.stdout + value.stderr
-        with zipfile.ZipFile(folder / "ubuntu-first-boot-report.zip") as z:
-            report = json.loads(z.read("first-boot-report.json"))
-        assert report["error"] == "twrp_usb_unavailable", report
-        assert report["steps"][0]["operation"] == "version"
-        assert report["steps"][0]["exit_code"] == 0
-        assert not report["partition_writes"]
+        try:
+            value = subprocess.run(["cmd.exe", "/d", "/c", str(folder / "CONTROLLA-PRIMO-AVVIO.cmd")],
+                                   input="\n", text=True, capture_output=True, timeout=90)
+            assert value.returncode == 1, value.stdout + value.stderr
+            with zipfile.ZipFile(folder / "ubuntu-first-boot-report.zip") as z:
+                report = json.loads(z.read("first-boot-report.json"))
+            assert report["error"] == "twrp_usb_unavailable", report
+            assert report["steps"][0]["operation"] == "version"
+            assert report["steps"][0]["exit_code"] == 0
+            assert not report["partition_writes"]
+        finally:
+            # This disposable CI VM has no handset or other ADB job. Stop its
+            # test server before deleting its executable; production never
+            # stops the user's ADB server.
+            subprocess.run([str(folder / "platform-tools/adb.exe"), "kill-server"],
+                           capture_output=True, timeout=15, check=True)
         print("Native Windows CMD, paths with spaces and pinned embedded Python: passed")
 
 
