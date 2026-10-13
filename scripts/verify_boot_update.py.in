@@ -1,0 +1,43 @@
+"""Verify the one BOOT update. No phone access and no image modification."""
+import argparse
+import gzip
+import hashlib
+from pathlib import Path
+import struct
+
+UPDATED_SHA256='__BOOT_UPDATE_SHA256__'
+UPDATED_BYTES=__BOOT_UPDATE_BYTES__
+RAMDISK_SHA256='439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c'
+
+
+def verify(path):
+    data=Path(path).read_bytes()
+    if len(data)!=UPDATED_BYTES or hashlib.sha256(data).hexdigest()!=UPDATED_SHA256:
+        raise ValueError('updated_boot_mismatch')
+    if data[:8]!=b'ANDROID!' or len(data)>57671680:raise ValueError('boot_header_invalid')
+    ksize,kaddr,rsize,raddr,ssize,saddr,tags,page,version,osv=struct.unpack_from('<10I',data,8)
+    if (page!=2048 or version!=1 or kaddr!=0x10008000 or raddr!=0x11000000 or tags!=0x10000100
+            or ssize or rsize!=4108120 or struct.unpack_from('<I',data,1644)[0]!=1648):
+        raise ValueError('boot_layout_invalid')
+    offset=page+(ksize+page-1)//page*page
+    if offset+rsize>len(data) or data[page+56:page+60]!=b'ARM\x64':raise ValueError('boot_payload_invalid')
+    ramdisk=data[offset:offset+rsize]
+    if hashlib.sha256(ramdisk).hexdigest()!=RAMDISK_SHA256 or not gzip.decompress(ramdisk).startswith(b'070701'):
+        raise ValueError('installed_ramdisk_changed')
+    digest=hashlib.sha1()
+    for payload in (data[page:page+ksize],ramdisk,b'',b'',b''):
+        digest.update(payload);digest.update(struct.pack('<I',len(payload)))
+    if digest.digest()!=data[576:596]:raise ValueError('boot_id_invalid')
+    cmdline=data[64:576].split(b'\0')[0]+data[608:1632].split(b'\0')[0]
+    if cmdline!=b'systempart=/dev/disk/by-partlabel/system':raise ValueError('boot_selector_changed')
+    return True
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--image',type=Path,required=True)
+    try:
+        verify(parser.parse_args().image)
+        print('BOOT corretto verificato. Ramdisk e selettore di SYSTEM conservati.')
+    except (OSError,ValueError,EOFError):
+        print('Il BOOT del pacchetto non supera la verifica.')
+        raise SystemExit(1)

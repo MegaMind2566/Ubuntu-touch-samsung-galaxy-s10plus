@@ -1,0 +1,65 @@
+name: S10+ verified BOOT-only correction
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/install-boot-update.ps1.in'
+      - 'scripts/verify_boot_update.py.in'
+      - 'scripts/package-boot-update.py'
+      - 'scripts/fetch_boot_update_artifact.py'
+      - 'tests/test-boot-update.ps1'
+      - 'tools/windows/INSTALLA-CORREZIONE-BOOT.cmd'
+      - 'tools/windows/RIPRISTINA-BOOT-PRECEDENTE.cmd'
+      - 'tools/windows/LEGGIMI-CORREZIONE-BOOT.txt'
+      - '.github/workflows/boot-update.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Obtain and verify the immutable original and corrected BOOT builds
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/prepare_boot_update.py inputs --out out
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/fetch_boot_update_artifact.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package the correction and existing pinned portable runtime
+        shell: powershell
+        run: |
+          python scripts/package-ubuntu-install.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-boot-update.py --build-archive out/corrected-adaptation.zip --baseline-boot out/boot-baseline/boot.img
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Extract both packages to an existing tools directory with spaces
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/BOOT update with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-correzione-BOOT-Windows.zip'))
+          try {
+            foreach ($entry in $zip.Entries) {
+              $destination=Join-Path $root $entry.FullName
+              [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($destination)) | Out-Null
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$destination,$true)
+            }
+          } finally { $zip.Dispose() }
+      - name: Verify guard stages, actual BOOT images and both native CMD launchers
+        shell: powershell
+        run: .\tests\test-boot-update.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-boot-update-windows
+          path: |
+            out/UbuntuTouch-S10plus-correzione-BOOT-Windows.zip
+            out/corrected-artifact-reference.json
+          if-no-files-found: error

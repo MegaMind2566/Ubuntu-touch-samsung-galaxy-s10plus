@@ -1,0 +1,31 @@
+Samsung S10+ SM-G975F - correzione BOOT del loader SAR
+
+Il kernel precedente usa una variabile non inizializzata per calcolare dove
+inizia il ramdisk. Questo pacchetto corregge quel punto. Il ramdisk gia
+installato, i parametri e gli altri campi dell'header BOOT sono conservati.
+Il risultato sul telefono richiede ancora il test di avvio.
+
+1. Copia TUTTO il contenuto di questo ZIP nella cartella originale
+   UbuntuTouch-S10plus-installa-Ubuntu-Windows, accettando le sostituzioni.
+2. Rientra in TWRP: USB al PC, Volume giu + Power fino allo schermo nero,
+   poi subito Volume su + Bixby + Power fino alla recovery.
+3. Lascia TWRP nella schermata principale e avvia
+   INSTALLA-CORREZIONE-BOOT.cmd. Non usare Format Data.
+4. Solo dopo AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO:
+   TWRP > Reboot > System. Se propone l'app TWRP, scegli Do Not Install.
+5. Invia ubuntu-boot-update-report.zip (o il file numerato indicato) e una
+   foto della schermata ottenuta. Se compare un errore nel programma, resta
+   in TWRP e invia il rapporto prima di qualsiasi altra scrittura.
+
+Controlla strumenti, file originali, firmware completo conservato sul PC,
+recovery e BOOT corrente. Copia il nuovo BOOT in una cartella privata del
+telefono e lo verifica prima di scrivere solo /dev/block/sda14. Alla fine
+legge nuovamente il prefisso dell'immagine e confronta SHA-256.
+Non aggiorna SYSTEM, VENDOR, RECOVERY, VBMETA, modem o EFS.
+Non cancella dati, non cambia le partizioni e non riavvia automaticamente.
+Il checkpoint locale ferma i tentativi ripetuti dopo una scrittura.
+
+RIPRISTINA-BOOT-PRECEDENTE.cmd ripristina soltanto il BOOT sperimentale
+precedente verificato. Non e un ripristino Android. Il programma accetta
+il ripristino solo se riconosce il nuovo BOOT installato; il rapporto va
+prima controllato. Non elimina i checkpoint o i rapporti precedenti.
