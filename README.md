@@ -3,7 +3,7 @@
 Experimental port workspace for Samsung SM-G975F/DS (Exynos 9820).
 
 ## Status
-**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 1 is installed and its physical readback passes, but normal boot still shows the Samsung logo with no new host USB device reported. A reproduced late-SAR init handoff defect is fixed in BOOT version 2; its Windows package passes validation and awaits the handset test.**
+**Experimental Halium 12 adaptation and Ubuntu Touch 24.04 system built and validated. BOOT version 2 is now installed on the handset and its exact physical image-prefix readback passes. Its first normal-boot result remains pending; Ubuntu kernel/userspace execution is not yet confirmed.**
 
 On 13 October 2026 the user unlocked and reset the handset. The new
 Download-mode photo confirms **OEM OFF(U), FRP OFF, KG Checking**, with the
@@ -287,6 +287,14 @@ BOOT inputs and both native CMD launchers with embedded Python in a path
 containing spaces. USB replies and raw writes are simulated. See
 [the package/build evidence](docs/boot-update-2-2026-10-13.json) and
 [the Windows instructions](tools/windows/LEGGIMI-CORREZIONE-AVVIO.txt).
+The subsequent handset Apply report confirms the version 1 to version 2
+BOOT transition, transferred-image checks, repeated recovery/current-BOOT
+checks, successful raw write and exact SHA-256 physical-prefix readback.
+All ten remote actions return exit code 0. SYSTEM/VENDOR were not written,
+userdata was not formatted and reboot remains manual. Normal-boot feedback
+has not yet been supplied; preserve the checkpoint and do not repeat Apply.
+See [the hardware write/readback evidence](docs/boot-update-2-handset-2026-10-13.json).
+
 Ubuntu hardware boot and full stock restoration remain unverified.
 
 ## Exact stock-firmware download on Windows

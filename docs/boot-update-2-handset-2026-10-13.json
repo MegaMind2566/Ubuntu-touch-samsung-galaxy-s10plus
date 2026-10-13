@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "model": "SM-G975F",
+  "source_report": {
+    "filename": "ubuntu-boot-update-2-report.zip",
+    "bytes": 898,
+    "sha256": "20f7005077bf65cb7ab895b68938df386734b30741a4a65a3d669af06a6fb836"
+  },
+  "apply_report": {
+    "schema": 1,
+    "update_version": 2,
+    "route": "root_twrp_boot_only",
+    "mode": "Apply",
+    "date_utc": "2026-10-13T19:47:58.6536274Z",
+    "model": "SM-G975F",
+    "pda": "G975FXXSGHWC1",
+    "target_partitions": [
+      "BOOT"
+    ],
+    "target_device": "/dev/block/sda14",
+    "local_images_verified": true,
+    "stock_backup_verified": true,
+    "recovery_checks_passed": true,
+    "current_boot_verified": true,
+    "staged_boot_verified": true,
+    "prewrite_checks_passed": true,
+    "boot_write_requested": true,
+    "boot_readback_verified": true,
+    "staging_cleanup_succeeded": true,
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "repartition_requested": false,
+    "automatic_reboot_requested": false,
+    "ubuntu_touch_boot_verified": false,
+    "partition_progress": "boot_readback_verified",
+    "success": true,
+    "error": null,
+    "steps": [
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "data-space",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-create",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "push-boot",
+        "exit_code": 0,
+        "stderr": "[redacted]: 1 file pushed, 0 skipped. 92.9 MB/s (53215232 bytes in 0.546s)\n"
+      },
+      {
+        "operation": "size-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "hash-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "read-current",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "write-boot",
+        "exit_code": 0,
+        "stderr": "12+1 records in\n12+1 records out\n53215232 bytes (50.8MB) copied, 0.302502 seconds, 167.8MB/s\n"
+      },
+      {
+        "operation": "readback-boot",
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "operation": "stage-cleanup",
+        "exit_code": 0,
+        "stderr": ""
+      }
+    ],
+    "expected_boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0",
+    "expected_boot_bytes": 53215232,
+    "expected_previous_boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993"
+  },
+  "corrected_boot_version_2_write_and_physical_readback_confirmed": true,
+  "ubuntu_kernel_or_userspace_execution_verified": false,
+  "handoff_defect_is_confirmed_handset_root_cause": false,
+  "next_step": "Manual TWRP Reboot > System. If offered the TWRP app choose Do Not Install. Observe boot and provide result/photo; preserve reports and do not repeat Apply or Format Data."
+}
