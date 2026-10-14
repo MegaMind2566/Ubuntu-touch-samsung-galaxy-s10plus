@@ -53,6 +53,55 @@
     "reason": "Python 3.10 lacks hashlib.file_digest in an existing first-boot collector test.",
     "fix": "Equivalent bounded streaming SHA-256 calculation, compatible with Python 3.10.",
     "windows_fixture_report_paths": "Updated both remaining backslash paths to docs/evidence.",
-    "boot_and_system_payload_changes": false
-  }
+    "boot_and_system_payload_changes_requested": false
+  },
+  "validated_code_commit": "a3d3933e9dd7da908021ee83a3fbfa1e82d71061",
+  "ci_validation": [
+    {
+      "run": 38488620918,
+      "scope": "Stock-layout Python and native Windows checks",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488620867,
+      "scope": "Kernel symbol recovery and pinned DTC build/tests after reorganization",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488620837,
+      "scope": "Stock firmware package and metadata checks",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488620694,
+      "scope": "Recovery preparation on Linux and Windows",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488933211,
+      "scope": "Source checkout and native Windows inventory",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488933275,
+      "scope": "Read-only first-boot collector native Windows checks",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488933274,
+      "scope": "Diagnostic images and 24 native Windows update/restore cases; USB/writes simulated",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488933255,
+      "scope": "Original image expansion and native Windows TWRP installer guard tests",
+      "conclusion": "success"
+    },
+    {
+      "run": 38488933393,
+      "scope": "SYSTEM candidate assembly, image validation and Python 3.10 checks",
+      "conclusion": "success"
+    }
+  ],
+  "proposed_github_repository_name": "ubuntu-touch-samsung-galaxy-s10plus"
 }
