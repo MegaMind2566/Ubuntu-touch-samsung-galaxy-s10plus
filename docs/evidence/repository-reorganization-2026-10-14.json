@@ -47,7 +47,7 @@
     "two_unmodified_python_payloads_differ_only_in_linux_vs_windows_checkout_newlines": true
   },
   "ubuntu_touch_boot_verified": false,
-  "github_repository_slug_renamed": false,
+  "github_repository_slug_renamed": true,
   "ci_fixes": {
     "initial_assembly_run": 38488620903,
     "reason": "Python 3.10 lacks hashlib.file_digest in an existing first-boot collector test.",
@@ -103,5 +103,21 @@
       "conclusion": "success"
     }
   ],
-  "proposed_github_repository_name": "ubuntu-touch-samsung-galaxy-s10plus"
+  "proposed_github_repository_name": "ubuntu-touch-samsung-galaxy-s10plus",
+  "repository_rename": {
+    "performed_by": "user",
+    "repository_id": 1416057451,
+    "previous_full_name": "MegaMind2566/Beyond2lte-UbuntuTouch-port",
+    "observed_full_name": "MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus",
+    "private_preserved": true,
+    "git_head_preserved_at_rename": "482f324ddb660e4347a1d201b8b0491ec21a78f1",
+    "artifact_clients_follow_GITHUB_REPOSITORY": true,
+    "original_artifact_id": 11770694913,
+    "original_artifact_download_under_new_name_verified": true,
+    "original_artifact_bytes": 37243074,
+    "original_artifact_sha256": "9f63fe26d4cff97a7735eda09a3f5fe61ffabe6b2c465be2c8f75d892a304e7c",
+    "python_tests_run": 64,
+    "python_tests_skipped": 1,
+    "handset_accessed": false
+  }
 }

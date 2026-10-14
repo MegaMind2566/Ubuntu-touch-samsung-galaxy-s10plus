@@ -8,7 +8,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-REPO = os.environ.get('GITHUB_REPOSITORY', 'MegaMind2566/Beyond2lte-UbuntuTouch-port')
+REPO = os.environ.get('GITHUB_REPOSITORY', 'MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus')
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):

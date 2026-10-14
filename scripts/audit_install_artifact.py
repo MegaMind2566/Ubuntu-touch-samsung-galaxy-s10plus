@@ -11,6 +11,8 @@ import urllib.parse
 import urllib.request
 import zipfile
 
+from github_artifacts import REPO
+
 ARTIFACT_ID = 11775595258
 ARTIFACT_BYTES = 1_167_934_045
 ARTIFACT_SHA256 = '8440d83ab7ddffc8d76d1f0894be89cf24b91396b447041a1ffc7e5177695f0d'
@@ -37,7 +39,7 @@ def download_artifact(path):
             return
         raise ValueError('Cached artifact differs from the immutable source')
     token = os.environ['UT_ARTIFACT_TOKEN']
-    endpoint = f'https://api.github.com/repos/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/artifacts/{ARTIFACT_ID}/zip'
+    endpoint = f'https://api.github.com/repos/{REPO}/actions/artifacts/{ARTIFACT_ID}/zip'
     request = urllib.request.Request(endpoint, headers={'Authorization': 'Bearer ' + token,
                                                       'Accept': 'application/vnd.github+json',
                                                       'X-GitHub-Api-Version': '2022-11-28'})

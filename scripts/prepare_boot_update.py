@@ -17,6 +17,7 @@ import urllib.request
 import zipfile
 
 from inspect_stock_firmware import boot_header, aligned, newc_files
+from github_artifacts import REPO
 
 ORIGINAL_ARTIFACT=11770694913
 ORIGINAL_ZIP_BYTES=37243074
@@ -41,7 +42,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 def download_archive(path):
     token=os.environ.get('UT_ARTIFACT_TOKEN')
     if not token:raise ValueError('Supply the original adaptation archive or a scoped CI artifact token')
-    url='https://api.github.com/repos/MegaMind2566/Beyond2lte-UbuntuTouch-port/actions/artifacts/'+str(ORIGINAL_ARTIFACT)+'/zip'
+    url='https://api.github.com/repos/'+REPO+'/actions/artifacts/'+str(ORIGINAL_ARTIFACT)+'/zip'
     request=urllib.request.Request(url,headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'})
     try:
         urllib.request.build_opener(NoRedirect()).open(request,timeout=45)
