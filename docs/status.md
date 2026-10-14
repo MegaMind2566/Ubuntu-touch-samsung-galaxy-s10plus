@@ -49,6 +49,20 @@ Collect the result of the diagnostic image already installed:
 
 The collector is read-only. This step does not require another Format Data, SYSTEM write or speculative VENDOR replacement.
 
+### How the next report selects the next experiment
+
+Start with `diagnostic_boot_matches` and the recorded screen. Pair runtime observations with the image identity checked by the collector.
+
+| Observation | Conclusion and next action |
+| --- | --- |
+| Installed BOOT hash differs from the diagnostic pin | Establish the actual installed image before attributing logs to this diagnostic or preparing another update. |
+| `UT_DIAG_1: PID 1 STARTED` is present in the diagnostic data logs | The controlled ramdisk executed. Inspect its kernel, storage and display results to decide where to instrument the original Ubuntu init. |
+| No data marker, but previous-boot buffers contain an identifiable normal-kernel failure | Use the earliest failure and its surrounding trace to select a focused kernel or device-tree experiment. |
+| Data logs are missing and recovery's mount list shows `/data` unavailable | Saved-data evidence is unavailable in that collection; inspect the remaining buffers without treating this as a failed PID 1 execution. |
+| No diagnostic marker or identifiable previous-boot trace | The failing stage remains unknown. Define an earlier observation point before preparing another BOOT image. |
+
+The diagnostic preserves an existing log directory, so retained markers prove a recorded diagnostic execution, not necessarily the most recent attempt. The observed screen and experiment history remain part of interpreting the report.
+
 ## Milestones after a first boot
 
 | Milestone | Status |
@@ -61,3 +75,7 @@ The collector is read-only. This step does not require another Format Data, SYST
 | Define repeatable installation, updates and recovery for other users | Pending |
 
 This repository is a bring-up project, not a supported-device release or a daily-use ROM.
+
+## Publication criterion
+
+Keep the repository private during the current boot investigation. Publish it after Ubuntu Touch reaches its graphical shell on the test handset, with the observed screen, available runtime logs and exact BOOT/SYSTEM identities recorded in `docs/evidence/`. Update this status and the README to show the successful boot and the measured hardware support. Untested features remain explicitly marked as untested in the public project.

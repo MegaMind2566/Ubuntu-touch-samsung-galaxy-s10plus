@@ -6,6 +6,8 @@ An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Sa
 
 Status updated **14 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
+Publication is planned after the first confirmed Ubuntu Touch graphical boot on the test handset. The published status will identify the tested images and list hardware features that remain untested.
+
 ## Scope
 
 | Item | Target |

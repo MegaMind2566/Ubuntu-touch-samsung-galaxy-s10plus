@@ -81,3 +81,7 @@ Keep those levels distinct in reports and pull requests. Every new hardware resu
 Current code uses [scripts](../scripts/README.md), shared templates use `scripts/templates/`, and original experiment sources use [archive](../archive/README.md). Archive moves retain original Git blob identities in [archive/manifest.json](../archive/manifest.json); archived workflows are outside GitHub's executable workflow directory.
 
 Do not copy firmware images, portable runtimes, build output or extracted kernel ELF files into Git. Preserve compact provenance reports and Actions artifact references. A future repository rename should retain historical run/artifact references; the current artifact helper derives the repository from `GITHUB_REPOSITORY` in CI.
+
+For each hardware experiment, add its compact dated evidence and update [Project status](status.md) with the result and next action. Keep the README focused on the project goal and verified progress. Archive superseded standalone tools only after checking their active imports, packaging paths and workflows; update the archive manifest and replacement links together. Shared components stay in the maintained paths while active packages depend on them.
+
+The [publication criterion](status.md#publication-criterion) is a confirmed Ubuntu Touch graphical boot on the test handset. Record that runtime result before changing repository visibility.
