@@ -10,7 +10,7 @@ on:
       - 'tests/**'
       - 'scripts/collect-device.ps1'
       - 'scripts/launch-device-check.ps1'
-      - 'AVVIA-CONTROLLO.cmd'
+      - 'tools/windows/AVVIA-CONTROLLO.cmd'
       - '.github/workflows/upstream-checkout.yml'
 jobs:
   checkout:

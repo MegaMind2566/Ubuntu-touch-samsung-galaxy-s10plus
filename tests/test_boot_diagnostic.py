@@ -54,7 +54,7 @@ def main():
             except ValueError: pass
             else: raise AssertionError('corrupt kernel/header accepted')
         # Template verification uses the generated pins and installed raw image.
-        verifier=package.render((ROOT/'scripts/verify_boot_update_2.py.in').read_text()
+        verifier=package.render((ROOT/'scripts/templates/verified-boot-image.py.in').read_text()
             .replace('439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c',lock['ramdisk_sha256'])
             .replace('rsize!=4108120','rsize!='+str(lock['ramdisk_bytes'])),lock)
         mod=types.ModuleType('verified_diagnostic');exec(compile(verifier,'verifier','exec'),mod.__dict__)

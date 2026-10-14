@@ -1,0 +1,392 @@
+{
+  "schema": 1,
+  "date": "2026-10-14",
+  "source_commit": "8dd7a511131d113e5e5d541639c8bfd5e68512fb",
+  "archive_policy": "Historical sources are kept once. Archived workflows are outside .github/workflows and cannot run automatically. Reproduce old packages from the recorded source commit in the original layout.",
+  "moves": [
+    {
+      "from": ".github/workflows/boot-update-2.yml",
+      "to": "archive/boot-update-2/.github/workflows/boot-update-2.yml",
+      "original_git_blob": "43d9d674ace975acaf73cad61ad389b50daff37e",
+      "archived": true
+    },
+    {
+      "from": ".github/workflows/boot-update.yml",
+      "to": "archive/boot-update-1/.github/workflows/boot-update.yml",
+      "original_git_blob": "4f26965511f33600f9a3f714597ef951259b0e39",
+      "archived": true
+    },
+    {
+      "from": ".github/workflows/ubuntu-install.yml",
+      "to": "archive/odin-system-boot/.github/workflows/ubuntu-install.yml",
+      "original_git_blob": "d3174a31401bf0442f2f898e54727bc5e7430e13",
+      "archived": true
+    },
+    {
+      "from": "AVVIA-CONTROLLO.cmd",
+      "to": "tools/windows/AVVIA-CONTROLLO.cmd",
+      "original_git_blob": "65a4727fd6a225b90b839a8969eee5b4e1572a34",
+      "archived": false
+    },
+    {
+      "from": "docs/assembly-inputs-2026-10-12.json",
+      "to": "docs/evidence/assembly-inputs-2026-10-12.json",
+      "original_git_blob": "f75b23c91135fced0128944f5106ad023cf06d5c",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-diagnostic-1-handset-2026-10-14.json",
+      "to": "docs/evidence/boot-diagnostic-1-handset-2026-10-14.json",
+      "original_git_blob": "293e472d817c02654131dbca2e5e4799c754fca3",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-diagnostic-1-recovery-logs-2026-10-14.json",
+      "to": "docs/evidence/boot-diagnostic-1-recovery-logs-2026-10-14.json",
+      "original_git_blob": "358c91bbd7807c11e2d7ebde6592e6a39f2ccb2a",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-diagnostic-build-2026-10-13.json",
+      "to": "docs/evidence/boot-diagnostic-build-2026-10-13.json",
+      "original_git_blob": "30209fa807dbf2ee419b7c42f6a409283bbb6dbb",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-diagnostic-design-2026-10-13.json",
+      "to": "docs/evidence/boot-diagnostic-design-2026-10-13.json",
+      "original_git_blob": "83f8473838c68777cc511311e2b2c5a2e7cb1d25",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-init-handoff-2026-10-13.json",
+      "to": "docs/evidence/boot-init-handoff-2026-10-13.json",
+      "original_git_blob": "e8b2a8b3913dc3d0cccfcedea25eac07799374f0",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-1-2026-10-13.json",
+      "to": "docs/evidence/boot-update-1-2026-10-13.json",
+      "original_git_blob": "3ba5971c13d14d410526c98ab53f830bb39b1d2d",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-1-handset-2026-10-13.json",
+      "to": "docs/evidence/boot-update-1-handset-2026-10-13.json",
+      "original_git_blob": "8caffb97527b6a973335908d62126c4f334808c2",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-1-logo-2026-10-13.json",
+      "to": "docs/evidence/boot-update-1-logo-2026-10-13.json",
+      "original_git_blob": "efebdacc60e1981b591f02e945e52ee8967c4e52",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-2-2026-10-13.json",
+      "to": "docs/evidence/boot-update-2-2026-10-13.json",
+      "original_git_blob": "bbe7ed87f71d78e31fe5684ef4ee0e83e982a4f4",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-2-handset-2026-10-13.json",
+      "to": "docs/evidence/boot-update-2-handset-2026-10-13.json",
+      "original_git_blob": "75f67f2886a3284f47a9fd0267adc781aa6e4c07",
+      "archived": false
+    },
+    {
+      "from": "docs/boot-update-2-logo-2026-10-13.json",
+      "to": "docs/evidence/boot-update-2-logo-2026-10-13.json",
+      "original_git_blob": "6dc6f151e153a348507304fc54007c079beed22f",
+      "archived": false
+    },
+    {
+      "from": "docs/build-report-2026-10-12.json",
+      "to": "docs/evidence/build-report-2026-10-12.json",
+      "original_git_blob": "e3ce099450213ce2bd7b12b8419ed59fb89ee4a2",
+      "archived": false
+    },
+    {
+      "from": "docs/device-check-2026-10-12.json",
+      "to": "docs/evidence/device-check-2026-10-12.json",
+      "original_git_blob": "1756edada6e22c0d39b16d532ff982bf5a9f4d29",
+      "archived": false
+    },
+    {
+      "from": "docs/download-mode-pit-2026-10-13.json",
+      "to": "docs/evidence/download-mode-pit-2026-10-13.json",
+      "original_git_blob": "20037fe18e9fe6925321675eff10bbc1d9f35d5c",
+      "archived": false
+    },
+    {
+      "from": "docs/download-mode-state-2026-10-13.json",
+      "to": "docs/evidence/download-mode-state-2026-10-13.json",
+      "original_git_blob": "fd6f78836f717365e97200c3ac6e59413713d321",
+      "archived": false
+    },
+    {
+      "from": "docs/dtb-extraction-attempt-2026-10-13.json",
+      "to": "docs/evidence/dtb-extraction-attempt-2026-10-13.json",
+      "original_git_blob": "7d3fd03545a618827dced2a77bfe7385ef3bfd4a",
+      "archived": false
+    },
+    {
+      "from": "docs/first-boot-logo-2026-10-13.json",
+      "to": "docs/evidence/first-boot-logo-2026-10-13.json",
+      "original_git_blob": "3585b6eee55b04c2bff58f937c63f0674aabfc76",
+      "archived": false
+    },
+    {
+      "from": "docs/first-boot-readback-2026-10-13.json",
+      "to": "docs/evidence/first-boot-readback-2026-10-13.json",
+      "original_git_blob": "4e27f3e7fde726434d9dec876226a8633ce7f861",
+      "archived": false
+    },
+    {
+      "from": "docs/first-boot-usb-2026-10-13.json",
+      "to": "docs/evidence/first-boot-usb-2026-10-13.json",
+      "original_git_blob": "3fc76fa983da82566ddfa200f468cef6a57a3633",
+      "archived": false
+    },
+    {
+      "from": "docs/hardware-test-preparation.md",
+      "to": "docs/history/hardware-test-preparation.md",
+      "original_git_blob": "63a8120611305be1a8a92d1befb4489112da2c68",
+      "archived": false
+    },
+    {
+      "from": "docs/input-report-2026-10-12.json",
+      "to": "docs/evidence/input-report-2026-10-12.json",
+      "original_git_blob": "f491ce01d51720b4674b37a9f0eec72bdd327cba",
+      "archived": false
+    },
+    {
+      "from": "docs/offline-tools-2026-10-14.json",
+      "to": "docs/evidence/offline-tools-2026-10-14.json",
+      "original_git_blob": null,
+      "archived": false
+    },
+    {
+      "from": "docs/recovery-boot-2026-10-13.json",
+      "to": "docs/evidence/recovery-boot-2026-10-13.json",
+      "original_git_blob": "f30edcca8869e8524c741c0f791cf253e37d6efb",
+      "archived": false
+    },
+    {
+      "from": "docs/recovery-check-2026-10-13.json",
+      "to": "docs/evidence/recovery-check-2026-10-13.json",
+      "original_git_blob": "78d123f7a19d2f8feb7d95fec6de99d0ad82a4d7",
+      "archived": false
+    },
+    {
+      "from": "docs/recovery-handshake-failure-2026-10-13.json",
+      "to": "docs/evidence/recovery-handshake-failure-2026-10-13.json",
+      "original_git_blob": "4ad9f0807b14dad75f399b3ade85255bce621c50",
+      "archived": false
+    },
+    {
+      "from": "docs/recovery-preparation-2026-10-13.json",
+      "to": "docs/evidence/recovery-preparation-2026-10-13.json",
+      "original_git_blob": "e7b42fcb5578b7f4623df377c574b1031ef6079b",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-binary-metadata-2026-10-12.json",
+      "to": "docs/evidence/stock-binary-metadata-2026-10-12.json",
+      "original_git_blob": "851f51406dd37c6179274056aad8e73933f3a5fd",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-dt-file-identification-2026-10-13.json",
+      "to": "docs/evidence/stock-dt-file-identification-2026-10-13.json",
+      "original_git_blob": "4fecbdef16a3413c1456f3793246c6f86ba640e4",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-dtb-2026-10-13.md",
+      "to": "docs/history/stock-dtb-2026-10-13.md",
+      "original_git_blob": "1a41c9df308a84522e4f8506359c08be0cba5420",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-dtb-report-2026-10-13.json",
+      "to": "docs/evidence/stock-dtb-report-2026-10-13.json",
+      "original_git_blob": "f0302408c5e6f6a81f4c047e0d9c8099ab46ff48",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-firmware-target-2026-10-12.json",
+      "to": "docs/evidence/stock-firmware-target-2026-10-12.json",
+      "original_git_blob": "55d89742f57811aee34ae5ada63fd8581389e378",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-layout-2026-10-13.md",
+      "to": "docs/history/stock-layout-2026-10-13.md",
+      "original_git_blob": "d9dfa99c6f8be3abd4c040cd5c6628d441dd49fe",
+      "archived": false
+    },
+    {
+      "from": "docs/stock-layout-report-2026-10-13.json",
+      "to": "docs/evidence/stock-layout-report-2026-10-13.json",
+      "original_git_blob": "a2824906704092d1a9ca79aea101ec40ac4de510",
+      "archived": false
+    },
+    {
+      "from": "docs/system-build-report-2026-10-12.json",
+      "to": "docs/evidence/system-build-report-2026-10-12.json",
+      "original_git_blob": "477ecb69bc8bc958493962b39d9a3ff5ad30f582",
+      "archived": false
+    },
+    {
+      "from": "docs/twrp-binary-audit-2026-10-13.json",
+      "to": "docs/evidence/twrp-binary-audit-2026-10-13.json",
+      "original_git_blob": "bbd6f6414b56b96b4b595911293833f4b28527be",
+      "archived": false
+    },
+    {
+      "from": "docs/ubuntu-install-metadata-failure-2026-10-13.json",
+      "to": "docs/evidence/ubuntu-install-metadata-failure-2026-10-13.json",
+      "original_git_blob": "283d590856c5abe5a9701452bb7e7cc2eb25ca6b",
+      "archived": false
+    },
+    {
+      "from": "docs/ubuntu-install-pit-failure-2026-10-13.json",
+      "to": "docs/evidence/ubuntu-install-pit-failure-2026-10-13.json",
+      "original_git_blob": "948dbd8fda306da08b07e8b3c43ef9dac6dbaab9",
+      "archived": false
+    },
+    {
+      "from": "docs/upgrade-strategy.md",
+      "to": "docs/history/upgrade-strategy.md",
+      "original_git_blob": "94aa97d01231f1480d6e1b9d8b10f31c9e9874a4",
+      "archived": false
+    },
+    {
+      "from": "scripts/fetch_boot_update_2_artifacts.py",
+      "to": "archive/boot-update-2/scripts/fetch_boot_update_2_artifacts.py",
+      "original_git_blob": "e6b745be68b4faf5ded6e770ed29d13713887fcd",
+      "archived": true
+    },
+    {
+      "from": "scripts/fetch_boot_update_artifact.py",
+      "to": "archive/boot-update-1/scripts/fetch_boot_update_artifact.py",
+      "original_git_blob": "7fab27e51a7e3cf73c7f95233e40799d2b6e6184",
+      "archived": true
+    },
+    {
+      "from": "scripts/install-boot-update-2.ps1.in",
+      "to": "scripts/templates/verified-boot-install.ps1.in",
+      "original_git_blob": "d58b325c97aa2ce574622e5e5f309f84700307de",
+      "archived": false
+    },
+    {
+      "from": "scripts/install-boot-update.ps1.in",
+      "to": "archive/boot-update-1/scripts/install-boot-update.ps1.in",
+      "original_git_blob": "532789135e83d225d37a0dfc1c31ee438d5d46ae",
+      "archived": true
+    },
+    {
+      "from": "scripts/package-boot-update-2.py",
+      "to": "archive/boot-update-2/scripts/package-boot-update-2.py",
+      "original_git_blob": "d3cf4613dd43bd3c036401c66468d0ea0cffd193",
+      "archived": true
+    },
+    {
+      "from": "scripts/package-boot-update.py",
+      "to": "archive/boot-update-1/scripts/package-boot-update.py",
+      "original_git_blob": "389d87b6dbff66900ca938a34e0af68a365ef362",
+      "archived": true
+    },
+    {
+      "from": "scripts/package-ubuntu-data-fix.py",
+      "to": "archive/userdata-format-fix/scripts/package-ubuntu-data-fix.py",
+      "original_git_blob": "c94e457f6dcf12b74f3885b5411f3ca87d95c400",
+      "archived": true
+    },
+    {
+      "from": "scripts/verify_boot_update.py.in",
+      "to": "archive/boot-update-1/scripts/verify_boot_update.py.in",
+      "original_git_blob": "80c707b391c9f0d7018f1d5636aecef3b5a527ea",
+      "archived": true
+    },
+    {
+      "from": "scripts/verify_boot_update_2.py.in",
+      "to": "scripts/templates/verified-boot-image.py.in",
+      "original_git_blob": "80c707b391c9f0d7018f1d5636aecef3b5a527ea",
+      "archived": false
+    },
+    {
+      "from": "tests/test-boot-update-2.ps1",
+      "to": "tests/test-boot-template.ps1",
+      "original_git_blob": "d10d3a1dff18061fbba768448139d287519b18f0",
+      "archived": false
+    },
+    {
+      "from": "tests/test-boot-update.ps1",
+      "to": "archive/boot-update-1/tests/test-boot-update.ps1",
+      "original_git_blob": "7c091c633ffc788f297a8e02b8a118e6c0913816",
+      "archived": true
+    },
+    {
+      "from": "tests/test-ubuntu-install.ps1",
+      "to": "archive/odin-system-boot/tests/test-ubuntu-install.ps1",
+      "original_git_blob": "60114f745060b84e322443f95f6c135cfd2d3d93",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/INSTALLA-CORREZIONE-AVVIO.cmd",
+      "to": "archive/boot-update-2/tools/windows/INSTALLA-CORREZIONE-AVVIO.cmd",
+      "original_git_blob": "42bd3a52e12f4857505b0a92c759db3bd7465789",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/INSTALLA-CORREZIONE-BOOT.cmd",
+      "to": "archive/boot-update-1/tools/windows/INSTALLA-CORREZIONE-BOOT.cmd",
+      "original_git_blob": "c33869c812729446f1f0520000e9d633e72a37a2",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/INSTALLA-UBUNTU-TOUCH.cmd",
+      "to": "archive/odin-system-boot/tools/windows/INSTALLA-UBUNTU-TOUCH.cmd",
+      "original_git_blob": "966ef0fdd1483e154719d81c74536f921bd7cdcc",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/LEGGIMI-CORREZIONE-AVVIO.txt",
+      "to": "archive/boot-update-2/tools/windows/LEGGIMI-CORREZIONE-AVVIO.txt",
+      "original_git_blob": "e93205c2b6b627c8e0d18ed9c0720855c053d253",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/LEGGIMI-CORREZIONE-BOOT.txt",
+      "to": "archive/boot-update-1/tools/windows/LEGGIMI-CORREZIONE-BOOT.txt",
+      "original_git_blob": "6253afa251362f183e22b39bfa28203d39f992ba",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/LEGGIMI-CORREZIONE-DATI.txt",
+      "to": "archive/userdata-format-fix/tools/windows/LEGGIMI-CORREZIONE-DATI.txt",
+      "original_git_blob": "35dafdf5dac6d500834b119c2c760164e7435474",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/LEGGIMI-INSTALLAZIONE-UBUNTU.txt",
+      "to": "archive/odin-system-boot/tools/windows/LEGGIMI-INSTALLAZIONE-UBUNTU.txt",
+      "original_git_blob": "55c49bf7982566763d5a3cc562590584a44a1c48",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-BOOT-1.cmd",
+      "to": "archive/boot-update-2/tools/windows/RIPRISTINA-BOOT-1.cmd",
+      "original_git_blob": "b9abdfbf2565b34ab380ab0f799f7d05215aae95",
+      "archived": true
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-BOOT-PRECEDENTE.cmd",
+      "to": "archive/boot-update-1/tools/windows/RIPRISTINA-BOOT-PRECEDENTE.cmd",
+      "original_git_blob": "9dd8d302ecabe7c1c23acf1569726f190fa94585",
+      "archived": true
+    }
+  ]
+}

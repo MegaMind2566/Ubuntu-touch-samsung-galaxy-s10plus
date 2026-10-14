@@ -10,7 +10,7 @@ import subprocess
 import sys
 import zipfile
 
-from fetch_boot_update_2_artifacts import obtain
+from github_artifacts import obtain
 from inspect_stock_firmware import boot_header
 
 TOOL_COMMIT = '19683fb95b29cd31362d49e6f48ab8368f96cbdf'

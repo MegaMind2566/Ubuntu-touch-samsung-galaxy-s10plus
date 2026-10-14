@@ -1,0 +1,591 @@
+{
+  "date": "2026-10-14",
+  "scope": "Offline analysis of existing verified BOOT images and stock device trees",
+  "kernel_symbols": {
+    "tool": "marin-m/vmlinux-to-elf",
+    "tool_commit": "19683fb95b29cd31362d49e6f48ab8368f96cbdf",
+    "packages": {
+      "vmlinux-to-elf": "1.3.6",
+      "lz4": "4.4.5",
+      "zstandard": "0.25.0",
+      "minilzo": "1.2",
+      "peewee": "4.5.3"
+    },
+    "workflow_run": 38486993772,
+    "workflow_commit": "8dd7a511131d113e5e5d541639c8bfd5e68512fb",
+    "conclusion": "success",
+    "artifact_id": 11859923822,
+    "artifact_bytes": 40872871,
+    "artifact_sha256": "e4c7897ce1567461db639287b83acab2b72b7bbda8749d602ec390ece960b877",
+    "images": [
+      {
+        "name": "boot-1",
+        "boot_sha256": "d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993",
+        "kernel_sha256": "395c5268ba68cec20a5dce2bf8cdc0a56d2f8bd99eea7d94d5134f369c8bd198",
+        "symbol_count": 113088,
+        "inferred_base_address": "0xffffff8008080000",
+        "mapped_bytes_verified": [
+          {
+            "section": ".kernel",
+            "raw_offset": 0,
+            "bytes": 37929752,
+            "sha256": "b58f9083bb5c7b63e59db354af486a856438c7100802e482f9d7f74a85a641ea"
+          },
+          {
+            "section": ".kernel2",
+            "raw_offset": 42381440,
+            "bytes": 6721424,
+            "sha256": "fef504b75479d954414b339a1b5cb80320ccf681bb4e46b777162e16afb2be1c"
+          }
+        ],
+        "selected_symbols": {
+          "start_kernel": {
+            "name": "start_kernel",
+            "address": 18446743524115154224,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f0530",
+            "raw_offset": 26674480,
+            "disassembled_bytes": 1600,
+            "raw_bytes_sha256": "9073e4802c8791a9a9275682672fe75cb5f65a325df67322980d1570ad503369"
+          },
+          "kernel_init": {
+            "name": "kernel_init",
+            "address": 18446743524105673108,
+            "type": 2,
+            "binding": 0,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80090e5994",
+            "raw_offset": 17193364,
+            "disassembled_bytes": 524,
+            "raw_bytes_sha256": "12f84dbef9a63842a9530caa9f2c07c9f90f3304fe3eb76daf1037a1f52d29b2"
+          },
+          "kernel_init_freeable": {
+            "name": "kernel_init_freeable",
+            "address": 18446743524115157124,
+            "type": 2,
+            "binding": 0,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f1084",
+            "raw_offset": 26677380,
+            "disassembled_bytes": 596,
+            "raw_bytes_sha256": "107a437e3e0dcc5429df323c8613435a782de6b5563fcff3d1b0e994a5881479"
+          },
+          "prepare_namespace": {
+            "name": "prepare_namespace",
+            "address": 18446743524115159396,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f1964",
+            "raw_offset": 26679652,
+            "disassembled_bytes": 464,
+            "raw_bytes_sha256": "5c2bb790718dbd31b24c9d6cd630f2f13faa480baf47b49b32aee732ccd08dda"
+          },
+          "mount_sar_ramdisk": {
+            "name": "mount_sar_ramdisk",
+            "address": 18446743524115168300,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f3c2c",
+            "raw_offset": 26688556,
+            "disassembled_bytes": 460,
+            "raw_bytes_sha256": "00992f5149e9a2955cf3aa7642ceaed0970180db6b067222fdecd16afe26e325"
+          },
+          "unpack_to_rootfs": {
+            "name": "unpack_to_rootfs",
+            "address": 18446743524115162816,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f26c0",
+            "raw_offset": 26683072,
+            "disassembled_bytes": 796,
+            "raw_bytes_sha256": "e517db251cdc02dafa17b348b94cd712a2f5651f9627082540b77e540a23498a"
+          },
+          "wait_for_device_probe": {
+            "name": "wait_for_device_probe",
+            "address": 18446743524095220664,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80086edbb8",
+            "raw_offset": 6740920,
+            "disassembled_bytes": 208,
+            "raw_bytes_sha256": "33a33a11970888b2479862357ab9e774db8102b91201e7446f5d112c3a845288"
+          },
+          "load_default_modules": {
+            "name": "load_default_modules",
+            "address": 18446743524115156912,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f0fb0",
+            "raw_offset": 26677168,
+            "disassembled_bytes": 20,
+            "raw_bytes_sha256": "44ad60f9e072cad63af752cc4ae436cac54e7e83d90c50c39510caec6d059f5e"
+          },
+          "_text": {
+            "name": "_text",
+            "address": 18446743524088479744,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff8008080000"
+          },
+          "_stext": {
+            "name": "_stext",
+            "address": 18446743524088481792,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff8008080800"
+          },
+          "_edata": {
+            "present": false
+          },
+          "_end": {
+            "present": false
+          },
+          "ramdisk_execute_command": {
+            "name": "ramdisk_execute_command",
+            "address": 18446743524137599040,
+            "type": 1,
+            "binding": 0,
+            "section": 3,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff800af58040"
+          },
+          "kallsyms_relative_base": {
+            "present": false
+          },
+          "kallsyms_offsets": {
+            "present": false
+          }
+        }
+      },
+      {
+        "name": "boot-2",
+        "boot_sha256": "cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0",
+        "kernel_sha256": "9eaccbf38fa382c57aaf5343776c096035c20562adfb4db35aad6296998c6bdc",
+        "symbol_count": 113088,
+        "inferred_base_address": "0xffffff8008080000",
+        "mapped_bytes_verified": [
+          {
+            "section": ".kernel",
+            "raw_offset": 0,
+            "bytes": 37929752,
+            "sha256": "6cb2cb2863c6dbfd53615a04e2e1fea50ed07f1a921c74de39814649af0f61e8"
+          },
+          {
+            "section": ".kernel2",
+            "raw_offset": 42381440,
+            "bytes": 6721424,
+            "sha256": "e4f187f850599a1ce67ba786776e54345f972cc0cab431392f170d2c2d514ab6"
+          }
+        ],
+        "selected_symbols": {
+          "start_kernel": {
+            "name": "start_kernel",
+            "address": 18446743524115154224,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f0530",
+            "raw_offset": 26674480,
+            "disassembled_bytes": 1600,
+            "raw_bytes_sha256": "85b57424139dfe1361b6373122e8b725a0a2de408a782f6f3597b46c7f7c4119"
+          },
+          "kernel_init": {
+            "name": "kernel_init",
+            "address": 18446743524105673108,
+            "type": 2,
+            "binding": 0,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80090e5994",
+            "raw_offset": 17193364,
+            "disassembled_bytes": 524,
+            "raw_bytes_sha256": "a74f01d3dc7867a1683f2d0b8155f0512c104eb395c6e9d3c66d1f3a5c40b57b"
+          },
+          "kernel_init_freeable": {
+            "name": "kernel_init_freeable",
+            "address": 18446743524115157124,
+            "type": 2,
+            "binding": 0,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f1084",
+            "raw_offset": 26677380,
+            "disassembled_bytes": 636,
+            "raw_bytes_sha256": "65686221992460818e73696595131804ed333421dd52ddc784bd095b5e6858d2"
+          },
+          "prepare_namespace": {
+            "name": "prepare_namespace",
+            "address": 18446743524115159436,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f198c",
+            "raw_offset": 26679692,
+            "disassembled_bytes": 464,
+            "raw_bytes_sha256": "ebb349b471b6884e35453571750d029ca7a22d57f5faeb436e001f771d95c187"
+          },
+          "mount_sar_ramdisk": {
+            "name": "mount_sar_ramdisk",
+            "address": 18446743524115168340,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f3c54",
+            "raw_offset": 26688596,
+            "disassembled_bytes": 460,
+            "raw_bytes_sha256": "ee4e7bb065e5cc34802c862f4c636f3e99b97ba8f6a2e4b861ea821138ffeb87"
+          },
+          "unpack_to_rootfs": {
+            "name": "unpack_to_rootfs",
+            "address": 18446743524115162856,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f26e8",
+            "raw_offset": 26683112,
+            "disassembled_bytes": 796,
+            "raw_bytes_sha256": "9fa24db87e35c5b04c359b79524c8258d1c95b99f62c66a2868a859c4ab65fed"
+          },
+          "wait_for_device_probe": {
+            "name": "wait_for_device_probe",
+            "address": 18446743524095220664,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80086edbb8",
+            "raw_offset": 6740920,
+            "disassembled_bytes": 208,
+            "raw_bytes_sha256": "d3a97d3beff91bacdd4e61e29e3547db5da09e39c7ba29eb6803d2d733834dfb"
+          },
+          "load_default_modules": {
+            "name": "load_default_modules",
+            "address": 18446743524115156912,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff80099f0fb0",
+            "raw_offset": 26677168,
+            "disassembled_bytes": 20,
+            "raw_bytes_sha256": "62b7f11ad20f62f8f108b72d1f5ed8b45f9f37cf9732d309c8eb5866e579b900"
+          },
+          "_text": {
+            "name": "_text",
+            "address": 18446743524088479744,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff8008080000"
+          },
+          "_stext": {
+            "name": "_stext",
+            "address": 18446743524088481792,
+            "type": 2,
+            "binding": 1,
+            "section": 1,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff8008080800"
+          },
+          "_edata": {
+            "present": false
+          },
+          "_end": {
+            "present": false
+          },
+          "ramdisk_execute_command": {
+            "name": "ramdisk_execute_command",
+            "address": 18446743524137599040,
+            "type": 1,
+            "binding": 0,
+            "section": 3,
+            "bytes": 0,
+            "present": true,
+            "address_hex": "0xffffff800af58040"
+          },
+          "kallsyms_relative_base": {
+            "present": false
+          },
+          "kallsyms_offsets": {
+            "present": false
+          }
+        }
+      }
+    ]
+  },
+  "compiled_code_observation": {
+    "function": "kernel_init_freeable",
+    "boot_1": "On failed SyS_access, clears ramdisk_execute_command and calls prepare_namespace without restoring the pointer.",
+    "boot_2": "Saves the pointer in x19, calls prepare_namespace, checks SyS_access again and restores ramdisk_execute_command on success.",
+    "boot_2_instructions": "0xffffff80099f12ac through 0xffffff80099f12d8",
+    "handset_root_cause_proven": false,
+    "current_diagnostic_uses_same_boot_2_kernel": true
+  },
+  "device_trees": {
+    "schema": 1,
+    "dtc_version": "Version: DTC 1.8.1",
+    "dtc_source_commit": "f3451d12532b9d382707c458a2ae2e5aa0e1eee4",
+    "stock_dtb_partition_sha256": "3c533aa9c658bd0ba7e3837da3fe8faa3e1e4185272c6052065ce4904801db36",
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "dtbo_table_sha256": "8f37aa2c33f6463a8b96f55c696deec7caaf9d4c61747ee30e5184ae9aa7da1a",
+    "overlay_index": 9,
+    "overlay_entry": {
+      "bytes": 180864,
+      "offset": 1624392,
+      "id": 0,
+      "revision": 0,
+      "custom": [
+        26,
+        255,
+        0,
+        0
+      ],
+      "sha256": "b34d48cca8dc002d8ecabf914f94438ec5ba0217dc9caf19aafec739ff70ccec"
+    },
+    "selection_basis": "DTBO index 9 and hardware revision 26 were observed in running TWRP; normal boot selection is not captured.",
+    "trees": [
+      {
+        "name": "stock-base.dtb",
+        "bytes": 239680,
+        "sha256": "6d2d4dae723f3e763ba5ca5a0accfdce79485d133b86a27394b0846ec9a0ad06",
+        "dtc_exit": 0,
+        "warning_count": 214,
+        "warning_categories": {
+          "unit_address_vs_reg": 102,
+          "pci_bridge": 2,
+          "unit_address_format": 1,
+          "pci_device_reg": 1,
+          "pci_device_bus_num": 1,
+          "avoid_unnecessary_addr_size": 1,
+          "unique_unit_address": 92,
+          "interrupt_provider": 1,
+          "interrupt_map": 1,
+          "graph_port": 12
+        },
+        "fdt_summary": {
+          "bytes": 239680,
+          "version": 17,
+          "node_count": 1117,
+          "property_count": 8367,
+          "root_properties": {
+            "compatible": [
+              "samsung,armv8",
+              "samsung,exynos9820"
+            ],
+            "dtb-hw_rev": 0,
+            "dtb-hw_rev_end": 255,
+            "#address-cells": 2,
+            "#size-cells": 1
+          },
+          "selected_compatible_nodes": {
+            "/mali@18500000": [
+              "arm,mali"
+            ],
+            "/cpus/cpu@0000": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0001": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0002": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0003": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0004": [
+              "arm,prometheus",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0005": [
+              "arm,prometheus",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0100": [
+              "arm,cheetah",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0101": [
+              "arm,cheetah",
+              "arm,armv8"
+            ],
+            "/ufs@0x13D60000": [
+              "samsung,exynos-ufs"
+            ],
+            "/displayport@0x130B0000": [
+              "samsung,exynos-displayport"
+            ],
+            "/usb@10C00000": [
+              "samsung,exynos-dwusb"
+            ],
+            "/usb@10C00000/dwc3": [
+              "synopsys,dwc3"
+            ]
+          }
+        }
+      },
+      {
+        "name": "stock-effective-dtbo9.dtb",
+        "bytes": 376078,
+        "sha256": "b754deb3dc8eb4ebd4776a412b7020c868bde547d646d57464bee3ed24a9b20a",
+        "dtc_exit": 0,
+        "warning_count": 273,
+        "warning_categories": {
+          "unit_address_vs_reg": 209,
+          "pci_bridge": 2,
+          "unit_address_format": 1,
+          "pci_device_reg": 1,
+          "pci_device_bus_num": 1,
+          "avoid_default_addr_size": 2,
+          "avoid_unnecessary_addr_size": 1,
+          "unique_unit_address": 1,
+          "sound_dai_property": 40,
+          "interrupts_property": 1,
+          "interrupt_provider": 1,
+          "interrupt_map": 1,
+          "graph_port": 12
+        },
+        "fdt_summary": {
+          "bytes": 376078,
+          "version": 17,
+          "node_count": 1854,
+          "property_count": 12962,
+          "root_properties": {
+            "model": [
+              "Samsung BEYOND2LTE EUR OPEN 26 board based on EXYNOS9820"
+            ],
+            "compatible": [
+              "samsung,armv8",
+              "samsung,exynos9820"
+            ],
+            "dtb-hw_rev": 0,
+            "dtb-hw_rev_end": 255,
+            "#address-cells": 2,
+            "#size-cells": 1
+          },
+          "selected_compatible_nodes": {
+            "/mali@18500000": [
+              "arm,mali"
+            ],
+            "/cpus/cpu@0000": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0001": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0002": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0003": [
+              "arm,ananke",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0004": [
+              "arm,prometheus",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0005": [
+              "arm,prometheus",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0100": [
+              "arm,cheetah",
+              "arm,armv8"
+            ],
+            "/cpus/cpu@0101": [
+              "arm,cheetah",
+              "arm,armv8"
+            ],
+            "/ufs@0x13D60000": [
+              "samsung,exynos-ufs"
+            ],
+            "/displayport@0x130B0000": [
+              "samsung,exynos-displayport"
+            ],
+            "/usb@10C00000": [
+              "samsung,exynos-dwusb"
+            ],
+            "/usb@10C00000/dwc3": [
+              "synopsys,dwc3"
+            ]
+          }
+        }
+      }
+    ],
+    "overlay_apply_exit": 0,
+    "handset_accessed": false,
+    "handset_modified": false,
+    "kernel_driver_binding_compatibility_verified": false,
+    "normal_boot_runtime_observed": false,
+    "limits": [
+      "DTC warnings are recorded without suppression.",
+      "Successful decoding/application does not prove the normal-boot bootloader tree or all custom-kernel bindings."
+    ]
+  },
+  "qemu_exynos_review": {
+    "repository": "astarasikov/qemu",
+    "branch": "exynos9820",
+    "commit": "a2d3780055a37d07105c43deec97c59d38106c39",
+    "file": "hw/arm/virt.c",
+    "finding": "FAKE_PERIPH uses canned MMIO responses and contains a UFS TODO; it is not a complete S10+ Linux/hardware emulator.",
+    "executed": false,
+    "chosen_as_handset_boot_reproduction": false
+  },
+  "handset_accessed": false,
+  "handset_modified": false,
+  "normal_boot_runtime_observed": false,
+  "ubuntu_touch_boot_verified": false,
+  "next_required_handset_evidence": "Run the already delivered LEGGI-TEST-AVVIO.cmd in TWRP and collect ubuntu-boot-diagnostic-log-report.zip plus the diagnostic-screen observation."
+}

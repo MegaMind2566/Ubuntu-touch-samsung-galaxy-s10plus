@@ -95,14 +95,14 @@ report confirms that the full ZIP still has the recorded SHA-256 and size, but
 `dtb.img.lz4` was not found in AP. It did not retain AP's TAR listing, so the
 actual DTB location is not established by that report. Version 2 addresses
 both gaps; no claim is made that the DTB has already been obtained. See
-[original failed attempt](dtb-extraction-attempt-2026-10-13.json).
+[original failed attempt](../evidence/dtb-extraction-attempt-2026-10-13.json).
 
 The subsequently supplied v2 catalog identifies **`dt.img.lz4` inside AP**.
 The v2 tool had searched generic `dtb.img`/`dtb.bin` names, so its small ZIP
 contains the complete catalogs rather than the image bytes. The actual filename
 is now added in v3. The AVB chain calls its expected partition `dtb`; the filename
 and AVB partition name must not be conflated. Its image footer/digest still need
-inspection after the bytes arrive. See [file identification](stock-dt-file-identification-2026-10-13.json).
+inspection after the bytes arrive. See [file identification](../evidence/stock-dt-file-identification-2026-10-13.json).
 
 V3 also preserves a prior report-only bundle with a unique backup name and then
 retries extraction. Bundles containing images and unknown archives remain
@@ -133,7 +133,7 @@ python3 -m unittest discover -s tests -v
 ```
 
 Full parsed headers, descriptors, partition limits and hashes are in
-[stock-layout-report-2026-10-13.json](stock-layout-report-2026-10-13.json).
+[stock-layout-report-2026-10-13.json](../evidence/stock-layout-report-2026-10-13.json).
 Local Python validation passed all 30 tests. The dedicated Windows CI validates
 the extraction add-on using PowerShell 5.1 and synthetic AP/ZIP fixtures; it
 does not download the 6 GB stock package or test the device.
@@ -144,4 +144,4 @@ The actual v3 image has now been received and inspected. The filename maps to
 AVB partition `dtb`; its signature, salted payload hash, stock vbmeta chain key
 and Exynos 9820 base-tree checks pass. The earlier pending-byte statements
 describe the prior catalog-only stage. See [completed DTB audit](stock-dtb-2026-10-13.md)
-and [parsed results](stock-dtb-report-2026-10-13.json). No handset test has occurred.
+and [parsed results](../evidence/stock-dtb-report-2026-10-13.json). No handset test has occurred.

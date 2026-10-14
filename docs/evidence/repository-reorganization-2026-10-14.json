@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-14",
+  "source_commit": "8dd7a511131d113e5e5d541639c8bfd5e68512fb",
+  "scope": "Repository presentation, evidence navigation and archival of superseded standalone tools",
+  "readme": {
+    "previous_bytes": 35301,
+    "new_bytes": 6261,
+    "contents": ["Goal and target", "Verified progress", "Current boot blocker", "Next diagnostic evidence", "Repository map", "Development and upstream attribution"]
+  },
+  "archive": {
+    "source_files": 21,
+    "original_git_blob_hashes_verified": true,
+    "groups": ["boot-update-1", "boot-update-2", "odin-system-boot", "userdata-format-fix"],
+    "archived_workflows_outside_executable_workflow_directory": true,
+    "duplicate_firmware_or_runtime_binaries_added": false
+  },
+  "active_structure": {
+    "evidence": "docs/evidence",
+    "historical_notes": "docs/history",
+    "shared_boot_templates": "scripts/templates",
+    "windows_launcher_inputs": "tools/windows",
+    "shared_artifact_transport": "scripts/github_artifacts.py"
+  },
+  "local_validation": {
+    "python_unittest": {"run": 64, "passed": 63, "skipped": 1},
+    "documentation_links_resolve": true,
+    "active_workflow_yaml_and_direct_script_paths_checked": true,
+    "regenerated_diagnostic_image_rollback_installer_guards_and_launchers_byte_identical": true,
+    "three_unmodified_python_payloads_differ_only_in_linux_vs_windows_checkout_newlines": true,
+    "handset_accessed": false,
+    "handset_modified": false
+  },
+  "ubuntu_touch_boot_verified": false,
+  "github_repository_slug_renamed": false
+}

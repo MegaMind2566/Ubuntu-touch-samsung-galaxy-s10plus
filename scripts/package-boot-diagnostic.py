@@ -65,7 +65,7 @@ def validate(folder):
 
 def package(folder,output):
     image,previous,lock=validate(folder)
-    script=identity((ROOT/'scripts/install-boot-update-2.ps1.in').read_text())
+    script=identity((ROOT/'scripts/templates/verified-boot-install.ps1.in').read_text())
     script=script.replace("$script:BootPreviousHash='d3be319ae9353908e917894d624460e743bfc078d676c592189d415ef02b0993'",
                           "$script:BootPreviousHash='"+PREVIOUS_SHA256+"'")
     script=script.replace('schema=1;update_version=2;','schema=1;update_version=3;diagnostic_version=1;purpose="controlled_boot_diagnostic";')
@@ -82,7 +82,7 @@ def package(folder,output):
             Write-Host 'Il test diagnostico non e piu in BOOT. I suoi log restano disponibili da TWRP.'
             Write-Host 'Invia il rapporto di ripristino; nessun riavvio e stato eseguito.'
         }""",1)
-    verifier=(ROOT/'scripts/verify_boot_update_2.py.in').read_text()
+    verifier=(ROOT/'scripts/templates/verified-boot-image.py.in').read_text()
     verifier=verifier.replace(ORIGINAL_RAM_SHA256,lock['ramdisk_sha256']).replace('rsize!=4108120','rsize!='+str(lock['ramdisk_bytes']))
     verifier=verifier.replace('BOOT corretto verificato. Ramdisk e selettore di SYSTEM conservati.',
                               'BOOT diagnostico verificato. Il kernel e identico al BOOT 2; ramdisk del test temporaneo.')
@@ -105,7 +105,7 @@ def package(folder,output):
     with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for name,data in sorted(members.items()): z.writestr(name,data)
     # Run the reviewed Windows safety fixtures against these actual generated paths/pins.
-    test=identity((ROOT/'tests/test-boot-update-2.ps1').read_text())
+    test=identity((ROOT/'tests/test-boot-template.ps1').read_text())
     test=test.replace("ubuntu-boot-update-apply-state.json","ubuntu-boot-update-2-apply-state.json")
     test=test.replace('version 1 checkpoint preserved and does not block version 2','BOOT 2 checkpoint preserved and does not block this diagnostic')
     test=test.replace('version 1 cannot be mistaken for version 2','BOOT 2 cannot be mistaken for the diagnostic')

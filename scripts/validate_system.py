@@ -60,8 +60,8 @@ def elf_arm64(contents):
 
 
 def validate(out):
-    lock = json.loads((ROOT / "docs/assembly-inputs-2026-10-12.json").read_text())
-    profile = json.loads((ROOT / "docs/device-check-2026-10-12.json").read_text())
+    lock = json.loads((ROOT / "docs/evidence/assembly-inputs-2026-10-12.json").read_text())
+    profile = json.loads((ROOT / "docs/evidence/device-check-2026-10-12.json").read_text())
     raw = out / "rootfs.img"
     size = raw.stat().st_size
     require(size == lock["system_image_bytes"] and size <= profile["partitions"]["system"]["bytes"],

@@ -37,7 +37,8 @@ def main():
             package.writestr(name, contents)
             hashes[name] = hashlib.sha256(contents).hexdigest()
         for name in ["AVVIA-CONTROLLO.cmd", "scripts/launch-device-check.ps1", "scripts/collect-device.ps1"]:
-            contents = (ROOT / name).read_text().replace("\r\n", "\n").replace("\n", "\r\n").encode()
+            source = ROOT / ('tools/windows/' + name if name == 'AVVIA-CONTROLLO.cmd' else name)
+            contents = source.read_text().replace("\r\n", "\n").replace("\n", "\r\n").encode()
             package.writestr(name, contents)
             hashes[name] = hashlib.sha256(contents).hexdigest()
         package.write(ROOT / "tools/windows/LEGGIMI.txt", "LEGGIMI.txt")

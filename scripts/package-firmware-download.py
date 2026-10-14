@@ -32,7 +32,7 @@ def main():
         exe = release.read(executables[0])
     if exe[:2] != b"MZ":
         raise ValueError("Not a Windows executable")
-    target = json.loads((ROOT / "docs/stock-firmware-target-2026-10-12.json").read_text())
+    target = json.loads((ROOT / "docs/evidence/stock-firmware-target-2026-10-12.json").read_text())
     settings = {"target": target, "samloader_version": "2.2.0", "upstream_url": URL,
                 "upstream_sha256": DIGEST, "samloader_exe_sha256": hashlib.sha256(exe).hexdigest()}
     args.output.parent.mkdir(parents=True, exist_ok=True)

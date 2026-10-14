@@ -9,8 +9,8 @@ import urllib.parse
 import urllib.request
 import zipfile
 
-from fetch_boot_update_2_artifacts import obtain
-from fetch_boot_update_artifact import api, NoRedirect
+from github_artifacts import obtain
+from github_artifacts import api, NoRedirect
 
 
 def main():

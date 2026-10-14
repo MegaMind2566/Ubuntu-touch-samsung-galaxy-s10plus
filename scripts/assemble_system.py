@@ -45,8 +45,8 @@ def main():
     args = parser.parse_args()
     work, output, adaptation = args.work.resolve(), args.output.resolve(), args.adaptation.resolve()
     require(not work.exists() and not output.exists(), "Use fresh work and output directories")
-    lock = json.loads((ROOT / "docs/assembly-inputs-2026-10-12.json").read_text())
-    profile = json.loads((ROOT / "docs/device-check-2026-10-12.json").read_text())
+    lock = json.loads((ROOT / "docs/evidence/assembly-inputs-2026-10-12.json").read_text())
+    profile = json.loads((ROOT / "docs/evidence/device-check-2026-10-12.json").read_text())
     require(profile["inventory_valid"] and profile["android_version"] == profile["vendor_version"] == "12",
             "No valid Android 12 handset profile")
     image_bytes = lock["system_image_bytes"]
@@ -90,7 +90,7 @@ def main():
     for item in ("rootfs", "halium"):
         download(lock[item], ota / lock[item]["name"])
     manifest = {
-        "inputs": lock, "handset_profile_sha256": sha256(ROOT / "docs/device-check-2026-10-12.json"),
+        "inputs": lock, "handset_profile_sha256": sha256(ROOT / "docs/evidence/device-check-2026-10-12.json"),
         "tools_commit": git(tools, "rev-parse", "HEAD"),
         "preparation_script_sha256": sha256(preparation),
         "upstream_development_access_defaults_injected": False,

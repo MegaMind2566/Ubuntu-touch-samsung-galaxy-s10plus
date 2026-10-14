@@ -39,3 +39,15 @@ by the launcher. It never invokes the utility's device-access/flash commands.
 Samsung stock firmware is downloaded on the user's PC from Samsung FUS. It
 is not included in the open-source utility package or committed to this repo.
 
+## Offline kernel and device-tree analysis
+
+| Component | Pinned source | License / use |
+| --- | --- | --- |
+| vmlinux-to-elf 1.3.6 | [marin-m/vmlinux-to-elf](https://github.com/marin-m/vmlinux-to-elf), commit `19683fb95b29cd31362d49e6f48ab8368f96cbdf` | GPL-3.0-or-later; unmodified kernel symbol/ELF reconstruction tool in an isolated CI environment. |
+| DTC / libfdt 1.8.1 | [dgibson/dtc](https://github.com/dgibson/dtc), commit `f3451d12532b9d382707c458a2ae2e5aa0e1eee4` | DTC tools: GPL-2.0-or-later; libfdt: GPL-2.0-or-later OR BSD-2-Clause. Unmodified tool build with upstream tests. |
+
+These tools are fetched from their source repositories, not vendored into this
+repository. Their source and license notices remain at the pinned revisions.
+Generated ELF files and DTC executables are analysis/build artifacts. Firmware
+identity and artifact references are recorded in the evidence reports.
+

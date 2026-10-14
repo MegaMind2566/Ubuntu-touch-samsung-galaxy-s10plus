@@ -10,9 +10,9 @@ handshake, before beginning a session or sending image payloads. The earlier
 reports without console details leave their write progress unconfirmed.
 The later user photograph confirms the TWRP 3.7.0_9-2 home screen. The Ubuntu
 Touch kernel/system has not yet booted on the handset. See
-[recovery boot evidence](recovery-boot-2026-10-13.json).
+[recovery boot evidence](../evidence/recovery-boot-2026-10-13.json).
 
-The later [successful read-only recovery report](recovery-check-2026-10-13.json)
+The later [successful read-only recovery report](../evidence/recovery-check-2026-10-13.json)
 supersedes the pending recovery-check steps below. On the actual handset,
 root ADB, the modified init/no-op script, exact recovery/VBMETA hashes and all
 eight partition sizes are confirmed. SYSTEM and VENDOR were unmounted. Data
@@ -22,7 +22,7 @@ first installation uses a fresh manual Format Data only after all PC image
 and complete-stock-backup verification has passed.
 
 The original system artifact has now been independently expanded and hashed;
-see [the locked image identities](../config/install-images.lock.json). The
+see [the locked image identities](../../config/install-images.lock.json). The
 actual boot header selects `systempart=/dev/disk/by-partlabel/system`, so the
 first test targets SYSTEM and BOOT. The Windows installer verifies a changed
 ext4 UUID after the user's manual Format Data, requires a manual move from
@@ -38,7 +38,7 @@ reboot. This is a first hardware test, not an established working UT port.
   The displayed carrier-code row is `ITV/ITV,ITV/HUI`, retained verbatim without
   using its final HUI entry to choose a different download region.
 - The original 12 October ADB snapshot reported locked/green. The new
-  [Download-mode observation](download-mode-state-2026-10-13.json) supersedes
+  [Download-mode observation](../evidence/download-mode-state-2026-10-13.json) supersedes
   its bootloader state. Secure Download remains enabled; unlocking is not a
   substitute for resolving the original AVB metadata.
 - Boot image fits the 55 MiB boot partition. System candidate is 5120 MiB
@@ -69,7 +69,7 @@ encryption/security configuration and stock recovery restoration files.
 An unmodified TWRP boot is therefore not a test that preserves the Android
 12 vendor baseline. Account for or neutralize those automatic writes before
 a recovery test, and separately resolve AVB. Nothing from that script has
-been executed on the handset. See the [actual binary audit](twrp-binary-audit-2026-10-13.json).
+been executed on the handset. See the [actual binary audit](../evidence/twrp-binary-audit-2026-10-13.json).
 
 TeamWin specifically notes the vbmeta/Android Verified Boot dependency for
 this device. Flashing only a replacement boot or recovery image is not a
@@ -110,7 +110,7 @@ generic fastboot instructions must not be assumed to work.
    sizes. DTB and DTBO are both 8 MiB; VBMETA is 64 KiB. No separate
    VBMETA_SYSTEM or VBMETA_SAMSUNG entry is present. USERDATA's PIT block count
    is zero with the `remained` marker, so its size remains the previous ADB
-   measurement, not zero. See [actual PIT audit](download-mode-pit-2026-10-13.json).
+   measurement, not zero. See [actual PIT audit](../evidence/download-mode-pit-2026-10-13.json).
 5. `PREPARA-RECOVERY.cmd` prepares files locally without accessing the phone.
    It verifies the retained complete HWC1 stock ZIP by size and SHA-256, then
    obtains the publisher-pinned TWRP image on the user's PC. The patch removes
@@ -126,7 +126,7 @@ generic fastboot instructions must not be assumed to work.
 6. The user's `recovery-preparation-report.zip` confirms production preparation
    success and a retained, full-size stock firmware with the exact expected
    SHA-256. Both prepared image hashes match the independent Linux and Windows
-   audits. See [reviewed preparation report](recovery-preparation-2026-10-13.json).
+   audits. See [reviewed preparation report](../evidence/recovery-preparation-2026-10-13.json).
    The small `INSTALLA-RECOVERY-TEST.cmd` add-on is extracted into the existing
    preparation folder. It requires that verified production state, locks the
    retained firmware and image inputs before validating their contents, and
@@ -145,7 +145,7 @@ generic fastboot instructions must not be assumed to work.
    select Keep Read Only and cancel any data-password prompt. A failed write
    may be partial: stay in Download Mode and inspect its report before retrying.
 7. The latest supplied attempt failed the handshake before image transfer;
-   see [observed failure and fix](recovery-handshake-failure-2026-10-13.json).
+   see [observed failure and fix](../evidence/recovery-handshake-failure-2026-10-13.json).
    The subsequent recovery photograph confirms TWRP boot. Complete the read-only
    ADB checks of the exact installed images, mounts and userdata encryption with
    `CONTROLLA-RECOVERY.cmd` are now complete. It reads

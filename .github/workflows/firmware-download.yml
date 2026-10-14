@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'docs/stock-firmware-target-2026-10-12.json'
+      - 'docs/evidence/stock-firmware-target-2026-10-12.json'
       - 'scripts/download-stock-firmware.ps1'
       - 'scripts/package-firmware-download.py'
       - 'tests/test-stock-firmware.ps1'

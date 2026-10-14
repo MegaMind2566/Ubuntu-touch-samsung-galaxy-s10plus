@@ -5,8 +5,8 @@ on:
     paths:
       - 'scripts/assemble_system.py'
       - 'scripts/validate_system.py'
-      - 'docs/assembly-inputs-2026-10-12.json'
-      - 'docs/device-check-2026-10-12.json'
+      - 'docs/evidence/assembly-inputs-2026-10-12.json'
+      - 'docs/evidence/device-check-2026-10-12.json'
       - '.github/workflows/assemble-system.yml'
 permissions:
   contents: read

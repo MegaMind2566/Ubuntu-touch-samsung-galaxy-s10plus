@@ -9,7 +9,7 @@ on:
       - 'scripts/collect-boot-diagnostic.py'
       - 'scripts/fetch_boot_diagnostic_inputs.py'
       - 'tests/test_boot_diagnostic.py'
-      - 'tests/test-boot-update-2.ps1'
+      - 'tests/test-boot-template.ps1'
       - 'tools/windows/*TEST-AVVIO*'
       - 'tools/windows/RIPRISTINA-BOOT-2.cmd'
       - '.github/workflows/boot-diagnostic.yml'

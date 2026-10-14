@@ -2,7 +2,7 @@ param([string]$RealTool = '')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 . (Join-Path $root 'scripts/download-stock-firmware.ps1')
-$target = Get-Content -Raw (Join-Path $root 'docs/stock-firmware-target-2026-10-12.json') | ConvertFrom-Json
+$target = Get-Content -Raw (Join-Path $root 'docs/evidence/stock-firmware-target-2026-10-12.json') | ConvertFrom-Json
 $temporary = Join-Path ([System.IO.Path]::GetTempPath()) ('stock firmware test ' + [guid]::NewGuid().ToString())
 $null = New-Item -ItemType Directory -Path $temporary
 

@@ -237,7 +237,7 @@ def inspect_bundle(bundle, candidate_path, avbtool_path, assessment):
         require(chain[part]["public_key_sha256"] == avb[part]["public_key_sha256"], "AVB chain key mismatch")
     require(top["public_key_sha256"] == avb["boot"]["public_key_sha256"], "Boot AVB key mismatch")
     candidate = candidate_path.read_bytes()
-    expected_sha = json.loads((ROOT / "docs/build-report-2026-10-12.json").read_text())["sha256"]["boot.img"]
+    expected_sha = json.loads((ROOT / "docs/evidence/build-report-2026-10-12.json").read_text())["sha256"]["boot.img"]
     require(digest(candidate) == expected_sha, "Candidate boot differs from validated build 1")
     ch = boot_header(candidate)
     reference = headers["recovery"]
@@ -283,7 +283,7 @@ if __name__ == "__main__":
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--avbtool", type=Path, required=True)
-    parser.add_argument("--assessment", type=Path, default=ROOT / "docs/device-check-2026-10-12.json")
+    parser.add_argument("--assessment", type=Path, default=ROOT / "docs/evidence/device-check-2026-10-12.json")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     result = inspect_bundle(args.bundle, args.candidate, args.avbtool, json.loads(args.assessment.read_text()))

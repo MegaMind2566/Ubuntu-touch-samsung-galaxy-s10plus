@@ -47,7 +47,7 @@ def main():
     for path in ('prepare_ubuntu_install.py','prepare-ubuntu-install.ps1','install-ubuntu-touch.ps1',
                  'verify_recovery_test.py','check-recovery.ps1','check-download-mode.ps1','flash-recovery-test.ps1','install-ubuntu-twrp.ps1'):
         members['scripts/'+path]=(ROOT/'scripts'/path).read_bytes()
-    for name in ('PREPARA-UBUNTU-TOUCH.cmd','INSTALLA-UBUNTU-TOUCH.cmd','LEGGIMI-INSTALLAZIONE-UBUNTU.txt','INSTALLA-UBUNTU-TWRP.cmd','LEGGIMI-UBUNTU-TWRP.txt'):
+    for name in ('PREPARA-UBUNTU-TOUCH.cmd','INSTALLA-UBUNTU-TWRP.cmd','LEGGIMI-UBUNTU-TWRP.txt'):
         members[name]=(ROOT/'tools/windows'/name).read_bytes()
     for name in ('samloader-LICENSE-APACHE.txt','samloader-LICENSE-MIT.txt'):
         members['licenses/'+name]=(ROOT/'tools/windows/licenses'/name).read_bytes()
