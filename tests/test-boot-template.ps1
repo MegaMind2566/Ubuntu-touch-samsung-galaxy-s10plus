@@ -4,7 +4,7 @@ $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $script:BootTestRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\out\BOOT handoff with spaces'))
 . (Join-Path $script:BootTestRoot 'scripts\install-boot-update-2.ps1')
-$script:BootTestInventory=[IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\docs\recovery-check-2026-10-13.json')) | ConvertFrom-Json
+$script:BootTestInventory=[IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\docs\evidence\recovery-check-2026-10-13.json')) | ConvertFrom-Json
 $script:BootTestCase='';$script:BootTestMode='Apply';$script:BootTestOperations=@();$script:BootTestInventories=0;$script:BootTestCurrentReads=0
 
 function Assert-BootTest {

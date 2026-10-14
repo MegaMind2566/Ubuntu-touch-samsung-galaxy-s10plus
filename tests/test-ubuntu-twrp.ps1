@@ -2,7 +2,7 @@ $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 . (Join-Path $PSScriptRoot '..\scripts\install-ubuntu-twrp.ps1')
 $script:TwrpTestRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\out\Ubuntu install with spaces'))
-$script:TwrpTestInventory=[IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\docs\recovery-check-2026-10-13.json')) | ConvertFrom-Json
+$script:TwrpTestInventory=[IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\docs\evidence\recovery-check-2026-10-13.json')) | ConvertFrom-Json
 $script:TwrpTestMode='';$script:TwrpTestOperations=@();$script:TwrpTestInventories=0;$script:TwrpTestUuids=0
 
 function Assert-TwrpTest {

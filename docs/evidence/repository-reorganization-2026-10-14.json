@@ -5,12 +5,24 @@
   "readme": {
     "previous_bytes": 35301,
     "new_bytes": 6261,
-    "contents": ["Goal and target", "Verified progress", "Current boot blocker", "Next diagnostic evidence", "Repository map", "Development and upstream attribution"]
+    "contents": [
+      "Goal and target",
+      "Verified progress",
+      "Current boot blocker",
+      "Next diagnostic evidence",
+      "Repository map",
+      "Development and upstream attribution"
+    ]
   },
   "archive": {
     "source_files": 21,
     "original_git_blob_hashes_verified": true,
-    "groups": ["boot-update-1", "boot-update-2", "odin-system-boot", "userdata-format-fix"],
+    "groups": [
+      "boot-update-1",
+      "boot-update-2",
+      "odin-system-boot",
+      "userdata-format-fix"
+    ],
     "archived_workflows_outside_executable_workflow_directory": true,
     "duplicate_firmware_or_runtime_binaries_added": false
   },
@@ -22,14 +34,25 @@
     "shared_artifact_transport": "scripts/github_artifacts.py"
   },
   "local_validation": {
-    "python_unittest": {"run": 64, "passed": 63, "skipped": 1},
+    "python_unittest": {
+      "run": 64,
+      "passed": 63,
+      "skipped": 1
+    },
     "documentation_links_resolve": true,
     "active_workflow_yaml_and_direct_script_paths_checked": true,
     "regenerated_diagnostic_image_rollback_installer_guards_and_launchers_byte_identical": true,
-    "three_unmodified_python_payloads_differ_only_in_linux_vs_windows_checkout_newlines": true,
     "handset_accessed": false,
-    "handset_modified": false
+    "handset_modified": false,
+    "two_unmodified_python_payloads_differ_only_in_linux_vs_windows_checkout_newlines": true
   },
   "ubuntu_touch_boot_verified": false,
-  "github_repository_slug_renamed": false
+  "github_repository_slug_renamed": false,
+  "ci_fixes": {
+    "initial_assembly_run": 38488620903,
+    "reason": "Python 3.10 lacks hashlib.file_digest in an existing first-boot collector test.",
+    "fix": "Equivalent bounded streaming SHA-256 calculation, compatible with Python 3.10.",
+    "windows_fixture_report_paths": "Updated both remaining backslash paths to docs/evidence.",
+    "boot_and_system_payload_changes": false
+  }
 }

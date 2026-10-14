@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/assemble_system.py'
       - 'scripts/validate_system.py'
+      - 'scripts/collect-first-boot.py'
       - 'docs/evidence/assembly-inputs-2026-10-12.json'
       - 'docs/evidence/device-check-2026-10-12.json'
       - '.github/workflows/assemble-system.yml'

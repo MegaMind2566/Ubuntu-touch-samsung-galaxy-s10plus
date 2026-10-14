@@ -61,7 +61,10 @@ PSTORE_NAME = re.compile(r"(?:console|dmesg)-ramoops(?:-[0-9]+)?(?:\.enc\.z)?\Z"
 
 def sha256(path: Path) -> str:
     with path.open("rb") as stream:
-        return hashlib.file_digest(stream, "sha256").hexdigest()
+        result = hashlib.sha256()
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            result.update(block)
+        return result.hexdigest()
 
 
 def redact(text: str, root: Path) -> str:
