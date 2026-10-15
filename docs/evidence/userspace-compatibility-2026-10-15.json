@@ -73,5 +73,100 @@
     "bytes": 172,
     "sha256": "b56435dc9766c4e8caa50ce8af95dfb369240ff0e33e90efc7f6d95e2dd00fcb",
     "finding": "Waits indefinitely for init.svc.vendor.hwcomposer-2-2=running; actual installed stock Vendor service name and readiness not yet observed."
+  },
+  "systemd_kernel_baseline": {
+    "source": "https://github.com/systemd/systemd/blob/v255/README",
+    "minimum": "3.15",
+    "recommended": "4.15",
+    "kernel_4_14_version_hard_reject": false,
+    "note": "Upstream explicitly says below4.15 has significant functional gaps, especially cgroupv2, but most likely still functions; old-kernel taint is not a hard version reject."
+  },
+  "cmdline_fragment_merge_check": {
+    "generic_tools_commit": "78d5df8abeaa9b70e6c53c47b2a9d32692f0613c",
+    "kernel_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "config_order": [
+      "exynos9820-beyond2lte_defconfig",
+      "ubuntu-touch.config",
+      "ubuntu-boot-handoff.config"
+    ],
+    "original_merge_config_m_execution_passed": true,
+    "new_cmdline_exactly_matches_maintained_KERNEL_CMDLINE": true,
+    "CONFIG_CMDLINE_EXTEND_preserved": true,
+    "full_kconfig_build_not_repeated_locally": true
+  },
+  "controller_availability_audit": {
+    "schema": 1,
+    "date": "2026-10-15",
+    "finding": "controller_missing_tolerated",
+    "controller_missing_tolerated": true,
+    "scope": "Android 12 initialization behavior for a missing blkio controller. Static source/config inspection; no handset boot proof.",
+    "compiled_boot_4_kernel_config": {
+      "path": "BOOT 4 build artifact / kernel.config",
+      "sha256": "708ec744cb3bd789252e6a2053839ba9b26291809ffc2de0b1e83359f40d8f63",
+      "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+      "values": {
+        "CONFIG_CGROUPS": "y",
+        "CONFIG_BLK_CGROUP": "n",
+        "CONFIG_CGROUP_SCHED": "y",
+        "CONFIG_FAIR_GROUP_SCHED": "y",
+        "CONFIG_CPUSETS": "y",
+        "CONFIG_MEMCG": "y",
+        "CONFIG_CGROUP_FREEZER": "y",
+        "CONFIG_CGROUP_CPUACCT": "y",
+        "CONFIG_CGROUP_PIDS": "y"
+      }
+    },
+    "actual_android_input": {
+      "android_image_bytes": 464084992,
+      "android_image_sha256": "b424512f8136fe48bed1eb9df617c59f177873e1cd6e9e4747e4f9af132862c5",
+      "cgroups_path": "/system/etc/cgroups.json",
+      "cgroups_bytes": 877,
+      "cgroups_sha256": "8898401625cc4bd524a024104c9277382e03926b32ee5bec1ad548d1cf8a2e1f",
+      "blkio_marked_optional": false
+    },
+    "source_findings": [
+      {
+        "url": "https://github.com/aosp-mirror/platform_system_core/blob/android-12.1.0_r27/libprocessgroup/setup/cgroup_map_write.cpp",
+        "git_blob": "3121d244b45550c1015c6110d5e83e2458dc19a2",
+        "functions": [
+          "SetupCgroup",
+          "CgroupSetup"
+        ],
+        "finding": "SetupCgroup returns false when a required controller mount fails. CgroupSetup logs a warning for that descriptor and continues with other controllers, then writes its descriptor map. A missing individual blkio controller does not itself make CgroupSetup fail."
+      },
+      {
+        "url": "https://github.com/aosp-mirror/platform_system_core/blob/android-12.1.0_r27/init/init.cpp",
+        "git_blob": "942feb9395b6a9aa8daeb05dc6218216a126b453",
+        "function": "SetupCgroupsAction",
+        "finding": "The queued init action only returns a cgroup setup error if the overall CgroupSetup call fails; individual controller failures are handled internally as above."
+      },
+      {
+        "url": "https://github.com/aosp-mirror/platform_system_core/blob/android-12.1.0_r27/init/service.cpp",
+        "git_blob": "c3069f5b2b59bcb0051fea5f8877dfc11fbb5967",
+        "finding": "A SetTaskProfiles failure in the service child logs an error and continues to process attributes and exec. It is not an unconditional abort of the HAL executable."
+      }
+    ],
+    "conclusion": {
+      "cpu_cpuset_memory_required_config_present": true,
+      "blkio_descriptor_kernel_mismatch_present": true,
+      "missing_blkio_proven_as_boot_blocker": false,
+      "recommend_add_BLK_CGROUP_to_boot_5_now": false,
+      "reason": "No demonstrated fatal initialization path from this controller absence; keep the current targeted BOOT 5 kernel scope."
+    },
+    "limitations": [
+      "Behavior was read in the pinned AOSP Android 12.1 source. The corresponding Halium binary was not disassembled; exact fork equivalence of these functions has not been independently established.",
+      "Installed Vendor-specific services and code may impose additional requirements; their runtime behavior has not been observed.",
+      "No hardware causality or graphical boot success is established.",
+      "This finding does not negate the separate legacy/unified cgroup ownership compatibility correction."
+    ],
+    "halium_build_base_source": {
+      "metadata_url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fgeneric_arm64/job/halium-12.0/1310/artifact/used-repos.txt",
+      "metadata_sha256": "77fddcf8818a7d7d71094610e951dbcb4d8de9da2317206cc081a994e8857e31",
+      "system_core_commit": "1dd6bab94356caa929a505fe5059954536b21a0a",
+      "cgroup_map_write_url": "https://github.com/LineageOS/android_system_core/blob/1dd6bab94356caa929a505fe5059954536b21a0a/libprocessgroup/setup/cgroup_map_write.cpp",
+      "cgroup_map_write_git_blob": "3121d244b45550c1015c6110d5e83e2458dc19a2",
+      "same_cgroup_map_write_blob_as_aosp_source": true,
+      "build_time_uncommitted_patches_not_excluded": true
+    }
   }
 }

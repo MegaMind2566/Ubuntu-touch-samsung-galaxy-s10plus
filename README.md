@@ -35,6 +35,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
 | Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
 | Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
+| BOOT 5 compatibility image and prepared test package | Built and validated locally; handset test pending |
 | Reach Ubuntu userspace and the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -46,7 +47,7 @@ The [BOOT 4 handset report](docs/evidence/ubuntu-boot-4-handset-2026-10-15.json)
 
 The 7,280-byte shell trace stops when the original Halium mount code redirects output to `/dev/kmsg`; later stage markers still reach the kernel log. The observer is stopped at handoff, before its first 10-second passive sample. Missing wait samples and userspace log files therefore do not identify the failure or prove userspace never ran.
 
-The [exact userspace audit](docs/evidence/userspace-compatibility-2026-10-15.json) verifies Ubuntu init and its loader/dependencies. It identifies a compatibility mismatch between systemd 255's unified cgroup default and the included Android image's v1 controllers. BOOT 5 corrects that selection, removes console opening from the final handoff, retains the real HWC readiness gate across compositor service names, and records startup after the root transition. BOOT 5 has no validated image identity or handset result yet. The optional read-only TWRP inspector can collect additional evidence, but is not a required extra handset step. No new SYSTEM/VENDOR flash or Format Data is justified by the current reports.
+The [exact userspace audit](docs/evidence/userspace-compatibility-2026-10-15.json) verifies Ubuntu init and its loader/dependencies. It identifies a compatibility mismatch between systemd 255's unified cgroup default and the included Android image's v1 controllers. BOOT 5 corrects that selection, removes console opening from the final handoff, retains the real HWC readiness gate across compositor service names, and records startup after the root transition. [BOOT 5 is compiled and packaged](docs/evidence/ubuntu-boot-5-build-2026-10-15.json), with actual-image/ARM64 validation and 24 portable PowerShell control-flow cases passed. Its new native Windows CI run could not start; shared installation code matches BOOT 4 already tested on Windows. BOOT 5 now awaits the handset test; systemd and graphical startup remain unconfirmed. The optional read-only TWRP inspector can collect additional evidence, but is not a required extra handset step. No new SYSTEM/VENDOR flash or Format Data is justified by the current reports.
 
 The immutable [BOOT 4 build record](docs/evidence/ubuntu-boot-4-build-2026-10-15.json) retains its source/image pins and Linux/ARM64 plus 24 native Windows validation cases. Earlier [BOOT 3 execution](docs/evidence/ubuntu-boot-3-handset-2026-10-15.json), [diagnostic 2 execution](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json), and [symbol/device-tree analysis](docs/evidence/offline-tools-2026-10-14.json) remain available. See [current status](docs/status.md#next-experiment) for the next experiment and its limits.
 
@@ -60,7 +61,7 @@ The immutable [BOOT 4 build record](docs/evidence/ubuntu-boot-4-build-2026-10-15
 | [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
-| [tools/boot-observer](tools/boot-observer) | Bounded initramfs trace, stage capture and passive wait sampling |
+| [tools/boot-observer](tools/boot-observer) | Bounded initramfs tracing, post-root observation and RAM HWC readiness correction |
 | [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
 | [tests](tests) | Image, source, collector and Windows guard validation |
 | [docs](docs/README.md) | Current status and development documentation |

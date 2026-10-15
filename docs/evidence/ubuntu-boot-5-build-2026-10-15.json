@@ -1,0 +1,311 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "experiment": "Ubuntu BOOT 5 userspace compatibility",
+  "project_commit": "b6ae1c4770cd2a3d78a0079934cfc033fec5365f",
+  "runtime_commit": "aed167d4aa77f387878e863949b2c84ce1b37844",
+  "build_host": "Local Linux x86_64; GitHub did not allocate a runner for the final run",
+  "build_started_utc": "2026-10-15T18:27:14.958247+00:00",
+  "build_and_image_validation_completed_utc": "2026-10-15T18:31:55.011453+00:00",
+  "source_identity": {
+    "tracked_files_checked_against_github_git_blobs": 182,
+    "all_matched": true,
+    "upstream_sources": {
+      "port": {
+        "directory": "samsung-exynos9820",
+        "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820.git",
+        "branch": "halium-12",
+        "commit": "06facc6fbc9cfda5f57428a6d7eeb805f5dedb89"
+      },
+      "tools": {
+        "directory": "halium-generic-adaptation-build-tools",
+        "url": "https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git",
+        "branch": "main",
+        "commit": "78d5df8abeaa9b70e6c53c47b2a9d32692f0613c"
+      },
+      "kernel": {
+        "directory": "kernel-samsung-exynos9820",
+        "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820.git",
+        "branch": "halium-12.0",
+        "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907"
+      }
+    }
+  },
+  "toolchains": {
+    "revisions": {
+      "clang_android12L_gsi": "413febb26cbd05d9a1e44f089190ac892f72e684",
+      "gcc_aarch64_pie_gsi": "961622e926a1b21382dba4dd9fe0e5fb3ee5ab7c",
+      "gcc_arm_pie_gsi": "09518d29069cf5993d0ef25c96a09bc851819b54",
+      "mkbootimg_lineage20": "40a19c4c5ffe8b86c6c61318c8aa4ffe35d6e7ad"
+    },
+    "binary_sha256": {
+      "toolchains/linux-x86/clang-r416183b/bin/clang-12": "5c190576d99caae4d351993a8160c092e3fe07c469fbdf6f7e36a4a9ca7c2dc5",
+      "toolchains/aarch64-linux-android-4.9/bin/real-aarch64-linux-android-gcc": "3e24acd40f71d8509d6fe61a8eb69ba423669112e8136803476d6020de78beb6",
+      "toolchains/arm-linux-androideabi-4.9/bin/real-arm-linux-androideabi-gcc": "232034b1c73bcd28022f3aa42d66de9408e5cb3b21db52b16543719e8f6e5a2b"
+    },
+    "clang": "Android clang 12.0.5, r416183b, build 7284624",
+    "gcc_cross": "GCC 4.9.x 20150123",
+    "host_gcc": "Ubuntu GCC 13.3.0",
+    "archives": {
+      "aarch64-gcc49.tar.gz": {
+        "bytes": 30227939,
+        "sha256": "489a333ab7fd753b70108ebae0eb020e2ebca4d5893a704352903294edad5698"
+      },
+      "arm-gcc49.tar.gz": {
+        "bytes": 36258566,
+        "sha256": "cd37525174402c9d47185d2b219043dd6f38f81fdfda7cc64ab82eafbb8e5455"
+      },
+      "clang-r416183b.tar.gz": {
+        "bytes": 446466273,
+        "sha256": "8ad958a6abdaab58212cc0bd5a03a3089900061e2f0c9bffdc95cae697d8a74c"
+      }
+    }
+  },
+  "host_adaptations": [
+    {
+      "path": "toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc",
+      "operation": "upstream drop_python_wrapper symlink",
+      "original_sha256": "d6feb5d499457af0e4ed41d45e008e61dc69a6b644940686703f2e8386461049",
+      "target": "real-aarch64-linux-android-gcc"
+    },
+    {
+      "path": "toolchains/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc",
+      "operation": "upstream drop_python_wrapper symlink",
+      "original_sha256": "d6feb5d499457af0e4ed41d45e008e61dc69a6b644940686703f2e8386461049",
+      "target": "real-arm-linux-androideabi-gcc"
+    },
+    {
+      "path": "toolchains/arm-linux-androideabi-4.9/arm-linux-androideabi/bin/as",
+      "operation": "same upstream wrapper shebang python3 adjustment",
+      "original_sha256": "3528fe0e81dc51c73fd10a125057f541ac051bedbbc1f3bb1fa284c03952a372"
+    },
+    {
+      "operation": "Build-kernel.sh and make-bootimage.sh invoked directly; no refetch/extra tarball",
+      "reason": "Avoid duplicate toolchain downloads and unrelated SYSTEM adaptation packaging; same pinned kernel scripts and BOOT 5 configure/finalize"
+    },
+    {
+      "operation": "Private Debian package prefix via PATH, LD_LIBRARY_PATH, BISON_PKGDATADIR, M4, C_INCLUDE_PATH and LIBRARY_PATH",
+      "reason": "Container lacks host build dependencies; no system installation or firmware/runtime source changes"
+    }
+  ],
+  "local_build_manifest_sha256": "f74c1a704ec4c1e322d20a75fa5d8c6c1b57a70f4a02fee7673bd7c85ecc5e91",
+  "images": {
+    "ubuntu-boot-source.json": {
+      "bytes": 3439,
+      "sha256": "609da13c80b34430a18a9a79eca23bccc1700909f71640d391f15dcda0bcf3bd"
+    },
+    "kernel.config": {
+      "bytes": 175174,
+      "sha256": "711de1469cd7109ae32b30aeb925dc8b78f6745b8b77af3ff5d4098495d4e207"
+    },
+    "ubuntu-handoff-tests.json": {
+      "bytes": 1147,
+      "sha256": "926f4cddc0ab02aeb75a05d8ded41e07da90acb1090b4710cabc5c9fb5209086"
+    },
+    "previous-ubuntu-4.img": {
+      "bytes": 57337856,
+      "sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df"
+    },
+    "boot.img": {
+      "bytes": 57341952,
+      "sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b"
+    },
+    "ubuntu-boot-handoff.lock.json": {
+      "bytes": 2924,
+      "sha256": "6aaed6a0a8af82c2cd02ab6dbe1ea394eb2f269cf884a7fbe582690197956e6b"
+    },
+    "initramfs.cpio": {
+      "bytes": 9137152,
+      "sha256": "fc3122ab8f392ab1748c7e648fd12320f706fd7a2286a4106dc6a61e4b6aba9b"
+    }
+  },
+  "boot": {
+    "bytes": 57341952,
+    "sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "partition_bytes": 57671680,
+    "partition_margin_bytes": 329728,
+    "kernel_bytes": 53231632,
+    "kernel_sha256": "94b9cebaf7dac867f2c9d8297d97459c5a97e61798a45ab3ed8480b7d2f640c1",
+    "ramdisk_bytes": 4104777,
+    "ramdisk_sha256": "2358636ef7ee4a6d894a0d8fe9880a94b4e77c9b783d3dce4faa001bf84bf3f8",
+    "builtin_initramfs_bytes": 9137152,
+    "builtin_initramfs_sha256": "fc3122ab8f392ab1748c7e648fd12320f706fd7a2286a4106dc6a61e4b6aba9b",
+    "config_changed_keys": [
+      "CONFIG_CMDLINE",
+      "CONFIG_INITRAMFS_SOURCE"
+    ],
+    "boot_cmdline": "systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 systemd.log_target=kmsg systemd.log_level=debug systemd.show_status=1",
+    "kernel_cmdline": "androidboot.boot_devices=13d60000.ufs console=tty0 systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 systemd.log_target=kmsg systemd.log_level=debug systemd.show_status=1"
+  },
+  "rollback": {
+    "version": 4,
+    "bytes": 57337856,
+    "sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "physical_readback_previously_verified": true
+  },
+  "package": {
+    "filename": "UbuntuTouch-S10plus-avvio-Ubuntu-5-Windows.zip",
+    "bytes": 51659560,
+    "sha256": "4b743f17c0e2b49d4fc280668e603a8c78e2fd17e591f46abbf9936d12bb77c3",
+    "zip_members": 20,
+    "manifest_entries": 19,
+    "crc_paths_manifest_and_exact_member_source_comparison_passed": true,
+    "actual_shipped_verifier_accepts_5_and_rejects_4": true,
+    "actual_shipped_collector_version_and_members_verified": true
+  },
+  "image_and_arm64_checks": {
+    "schema": 1,
+    "boot_version": 5,
+    "boot_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "original_entries_preserved_except_four_instrumented_scripts": true,
+    "embedded_external_cpio_equal": true,
+    "trace_bounded_and_drains_after_cap": true,
+    "actual_arm64_trace_transport_and_passive_wait_watch": true,
+    "pid1_global_sync_removed": true,
+    "actual_arm64_post_devtmpfs_move_logging": true,
+    "actual_arm64_trace_survives_halium_redirect": true,
+    "post_handoff_observer_cases": 8,
+    "hwc_readiness_and_ram_override_cases": 26,
+    "console_redirection_removed_from_final_exec": true,
+    "cgroup_v1_controller_compatibility_requested": true,
+    "peripheral_configuration_preserved": true,
+    "actual_arm64_shell_syntax": true,
+    "actual_arm64_logging_guards_and_mount_move": true,
+    "actual_source_force_guard_cases": 4,
+    "corrupt_kernel_and_false_config_rejected": true,
+    "collector_mocked_cases": [
+      "success",
+      "missing-logs",
+      "old-marker",
+      "wrong-boot",
+      "wrong-device",
+      "tools-unavailable",
+      "usb-unavailable"
+    ],
+    "phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "portable_powershell_checks": {
+    "host": "Linux x86_64",
+    "version": "7.6.7",
+    "runtime_archive_sha256": "6896f9e3a6b0a354bf470835a96da76d2f801cd50dcf047ad7c4563bf93bf431",
+    "cases": 24,
+    "success": true,
+    "installer_or_firmware_guards_modified": false,
+    "generated_fixture_sha256": "a0c5f16d37fbabf12cfc779445740fb18364a2adb9d46e8599b543ffbe8208db",
+    "host_fixture_sha256": "b944411f1a0665a645d1b3076527d86c398fc083a04001d2d93c58b84f2b62da",
+    "host_fixture_adaptations": [
+      "POSIX fixture root",
+      "Linux sparse-file setup",
+      "host Python in the existing image-verifier callback and verifier checks",
+      "PowerShell host-version assertion",
+      "case-result recording",
+      "Windows FileShare denial assertion explicitly excluded on Linux"
+    ],
+    "not_executed": [
+      "Windows PowerShell 5.1",
+      "native CMD launchers",
+      "embedded Windows Python PE",
+      "native Windows console stub/quoting",
+      "Windows FileShare input-write denial",
+      "physical ADB or raw writes"
+    ]
+  },
+  "previous_native_windows_coverage_reused": {
+    "boot4_tested_source_commit": "f24d09963efe81e3760559f9c4f101e6bef88521",
+    "files": [
+      {
+        "path": "scripts/check-download-mode.ps1",
+        "boot4_source_sha256": "4f82b8c144b9d0f0bf86cfa274191f0973bd798b95b4875cf523d49d84a03b91",
+        "current_sha256": "4f82b8c144b9d0f0bf86cfa274191f0973bd798b95b4875cf523d49d84a03b91",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/check-recovery.ps1",
+        "boot4_source_sha256": "b50511b1fc7a9f08ab192363daf056809b1e02f87072dc2eb1ba2eba9f61b032",
+        "current_sha256": "b50511b1fc7a9f08ab192363daf056809b1e02f87072dc2eb1ba2eba9f61b032",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/flash-recovery-test.ps1",
+        "boot4_source_sha256": "25aead66a613d69abb10567c98116cfb97b2f9d7ceaf7e18e073eb6a5aa51000",
+        "current_sha256": "25aead66a613d69abb10567c98116cfb97b2f9d7ceaf7e18e073eb6a5aa51000",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/install-ubuntu-touch.ps1",
+        "boot4_source_sha256": "f4bf2a04280d5795b4e8264bf9ce734876b4f591d1981c89852ffeeedc443ec4",
+        "current_sha256": "f4bf2a04280d5795b4e8264bf9ce734876b4f591d1981c89852ffeeedc443ec4",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/install-ubuntu-twrp.ps1",
+        "boot4_source_sha256": "31fffa2ac6a14f4fcfec39c76a270168b23120e68af3cb4bfc137dd9e5c905c4",
+        "current_sha256": "31fffa2ac6a14f4fcfec39c76a270168b23120e68af3cb4bfc137dd9e5c905c4",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/templates/verified-boot-image.py.in",
+        "boot4_source_sha256": "623706dfa03ab7279122a8c8c656d530964240023ca0c7697fb61c74d802dedd",
+        "current_sha256": "623706dfa03ab7279122a8c8c656d530964240023ca0c7697fb61c74d802dedd",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/templates/verified-boot-install.ps1.in",
+        "boot4_source_sha256": "d6ec9a5274763bdddabefa58609b2714f44e1b8910366844a7f8cd2a23c2a3b2",
+        "current_sha256": "d6ec9a5274763bdddabefa58609b2714f44e1b8910366844a7f8cd2a23c2a3b2",
+        "byte_identical": true
+      }
+    ],
+    "boot4_delivered_zip_sha256": "3b58114bcf99530b2283ab485d0fa5bef65bd5e1c3f6875c235fef69a31d9b13",
+    "shared_ps_shipped_bytes": [
+      {
+        "path": "scripts/check-download-mode.ps1",
+        "boot4_shipped_sha256": "03e9cad98a1900e8a9db790599fdfc14ef145421e3b06047c85235474d85a148",
+        "boot5_expected_shipped_sha256": "03e9cad98a1900e8a9db790599fdfc14ef145421e3b06047c85235474d85a148",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/check-recovery.ps1",
+        "boot4_shipped_sha256": "b583669588ed99093b6f86971d9ae16a695b8f02b20d3a445e10c3a710afe087",
+        "boot5_expected_shipped_sha256": "b583669588ed99093b6f86971d9ae16a695b8f02b20d3a445e10c3a710afe087",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/flash-recovery-test.ps1",
+        "boot4_shipped_sha256": "6fc28f1f1a72ee9eea5298c311bf898522e9af7ade83f53d239695b9d1ee7def",
+        "boot5_expected_shipped_sha256": "6fc28f1f1a72ee9eea5298c311bf898522e9af7ade83f53d239695b9d1ee7def",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/install-ubuntu-touch.ps1",
+        "boot4_shipped_sha256": "2ee9f75bb240fe867ddbe071ecba34c3e276175d06d1fe90b897c10c2f223cc5",
+        "boot5_expected_shipped_sha256": "2ee9f75bb240fe867ddbe071ecba34c3e276175d06d1fe90b897c10c2f223cc5",
+        "byte_identical": true
+      },
+      {
+        "path": "scripts/install-ubuntu-twrp.ps1",
+        "boot4_shipped_sha256": "b2e7dcce1da11941611628373c5e0380ca67970dc28307d766f78affe84e88f5",
+        "boot5_expected_shipped_sha256": "b2e7dcce1da11941611628373c5e0380ca67970dc28307d766f78affe84e88f5",
+        "byte_identical": true
+      }
+    ]
+  },
+  "ci_block": {
+    "run_id": 38783895613,
+    "attempts": 2,
+    "runner_id": 0,
+    "job_steps": 0,
+    "cause": "No runner was allocated. The explanatory annotation was unavailable through the connected API; billing or quota cause is not established.",
+    "native_windows_tests_on_new_package_executed": false
+  },
+  "hardware_tested": false,
+  "ubuntu_touch_graphical_boot_verified": false,
+  "repository_publication_authorized_only_after_confirmed_graphical_boot": true,
+  "next_handset_step": "Merge into the established prepared Windows folder, keep TWRP open with USB and SYSTEM/VENDOR unmounted, run INSTALLA-AVVIO-UBUNTU-5.cmd once, then Reboot > System after verified success; wait up to three minutes. If blocked, return to TWRP and run LEGGI-AVVIO-UBUNTU-5.cmd.",
+  "requested_partition_writes": [
+    "BOOT"
+  ],
+  "system_or_vendor_rewrite_requested": false,
+  "format_data_requested": false
+}
