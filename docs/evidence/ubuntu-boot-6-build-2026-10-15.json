@@ -1,0 +1,747 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "experiment": "Ubuntu BOOT 6 USB panic correction and guarded RAM device profiles",
+  "project_commit": "819f5e0ed39a8dbe6d2dfb802c612749db4fe14a",
+  "project_tree": "6b81e04f567c593fca68d4873a82e88a16632680",
+  "build_host": "Local Linux x86_64; hosted source job had runner_id 0 and no steps",
+  "build_started_utc": "2026-10-15T19:39:22.717997+00:00",
+  "build_and_image_validation_completed_utc": "2026-10-15T19:42:16.196242+00:00",
+  "local_build_attempts": {
+    "initial_attempt": "Session lost without a final exit code; no BOOT6 image produced.",
+    "first_resumed_link_failure": {
+      "started_utc": "2026-10-15T19:36:03.881145+00:00",
+      "exit_code": 2,
+      "supervisor_pid": 5,
+      "ended_utc": "2026-10-15T19:38:40.838539+00:00",
+      "error": "vmlinux link rejected empty kernel/time/time.o left by interrupted 19:27 build",
+      "recovery": "Removed only zero-byte generated object; all other .o headers valid; same build resumed."
+    },
+    "interrupted_object_recovery": {
+      "prior_interrupted_object": {
+        "path": "kernel/time/time.o",
+        "bytes": 0,
+        "mtime_utc": "2026-10-15T19:27:24.060648961Z"
+      },
+      "failed_link_audit_invalid_objects": [
+        {
+          "path": "kernel/time/time.o",
+          "bytes": 0
+        }
+      ],
+      "header_audit_utc": "2026-10-15T19:39:42.629402+00:00",
+      "current_object_count": 3951,
+      "current_header_counts": {
+        "elf": 3132,
+        "archive": 819,
+        "invalid": 0
+      },
+      "current_invalid_objects": [],
+      "no_source_changes": true,
+      "same_source_commit": "819f5e0ed39a8dbe6d2dfb802c612749db4fe14a"
+    },
+    "resumed_same_source_and_object_tree": {
+      "started_utc": "2026-10-15T19:39:22.682136+00:00",
+      "exit_code": 0,
+      "supervisor_pid": 5,
+      "attempt": 2,
+      "ended_utc": "2026-10-15T19:42:16.345364+00:00"
+    },
+    "final_image_revalidated_after_resume": true
+  },
+  "source_identity": {
+    "tracked_files_checked_against_github_git_blobs": 253,
+    "all_matched": true,
+    "upstream_sources": {
+      "port": {
+        "directory": "samsung-exynos9820",
+        "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820.git",
+        "branch": "halium-12",
+        "commit": "06facc6fbc9cfda5f57428a6d7eeb805f5dedb89"
+      },
+      "tools": {
+        "directory": "halium-generic-adaptation-build-tools",
+        "url": "https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git",
+        "branch": "main",
+        "commit": "78d5df8abeaa9b70e6c53c47b2a9d32692f0613c"
+      },
+      "kernel": {
+        "directory": "kernel-samsung-exynos9820",
+        "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820.git",
+        "branch": "halium-12.0",
+        "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907"
+      }
+    },
+    "kernel_patch_count": 5,
+    "kernel_patches": [
+      {
+        "path": "patches/kernel/0001-apparmor-socket-mediation.patch",
+        "sha256": "00f1bf609436cef86dcf227f9b98c944accf82368ede62239cc62866d4e3d6ff"
+      },
+      {
+        "path": "patches/kernel/0002-apparmor-af-unix-mediation.patch",
+        "sha256": "7bebc2494dc4ca578e71e333bedaad7e93f8f6096508f5b2bd603ec0bebc905b"
+      },
+      {
+        "path": "patches/kernel/0003-initialize-sar-ramdisk-offset.patch",
+        "sha256": "351f141b24ab9afa292a4eb14bbab3e78a9e12b0c88fadc1e98544c1f1d8e175"
+      },
+      {
+        "path": "patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch",
+        "sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6"
+      },
+      {
+        "path": "patches/kernel/0005-guard-null-usb-configuration-string.patch",
+        "sha256": "49ad322f5cf22e7f9528370fe81ae45197c11f2d9bda82a2baf440aaea8426cb"
+      }
+    ]
+  },
+  "toolchains": {
+    "revisions": {
+      "clang_android12L_gsi": "413febb26cbd05d9a1e44f089190ac892f72e684",
+      "gcc_aarch64_pie_gsi": "961622e926a1b21382dba4dd9fe0e5fb3ee5ab7c",
+      "gcc_arm_pie_gsi": "09518d29069cf5993d0ef25c96a09bc851819b54",
+      "mkbootimg_lineage20": "40a19c4c5ffe8b86c6c61318c8aa4ffe35d6e7ad"
+    },
+    "binary_sha256": {
+      "toolchains/linux-x86/clang-r416183b/bin/clang-12": "5c190576d99caae4d351993a8160c092e3fe07c469fbdf6f7e36a4a9ca7c2dc5",
+      "toolchains/aarch64-linux-android-4.9/bin/real-aarch64-linux-android-gcc": "3e24acd40f71d8509d6fe61a8eb69ba423669112e8136803476d6020de78beb6",
+      "toolchains/arm-linux-androideabi-4.9/bin/real-arm-linux-androideabi-gcc": "232034b1c73bcd28022f3aa42d66de9408e5cb3b21db52b16543719e8f6e5a2b"
+    },
+    "clang": "Android clang 12.0.5, r416183b, build 7284624",
+    "gcc_cross": "GCC 4.9.x 20150123",
+    "host_gcc": "Ubuntu GCC 13.3.0",
+    "archives": {
+      "aarch64-gcc49.tar.gz": {
+        "bytes": 30227939,
+        "sha256": "489a333ab7fd753b70108ebae0eb020e2ebca4d5893a704352903294edad5698"
+      },
+      "arm-gcc49.tar.gz": {
+        "bytes": 36258566,
+        "sha256": "cd37525174402c9d47185d2b219043dd6f38f81fdfda7cc64ab82eafbb8e5455"
+      },
+      "clang-r416183b.tar.gz": {
+        "bytes": 446466273,
+        "sha256": "8ad958a6abdaab58212cc0bd5a03a3089900061e2f0c9bffdc95cae697d8a74c"
+      }
+    }
+  },
+  "host_adaptations": [
+    {
+      "path": "toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-gcc",
+      "operation": "upstream drop_python_wrapper symlink",
+      "original_sha256": "d6feb5d499457af0e4ed41d45e008e61dc69a6b644940686703f2e8386461049",
+      "target": "real-aarch64-linux-android-gcc"
+    },
+    {
+      "path": "toolchains/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc",
+      "operation": "upstream drop_python_wrapper symlink",
+      "original_sha256": "d6feb5d499457af0e4ed41d45e008e61dc69a6b644940686703f2e8386461049",
+      "target": "real-arm-linux-androideabi-gcc"
+    },
+    {
+      "path": "toolchains/arm-linux-androideabi-4.9/arm-linux-androideabi/bin/as",
+      "operation": "same upstream wrapper shebang python3 adjustment",
+      "original_sha256": "3528fe0e81dc51c73fd10a125057f541ac051bedbbc1f3bb1fa284c03952a372"
+    },
+    {
+      "operation": "Build-kernel.sh and make-bootimage.sh invoked directly; no refetch/extra tarball",
+      "reason": "Avoid duplicate toolchain downloads and unrelated SYSTEM adaptation packaging; same pinned kernel scripts and BOOT 5 configure/finalize"
+    },
+    {
+      "operation": "Private Debian package prefix via PATH, LD_LIBRARY_PATH, BISON_PKGDATADIR, M4, C_INCLUDE_PATH and LIBRARY_PATH",
+      "reason": "Container lacks host build dependencies; no system installation or firmware/runtime source changes"
+    },
+    {
+      "operation": "Reuse exact BOOT5 WORK, objects and toolchains without duplicating them; frozen BOOT6 builder and OUT are separate."
+    },
+    {
+      "operation": "Reverse the previously applied force-initramfs patch, then reapply that identical pinned patch through unmodified BOOT6 configure."
+    }
+  ],
+  "local_build_manifest_sha256": "f10579e61e61e80f8d528e93aa376657dd8344fc8d72c87b11e3cb87947d2cf8",
+  "images": {
+    "ubuntu-boot-source.json": {
+      "bytes": 3993,
+      "sha256": "9d1af8209d9ff536bf7f1b05add1069741cf2f1de1c7b70590bcdf468032f4a6"
+    },
+    "kernel.config": {
+      "bytes": 175174,
+      "sha256": "0ca54eeb12b2e6cbddeb6e0d305b37c4af2a1dbec62259c3725ea3e8dd8eab49"
+    },
+    "ubuntu-handoff-tests.json": {
+      "bytes": 1245,
+      "sha256": "a4fd988cfae09bb6651065de57bf6cd6074f1965f5ea7d1e0e58e4d751660118"
+    },
+    "previous-ubuntu-4.img": {
+      "bytes": 57337856,
+      "sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df"
+    },
+    "boot.img": {
+      "bytes": 57344000,
+      "sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad"
+    },
+    "ubuntu-boot-handoff.lock.json": {
+      "bytes": 3300,
+      "sha256": "b2e89a627fd1681487c2ada9614f85b16d87d53eb47fe6b5b7dee60cfa208492"
+    },
+    "initramfs.cpio": {
+      "bytes": 9150976,
+      "sha256": "41014358ec90fcf6590edd56a9802c209eaa7d8ae729fecd5fa84d686b2d2953"
+    }
+  },
+  "boot": {
+    "boot_bytes": 57344000,
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "kernel_bytes": 53231632,
+    "kernel_sha256": "34a4e5ed088c968e9a13403299e04c6bf36abb83dadd91606c26f06d8cf095d9",
+    "ramdisk_bytes": 4107786,
+    "ramdisk_sha256": "0a6a90bf352c49dec27d93b2a3888b2d5af47efe84c49b5e6a4a7a8079bbea5f",
+    "builtin_initramfs_sha256": "41014358ec90fcf6590edd56a9802c209eaa7d8ae729fecd5fa84d686b2d2953",
+    "boot_cmdline": "systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 systemd.log_target=kmsg systemd.log_level=debug systemd.show_status=1",
+    "kernel_config_differences": {
+      "CONFIG_CMDLINE": {
+        "before": "\"androidboot.boot_devices=13d60000.ufs console=tty0 systempart=/dev/disk/by-partlabel/system\"",
+        "after": "\"androidboot.boot_devices=13d60000.ufs console=tty0 systempart=/dev/disk/by-partlabel/system systemd.unified_cgroup_hierarchy=0 systemd.log_target=kmsg systemd.log_level=debug systemd.show_status=1\""
+      },
+      "CONFIG_INITRAMFS_SOURCE": {
+        "before": "\"/home/runner/work/Ubuntu-touch-samsung-galaxy-s10plus/Ubuntu-touch-samsung-galaxy-s10plus/out/ubuntu-boot-handoff-images/initramfs.cpio\"",
+        "after": "\"/workspace/scratch/3496a8d6f68b/firmware-inspection/boot-6-local-build/builder/out/ubuntu-boot-handoff-images/initramfs.cpio\""
+      }
+    },
+    "usb_configuration_null_guard": true,
+    "usb_configfs_patched_source_sha256": "f9f5b994d9133e9486370ac5aca8f73e6a8db8cf1b98122b6c29e4eaf5114936"
+  },
+  "partition_bytes": 57671680,
+  "partition_margin_bytes": 327680,
+  "apply_baseline": {
+    "version": 5,
+    "bytes": 57341952,
+    "sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "physical_readback_previously_verified": true
+  },
+  "rollback": {
+    "version": 4,
+    "bytes": 57337856,
+    "sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "physical_readback_previously_verified": true
+  },
+  "package": {
+    "schema": 1,
+    "filename": "UbuntuTouch-S10plus-avvio-Ubuntu-6-Windows.zip",
+    "zip_bytes": 51664394,
+    "zip_sha256": "cfd33e32870cd39eae3d53a69391340635607bd03c64d47cd3afad557dbe53a5",
+    "members": 20,
+    "sha256sums_members": 19,
+    "zip_crc_checked": true,
+    "zip_paths_checked": true,
+    "exact_member_source_comparison": true,
+    "boot_version": 6,
+    "boot_bytes": 57344000,
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "rollback_bytes": 57337856,
+    "rollback_sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "apply_baseline_bytes": 57341952,
+    "apply_baseline_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "apply_requires_boot_5_while_restore_targets_boot_4": true,
+    "boot_header_config_builtin_and_external_cpio_verified": true,
+    "no_host_firmware_recompression": true,
+    "shipped_image_verifier_executed": true,
+    "shipped_collector_pins_and_post_handoff_members_verified": true,
+    "native_windows_validation": "Must be confirmed separately from the Windows CI job.",
+    "physical_phone_accessed": false,
+    "ubuntu_touch_boot_verified": false,
+    "success": true
+  },
+  "image_and_arm64_checks": {
+    "schema": 1,
+    "boot_version": 6,
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "original_entries_preserved_except_four_instrumented_scripts": true,
+    "embedded_external_cpio_equal": true,
+    "trace_bounded_and_drains_after_cap": true,
+    "actual_arm64_trace_transport_and_passive_wait_watch": true,
+    "pid1_global_sync_removed": true,
+    "actual_arm64_post_devtmpfs_move_logging": true,
+    "actual_arm64_trace_survives_halium_redirect": true,
+    "post_handoff_observer_cases": 8,
+    "hwc_readiness_and_ram_override_cases": 26,
+    "ram_profile_and_android_prestart_fixtures": true,
+    "usb_null_guard_compiled_helper_cases": 8,
+    "console_redirection_removed_from_final_exec": true,
+    "cgroup_v1_controller_compatibility_requested": true,
+    "peripheral_configuration_preserved": true,
+    "actual_arm64_shell_syntax": true,
+    "actual_arm64_logging_guards_and_mount_move": true,
+    "actual_source_force_guard_cases": 4,
+    "corrupt_kernel_and_false_config_rejected": true,
+    "collector_mocked_cases": [
+      "success",
+      "missing-logs",
+      "old-marker",
+      "wrong-boot",
+      "wrong-device",
+      "tools-unavailable",
+      "usb-unavailable"
+    ],
+    "phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "usb_null_guard_checks": {
+    "schema": 1,
+    "kernel_pin": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "pinned_complete_source_verified": false,
+    "pinned_source_sha256": "a2e95754e836f0d3b733528c24ad36a569f9f77bf0273d79719635787af3fe7d",
+    "patch_sha256": "49ad322f5cf22e7f9528370fe81ae45197c11f2d9bda82a2baf440aaea8426cb",
+    "original_helper_sha256": "bca125af9e19fb7081091f0d38a85981a62ccdbced5e47cd3e162f3777e4c4e6",
+    "corrected_helper_sha256": "e284af022993fcec46eb2ca5a9bfa17c74d7258c90a1f0af017862d04e411e9a",
+    "samsung_branch_preserved": true,
+    "host": {
+      "original": {
+        "exit_code": 90,
+        "null_strcmp_detected": true,
+        "all_eight_cases_pass": false
+      },
+      "corrected": {
+        "exit_code": 0,
+        "null_strcmp_detected": false,
+        "all_eight_cases_pass": true
+      }
+    },
+    "cases": [
+      "empty_list",
+      "null_string",
+      "empty_string",
+      "Conf 1",
+      "other_string",
+      "null_then_Conf 1",
+      "null_then_other",
+      "other_then_null"
+    ],
+    "handset_or_USB_accessed": false,
+    "actual_arm64": {
+      "original": {
+        "exit_code": 90,
+        "null_strcmp_detected": true,
+        "all_eight_cases_pass": false
+      },
+      "corrected": {
+        "exit_code": 0,
+        "null_strcmp_detected": false,
+        "all_eight_cases_pass": true
+      }
+    }
+  },
+  "compiled_usb_null_guard_proof": {
+    "schema": 1,
+    "project_commit": "819f5e0ed39a8dbe6d2dfb802c612749db4fe14a",
+    "kernel_pin": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "kernel_sha256": "34a4e5ed088c968e9a13403299e04c6bf36abb83dadd91606c26f06d8cf095d9",
+    "vmlinux_bytes": 308947056,
+    "vmlinux_sha256": "ce86f98c3e8271fbbbb48320d9916f1c9e3c63218e99c0cb85a527652f730adf",
+    "config_usb_cfg_link_address": "0xffffff80089e69e0",
+    "config_usb_cfg_link_bytes": 808,
+    "null_branch_address": "0xffffff80089e6b5c",
+    "null_branch_instruction": "b4ffff80",
+    "null_branch_target_advances_list": "0xffffff80089e6b4c",
+    "strcmp_call_address": "0xffffff80089e6b64",
+    "NULL_skips_strcmp_in_actual_compiled_kernel": true,
+    "hardware_tested": false
+  },
+  "ram_profile_cases": {
+    "count": 33,
+    "busybox_sha256": "27ba89e925a4d9cf0406c4daf4a4bfaca78f71dfc1ef11746c4a8a4f819621c8",
+    "all_passed": true,
+    "mounts_simulated": true,
+    "profiles_independent_of_five_log_slots": true,
+    "observations": [
+      {
+        "prepare_guard": "hash-0",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-1",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-2",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-3",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-4",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-5",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "hash-6",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "source-link",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "parent-link",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "missing-parent",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "root-rw",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "dev-noexec",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "already-mounted",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "destination-exists",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_guard": "special-file",
+        "rejected_before_mutation": true
+      },
+      {
+        "prepare_case": "success",
+        "success": true
+      },
+      {
+        "prepare_case": "no-log",
+        "success": true
+      },
+      {
+        "prepare_case": "bind-fail-3",
+        "success": false
+      },
+      {
+        "prepare_case": "bind-fail-5",
+        "success": false
+      },
+      {
+        "prepare_case": "readback-mismatch",
+        "success": false
+      },
+      {
+        "android_case": "success",
+        "success": true,
+        "recovery_mask_first": true
+      },
+      {
+        "android_case": "no-log",
+        "success": true,
+        "recovery_mask_first": true
+      },
+      {
+        "android_case": "source-hash",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "cached-hash",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "vendor-rw",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "wrong-vendor",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "missing-script",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "script-link",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "alias-missing",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "special-rc",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "bind-fail-2",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "bind-fail-6",
+        "success": false,
+        "recovery_mask_first": false
+      },
+      {
+        "android_case": "readback-mismatch",
+        "success": false,
+        "recovery_mask_first": false
+      }
+    ]
+  },
+  "portable_windows_guard_checks": {
+    "schema": 1,
+    "host": "Linux x86_64",
+    "powershell_version": "7.6.7",
+    "powershell_archive_sha256": "6896f9e3a6b0a354bf470835a96da76d2f801cd50dcf047ad7c4563bf93bf431",
+    "package_filename": "UbuntuTouch-S10plus-avvio-Ubuntu-6-Windows.zip",
+    "package_sha256": "cfd33e32870cd39eae3d53a69391340635607bd03c64d47cd3afad557dbe53a5",
+    "original_generated_fixture_sha256": "10f56427244c2c1f9bcb060b36793c00b807188225a5cfd1e0d032388a25ee8e",
+    "linux_fixture_sha256": "ee66f13926eaacb09f9319aabd826a5f93e86eff2e90019fedb1694ca8376d7a",
+    "installer_and_shared_ps_sha256": {
+      "scripts/check-download-mode.ps1": "03e9cad98a1900e8a9db790599fdfc14ef145421e3b06047c85235474d85a148",
+      "scripts/check-recovery.ps1": "b583669588ed99093b6f86971d9ae16a695b8f02b20d3a445e10c3a710afe087",
+      "scripts/flash-recovery-test.ps1": "6fc28f1f1a72ee9eea5298c311bf898522e9af7ade83f53d239695b9d1ee7def",
+      "scripts/install-boot-update-6.ps1": "004987b1bdb69ebbd680694c4eb15700f477899972bac79ec18fb7048feac719",
+      "scripts/install-ubuntu-touch.ps1": "2ee9f75bb240fe867ddbe071ecba34c3e276175d06d1fe90b897c10c2f223cc5",
+      "scripts/install-ubuntu-twrp.ps1": "b2e7dcce1da11941611628373c5e0380ca67970dc28307d766f78affe84e88f5"
+    },
+    "portable_control_flow_fixture_count": 25,
+    "success": true,
+    "apply_baseline_is_boot_5_and_rollback_is_boot_4": true,
+    "boot_4_rejected_as_apply_baseline_before_write": true,
+    "completed_boot_5_checkpoint_preserved": true,
+    "installer_or_firmware_guards_modified": false,
+    "windows_tools_hashes_preserved": true,
+    "host_fixture_adaptations": [
+      "POSIX fixture root",
+      "Linux sparse-file setup",
+      "host Python in the existing image-verifier callback and verifier checks",
+      "PowerShell host-version assertion",
+      "case-result recording",
+      "Windows FileShare denial assertion explicitly excluded on Linux"
+    ],
+    "not_executed": [
+      "Windows PowerShell 5.1",
+      "native CMD launchers",
+      "embedded Windows Python PE",
+      "native Windows console stub/quoting",
+      "Windows FileShare input-write denial",
+      "physical ADB or raw writes"
+    ],
+    "boot4_tested_shared_source_commit": "f24d09963efe81e3760559f9c4f101e6bef88521",
+    "all_seven_templates_and_shared_scripts_byte_identical_to_boot4_tested_source": true,
+    "physical_phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "windows_guard_scenarios": [
+    {
+      "mode": "Apply",
+      "case": "rollback-is-not-baseline",
+      "success": false,
+      "error": "current_boot_not_expected",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "success",
+      "success": true,
+      "error": null,
+      "write_requested": true
+    },
+    {
+      "mode": "Apply",
+      "case": "retry",
+      "success": false,
+      "error": "previous_boot_update_needs_review",
+      "write_requested": false
+    },
+    {
+      "mode": "Restore",
+      "case": "success",
+      "success": true,
+      "error": null,
+      "write_requested": true
+    },
+    {
+      "mode": "Restore",
+      "case": "retry",
+      "success": false,
+      "error": "previous_boot_update_needs_review",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "backup",
+      "success": false,
+      "error": "image_or_backup_verification_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "inventory",
+      "success": false,
+      "error": "recovery_preflight_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "mounted-system",
+      "success": false,
+      "error": "recovery_preflight_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "mounted-vendor",
+      "success": false,
+      "error": "recovery_preflight_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "encrypted-data",
+      "success": false,
+      "error": "recovery_preflight_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "current-boot",
+      "success": false,
+      "error": "current_boot_not_expected",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "space",
+      "success": false,
+      "error": "insufficient_staging_space",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "transfer",
+      "success": false,
+      "error": "staging_transfer_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "size",
+      "success": false,
+      "error": "staged_boot_verification_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "hash",
+      "success": false,
+      "error": "staged_boot_verification_failed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "second-inventory",
+      "success": false,
+      "error": "prewrite_recovery_changed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "second-mounted",
+      "success": false,
+      "error": "prewrite_recovery_changed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "second-boot",
+      "success": false,
+      "error": "prewrite_recovery_changed",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "write",
+      "success": false,
+      "error": "boot_write_failed",
+      "write_requested": true
+    },
+    {
+      "mode": "Apply",
+      "case": "readback",
+      "success": false,
+      "error": "boot_readback_failed",
+      "write_requested": true
+    },
+    {
+      "mode": "Apply",
+      "case": "readback-usb",
+      "success": false,
+      "error": "boot_readback_failed",
+      "write_requested": true
+    },
+    {
+      "mode": "Restore",
+      "case": "current-boot",
+      "success": false,
+      "error": "current_boot_not_expected",
+      "write_requested": false
+    },
+    {
+      "mode": "Restore",
+      "case": "readback",
+      "success": false,
+      "error": "boot_readback_failed",
+      "write_requested": true
+    },
+    {
+      "mode": "Apply",
+      "case": "previous",
+      "success": false,
+      "error": "previous_boot_image_mismatch",
+      "write_requested": false
+    },
+    {
+      "mode": "Apply",
+      "case": "new",
+      "success": false,
+      "error": "updated_boot_mismatch",
+      "write_requested": false
+    }
+  ],
+  "hosted_ci": {
+    "run_id": 38793867953,
+    "source_job_id": 116625073321,
+    "runner_id": 0,
+    "step_count": 0,
+    "cause": "Not confirmed; no runner allocated and no build/test steps executed",
+    "native_windows_executed": false
+  },
+  "limitations": [
+    "BOOT6 has not been flashed or booted on the handset.",
+    "A successful graphical boot and hardware support remain unconfirmed.",
+    "ARM64 user programs execute under QEMU; mounts, USB responses and raw writes in fixtures are simulated.",
+    "PowerShell7/Linux control-flow coverage does not establish Windows5.1/CMD/PE execution or FileShare denial.",
+    "The existing installer preflight must confirm recovery/VBMETA and exact physical BOOT5 before writing.",
+    "The Android hook requires regular nonsymlink install-recovery.sh files; unexpected layout fails before LXC.",
+    "No SYSTEM, VENDOR, RECOVERY, VBMETA or partition-table write and no Format Data is included."
+  ],
+  "handset_boot_verified": false,
+  "repository_visibility": "private pending confirmed graphical boot"
+}

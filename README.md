@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: Ubuntu systemd and the Android hardware container execute; graphical boot is pending.** BOOT 5 is installed with exact physical readback. Two recorded attempts reach systemd and HWC 2.2, then a Samsung USB configfs NULL dereference causes a kernel panic and reboot. BOOT 6 is being prepared to correct that driver and apply the missing device profiles in RAM.
+**Current stage: Ubuntu systemd and the Android hardware container execute; graphical boot is pending.** BOOT 5 is installed with exact physical readback. Two recorded attempts reach systemd and HWC 2.2, then a Samsung USB configfs NULL dereference causes a kernel panic and reboot. BOOT 6 has been compiled and its test package validated to correct that driver and apply the missing device profiles in RAM; its handset test is next.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -36,6 +36,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
 | Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
 | BOOT 5 compatibility image and prepared test package | Applied and read back; subsequent USB panic identified |
+| BOOT 6 USB correction and RAM profiles | Compiled and validated offline; handset test pending |
 | Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 5 runtime logs |
 | Reach the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
@@ -46,21 +47,21 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
-A separate integration defect prevents the device YAML, HWC2 setting and LightDM wait configuration from being applied: the overlay destination files are missing. The nested Android RC adjustments are also skipped. A stock `install-recovery.sh` attempt is present in the runtime tasks; BOOT 6 will block that script in RAM before starting the Android container. The earlier recovery hashes are pre-boot checks and do not prove a post-runtime recovery readback.
+A separate integration defect prevents the device YAML, HWC2 setting and LightDM wait configuration from being applied: the overlay destination files are missing. The nested Android RC adjustments are also skipped. A stock `install-recovery.sh` attempt is present in the runtime tasks; BOOT 6 includes a RAM mask for that script before starting the Android container. The earlier recovery hashes are pre-boot checks and do not prove a post-runtime recovery readback.
 
-BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NULL guard plus bounded RAM profile bindings. Its installer will require the exact physical BOOT 5 as the current image while retaining BOOT 4 as rollback. No new SYSTEM/VENDOR flash or Format Data is requested. Compilation and package validation are pending; a graphical boot is not claimed. See [current status](docs/status.md#next-experiment) for the next test and [evidence](docs/evidence/README.md) for earlier build and handset records.
+BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NULL guard plus bounded RAM profile bindings. Its installer requires the exact physical BOOT 5 as the current image while retaining BOOT 4 as rollback. No new SYSTEM/VENDOR flash or Format Data is requested. The [BOOT 6 build record](docs/evidence/ubuntu-boot-6-build-2026-10-15.json) records the compiled USB NULL branch, 33 ARM64 RAM-profile cases and 25 portable PowerShell control-flow cases. Native Windows CI received no runner; a graphical boot is not claimed. See [current status](docs/status.md#next-experiment) for the next test and [evidence](docs/evidence/README.md) for earlier build and handset records.
 
 ## Repository map
 
 | Location | Contents |
 | --- | --- |
 | [config](config) | Source, configuration and installation image pins |
-| [patches/kernel](patches/kernel) | AppArmor and Samsung SAR kernel fixes |
+| [patches/kernel](patches/kernel) | AppArmor, Samsung SAR and USB configuration fixes |
 | [patches/diagnostic](patches/diagnostic) | Forced built-in-initramfs change shared by diagnostic 2 and the Ubuntu BOOT family |
 | [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
-| [tools/boot-observer](tools/boot-observer) | Bounded initramfs tracing, post-root observation and RAM HWC readiness correction |
+| [tools/boot-observer](tools/boot-observer) | Bounded tracing, post-root observation and guarded RAM device/Android profiles |
 | [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
 | [tests](tests) | Image, source, collector and Windows guard validation |
 | [docs](docs/README.md) | Current status and development documentation |
