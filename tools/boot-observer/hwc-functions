@@ -1,4 +1,4 @@
-# BOOT 5: replace only the exact pinned HWC wait drop-in, through a RAM bind.
+# BOOT 6: replace only the exact pinned HWC wait drop-in, through a RAM bind.
 # Call after init-bottom moves devtmpfs to /root/dev, before exec run-init.
 # No SYSTEM/Data file is modified; this RAM helper must survive observer exit.
 ut_boot_hwc_prepare() {
@@ -21,7 +21,7 @@ ut_boot_hwc_prepare() {
         if(v["ro"] && !v["rw"]) ok=1
     } END {exit !ok}' /proc/mounts || return 1
     /bin/busybox awk -v p="$target" '$2==p {found=1} END {exit found}' /proc/mounts || return 1
-    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-5-hwc.XXXXXX) || return 1
+    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-6-hwc.XXXXXX) || return 1
     runtime="/dev/${ram##*/}"
     # mktemp's private 0700 directory is independent of the observer's directory.
     if /bin/busybox cp /bin/busybox "$ram/busybox" &&
@@ -36,7 +36,7 @@ ut_boot_hwc_prepare() {
             mounted=true
             actual=$(/bin/busybox sha256sum "$target")
             if [ "${actual%% *}" = "${staged%% *}" ]; then
-                printf 'UT_BOOT_5: hwc_wait_ram_override=%s\n' "$runtime" >/dev/kmsg
+                printf 'UT_BOOT_6: hwc_wait_ram_override=%s\n' "$runtime" >/dev/kmsg
                 return 0
             fi
         fi
@@ -44,7 +44,7 @@ ut_boot_hwc_prepare() {
     # Roll back only a mount created by this invocation. Never force unmount.
     if [ "$mounted" = true ]; then
         if ! /bin/busybox umount "$target"; then
-            printf 'UT_BOOT_5: hwc_wait_cleanup=unconfirmed\n' >/dev/kmsg
+            printf 'UT_BOOT_6: hwc_wait_cleanup=unconfirmed\n' >/dev/kmsg
             return 1
         fi
     fi

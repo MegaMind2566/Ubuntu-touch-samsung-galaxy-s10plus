@@ -1,4 +1,4 @@
-# BOOT 5: observation in the new root, never a prerequisite for run-init.
+# BOOT 6: observation in the new root, never a prerequisite for run-init.
 # Source from the original initramfs after /dev and Data moved below /root.
 # Pass the already-owned versioned run name allocated by stage logging.
 ut_boot_post_handoff_start() {
@@ -12,13 +12,13 @@ ut_boot_post_handoff_start() {
         n=split($4,a,",");for(i=1;i<=n;i++) if(a[i]=="noexec"||a[i]=="ro") bad=1;
         if(!bad) ok=1
     } END {exit !ok}' /proc/mounts || return 0
-    base=/root/userdata/ubuntu-touch-boot-5
+    base=/root/userdata/ubuntu-touch-boot-6
     target="$base/$run"
     [ -d "$base" ] && [ ! -L "$base" ] && [ -d "$target" ] && [ ! -L "$target" ] || return 0
     [ "$(/bin/busybox stat -c '%u:%a' "$base")" = 0:700 ] || return 0
     [ "$(/bin/busybox stat -c '%u:%a' "$target")" = 0:700 ] || return 0
     [ -c /root/dev/null ] || return 0
-    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-5.XXXXXX) || return 0
+    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-6.XXXXXX) || return 0
     if ! /bin/busybox cp /bin/busybox "$ram/busybox" ||
        ! /bin/busybox cp /ut-boot-post-watch "$ram/watch" ||
        ! /bin/busybox chmod 0700 "$ram" "$ram/busybox" "$ram/watch"; then
@@ -32,7 +32,7 @@ ut_boot_post_handoff_start() {
         # Shell-internal script descriptors are close-on-exec; do not use
         # non-POSIX multi-digit redirections on the old BusyBox shell.
         exec </root/dev/null >"$target/observer-start.log" 2>&1 3<&- 4<&- 5<&- 6<&- 7<&- 8<&- 9<&-
-        exec /bin/busybox chroot /root "$inside/busybox" sh "$inside/watch" "$inside" "/userdata/ubuntu-touch-boot-5/$run"
+        exec /bin/busybox chroot /root "$inside/busybox" sh "$inside/watch" "$inside" "/userdata/ubuntu-touch-boot-6/$run"
     ) &
     # No wait, synchronization, mount, filesystem repair or reboot here.
     return 0

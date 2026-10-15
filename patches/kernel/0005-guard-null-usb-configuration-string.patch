@@ -1,0 +1,13 @@
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -576,7 +576,9 @@ static bool is_symboliclink_change_mode(struct config_usb_cfg *cfg)
+ 
+ 	if (!list_empty(&cfg->string_list)) {
+ 		list_for_each_entry(cn, &cfg->string_list, list) {
+-			if (strcmp(cn->configuration, "Conf 1") != 0)
++			/* A language directory can exist before its string is written. */
++			if (cn->configuration &&
++			    strcmp(cn->configuration, "Conf 1") != 0)
+ 				return true;
+ 		}
+ 	}

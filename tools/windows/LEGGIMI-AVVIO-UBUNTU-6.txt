@@ -1,0 +1,35 @@
+Samsung Galaxy S10+ SM-G975F/DS - Ubuntu BOOT 6
+
+BOOT 5 avvia systemd e Android/HWC, ma va in kernel panic nel driver USB
+Samsung quando usb_moded collega una configurazione senza testo.
+BOOT 6 corregge quel controllo NULL e applica i profili mancanti in RAM:
+- profilo beyond2lte con alias beyond2 e HWC2;
+- attesa reale del compositore e configurazioni Android del port;
+- blocco in RAM dello script Samsung che tenta il ripristino della recovery.
+L avvio grafico resta da confermare sul telefono.
+
+1. Copia TUTTO lo ZIP nella cartella originale di installazione Ubuntu,
+   unendo le cartelle e sostituendo i file corrispondenti.
+2. Lascia TWRP aperta, USB collegato e SYSTEM/VENDOR non montate.
+3. Avvia INSTALLA-AVVIO-UBUNTU-6.cmd UNA SOLA VOLTA.
+   Il controllo accetta come BOOT attuale solo il BOOT 5 esatto verificato.
+   Aspetta la conferma di scrittura e rilettura riuscite.
+4. In TWRP: Reboot > System. Se propone l app TWRP: Do Not Install.
+5. Attendi fino a 3 minuti e fotografa la schermata.
+6. Se si blocca o si riavvia, torna in TWRP e usa LEGGI-AVVIO-UBUNTU-6.cmd.
+   Invia ubuntu-boot-6-log-report.zip e il rapporto di installazione.
+   Non ripetere l installazione e non rimuovere i checkpoint.
+
+Il programma scrive solo BOOT. Non ripete Format Data e non scrive SYSTEM,
+VENDOR, RECOVERY, VBMETA o la tabella delle partizioni.
+Il normale avvio Ubuntu prepara i propri dati. I profili e la protezione
+recovery sono bind di file/directory RAM e scompaiono al riavvio.
+I contenuti originali delle piccole directory sono conservati.
+Se non e possibile predisporre i profili, il passaggio a Ubuntu si ferma.
+Se il controllo Android in RAM fallisce, il container non viene avviato.
+Non sono aggiunti servizi remoti e il lettore non modifica il telefono.
+
+RIPRISTINA-AVVIO-UBUNTU-4.cmd ripristina l esatto BOOT Ubuntu 4 dopo BOOT 6.
+Il BOOT 4 e il rollback precedente, NON il BOOT 5 che va in bootloop.
+Non ripristina Android o un Ubuntu gia funzionante.
+Dopo un errore di scrittura resta in TWRP e invia il rapporto.

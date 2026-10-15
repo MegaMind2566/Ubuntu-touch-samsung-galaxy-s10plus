@@ -1,4 +1,4 @@
-"""Embed the original Ubuntu initramfs, with bounded stage logging, in BOOT 5."""
+"""Embed the original Ubuntu initramfs, with bounded stage logging, in BOOT 6."""
 import argparse
 import gzip
 import json
@@ -17,6 +17,9 @@ from prepare_boot_diagnostic import entries, encode, ORIGINAL_RAM_SHA256
 OUT=ROOT/'out/ubuntu-boot-handoff-images'
 PREVIOUS_SHA256='f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df'
 PREVIOUS_BYTES=57337856
+APPLY_BASELINE_SHA256='0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b'
+APPLY_BASELINE_BYTES=57341952
+USB_CONFIGFS_SHA256='f9f5b994d9133e9486370ac5aca8f73e6a8db8cf1b98122b6c29e4eaf5114936'
 BOOT2_SHA256='cad81022329d1effb50d1ed421148b5c1741e41ae2eb0414d75ac06ec64ecda0'
 PARTITION_BYTES=57671680
 INIT_SHA256='cda3570b6edc38c6aebf8a058bf75f5ada94e63a32b27da4d2f1eabf2200d0dc'
@@ -66,14 +69,18 @@ def ubuntu_initramfs(original):
     init=by_name['init']['data'].decode('ascii')
     init=replace_once(init,'mkdir -m 0755 /run/initramfs\n',
         'mkdir -m 0755 /run/initramfs\n. /ut-boot-functions\n'
-        'echo "UT_BOOT_5: PID 1 STARTED" >/dev/kmsg\n'
-        'ut_boot_trace_start\nPS4="UT_BOOT_5: + "\nset -x\nut_boot_stage ubuntu-init\n')
+        'echo "UT_BOOT_6: PID 1 STARTED" >/dev/kmsg\n'
+        'ut_boot_trace_start\nPS4="UT_BOOT_6: + "\nset -x\nut_boot_stage ubuntu-init\n')
     for line,stage in [('run_scripts /scripts/init-top','udev-ready'),('mountroot','root-mounted'),
                        ('run_scripts /scripts/init-bottom','init-bottom-complete')]:
         init=replace_once(init,'\n'+line+'\n','\n'+line+'\nut_boot_stage '+stage+'\n')
     init=replace_once(init,'# Move virtual filesystems over to the real filesystem\n',
         'ut_boot_stage userspace-handoff\n'
-        'ut_boot_hwc_prepare || echo "UT_BOOT_5: hwc_override=not-applied" >/dev/kmsg\nut_boot_post_handoff_start "$UT_BOOT_LOG_NAME"\n'
+        'if ! ut_boot_profiles_prepare "$UT_BOOT_LOG_NAME"; then\n'
+        '    panic "BOOT 6 RAM profiles could not be prepared"\n'
+        '    exit 1\n'
+        'fi\n'
+        'ut_boot_hwc_prepare || echo "UT_BOOT_6: hwc_override=not-applied" >/dev/kmsg\nut_boot_post_handoff_start "$UT_BOOT_LOG_NAME"\n'
         'ut_boot_trace_stop\n# Move virtual filesystems over to the real filesystem\n')
     # The original final console redirections can prevent run-init executing
     # when that console cannot be opened. The noninteractive Ubuntu wrapper
@@ -108,19 +115,21 @@ def ubuntu_initramfs(original):
         'panic()\n{\n\tut_boot_stage initramfs-panic\n')
     udev=by_name['scripts/init-bottom/udev']['data'].decode('ascii')
     udev=replace_once(udev,'udevadm control --exit\n',
-        'printf "UT_BOOT_5: udev-control-start\\n"\nudevadm control --exit\n'
-        'printf "UT_BOOT_5: udev-control-complete\\n"\n')
+        'printf "UT_BOOT_6: udev-control-start\\n"\nudevadm control --exit\n'
+        'printf "UT_BOOT_6: udev-control-complete\\n"\n')
     modified={'init':init.encode(),'scripts/halium':halium.encode(),
               'scripts/functions':functions.encode(),'scripts/init-bottom/udev':udev.encode()}
     copied=[{'name':i['name'],'values':list(i['values']),
              'data':modified.get(i['name'],i['data'])} for i in items]
     for number,(name,source) in enumerate([('ut-boot-functions','functions'),('ut-boot-trace.awk','trace.awk'),
-            ('ut-boot-post-watch','post-watch'),('ut-boot-hwc-wait','hwc-wait')],1):
+            ('ut-boot-post-watch','post-watch'),('ut-boot-hwc-wait','hwc-wait'),
+            ('ut-boot-android-profile-fix','android-profile-fix')],1):
         helper=(ROOT/'tools/boot-observer'/source).read_bytes()
         if source=='functions':
             helper+=b'\n'+(ROOT/'tools/boot-observer/post-handoff-functions').read_bytes()
             helper+=b'\n'+(ROOT/'tools/boot-observer/hwc-functions').read_bytes()
-        if b'\r' in helper or len(helper)>16384:raise ValueError('boot_observer_invalid')
+            helper+=b'\n'+(ROOT/'tools/boot-observer/profile-functions').read_bytes()
+        if b'\r' in helper or len(helper)>24576:raise ValueError('boot_observer_invalid')
         if name in by_name:raise ValueError('observer_path_exists')
         copied.append({'name':name,'values':[max(i['values'][0] for i in items)+number,
             0o100644,0,0,1,0,len(helper),0,0,0,0,len(name)+1,0],'data':helper})
@@ -143,12 +152,14 @@ def configure(work):
     source=kernel/'init/initramfs.c'
     if commit!=KERNEL_COMMIT or sha(source.read_bytes())!=INITRAMFS_SOURCE_SHA256:
         raise ValueError('initramfs_kernel_source_changed')
+    if sha((kernel/'drivers/usb/gadget/configfs.c').read_bytes())!=USB_CONFIGFS_SHA256:
+        raise ValueError('usb_configuration_null_guard_missing')
     subprocess.run(['git','-C',str(kernel),'apply','--check',str(DIAGNOSTIC_PATCH)],check=True)
     subprocess.run(['git','-C',str(kernel),'apply',str(DIAGNOSTIC_PATCH)],check=True)
     fragment=(ROOT/'config/ubuntu-boot-handoff.config').read_text().replace('@UT_UBUNTU_CPIO@',str(path.resolve()))
     (kernel/'arch/arm64/configs/ubuntu-boot-handoff.config').write_text(fragment)
     info=work/'deviceinfo'
-    info.write_text(info.read_text()+'\n# Ubuntu BOOT 5, observed built-in initramfs.\n'
+    info.write_text(info.read_text()+'\n# Ubuntu BOOT 6, observed built-in initramfs.\n'
         'deviceinfo_kernel_defconfig="exynos9820-beyond2lte_defconfig ubuntu-touch.config ubuntu-boot-handoff.config"\n')
     (OUT/'ubuntu-boot-source.json').write_text(json.dumps({'kernel_commit':commit,
         'normal_build_manifest':json.loads((work/'source-manifest.json').read_text()),
@@ -157,7 +168,10 @@ def configure(work):
         'original_ubuntu_ramdisk_sha256':ORIGINAL_RAM_SHA256,'original_init_sha256':INIT_SHA256,
         'initramfs_sha256':sha(payload),'initramfs_bytes':len(payload),
         'modified_entries':['init','scripts/halium','scripts/functions','scripts/init-bottom/udev'],
-        'added_entries':['ut-boot-functions','ut-boot-trace.awk','ut-boot-post-watch','ut-boot-hwc-wait'],
+        'added_entries':['ut-boot-functions','ut-boot-trace.awk','ut-boot-post-watch','ut-boot-hwc-wait','ut-boot-android-profile-fix'],
+        'usb_configfs_patched_source_sha256':USB_CONFIGFS_SHA256,
+        'apply_baseline_sha256':APPLY_BASELINE_SHA256,'apply_baseline_bytes':APPLY_BASELINE_BYTES,
+        'ram_device_profiles_requested':True,'ram_android_recovery_restore_block_requested':True,
         'runtime_automatic_fsck_resize_disabled':True,
         'pid1_global_sync_removed':True,'trace_bytes_limit':4194304,
         'passive_wait_samples':12,'passive_wait_interval_seconds':10,
@@ -221,17 +235,20 @@ def finalize(work):
     config=(work/'workdir/downloads/KERNEL_OBJ/.config').read_text()
     if config_values(config)!=config_values(kernel_config(kernel)):raise ValueError('compiled_config_mismatch')
     (OUT/'boot.img').write_bytes(image);(OUT/'kernel.config').write_text(config)
-    lock={'schema':1,'boot_version':5,'purpose':'original_ubuntu_init_through_builtin_initramfs',
+    lock={'schema':1,'boot_version':6,'purpose':'original_ubuntu_init_through_builtin_initramfs',
         'boot_sha256':sha(image),'boot_bytes':len(image),'boot_partition_bytes':PARTITION_BYTES,
         'previous_boot_sha256':PREVIOUS_SHA256,'previous_boot_bytes':PREVIOUS_BYTES,
         'kernel_sha256':sha(kernel),'kernel_bytes':len(kernel),'kernel_source_commit':KERNEL_COMMIT,
+        'usb_configuration_null_guard':True,'usb_configfs_patched_source_sha256':USB_CONFIGFS_SHA256,
+        'apply_baseline_sha256':APPLY_BASELINE_SHA256,'apply_baseline_bytes':APPLY_BASELINE_BYTES,
+        'ram_device_profiles_requested':True,'ram_android_recovery_restore_block_requested':True,
         'kernel_config_differences':differences,'builtin_initramfs_sha256':sha(payload),
         'builtin_initramfs_bytes':len(payload),'builtin_compressed_offset':offset,'builtin_compressed_bytes':size,
         'force_builtin_initramfs':True,'ramdisk_sha256':sha(image[h['ramdisk_offset']:h['ramdisk_offset']+h['ramdisk_bytes']]),
         'ramdisk_bytes':h['ramdisk_bytes'],'external_ramdisk_matches_builtin':True,
         'unrelated_header_fields_preserved':True,'target_device':'/dev/block/sda14',
         'system_write_requested':False,'vendor_write_requested':False,'data_format_requested':False,
-        'runtime_automatic_fsck_resize_disabled':True,'runtime_log_directory':'/data/ubuntu-touch-boot-5',
+        'runtime_automatic_fsck_resize_disabled':True,'runtime_log_directory':'/data/ubuntu-touch-boot-6',
         'runtime_log_attempts_limit':5,'trace_bytes_limit':4194304,
         'passive_wait_samples':12,'passive_wait_interval_seconds':10,
         'ubuntu_init_execution_requested':True,

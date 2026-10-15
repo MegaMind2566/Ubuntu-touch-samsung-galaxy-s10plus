@@ -1,4 +1,4 @@
-# BOOT 5 stages and bounded trace. Separate helpers observe handoff/HWC.
+# BOOT 6 stages and bounded trace. Separate helpers observe handoff/HWC.
 UT_BOOT_LOG_NAME=''
 UT_BOOT_WATCH_PID=''
 UT_BOOT_TRACE_PID=''
@@ -38,7 +38,7 @@ ut_boot_wait_watch() {
         sleeper=''
         ut_boot_trace_copy .
         {
-            printf 'UT_BOOT_5: wait-sample=%s\n' "$sample"
+            printf 'UT_BOOT_6: wait-sample=%s\n' "$sample"
             /bin/busybox cat /proc/uptime
             /bin/busybox cat /proc/1/status /proc/1/wchan /proc/1/stack
             for child in $(/bin/busybox head -c 2048 /proc/1/task/1/children); do
@@ -61,7 +61,7 @@ ut_boot_snapshot() {
         # init-bottom moves devtmpfs to /root/dev, then symlinks /dev there.
         # It is the same raw userdata node before and after that move.
         case "$source" in /dev/sda31|/root/dev/sda31) ;; *) continue;; esac
-        base="$candidate/ubuntu-touch-boot-5"
+        base="$candidate/ubuntu-touch-boot-6"
         [ ! -L "$base" ] || continue
         if [ ! -e "$base" ]; then /bin/busybox mkdir -m 0700 "$base" || continue; fi
         [ -d "$base" ] || continue
@@ -79,7 +79,7 @@ ut_boot_snapshot() {
         /bin/busybox dmesg | /bin/busybox tail -c 2097152 >"$target/kernel.log"
         /bin/busybox head -c 65536 /proc/mounts >"$target/mounts.txt"
         ut_boot_trace_copy "$target"
-        printf 'UT_BOOT_5: PID 1 STARTED\nUT_BOOT_5: stage=%s\n' "$1" >"$target/stage.txt"
+        printf 'UT_BOOT_6: PID 1 STARTED\nUT_BOOT_6: stage=%s\n' "$1" >"$target/stage.txt"
         if [ -z "$UT_BOOT_WATCH_PID" ]; then
             ut_boot_wait_watch "$target" &
             UT_BOOT_WATCH_PID=$!
@@ -92,7 +92,7 @@ ut_boot_snapshot() {
 }
 
 ut_boot_stage() {
-    printf 'UT_BOOT_5: stage=%s\n' "$1" >/dev/kmsg
+    printf 'UT_BOOT_6: stage=%s\n' "$1" >/dev/kmsg
     ut_boot_snapshot "$1"
     return 0
 }

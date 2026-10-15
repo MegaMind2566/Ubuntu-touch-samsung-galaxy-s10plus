@@ -1,4 +1,4 @@
-"""Fixture checks for BOOT 5 observation; never access a handset or mount.
+"""Fixture checks for BOOT 6 observation; never access a handset or mount.
 
 With --qemu and --cpio, execute the extracted, exact ARM64 BusyBox shell and
 applets. Without these arguments, host POSIX-shell fixtures are explicit.
@@ -63,11 +63,11 @@ def main():
                                           ('deadline', False, True)]:
             folder = root / case
             folder.mkdir()
-            ram = folder / '.ut-boot-5.fixture'
+            ram = folder / '.ut-boot-6.fixture'
             ram.mkdir(mode=0o700)
             (ram / 'busybox').write_bytes(bridge.read_bytes())
             (ram / 'busybox').chmod(0o700)
-            target = folder / 'userdata/ubuntu-touch-boot-5/run-1'
+            target = folder / 'userdata/ubuntu-touch-boot-6/run-1'
             target.mkdir(parents=True, mode=0o700)
             proc = folder / 'proc'
             (proc / '1/task/1').mkdir(parents=True)
@@ -85,7 +85,7 @@ def main():
             journals = folder / 'journals/machine-id'
             journals.mkdir(parents=True)
             (journals / 'system.journal').write_bytes(b'journal header fixture')
-            patched = source.replace('/dev/.ut-boot-5.', str(folder / '.ut-boot-5.'))
+            patched = source.replace('/dev/.ut-boot-6.', str(folder / '.ut-boot-6.'))
             # CI runs unprivileged; map only the fixture's expected owner.
             # The firmware helper retains its strict UID 0 guard unchanged.
             patched = patched.replace(' = 0:700 ]', f' = {os.getuid()}:700 ]')
@@ -163,7 +163,7 @@ def main():
         dev.mkdir(parents=True)
         (dev / 'sda31').write_bytes(b'fixture userdata node')
         (dev / 'null').symlink_to('/dev/null')
-        target = folder / 'root/userdata/ubuntu-touch-boot-5/run-1'
+        target = folder / 'root/userdata/ubuntu-touch-boot-6/run-1'
         target.mkdir(parents=True, mode=0o700)
         target.parent.chmod(0o700)
         mounts = folder / 'mounts'
@@ -197,10 +197,10 @@ def main():
                               + '\nut_boot_post_handoff_start ' + shquote(run) + '\n')
             subprocess.run([*shell, str(script)], env=environment, check=True, timeout=10)
         prepare_run('run-6')
-        assert not list(dev.glob('.ut-boot-5.*'))
+        assert not list(dev.glob('.ut-boot-6.*'))
         target.chmod(0o755)
         prepare_run('run-1')
-        assert not list(dev.glob('.ut-boot-5.*'))
+        assert not list(dev.glob('.ut-boot-6.*'))
         target.chmod(0o700)
         prepare_run('run-1')
         for _ in range(100):
@@ -209,9 +209,9 @@ def main():
             time.sleep(.02)
         result = json.loads((folder / 'probe.json').read_text())
         assert result['arguments'][0] == str(folder / 'root')
-        assert result['arguments'][1].startswith('/dev/.ut-boot-5.')
+        assert result['arguments'][1].startswith('/dev/.ut-boot-6.')
         assert '8' not in result['fds'] and '9' not in result['fds']
-        ram = next(dev.glob('.ut-boot-5.*'))
+        ram = next(dev.glob('.ut-boot-6.*'))
         assert (ram / 'busybox').read_bytes() == launch_bridge.read_bytes()
         assert (ram / 'watch').read_bytes() == (HERE / 'post-watch').read_bytes()
         assert (ram.stat().st_mode & 0o777) == 0o700

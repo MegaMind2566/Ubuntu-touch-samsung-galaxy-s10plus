@@ -1,4 +1,4 @@
-name: S10+ Ubuntu BOOT 5 userspace compatibility
+name: S10+ Ubuntu BOOT 6 userspace compatibility
 on:
   workflow_dispatch:
   push:
@@ -11,6 +11,10 @@ on:
       - 'tests/test_ubuntu_boot_handoff.py'
       - 'tests/test_post_observer.py'
       - 'tests/test_hwc_readiness.py'
+      - 'tests/test_boot_profiles.py'
+      - 'tests/test_usb_configfs.py'
+      - 'tests/fixtures/profile-*'
+      - 'patches/kernel/0005-guard-null-usb-configuration-string.patch'
       - 'tests/fixtures/wait-for-hwc-original.conf'
       - '.github/workflows/ubuntu-boot-handoff.yml'
 concurrency:
@@ -37,6 +41,7 @@ jobs:
         run: |
           python3 scripts/early_boot_diagnostic.py inputs
           python3 scripts/ubuntu_boot_handoff.py inputs
+          python3 tests/test_usb_configfs.py
           python3 tests/test_ubuntu_boot_handoff.py --qemu qemu-aarch64
   images:
     needs: source-checks
@@ -97,9 +102,9 @@ jobs:
         shell: powershell
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 5 with spaces')
+          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 6 with spaces')
           [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
-          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-5-Windows.zip'))
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-6-Windows.zip'))
           try {
             foreach ($entry in $zip.Entries) {
               $destination=Join-Path $root $entry.FullName
@@ -114,6 +119,6 @@ jobs:
         with:
           name: beyond2lte-ubuntu-boot-handoff-windows
           path: |
-            out/UbuntuTouch-S10plus-avvio-Ubuntu-5-Windows.zip
+            out/UbuntuTouch-S10plus-avvio-Ubuntu-6-Windows.zip
             out/ubuntu-handoff-artifact-reference.json
           if-no-files-found: error

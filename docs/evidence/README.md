@@ -6,7 +6,8 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
-| [Ubuntu BOOT 5 build/package](ubuntu-boot-5-build-2026-10-15.json) | Local compiled-image/ARM64 and 24 portable PowerShell cases passed; exact BOOT 4 rollback. New native Windows CI could not start. Handset/systemd/GUI test pending. |
+| [Ubuntu BOOT 5 handset execution](ubuntu-boot-5-handset-2026-10-15.json) | Exact install/readback; two systemd/Android/HWC starts; repeated USB configfs NULL panic. Graphical boot unconfirmed; RAM profile targets missing. |
+| [Ubuntu BOOT 5 build/package](ubuntu-boot-5-build-2026-10-15.json) | Local compiled-image/ARM64 and 24 portable PowerShell cases passed; exact BOOT 4 rollback. New native Windows CI could not start. Subsequent handset execution and USB panic are recorded separately above. |
 | [Userspace compatibility audit](userspace-compatibility-2026-10-15.json) | Exact SYSTEM/Android identities; ARM64 init/systemd dependency checks; cgroup v1-controller mismatch and HWC readiness gate identified. No handset userspace boot claim. |
 | [Ubuntu BOOT 4 handset execution](ubuntu-boot-4-handset-2026-10-15.json) | Exact write/readback and successful checkpoint; original init completes udev cleanup and saves userspace-handoff at 3.509624 s. Trace redirection and early observer stop limit evidence; systemd/GUI unconfirmed. |
 | [Ubuntu BOOT 4 build/package](ubuntu-boot-4-build-2026-10-15.json) | Immutable delivered image/package pins; Linux/ARM64 and 24 native Windows cases passed. Subsequent hardware findings are recorded separately above. |

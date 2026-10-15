@@ -6,9 +6,9 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 
 | Launcher | Effect |
 | --- | --- |
-| `INSTALLA-AVVIO-UBUNTU-5.cmd` | Installs BOOT 5 compatibility changes only from exact physical BOOT 4; writes only BOOT. |
-| `LEGGI-AVVIO-UBUNTU-5.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-5-log-report.zip`. |
-| `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 5. |
+| `INSTALLA-AVVIO-UBUNTU-6.cmd` | Installs BOOT 6 USB and RAM-profile corrections only from exact physical BOOT 5; writes only BOOT. |
+| `LEGGI-AVVIO-UBUNTU-6.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-6-log-report.zip`. |
+| `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 6. |
 | `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
 | `INSTALLA-TEST-AVVIO-2.cmd` | Installs the built-in-initramfs diagnostic from the exact verified diagnostic 1 BOOT; targets only BOOT. |
 | `LEGGI-TEST-AVVIO-2.cmd` | Reads test 2 logs and BOOT identity; produces `ubuntu-boot-diagnostic-2-log-report.zip`. |
@@ -16,7 +16,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | `INSTALLA-TEST-AVVIO.cmd` | Controlled BOOT-only diagnostic installation, requiring verified BOOT 2 and recovery/preflight guards. Already completed on the test handset. |
 | `RIPRISTINA-BOOT-2.cmd` | Restores verified BOOT 2 from the diagnostic state. BOOT 2 is an experimental image, not a confirmed working Ubuntu boot. |
 
-BOOT 4 has executed original Ubuntu init through its userspace-handoff checkpoint. BOOT 5 is the current compatibility build; its compiled image and Windows package must pass validation before delivery. Completed BOOT 3/4 standalone launchers are archived with their provenance. Earlier launchers remain immutable baseline/rollback inputs; they are not instructions to repeat completed installations.
+BOOT 5 confirms systemd and Android/HWC execution but reboots on a USB configfs NULL dereference. BOOT 6 corrects that driver and applies the missing profiles in RAM. Its installer distinguishes the current BOOT 5 apply baseline from the BOOT 4 rollback image. Completed BOOT 3/4/5 standalone inputs are archived with provenance; do not repeat their completed installations.
 
 ## Maintained support
 

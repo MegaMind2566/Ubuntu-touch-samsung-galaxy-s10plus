@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: Ubuntu initramfs reaches its final userspace handoff; systemd and graphical startup remain unconfirmed.** BOOT 4 is installed on the test handset with matching physical readback. Its recorded attempt mounts Ubuntu SYSTEM, the embedded Android image and Data, completes udev cleanup, then saves `userspace-handoff` at 3.510 seconds. That marker precedes the final `run-init` execution; it does not establish a working Ubuntu boot.
+**Current stage: Ubuntu systemd and the Android hardware container execute; graphical boot is pending.** BOOT 5 is installed with exact physical readback. Two recorded attempts reach systemd and HWC 2.2, then a Samsung USB configfs NULL dereference causes a kernel panic and reboot. BOOT 6 is being prepared to correct that driver and apply the missing device profiles in RAM.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -35,21 +35,20 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
 | Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
 | Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
-| BOOT 5 compatibility image and prepared test package | Built and validated locally; handset test pending |
-| Reach Ubuntu userspace and the graphical shell | Unconfirmed |
+| BOOT 5 compatibility image and prepared test package | Applied and read back; subsequent USB panic identified |
+| Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 5 runtime logs |
+| Reach the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
 The detailed [current status](docs/status.md) distinguishes source checks, host tests, physical readback and actual runtime observations. Its conclusions link to the [evidence index](docs/evidence/README.md).
 
 ## Current boot investigation
 
-The [BOOT 4 handset report](docs/evidence/ubuntu-boot-4-handset-2026-10-15.json) confirms the exact 57,337,856-byte BOOT write/readback and original Ubuntu init execution through `userspace-handoff`. The saved mounts retain SYSTEM and Android read-only, Data read-write and the original writable-path bindings. Udev's exit command completes. No BOOT 4 screen observation was supplied, and neither systemd nor the graphical shell is confirmed.
+The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
-The 7,280-byte shell trace stops when the original Halium mount code redirects output to `/dev/kmsg`; later stage markers still reach the kernel log. The observer is stopped at handoff, before its first 10-second passive sample. Missing wait samples and userspace log files therefore do not identify the failure or prove userspace never ran.
+A separate integration defect prevents the device YAML, HWC2 setting and LightDM wait configuration from being applied: the overlay destination files are missing. The nested Android RC adjustments are also skipped. A stock `install-recovery.sh` attempt is present in the runtime tasks; BOOT 6 will block that script in RAM before starting the Android container. The earlier recovery hashes are pre-boot checks and do not prove a post-runtime recovery readback.
 
-The [exact userspace audit](docs/evidence/userspace-compatibility-2026-10-15.json) verifies Ubuntu init and its loader/dependencies. It identifies a compatibility mismatch between systemd 255's unified cgroup default and the included Android image's v1 controllers. BOOT 5 corrects that selection, removes console opening from the final handoff, retains the real HWC readiness gate across compositor service names, and records startup after the root transition. [BOOT 5 is compiled and packaged](docs/evidence/ubuntu-boot-5-build-2026-10-15.json), with actual-image/ARM64 validation and 24 portable PowerShell control-flow cases passed. Its new native Windows CI run could not start; shared installation code matches BOOT 4 already tested on Windows. BOOT 5 now awaits the handset test; systemd and graphical startup remain unconfirmed. The optional read-only TWRP inspector can collect additional evidence, but is not a required extra handset step. No new SYSTEM/VENDOR flash or Format Data is justified by the current reports.
-
-The immutable [BOOT 4 build record](docs/evidence/ubuntu-boot-4-build-2026-10-15.json) retains its source/image pins and Linux/ARM64 plus 24 native Windows validation cases. Earlier [BOOT 3 execution](docs/evidence/ubuntu-boot-3-handset-2026-10-15.json), [diagnostic 2 execution](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json), and [symbol/device-tree analysis](docs/evidence/offline-tools-2026-10-14.json) remain available. See [current status](docs/status.md#next-experiment) for the next experiment and its limits.
+BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NULL guard plus bounded RAM profile bindings. Its installer will require the exact physical BOOT 5 as the current image while retaining BOOT 4 as rollback. No new SYSTEM/VENDOR flash or Format Data is requested. Compilation and package validation are pending; a graphical boot is not claimed. See [current status](docs/status.md#next-experiment) for the next test and [evidence](docs/evidence/README.md) for earlier build and handset records.
 
 ## Repository map
 

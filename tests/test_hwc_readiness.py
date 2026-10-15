@@ -1,4 +1,4 @@
-"""BOOT 5 HWC readiness and RAM-only overlay fixtures. No handset/mount access.
+"""BOOT 6 HWC readiness and RAM-only overlay fixtures. No handset/mount access.
 
 --qemu and --cpio exercise the exact static ARM64 BusyBox from BOOT 4.
 Only filesystem-mount boundaries and Android getprop are fixtures.
@@ -151,7 +151,7 @@ def main():
             subprocess.run([*shell, '-n', str(script)], check=True)
             result = subprocess.run([*shell, str(script)], capture_output=True, timeout=10)
             actions = [json.loads(line) for line in calls.read_text().splitlines()] if calls.exists() else []
-            directories = list(dev.glob('.ut-boot-5-hwc.*'))
+            directories = list(dev.glob('.ut-boot-6-hwc.*'))
             successful = scenario == 'success'
             assert (result.returncode == 0) == successful, (scenario, result.returncode, result.stderr)
             if successful:

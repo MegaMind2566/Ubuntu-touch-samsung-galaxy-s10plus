@@ -1,0 +1,107 @@
+# BOOT 6: make the three small, existing overlay destinations usable in RAM.
+# A failed preparation is fatal to this boot attempt; the caller handles panic.
+ut_boot_profiles_prepare() {
+    local run="$1" ram='' runtime='' mounted='' point='' failed=false
+    local device='/root/etc/deviceinfo/devices'
+    local force='/root/etc/default/lsc-wrapper.d'
+    local wait='/root/usr/lib/systemd/system/lightdm.service.d'
+    local overlay='/root/opt/halium-overlay'
+    local unit='/root/usr/lib/systemd/system/mount-halium-overlay.service'
+    local yaml="$overlay/etc/deviceinfo/devices/beyond2lte.yaml"
+    local file='' expected='' actual='' destination='' staged=''
+    case "$run" in run-[1-5]) ;; *) return 1;; esac
+    # No mutation until all source hashes and mount/layout guards have passed.
+    /bin/busybox awk '$2=="/root/dev" && $3=="devtmpfs" {
+        n=split($4,a,",");for(i=1;i<=n;i++){if(a[i]=="rw")ok=1;if(a[i]=="ro"||a[i]=="noexec")bad=1}
+    } END {exit !(ok&&!bad)}' /proc/mounts || return 1
+    /bin/busybox awk '$2=="/root" && $3=="ext4" {
+        n=split($4,a,",");for(i=1;i<=n;i++){if(a[i]=="ro")ok=1;if(a[i]=="rw")bad=1}
+    } END {exit !(ok&&!bad)}' /proc/mounts || return 1
+    [ -d /root/dev ] && [ ! -L /root/dev ] || return 1
+    [ "$(/bin/busybox readlink -f /root/dev)" = /root/dev ] || return 1
+    [ -f /ut-boot-android-profile-fix ] && [ ! -L /ut-boot-android-profile-fix ] || return 1
+    for file in "$device/beyond2lte.yaml" "$force/10-force-hwc2.conf" "$wait/wait-for-hwc.conf"; do
+        [ ! -e "$file" ] && [ ! -L "$file" ] || return 1
+    done
+    for destination in "$device" "$force" "$wait"; do
+        [ -d "$destination" ] && [ ! -L "$destination" ] || return 1
+        [ "$(/bin/busybox readlink -f "$destination")" = "$destination" ] || return 1
+        /bin/busybox awk -v p="$destination" '$2==p || index($2,p"/")==1 {bad=1} END {exit bad}' /proc/mounts || return 1
+        # These are deliberately small directories, not /etc or /usr as a whole.
+        [ "$(/bin/busybox find "$destination" -mindepth 1 | /bin/busybox wc -l)" -le 64 ] || return 1
+        [ "$(/bin/busybox du -sk "$destination" | /bin/busybox awk '{print $1}')" -le 256 ] || return 1
+        [ -z "$(/bin/busybox find "$destination" -mindepth 1 ! -type f ! -type l)" ] || return 1
+    done
+    while read -r expected file; do
+        file="/root$file"
+        [ -f "$file" ] && [ ! -L "$file" ] || return 1
+        [ "$(/bin/busybox readlink -f "$file")" = "$file" ] || return 1
+        /bin/busybox awk -v p="$file" '$2==p {bad=1} END {exit bad}' /proc/mounts || return 1
+        actual=$(/bin/busybox sha256sum "$file") || return 1
+        [ "${actual%% *}" = "$expected" ] || return 1
+    done <<'UT_PROFILE_SOURCES'
+e21dadf14458a0d4aafce01b2e982c56ff0de6cb55ecd52bfbdad2a085423da6 /opt/halium-overlay/etc/deviceinfo/devices/beyond2lte.yaml
+93cdec8663134c4c2f59cf76fa1a8f76befaf6c7e1b9c1c65ebf72930b8d7d92 /opt/halium-overlay/etc/default/lsc-wrapper.d/10-force-hwc2.conf
+b56435dc9766c4e8caa50ce8af95dfb369240ff0e33e90efc7f6d95e2dd00fcb /opt/halium-overlay/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf
+71053a59906dfd3a71613e29173134573a96e2b800876bb788ea82a7cfa74110 /opt/halium-overlay/opt/halium-overlay/vendor/etc/init/vndservicemanager.rc
+a4ce90452ff078df7e42112fe6c3afbf44605086d67000506f7a33068e59c70d /opt/halium-overlay/opt/halium-overlay/system/etc/init/init.disabled.rc
+62e88bc040ab36e6b3a5e8012ce747178b437bf8eeaada5a0b8a16fe29785d6e /usr/lib/systemd/system/mount-halium-overlay.service
+c3e4ca001b9feb57cc27b68240e000b8fee9c5fd2a0248b9cf98d500a25db181 /usr/lib/systemd/system/lxc-android-config.service
+UT_PROFILE_SOURCES
+    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-6-profile.XXXXXX) || return 1
+    runtime="/dev/${ram##*/}"
+    if ! /bin/busybox cp /bin/busybox "$ram/busybox" ||
+       ! /bin/busybox cp /ut-boot-android-profile-fix "$ram/android-profile-fix" ||
+       ! /bin/busybox chmod 0700 "$ram" "$ram/busybox" "$ram/android-profile-fix"; then
+        /bin/busybox rm -rf "$ram"
+        return 1
+    fi
+    # The source must carry Names too: upstream later binds source over target.
+    if /bin/busybox mkdir -m 0755 "$ram/device" "$ram/force" "$ram/wait" &&
+       /bin/busybox cp -a "$device/." "$ram/device/" &&
+       /bin/busybox cp -a "$force/." "$ram/force/" &&
+       /bin/busybox cp -a "$wait/." "$ram/wait/" &&
+       /bin/busybox awk 'NR==1 {print;print "  Names:";print "    - beyond2";next} {print}' "$yaml" >"$ram/device/beyond2lte.yaml" &&
+       /bin/busybox cp "$overlay/etc/default/lsc-wrapper.d/10-force-hwc2.conf" "$ram/force/10-force-hwc2.conf" &&
+       /bin/busybox cp "$overlay/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf" "$ram/wait/wait-for-hwc.conf" &&
+       /bin/busybox cp "$overlay/opt/halium-overlay/vendor/etc/init/vndservicemanager.rc" "$ram/vndservicemanager.rc" &&
+       /bin/busybox cp "$overlay/opt/halium-overlay/system/etc/init/init.disabled.rc" "$ram/init.disabled.rc" &&
+       /bin/busybox chmod 0644 "$ram/device/beyond2lte.yaml" "$ram/force/10-force-hwc2.conf" "$ram/wait/wait-for-hwc.conf" &&
+       /bin/busybox cp "$unit" "$ram/mount-halium-overlay.service" &&
+       printf 'ExecStartPost=%s/busybox sh %s/android-profile-fix %s %s\n' "$runtime" "$runtime" "$runtime" "$run" >>"$ram/mount-halium-overlay.service" &&
+       /bin/busybox chmod 0444 "$ram/mount-halium-overlay.service"; then
+        # The hook runs after upstream's overlay and before its requiring LXC unit.
+        for destination in "$device" "$force" "$wait" "$yaml" "$unit"; do
+            case "$destination" in
+                "$device") staged="$ram/device";;
+                "$force") staged="$ram/force";;
+                "$wait") staged="$ram/wait";;
+                "$yaml") staged="$ram/device/beyond2lte.yaml";;
+                "$unit") staged="$ram/mount-halium-overlay.service";;
+            esac
+            if ! /bin/busybox mount -n -o bind "$staged" "$destination"; then failed=true;break;fi
+            mounted="$destination $mounted"
+            case "$destination" in
+                "$device") file=beyond2lte.yaml;; "$force") file=10-force-hwc2.conf;; "$wait") file=wait-for-hwc.conf;; *) file='';;
+            esac
+            if [ -n "$file" ]; then staged="$staged/$file";destination="$destination/$file";fi
+            actual=$(/bin/busybox sha256sum "$destination") || { failed=true;break; }
+            expected=$(/bin/busybox sha256sum "$staged") || { failed=true;break; }
+            [ "${actual%% *}" = "${expected%% *}" ] || { failed=true;break; }
+        done
+        if [ "$failed" = false ]; then
+            printf 'UT_BOOT_6: profiles_ram_prepared=%s\n' "$runtime" >/dev/kmsg
+            return 0
+        fi
+    fi
+    failed=false
+    for point in $mounted; do
+        if ! /bin/busybox umount "$point"; then failed=true;fi
+    done
+    if [ "$failed" = true ]; then
+        printf 'UT_BOOT_6: profiles_ram_cleanup=unconfirmed\n' >/dev/kmsg
+    else
+        /bin/busybox rm -rf "$ram"
+    fi
+    return 1
+}

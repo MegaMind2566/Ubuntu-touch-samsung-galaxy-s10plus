@@ -1,0 +1,118 @@
+#!/bin/sh
+# BOOT 6 ExecStartPost of mount-halium-overlay.service. RAM binds only.
+# Its nonzero status prevents the requiring Android container from starting.
+set -u
+RAM=${1:-}
+RUN=${2:-}
+case "$RAM" in /dev/.ut-boot-6-profile.*) ;; *) exit 1;; esac
+case "$RUN" in run-[1-5]) ;; *) exit 1;; esac
+BB="$RAM/busybox"
+[ -f "$BB" ] && [ ! -L "$BB" ] || exit 1
+[ "$("$BB" readlink -f "$RAM")" = "$RAM" ] || exit 1
+[ "$("$BB" stat -c '%u:%a' "$RAM")" = 0:700 ] || exit 1
+[ "$("$BB" stat -c '%u:%a' "$BB")" = 0:700 ] || exit 1
+LOG=''
+SOURCE=$("$BB" awk '$2=="/userdata"&&$3=="ext4"{print $1;exit}' /proc/mounts)
+SOURCE=$("$BB" readlink -f "$SOURCE" 2>/dev/null)
+if [ "$SOURCE" = /dev/sda31 ]; then
+    BASE=/userdata/ubuntu-touch-boot-6
+    if [ -d "$BASE" ] && [ ! -L "$BASE" ] &&
+       [ -d "$BASE/$RUN" ] && [ ! -L "$BASE/$RUN" ] &&
+       [ "$("$BB" readlink -f "$BASE/$RUN")" = "$BASE/$RUN" ] &&
+       [ "$("$BB" stat -c '%u:%a' "$BASE")" = 0:700 ] &&
+       [ "$("$BB" stat -c '%u:%a' "$BASE/$RUN")" = 0:700 ] &&
+       [ ! -L "$BASE/$RUN/android-profile.log" ] &&
+       { [ ! -e "$BASE/$RUN/android-profile.log" ] || [ -f "$BASE/$RUN/android-profile.log" ]; }; then
+        LOG="$BASE/$RUN/android-profile.log"
+        : >"$LOG"
+    fi
+fi
+mark() {
+    # A fixed, short set of stage names bounds the log to a few KiB.
+    printf 'UT_BOOT_6: android_profile=%s\n' "$1" >&2
+    [ -z "$LOG" ] || printf 'UT_BOOT_6: android_profile=%s\n' "$1" >>"$LOG"
+}
+MOUNTED=''
+SUCCESS=false
+cleanup() {
+    local point='' failed=false
+    if [ "$SUCCESS" != true ]; then
+        for point in $MOUNTED; do
+            if ! "$BB" umount "$point"; then failed=true;fi
+        done
+        if [ "$failed" = true ]; then mark cleanup-unconfirmed;else mark failed-closed;fi
+    fi
+}
+trap cleanup EXIT
+mark checking
+"$BB" awk '$2=="/dev"&&$3=="devtmpfs"{
+ n=split($4,a,",");for(i=1;i<=n;i++){if(a[i]=="rw")ok=1;if(a[i]=="ro"||a[i]=="noexec")bad=1}
+}END{exit !(ok&&!bad)}' /proc/mounts || exit 1
+for POINT in / /android /android/system /android/vendor; do
+    "$BB" awk -v p="$POINT" '$2==p&&$3=="ext4"{
+      n=split($4,a,",");for(i=1;i<=n;i++){if(a[i]=="ro")ok=1;if(a[i]=="rw")bad=1}
+    }END{exit !(ok&&!bad)}' /proc/mounts || exit 1
+done
+SOURCE=$("$BB" awk '$2=="/android/vendor"&&$3=="ext4"{print $1;exit}' /proc/mounts)
+[ "$("$BB" readlink -f "$SOURCE")" = /dev/sda26 ] || exit 1
+for POINT in /android/system/etc/init /android/vendor/etc/init \
+    /var/lib/lxc/android/rootfs/system/etc/init /var/lib/lxc/android/rootfs/vendor/etc/init; do
+    [ -d "$POINT" ] && [ ! -L "$POINT" ] || exit 1
+    [ "$("$BB" readlink -f "$POINT")" = "$POINT" ] || exit 1
+    "$BB" awk -v p="$POINT" '$2==p||index($2,p"/")==1{bad=1}END{exit bad}' /proc/mounts || exit 1
+done
+for POINT in /android/system/etc/init /android/vendor/etc/init; do
+    [ "$("$BB" find "$POINT" -mindepth 1 | "$BB" wc -l)" -le 1024 ] || exit 1
+    [ "$("$BB" du -sk "$POINT" | "$BB" awk '{print $1}')" -le 4096 ] || exit 1
+    [ -z "$("$BB" find "$POINT" -mindepth 1 ! -type f ! -type d ! -type l)" ] || exit 1
+done
+while read -r EXPECTED FILE; do
+    case "$FILE" in
+        vndservicemanager.rc) SOURCE=/opt/halium-overlay/opt/halium-overlay/vendor/etc/init/vndservicemanager.rc;;
+        init.disabled.rc) SOURCE=/opt/halium-overlay/opt/halium-overlay/system/etc/init/init.disabled.rc;;
+    esac
+    for FILEPATH in "$RAM/$FILE" "$SOURCE"; do
+        [ -f "$FILEPATH" ] && [ ! -L "$FILEPATH" ] || exit 1
+        [ "$("$BB" readlink -f "$FILEPATH")" = "$FILEPATH" ] || exit 1
+        ACTUAL=$("$BB" sha256sum "$FILEPATH") || exit 1
+        [ "${ACTUAL%% *}" = "$EXPECTED" ] || exit 1
+    done
+done <<'UT_ANDROID_SOURCES'
+71053a59906dfd3a71613e29173134573a96e2b800876bb788ea82a7cfa74110 vndservicemanager.rc
+a4ce90452ff078df7e42112fe6c3afbf44605086d67000506f7a33068e59c70d init.disabled.rc
+UT_ANDROID_SOURCES
+# Pin the real script path to the mounted Vendor tree, never a block device.
+for POINT in /android/vendor/bin/install-recovery.sh /var/lib/lxc/android/rootfs/vendor/bin/install-recovery.sh; do
+    [ -f "$POINT" ] && [ ! -L "$POINT" ] || exit 1
+    [ "$("$BB" readlink -f "$POINT")" = "$POINT" ] || exit 1
+    "$BB" awk -v p="$POINT" '$2==p{bad=1}END{exit bad}' /proc/mounts || exit 1
+done
+"$BB" mkdir -m 0700 "$RAM/android-preparing" || exit 1
+"$BB" mkdir -m 0755 "$RAM/android-system-init" "$RAM/android-vendor-init" || exit 1
+"$BB" cp -a /android/system/etc/init/. "$RAM/android-system-init/" || exit 1
+"$BB" cp -a /android/vendor/etc/init/. "$RAM/android-vendor-init/" || exit 1
+"$BB" rm -f "$RAM/android-system-init/init.disabled.rc" "$RAM/android-vendor-init/vndservicemanager.rc" || exit 1
+"$BB" cp "$RAM/init.disabled.rc" "$RAM/android-system-init/init.disabled.rc" || exit 1
+"$BB" cp "$RAM/vndservicemanager.rc" "$RAM/android-vendor-init/vndservicemanager.rc" || exit 1
+"$BB" chmod 0644 "$RAM/android-system-init/init.disabled.rc" "$RAM/android-vendor-init/vndservicemanager.rc" || exit 1
+printf '#!/vendor/bin/sh\nexit 0\n' >"$RAM/install-recovery-disabled.sh" || exit 1
+"$BB" chmod 0500 "$RAM/install-recovery-disabled.sh" || exit 1
+mark staged
+# Protect recovery first. No Android process may start on partial preparation.
+for POINT in /android/vendor/bin/install-recovery.sh /var/lib/lxc/android/rootfs/vendor/bin/install-recovery.sh \
+    /android/system/etc/init /var/lib/lxc/android/rootfs/system/etc/init \
+    /android/vendor/etc/init /var/lib/lxc/android/rootfs/vendor/etc/init; do
+    case "$POINT" in
+        */install-recovery.sh) STAGED="$RAM/install-recovery-disabled.sh";PROBE='';;
+        */system/etc/init) STAGED="$RAM/android-system-init";PROBE=/init.disabled.rc;;
+        */vendor/etc/init) STAGED="$RAM/android-vendor-init";PROBE=/vndservicemanager.rc;;
+    esac
+    "$BB" mount -n -o bind "$STAGED" "$POINT" || exit 1
+    MOUNTED="$POINT $MOUNTED"
+    ACTUAL=$("$BB" sha256sum "$POINT$PROBE") || exit 1
+    EXPECTED=$("$BB" sha256sum "$STAGED$PROBE") || exit 1
+    [ "${ACTUAL%% *}" = "${EXPECTED%% *}" ] || exit 1
+done
+SUCCESS=true
+mark complete
+exit 0

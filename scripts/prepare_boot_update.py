@@ -132,7 +132,7 @@ def finalize(out, work):
     manifest=json.loads((out/'source-manifest.json').read_text())
     if manifest['sources']['sources']['kernel']['commit']!=KERNEL_COMMIT:raise ValueError('kernel_source_changed')
     patch_names=[Path(p['path']).name for p in manifest['kernel_patches']]
-    if patch_names!=['0001-apparmor-socket-mediation.patch','0002-apparmor-af-unix-mediation.patch','0003-initialize-sar-ramdisk-offset.patch','0004-restore-init-after-sar-ramdisk-load.patch']:
+    if patch_names!=['0001-apparmor-socket-mediation.patch','0002-apparmor-af-unix-mediation.patch','0003-initialize-sar-ramdisk-offset.patch','0004-restore-init-after-sar-ramdisk-load.patch', '0005-guard-null-usb-configuration-string.patch']:
         raise ValueError('kernel_patch_set_changed')
     tarpath=out/'device_beyond2lte.tar.xz';temporary=out/'device_beyond2lte.tar.corrected.xz'
     count=0

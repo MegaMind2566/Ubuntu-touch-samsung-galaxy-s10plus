@@ -483,6 +483,30 @@
       "archived": true,
       "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
       "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/INSTALLA-AVVIO-UBUNTU-5.cmd",
+      "to": "archive/ubuntu-boot-5/tools/windows/INSTALLA-AVVIO-UBUNTU-5.cmd",
+      "original_git_blob": "e29c53c9a2cbdd17d5e7f71d16f2e81d7402ed60",
+      "archived": true,
+      "source_commit": "0703cda8ae8520900847f1d2fb89a2b67b6d5283",
+      "replacement": "BOOT 6 USB fix and RAM profiles; physical BOOT 5 apply baseline, exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/LEGGI-AVVIO-UBUNTU-5.cmd",
+      "to": "archive/ubuntu-boot-5/tools/windows/LEGGI-AVVIO-UBUNTU-5.cmd",
+      "original_git_blob": "038d5496d370f90b9bfbb7a1437d79890adade57",
+      "archived": true,
+      "source_commit": "0703cda8ae8520900847f1d2fb89a2b67b6d5283",
+      "replacement": "BOOT 6 USB fix and RAM profiles; physical BOOT 5 apply baseline, exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/LEGGIMI-AVVIO-UBUNTU-5.txt",
+      "to": "archive/ubuntu-boot-5/tools/windows/LEGGIMI-AVVIO-UBUNTU-5.txt",
+      "original_git_blob": "e7ae12cf48ca6ebcbfb517e033dc3fd301c5be99",
+      "archived": true,
+      "source_commit": "0703cda8ae8520900847f1d2fb89a2b67b6d5283",
+      "replacement": "BOOT 6 USB fix and RAM profiles; physical BOOT 5 apply baseline, exact BOOT 4 rollback"
     }
   ]
 }

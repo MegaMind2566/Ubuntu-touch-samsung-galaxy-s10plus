@@ -1,0 +1,474 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "device": "SM-G975F beyond2lte",
+  "firmware": "G975FXXSGHWC1",
+  "inputs": [
+    {
+      "filename": "ubuntu-boot-update-5-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    },
+    {
+      "filename": "ubuntu-boot-update-5-report.zip",
+      "bytes": 934,
+      "sha256": "5fe05aed6e8e446e5e4c2f2f3b2c32c7e999068a0dd51b791510fe08b5e69be6"
+    },
+    {
+      "filename": "recovery-check-report-27.zip",
+      "bytes": 1627,
+      "sha256": "1164073a298e202337e8da606cf31459074495cdd36b8c3aa8d18844e938002a"
+    },
+    {
+      "filename": "recovery-check-report-28.zip",
+      "bytes": 1627,
+      "sha256": "b76d233ce166699d49a74752f3823cfbc983318172e5208926a21f89bf787512"
+    },
+    {
+      "filename": "ubuntu-boot-5-log-report.zip",
+      "bytes": 1227682,
+      "sha256": "2996b1b20a53b7bf7f4fd2a6a8f96b62b9a75d653cd478575168c818851b452f"
+    }
+  ],
+  "reported_clock_note": "PC report timestamps are retained in the original inputs and are not used to order them against build-host clocks.",
+  "installed_boot": {
+    "version": 5,
+    "bytes": 57341952,
+    "sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "target_device": "/dev/block/sda14",
+    "previous_boot_sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "write_and_readback_success": true,
+    "independent_collector_readback_matches": true,
+    "apply_checkpoint": {
+      "write_started": true,
+      "success": true
+    },
+    "local_images_and_full_stock_backup_verified": true,
+    "staging_cleanup_succeeded": true,
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "repartition_requested": false
+  },
+  "recovery_checks": {
+    "reports": [
+      27,
+      28
+    ],
+    "both_success": true,
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+    "automatic_vendor_mutation_patch_confirmed": true,
+    "recovery_kernel": "Linux localhost 4.14.113-g55f042627 #1 SMP PREEMPT Sat Feb 4 21:04:26 UTC 2023 aarch64 GNU/Linux",
+    "interpretation": "This uname is the active TWRP kernel, not the Ubuntu normal-boot kernel."
+  },
+  "runtime": {
+    "normal_kernel_version": "4.14.280-gb9b70b29c94c-dirty",
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "normal_kernel_build_banner": "Clang 12.0.5 r416183b; build timestamp 15 October 2026 20:30:46 CEST; taken from retained normal-boot logs, not recovery uname.",
+    "original_ubuntu_init_executed": true,
+    "systemd_pid1_confirmed": true,
+    "systemd_version": "255.4-1ubuntu8.17",
+    "android_container_execution_confirmed": true,
+    "attempts": [
+      {
+        "run": 1,
+        "last_recorded_initramfs_stage": "userspace-handoff",
+        "systemd_start_seconds": 3.119406,
+        "pid1_executable_seen_at_seconds": 4.11,
+        "pid1_executable": "/usr/lib/systemd/systemd",
+        "last_post_sample_seconds": 11.04,
+        "post_samples_recorded": 8,
+        "sources": [
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-1-post-kernel.txt",
+            "lines": [
+              2535,
+              2535
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-1-post-timeline.txt",
+            "lines": [
+              8,
+              18
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-1-post-tasks.txt",
+            "lines": [
+              362,
+              366
+            ]
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "last_recorded_initramfs_stage": "userspace-handoff",
+        "systemd_start_seconds": 6.321031,
+        "pid1_executable_seen_at_seconds": 6.24,
+        "pid1_executable": "/usr/lib/systemd/systemd",
+        "last_post_sample_seconds": 15.37,
+        "post_samples_recorded": 9,
+        "sources": [
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-2-post-kernel.txt",
+            "lines": [
+              1452,
+              1452
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-2-post-timeline.txt",
+            "lines": [
+              2,
+              18
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "run-2-post-tasks.txt",
+            "lines": [
+              357,
+              359
+            ]
+          }
+        ]
+      }
+    ],
+    "final_handoff_interpretation": "Actual systemd PID 1 and Android service execution prove the root transition completed. This result is stronger than the pre-exec userspace-handoff marker. The shell trace itself ends at its last stage snapshot before final exec.",
+    "cgroup_layout": {
+      "observed": "hybrid",
+      "v2_path": "/sys/fs/cgroup/unified",
+      "v1_controllers_mounted": [
+        "name=systemd",
+        "cpu,cpuacct",
+        "devices",
+        "memory",
+        "cpuset",
+        "pids"
+      ],
+      "sources": [
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-mounts.txt",
+          "lines": [
+            32,
+            44
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-mounts.txt",
+          "lines": [
+            32,
+            44
+          ]
+        }
+      ],
+      "interpretation": "The requested v1-controller compatibility is present; v2 also remains mounted for the hybrid hierarchy."
+    },
+    "vendor_and_hwc": {
+      "vendor_device": "/dev/sda26",
+      "vendor_mount": "/android/vendor",
+      "vendor_mount_read_only": true,
+      "container_vendor_mount_read_only": true,
+      "android_device_property": "beyond2",
+      "hwc_service": "vendor.hwcomposer-2-2",
+      "hwc_status": "running",
+      "hwc_binary": "/vendor/bin/hw/android.hardware.graphics.composer@2.2-service",
+      "hwc_service_process_seen": true,
+      "sources": [
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-mounts.txt",
+          "lines": [
+            86,
+            97
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-mounts.txt",
+          "lines": [
+            86,
+            97
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-android-properties.txt",
+          "lines": [
+            1,
+            7
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-android-properties.txt",
+          "lines": [
+            1,
+            7
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-tasks.txt",
+          "lines": [
+            448,
+            448
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-tasks.txt",
+          "lines": [
+            408,
+            408
+          ]
+        }
+      ],
+      "interpretation": "VENDOR is present and Android has started its HWC service. Running status does not establish rendering or a working display."
+    },
+    "hwc_ram_override": {
+      "prepared_on_both_attempts": true,
+      "preparation_seconds": [
+        3.025354,
+        6.227314
+      ],
+      "source_bind_target": "/opt/halium-overlay/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf",
+      "final_lightdm_target_applied": false,
+      "reason": "mount-halium-overlay skips the missing destination /usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf. The RAM source override alone does not install a final unit drop-in.",
+      "wait_helper_process_seen": false,
+      "sources": [
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-kernel.txt",
+          "lines": [
+            2489,
+            2489
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-kernel.txt",
+          "lines": [
+            1368,
+            1368
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-mounts.txt",
+          "lines": [
+            28,
+            28
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-mounts.txt",
+          "lines": [
+            28,
+            28
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-journal.txt",
+          "lines": [
+            43,
+            43
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-journal.txt",
+          "lines": [
+            44,
+            44
+          ]
+        }
+      ]
+    },
+    "missing_overlay_destinations": {
+      "examples": [
+        "/etc/default/lsc-wrapper.d/10-force-hwc2.conf",
+        "/etc/deviceinfo/devices/beyond2lte.yaml",
+        "/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf"
+      ],
+      "device_profile_selected": false,
+      "sources": [
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-journal.txt",
+          "lines": [
+            32,
+            45
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-journal.txt",
+          "lines": [
+            33,
+            45
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-journal.txt",
+          "lines": [
+            68,
+            68
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-journal.txt",
+          "lines": [
+            98,
+            98
+          ]
+        }
+      ],
+      "interpretation": "The source overlay exists, but several final destination files do not. No device YAML is selected; Android reports beyond2, whereas the adaptation YAML filename is beyond2lte. Name compatibility needs a separate source check."
+    },
+    "observer": {
+      "post_root_capture_succeeded": true,
+      "no_old_trace_fds_8_or_9_in_saved_fd_listing": true,
+      "sources": [
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-1-post-observer-fds.txt",
+          "lines": [
+            12,
+            16
+          ]
+        },
+        {
+          "input": "ubuntu-boot-5-log-report.zip",
+          "member": "run-2-post-observer-fds.txt",
+          "lines": [
+            12,
+            16
+          ]
+        }
+      ],
+      "minor_issue": "BusyBox 1.22.1 readlink accepts one path; passing several FDs prints usage. The subsequent ls listing still records the actual FDs. This is a report defect, not an identified bootloop cause."
+    },
+    "graphical_boot_confirmed": false
+  },
+  "reboot_cause": {
+    "classification": "normal-kernel fatal exception during USB configfs linking by usb_moded",
+    "confirmed_crash_location": "__pi_strcmp+0x18/0x154, called from config_usb_cfg_link+0x174/0x320",
+    "attempts": [
+      {
+        "run": 1,
+        "process": "usb_moded",
+        "pid": 6038,
+        "panic_seconds": 12.324995,
+        "sources": [
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "last-kmsg-head.txt",
+            "lines": [
+              98,
+              113
+            ]
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "process": "usb_moded",
+        "pid": 6122,
+        "null_fault_seconds": 15.761246,
+        "panic_seconds": 15.783443,
+        "soc_reset_seconds": 16.028461,
+        "fault_address": "0x0",
+        "sources": [
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "last-kmsg-tail.txt",
+            "lines": [
+              5960,
+              5971
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "last-kmsg-tail.txt",
+            "lines": [
+              6017,
+              6021
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "last-kmsg-tail.txt",
+            "lines": [
+              6441,
+              6454
+            ]
+          },
+          {
+            "input": "ubuntu-boot-5-log-report.zip",
+            "member": "last-kmsg-tail.txt",
+            "lines": [
+              8157,
+              8164
+            ]
+          }
+        ]
+      }
+    ],
+    "source_analysis": {
+      "kernel_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+      "path": "drivers/usb/gadget/configfs.c",
+      "function": "is_symboliclink_change_mode",
+      "line": 579,
+      "expression": "strcmp(cn->configuration, \"Conf 1\")",
+      "compiled_lr_minus_4_address": "0xffffff80089e6b50",
+      "mapping": "Exact BOOT 5 vmlinux addr2line maps LR-4 to the inlined comparison at line 579, called from config_usb_cfg_link.",
+      "null_field_inference": "cn->configuration can remain NULL after language allocation/list insertion and before a configuration string is written. The zero fault address, strcmp PC and mapped call site strongly identify that unguarded NULL input.",
+      "allocation_and_show_reference": {
+        "path": "include/linux/usb/gadget_configfs.h",
+        "zero_allocation_line": 57,
+        "list_insertion_line": 78,
+        "existing_null_safe_show_line": 27
+      }
+    },
+    "not_observer_or_hwc_wait_context": true,
+    "interpretation": "Both fatal exceptions occur after systemd/Android startup. The current proven reboot trigger is USB gadget configuration, rather than failure to execute Ubuntu init. A fix has not yet been tested on the handset."
+  },
+  "screen_observations": {
+    "source": "User report accompanying the BOOT 5 results",
+    "reported_behavior": "Repeated reboot / bootloop",
+    "graphical_shell_confirmed": false
+  },
+  "conclusion": "BOOT 5 writes and reads back correctly, executes systemd PID 1 and the Android container, mounts VENDOR read-only and starts its HWC 2.2 service. USB configfs NULL dereference causes the observed reboot cycle. Missing overlay destination files also prevent the adaptation profile/drop-in from being applied. No graphical boot is established.",
+  "next_experiment": {
+    "boot_version": 6,
+    "status": "Preparation only; no validated BOOT 6 image or hardware result claimed in this record.",
+    "scope": [
+      "Guard the proven USB configfs NULL configuration-string path.",
+      "Address missing adaptation overlay destination/profile compatibility before graphical startup.",
+      "Retain post-root evidence and correct the minor readlink report issue."
+    ],
+    "intended_baseline_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "intended_rollback": "Exact physically verified BOOT 5",
+    "system_vendor_rewrite_planned": false,
+    "format_data_planned": false
+  },
+  "build_record": "ubuntu-boot-5-build-2026-10-15.json",
+  "ubuntu_touch_boot_verified": false,
+  "publication_criterion_met": false,
+  "repository_must_remain_private": true
+}
