@@ -42,7 +42,10 @@ def main():
         binary = folder / 'busybox-arm64'
         binary.write_bytes(peers[0])
         binary.chmod(0o700)
-        backend = [str(Path(args.qemu).resolve()), str(binary)]
+        runtime = shutil.which(args.qemu)
+        if runtime is None:
+            raise ValueError('qemu_runtime_not_found')
+        backend = [runtime, str(binary)]
         shell = [*backend, 'sh']
         ram = folder / 'ram'
         ram.mkdir(mode=0o700)
