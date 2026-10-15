@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 import re
 import subprocess
-import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -136,37 +135,5 @@ class FirstBootCollectorTests(unittest.TestCase):
         self.assertEqual(old.read_bytes(), b"keep this")
 
 
-def native_windows_check(root: Path):
-    """Run the actual CMD and pinned embedded Python with no USB handset."""
-    with tempfile.TemporaryDirectory(prefix="first boot native ") as temp:
-        folder = Path(temp) / "Ubuntu folder with spaces"
-        with zipfile.ZipFile(root / "out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip") as z:
-            for name in z.namelist():
-                if name.startswith(("tools/python/", "platform-tools/")):
-                    z.extract(name, folder)
-        with zipfile.ZipFile(root / "out/UbuntuTouch-S10plus-controllo-primo-avvio-Windows.zip") as z:
-            z.extractall(folder)
-        try:
-            value = subprocess.run(["cmd.exe", "/d", "/c", str(folder / "CONTROLLA-PRIMO-AVVIO.cmd")],
-                                   input="\n", text=True, capture_output=True, timeout=90)
-            assert value.returncode == 1, value.stdout + value.stderr
-            with zipfile.ZipFile(folder / "ubuntu-first-boot-report.zip") as z:
-                report = json.loads(z.read("first-boot-report.json"))
-            assert report["error"] == "twrp_usb_unavailable", report
-            assert report["steps"][0]["operation"] == "version"
-            assert report["steps"][0]["exit_code"] == 0
-            assert not report["partition_writes"]
-        finally:
-            # This disposable CI VM has no handset or other ADB job. Stop its
-            # test server before deleting its executable; production never
-            # stops the user's ADB server.
-            subprocess.run([str(folder / "platform-tools/adb.exe"), "kill-server"],
-                           capture_output=True, timeout=15, check=True)
-        print("Native Windows CMD, paths with spaces and pinned embedded Python: passed")
-
-
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "--native-windows":
-        native_windows_check(Path(sys.argv[2]))
-    else:
-        unittest.main()
+    unittest.main()

@@ -507,6 +507,312 @@
       "archived": true,
       "source_commit": "0703cda8ae8520900847f1d2fb89a2b67b6d5283",
       "replacement": "BOOT 6 USB fix and RAM profiles; physical BOOT 5 apply baseline, exact BOOT 4 rollback"
+    },
+    {
+      "from": ".github/workflows/boot-diagnostic.yml",
+      "to": "archive/boot-diagnostics/.github/workflows/boot-diagnostic.yml",
+      "original_git_blob": "8ec15800aab31c133b0b28a773bb7f1eedcefa4f",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/package-boot-diagnostic.py",
+      "to": "archive/boot-diagnostics/scripts/package-boot-diagnostic.py",
+      "original_git_blob": "413138d1b5380e171ff6f0bc11c3d2eedabacfbc",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/fetch_boot_diagnostic_inputs.py",
+      "to": "archive/boot-diagnostics/scripts/fetch_boot_diagnostic_inputs.py",
+      "original_git_blob": "4e1defd211ba8b375d83fa747c348b7a484d6608",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/collect-boot-diagnostic.py",
+      "to": "archive/boot-diagnostics/scripts/collect-boot-diagnostic.py",
+      "original_git_blob": "56a1b85d2336da0b94f6d76c4ae3d97d6f724572",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tests/test_boot_diagnostic.py",
+      "to": "archive/boot-diagnostics/tests/test_boot_diagnostic.py",
+      "original_git_blob": "cacd1895a1b6eb1a00077ffad277d46fe9fd4dee",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/boot-diagnostic/display.c",
+      "to": "archive/boot-diagnostics/tools/boot-diagnostic/display.c",
+      "original_git_blob": "2d7335c5df8ddaacb2f65856a80f059d78f4664a",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/INSTALLA-TEST-AVVIO.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/INSTALLA-TEST-AVVIO.cmd",
+      "original_git_blob": "f7a08fb54a5240aff598945241b97d1af1fded17",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGI-TEST-AVVIO.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/LEGGI-TEST-AVVIO.cmd",
+      "original_git_blob": "4a7567cce1eaf8ce02bee5a12514da3d02188786",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-BOOT-2.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/RIPRISTINA-BOOT-2.cmd",
+      "original_git_blob": "39c57a403489ecca9f34b68912f9d1c1a8960e50",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGIMI-TEST-AVVIO.txt",
+      "to": "archive/boot-diagnostics/tools/windows/LEGGIMI-TEST-AVVIO.txt",
+      "original_git_blob": "f6d1c5f4f6b3f371328c27b94cb8f825bd154035",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed BOOT diagnostic 1; superseded by working Ubuntu BOOT6 and current session collectors.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": ".github/workflows/early-boot-diagnostic.yml",
+      "to": "archive/boot-diagnostics/.github/workflows/early-boot-diagnostic.yml",
+      "original_git_blob": "d8c66477e2d9a85c6144368127407355fa534504",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/build-early-boot-diagnostic.sh",
+      "to": "archive/boot-diagnostics/scripts/build-early-boot-diagnostic.sh",
+      "original_git_blob": "76e9e75fb4d5a82e638aa9eb9d6f1cb01f3f367b",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/package-early-boot-diagnostic.py",
+      "to": "archive/boot-diagnostics/scripts/package-early-boot-diagnostic.py",
+      "original_git_blob": "4ac5c80026e48a6a874e4b13d727bf7fb713bb9e",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tests/test_early_boot_diagnostic.py",
+      "to": "archive/boot-diagnostics/tests/test_early_boot_diagnostic.py",
+      "original_git_blob": "73bae1e0a07601f44c109057749b9adbae9019a6",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/INSTALLA-TEST-AVVIO-2.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/INSTALLA-TEST-AVVIO-2.cmd",
+      "original_git_blob": "9c21aa2238e9b223b5686afa14f8a3e9b5239604",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGI-TEST-AVVIO-2.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/LEGGI-TEST-AVVIO-2.cmd",
+      "original_git_blob": "cf976c6408566c40bd3eda970fb28594b24d897a",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-TEST-AVVIO-1.cmd",
+      "to": "archive/boot-diagnostics/tools/windows/RIPRISTINA-TEST-AVVIO-1.cmd",
+      "original_git_blob": "b3c94d0166623326f09f94a23af26c0981ab2569",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGIMI-TEST-AVVIO-2.txt",
+      "to": "archive/boot-diagnostics/tools/windows/LEGGIMI-TEST-AVVIO-2.txt",
+      "original_git_blob": "181175ca498a4060b8b47f0e560c809efcb123c8",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Completed built-in PID1 diagnostic 2; shared parser/input modules remain maintained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": ".github/workflows/inspect-ubuntu-handoff.yml",
+      "to": "archive/ubuntu-boot-4-inspector/.github/workflows/inspect-ubuntu-handoff.yml",
+      "original_git_blob": "60df95f606de8dfa39c4e8744b55bf80ddf6869e",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/collect-ubuntu-userspace.py",
+      "to": "archive/ubuntu-boot-4-inspector/scripts/collect-ubuntu-userspace.py",
+      "original_git_blob": "13f41be2dcb6ac9346665eca7d16569c9aef6850",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/inspect-ubuntu-userspace.sh",
+      "to": "archive/ubuntu-boot-4-inspector/scripts/inspect-ubuntu-userspace.sh",
+      "original_git_blob": "464804e9106faf7c554c7bd6538faf26c2c76c65",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/package-ubuntu-userspace-check.py",
+      "to": "archive/ubuntu-boot-4-inspector/scripts/package-ubuntu-userspace-check.py",
+      "original_git_blob": "09530bf07eda01de2f893a5e2da671fdb1980a98",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tests/test_ubuntu_userspace_check.py",
+      "to": "archive/ubuntu-boot-4-inspector/tests/test_ubuntu_userspace_check.py",
+      "original_git_blob": "7ff9ebe62880333266eb246a9142374199cf2075",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/CONTROLLA-PASSAGGIO-UBUNTU-4.cmd",
+      "to": "archive/ubuntu-boot-4-inspector/tools/windows/CONTROLLA-PASSAGGIO-UBUNTU-4.cmd",
+      "original_git_blob": "43e372ee534702b1aa045a9de75889f60150dc74",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGIMI-PASSAGGIO-UBUNTU-4.txt",
+      "to": "archive/ubuntu-boot-4-inspector/tools/windows/LEGGIMI-PASSAGGIO-UBUNTU-4.txt",
+      "original_git_blob": "27ee5e6f7f8275dfa5d4868734e16aa93f2e88c8",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Hard-pinned BOOT4 inspector; replaced by BOOT6 observer and current graphics/session logs.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": ".github/workflows/first-boot-check.yml",
+      "to": "archive/first-boot-check/.github/workflows/first-boot-check.yml",
+      "original_git_blob": "2da5f1498d7cc91aa0944ae802ac67f9f7526c8f",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Original-image standalone collector superseded by exact BOOT6 collectors; shared helper and host tests retained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/package-first-boot-check.py",
+      "to": "archive/first-boot-check/scripts/package-first-boot-check.py",
+      "original_git_blob": "37e2f819cdeaecdd898ee82110eb6c8f5419876c",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Original-image standalone collector superseded by exact BOOT6 collectors; shared helper and host tests retained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/CONTROLLA-PRIMO-AVVIO.cmd",
+      "to": "archive/first-boot-check/tools/windows/CONTROLLA-PRIMO-AVVIO.cmd",
+      "original_git_blob": "f080f1b70463abe2e83319a17b5442722c057a0d",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Original-image standalone collector superseded by exact BOOT6 collectors; shared helper and host tests retained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tools/windows/LEGGIMI-PRIMO-AVVIO.txt",
+      "to": "archive/first-boot-check/tools/windows/LEGGIMI-PRIMO-AVVIO.txt",
+      "original_git_blob": "eb7da783183c7c67f2095f99d51d5ad7e6c3d4d2",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Original-image standalone collector superseded by exact BOOT6 collectors; shared helper and host tests retained.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": ".github/workflows/inspect-inputs.yml",
+      "to": "archive/upstream-reconnaissance/.github/workflows/inspect-inputs.yml",
+      "original_git_blob": "004f198daecf10ca0cf70b94bbb266387e84d857",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Unpinned initial reconnaissance superseded by config/upstream.lock.json and current pinned audits.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/inspect-inputs.py",
+      "to": "archive/upstream-reconnaissance/scripts/inspect-inputs.py",
+      "original_git_blob": "a6e5350fba0a841d51c9f51d309b182f25a3e65e",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Unpinned initial reconnaissance superseded by config/upstream.lock.json and current pinned audits.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": ".github/workflows/source-audit.yml",
+      "to": "archive/upstream-reconnaissance/.github/workflows/source-audit.yml",
+      "original_git_blob": "9217d463be5ed1f315488ca9f0ea632dbc0e61cd",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Unpinned initial reconnaissance superseded by config/upstream.lock.json and current pinned audits.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "scripts/source-audit.sh",
+      "to": "archive/upstream-reconnaissance/scripts/source-audit.sh",
+      "original_git_blob": "17395e38745be483a01856f5fe9752227770e61f",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "reason": "Unpinned initial reconnaissance superseded by config/upstream.lock.json and current pinned audits.",
+      "replacement": "Current BOOT6 build, graphics permission correction and session collectors; historical reproduction uses the recorded source commit."
+    },
+    {
+      "from": "tests/test_first_boot_collector.py",
+      "to": "archive/first-boot-check/tests/test_first_boot_collector.py",
+      "original_git_blob": "cf68a88a0ade5fd0566d95e9dfbe2b7531f0b720",
+      "archived": true,
+      "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+      "source_remains_active": true,
+      "reason": "Original standalone Windows entrypoint test preserved; active file retains only shared collector host regressions."
     }
   ]
 }

@@ -9,6 +9,7 @@ on:
       - 'scripts/build-ubuntu-boot-handoff.sh'
       - 'tools/boot-observer/**'
       - 'tests/test_ubuntu_boot_handoff.py'
+      - 'tests/boot_force_guard.py'
       - 'tests/test_post_observer.py'
       - 'tests/test_hwc_readiness.py'
       - 'tests/test_boot_profiles.py'

@@ -10,7 +10,7 @@ The [first graphical boot record](evidence/ubuntu-first-graphical-boot-2026-10-1
 
 The latest independently read BOOT remains **version 6**, 57,344,000 bytes, SHA-256 `2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad`. The correction adds userdata configuration for **0666 access on hwbinder and ion**, with identity checks before LightDM; it does not rebuild or rewrite BOOT, SYSTEM or VENDOR. Keep it installed with this working baseline. The [BOOT 6 handset record](evidence/ubuntu-boot-6-handset-2026-10-15.json) preserves the earlier write/readback and subsequent success report.
 
-The user's publication criterion has been met. The repository is currently private; the authorized visibility change is pending. This first working boot does not establish daily-use reliability or support for untested hardware.
+The user's publication criterion has been met. The repository is public; visibility was verified through GitHub on 15 October 2026. This first working boot does not establish daily-use reliability or support for untested hardware.
 
 ## Verified progress
 
@@ -60,4 +60,4 @@ Then validate Wi-Fi reconnect/suspend, charging and power management, followed b
 
 ## Publication
 
-The confirmed graphical boot meets the user's agreed publication condition. Publication is authorized and pending the repository visibility operation; it is not yet recorded as completed. Public documentation must retain the user-report evidence level, exact prior image pins and explicit hardware-test limits.
+The confirmed graphical boot meets the user's agreed publication condition. The repository is now public, with GitHub visibility verified on 15 October 2026. Public documentation must retain the user-report evidence level, exact prior image pins and explicit hardware-test limits.

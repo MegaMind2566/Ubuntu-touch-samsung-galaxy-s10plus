@@ -4,7 +4,7 @@ Start with the [project README](../README.md), then use:
 
 | Document | Purpose |
 | --- | --- |
-| [Current status](status.md) | Verified handset state, boot blocker and next experiment. |
+| [Current status](status.md) | Current hardware status, first graphical boot and next validation steps. |
 | [Development](development.md) | Source/image pins, builds, offline analysis and validation boundaries. |
 | [Evidence index](evidence/README.md) | Compact reports supporting the current conclusions. |
 | [Historical notes](history/README.md) | Earlier planning and provisioning observations. |

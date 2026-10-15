@@ -10,7 +10,7 @@
     "reported_at": "2026-10-15T23:23:55+02:00",
     "reported_at_utc": "2026-10-15T21:23:55Z",
     "clock_scope": "Conversation confirmation time, not a measured handset boot timestamp.",
-    "first_user_message": "ora si è avviato",
+    "first_user_message": "ora si \u00e8 avviato",
     "subsequent_user_message": "touch e wifi funzionano",
     "subsequent_message_exact_timestamp_available": true,
     "evidence_basis": "Direct user reports; no new photograph or post-correction machine report received.",
@@ -79,9 +79,11 @@
   "publication": {
     "user_agreed_graphical_boot_criterion_met": true,
     "basis": "User-confirmed working graphical interface, touch and basic Wi-Fi.",
-    "repository_visibility": "private",
-    "authorized_visibility_change": "pending_tool_operation",
-    "public_release_or_supported_device_claim": false
+    "repository_visibility": "public",
+    "authorized_visibility_change": "completed_by_repository_owner",
+    "public_release_or_supported_device_claim": false,
+    "visibility_verified_date": "2026-10-15",
+    "verification": "GitHub repository metadata: private=false, visibility=public"
   },
   "next_evidence": "Record the visible screen and obtain correction/session logs when available; keep the working configuration.",
   "target_version_pin_source": "config/install-images.lock.json: ubuntu_touch_target=24.04-2.x, halium=12"

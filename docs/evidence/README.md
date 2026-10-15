@@ -42,3 +42,7 @@ Reports retain their original names and contents so image identities and earlier
 | [Odin PIT failure](ubuntu-install-pit-failure-2026-10-13.json) | Earlier transport failure before payload transfer; superseded by TWRP installation. |
 
 Other dated JSON files preserve intermediate build, transport and hardware observations. Filenames identify the experiment; a successful write is not recorded as a successful Ubuntu boot.
+
+## Repository maintenance
+
+[Post-boot cleanup](repository-cleanup-2026-10-15.json) records the preserved archive moves, current dependency checks and byte-identical package validation.

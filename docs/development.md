@@ -26,23 +26,11 @@ bash scripts/build-adaptation.sh
 
 The [SYSTEM assembly workflow](../.github/workflows/assemble-system.yml) combines the pinned rootfs, Halium GSI and adaptation into the measured filesystem layout. Use its input records when reproducing the candidate instead of replacing binary URLs with the latest available download.
 
-## Retained early-boot diagnostic
+## Historical boot diagnostics
 
-[early-boot-diagnostic.yml](../.github/workflows/early-boot-diagnostic.yml) builds diagnostic 2 after the first test produced no saved PID 1 evidence. It embeds a minimal raw CPIO derived from the pinned diagnostic 1 BusyBox/display payloads. A separate [configuration fragment](../config/early-boot-diagnostic.config) enables the built-in initramfs, and a [diagnostic-only patch](../patches/diagnostic/0001-honor-force-for-builtin-initramfs.patch) makes `CONFIG_INITRAMFS_FORCE` take precedence over `skip_initramfs`.
+The completed diagnostic 1/2 packages and BOOT 4 userspace inspector are preserved in [archive](../archive/README.md), outside executable workflow paths. Their original sources and blob identities are listed in [archive/manifest.json](../archive/manifest.json). Reproduce an old package by checking out its recorded source commit with its original layout.
 
-The builder compares the new kernel's embedded configuration with BOOT 2's embedded configuration and rejects changes outside initramfs options. It verifies the exact CPIO bytes in the compiled ARM64 Image, preserves diagnostic 1's external ramdisk and header fields, and packages that exact image as rollback. Generated Windows guard fixtures remain under `out/`. Builds and native host tests do not establish handset execution.
-
-[boot-diagnostic.yml](../.github/workflows/boot-diagnostic.yml) obtains the previously verified BOOT 2 artifact, builds the static ARM64 display helper, and substitutes only the controlled diagnostic ramdisk. It validates kernel/header preservation and tests the collector and generated Windows guards.
-
-The diagnostic does not start Ubuntu. It attempts to record its progress, enumerate a USB ACM function and show a framebuffer status. It saves bounded logs in a dedicated data directory and mounts SYSTEM/VENDOR read-only for layout checks. Its rollback restores BOOT 2; BOOT 2 itself is not a known working Ubuntu boot.
-
-To regenerate a package from verified local diagnostic images:
-
-```sh
-python3 scripts/package-boot-diagnostic.py --images out/boot-diagnostic-images
-```
-
-Windows `.cmd` files in [tools/windows](../tools/windows/README.md) are packaging inputs. They run from an extracted, prepared package with its pinned dependencies and images, not directly from a repository checkout.
+The current BOOT builder still imports the CPIO/image/input helpers in `prepare_boot_diagnostic.py` and `early_boot_diagnostic.py`. These modules, their immutable init input, the configuration fragment and the forced built-in-initramfs patch remain maintained. The shared force-guard regression is in `tests/boot_force_guard.py`. Standalone diagnostic builders, installers and their old native-entrypoint tests are not part of the current installation path.
 
 ## Kernel binary analysis
 

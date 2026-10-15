@@ -1,93 +1,81 @@
 # Ubuntu Touch for Samsung Galaxy S10+
 
-An experimental **Ubuntu Touch 24.04 / Halium 12** port for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The project has reached its first user-confirmed graphical boot. The goal now is to stabilize that boot, validate the remaining hardware and establish a repeatable installation path.
+I am porting **Ubuntu Touch 24.04 / Halium 12** to the **Samsung Galaxy S10+ Exynos (`beyond2lte`)**. My goal is to make it boot reliably, support the phone's hardware and provide a repeatable installation on the Android 12 firmware baseline.
 
-**Current result: Ubuntu Touch boots, and the test user reports working touch and Wi-Fi.** This follows graphics permission correction 1 on the existing BOOT 6. The [first graphical boot record](docs/evidence/ubuntu-first-graphical-boot-2026-10-15.json) documents the user confirmation that meets the publication milestone. A screenshot and a fresh correction/runtime log report are still pending; the earlier readback and runtime evidence described below predates this successful session.
+**Ubuntu Touch now boots on my S10+, with working touch and Wi-Fi.** I reached the first graphical boot on **15 October 2026**, using BOOT 6 with graphics permission correction 1. I am now testing stability and the remaining hardware.
 
-Status updated **15 October 2026**. This is a development port. Daily-use reliability, complete hardware support and an update channel remain unvalidated.
+This is an early development port. Daily-use reliability and a supported update channel have not been established.
+
+## Hardware support
+
+| Function | Status |
+| --- | --- |
+| Graphical Ubuntu Touch session | Booted on my test phone |
+| Touchscreen | Basic operation tested |
+| Wi-Fi | Basic operation tested |
+| Repeated boots and long-running stability | Pending validation |
+| Charging, battery reporting and suspend/resume | Pending validation |
+| Modem, calls, SMS and mobile data | Not yet tested |
+| Audio and microphone | Not yet tested |
+| Cameras | Not yet tested |
+| Bluetooth, GPS and sensors | Not yet tested |
+| Normal Ubuntu USB features | Not yet tested |
+
+These are basic checks on my **SM-G975F/DS**, not a complete compatibility test. The [first graphical boot record](docs/evidence/ubuntu-first-graphical-boot-2026-10-15.json) separates my observations from the earlier image readbacks and runtime logs. Those logs verify Ubuntu userspace, the Android container, HWC 2.2 and the Mali/OpenGL display path; extended touch and Wi-Fi testing is still pending.
 
 ## Tested baseline
 
-| Item | Target |
+| Component | Configuration |
 | --- | --- |
-| Phone | Galaxy S10+ Exynos, SM-G975F/DS |
+| Device | Samsung Galaxy S10+ SM-G975F/DS |
 | Codename / SoC | `beyond2lte` / Exynos 9820 |
-| Firmware | G975FXXSGHWC1, Android 12 / One UI 4.1, ITV/OXM |
-| Ubuntu userspace | Ubuntu Touch 24.04 arm64 |
-| Current configuration | BOOT 6 with graphics permission correction 1 on userdata |
-| Adaptation | Community Samsung Halium 12 sources with local kernel and configuration fixes |
-| Storage | Measured A-only Samsung partition layout; SYSTEM and BOOT installation |
+| Samsung firmware | G975FXXSGHWC1, Android 12 / One UI 4.1, ITV/OXM |
+| Ubuntu userspace | Ubuntu Touch 24.04-2.x, arm64 |
+| Android adaptation | Halium 12 |
+| Boot configuration | BOOT 6 with graphics permission correction 1 on userdata |
+| Storage | Measured A-only Samsung partition layout |
 
-Snapdragon variants and other Galaxy S10 models are outside the tested scope. The [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) identifies the earlier measured image readback.
+I have not tested Snapdragon variants or other Galaxy S10 models. Source revisions are pinned in [upstream.lock.json](config/upstream.lock.json); measured image identities are recorded in the [evidence index](docs/evidence/README.md).
 
-## Hardware status
+The current boot configuration includes Samsung init-handoff and USB fixes, device profiles, and a targeted graphics permission correction. The latter supplies access to `hwbinder` and `ion` before the display manager starts. The [correction record](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) links the diagnosed access failure, implementation and validation.
 
-| Function | Current evidence |
+## First experimental release
+
+I am preparing **v0.1.0-alpha.1** around the configuration that reached the first graphical boot. The final package contents and installation notes will be linked here once the release is published.
+
+## Installation and builds
+
+I currently use versioned development packages for specific image states. I am still validating a clean-install package and guide for other users.
+
+Existing Windows packages contain state-specific checks and require their complete prepared folder. The launcher source files in this repository are packaging inputs. Consult the [current project status](docs/status.md) before choosing a package or changing an existing test installation.
+
+For building the adaptation, assembling SYSTEM and reproducing the validation checks, start with [Development and validation](docs/development.md). Firmware, generated images and portable runtimes are kept outside the source tree; their identities are retained in the corresponding build records.
+
+## Roadmap
+
+1. Confirm repeat boots and sustained display, touch and Wi-Fi operation.
+2. Validate charging, battery reporting, suspend/resume and thermals.
+3. Test and bring up the remaining hardware functions listed above.
+4. Integrate the working configuration into a repeatable clean installation, with recovery instructions and an update strategy.
+
+I track each hardware result separately and will update the support table as testing progresses.
+
+## Documentation and contributions
+
+| Resource | Contents |
 | --- | --- |
-| Graphical Ubuntu Touch session | Started, confirmed by the test user after correction 1 |
-| Touchscreen | Working, confirmed by the test user in that session |
-| Wi-Fi | Working, confirmed by the test user in that session |
-| Repeated reboot, long-running stability and thermals | Pending validation |
-| Charging, battery reporting and suspend/resume | Pending validation |
-| Modem, calls, SMS and mobile data | Untested |
-| Audio and microphone | Untested |
-| Camera | Untested |
-| Bluetooth, GPS and sensors | Untested |
+| [Project status](docs/status.md) | Current handset results, limitations and next work |
+| [Development guide](docs/development.md) | Source pins, builds, image assembly and validation |
+| [Evidence index](docs/evidence/README.md) | Dated build records, readback identities and hardware observations |
+| [Scripts](scripts/README.md) | Maintained build, inspection and packaging components |
+| [Windows packages](tools/windows/README.md) | Development launcher entry points and required states |
 
-Previous normal-boot logs independently establish Ubuntu systemd execution, Android boot completion, HWC 2.2 and the Mali/OpenGL display path.
+Configuration lives in `config/`, adaptation patches in `patches/`, runtime support in `tools/`, and checks in `tests/`. Detailed experiment history is retained in `docs/` and the archive.
 
-## Boot fixes and evidence
+If you test the port or contribute a change, include your device model, firmware, observed behavior and relevant logs or image identities. Keep build/test results separate from execution on real hardware, and include a reproducible test when updating hardware support.
 
-BOOT 6 combines corrections to the Samsung system-as-root init handoff, a USB configfs NULL guard and guarded RAM device/Android profiles. It preserves the verified image layout and reaches Ubuntu userspace without rewriting SYSTEM or VENDOR for those profile changes. The [BOOT 6 build record](docs/evidence/ubuntu-boot-6-build-2026-10-15.json) and [handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) separate source tests, compiled checks, physical readback and runtime execution.
+## Upstream and licensing
 
-The remaining graphical failure was an access problem: root loaded Mapper 2.0, while phablet and lightdm received `EACCES` on `/dev/hwbinder`, which was root-owned with mode 0600. `/dev/ion` was also restricted. The [runtime comparison](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) records that diagnosis. [Graphics permission correction 1](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) supplies the intended access for those two devices through dedicated udev/systemd configuration on userdata, before LightDM starts. The user reports the successful graphical boot after that correction.
+I build on the [UBports community Samsung Exynos 9820 port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820), its matching Halium kernel, the Halium generic adaptation build tools, Ubuntu Touch and TeamWin recovery.
 
-The [current status](docs/status.md) and [evidence index](docs/evidence/README.md) retain the detailed findings and validation limits.
-
-## Next work
-
-1. Record the successful session with a screenshot, fresh correction logs and the tested image/configuration identities.
-2. Check repeat boots, display/touch/Wi-Fi stability, charging, suspend/resume and thermals.
-3. Bring up the remaining hardware and define a repeatable installation, recovery and update process for other users.
-
-Keep the graphics correction installed on the working test handset. The current Windows packages are guarded development tools for their documented image states; a clean-install procedure for other users is still being validated.
-
-## Repository map
-
-| Location | Contents |
-| --- | --- |
-| [config](config) | Source, configuration and installation image pins |
-| [patches/kernel](patches/kernel) | AppArmor, Samsung SAR and USB configuration fixes |
-| [patches/diagnostic](patches/diagnostic) | Forced built-in-initramfs change shared by diagnostic 2 and the Ubuntu BOOT family |
-| [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
-| [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
-| [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
-| [tools/boot-observer](tools/boot-observer) | Bounded tracing, post-root observation and guarded RAM device/Android profiles |
-| [tools/graphics-permissions](tools/graphics-permissions) | Targeted persistent hwbinder/ion access correction before LightDM on BOOT 6 |
-| [tools/graphics-probe](tools/graphics-probe) | Bounded mapper inspection; retained for comparison and removal of the installed diagnostic |
-| [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
-| [tests](tests) | Image, source, collector and Windows guard validation |
-| [docs](docs/README.md) | Current status and development documentation |
-| [docs/evidence](docs/evidence/README.md) | Dated build and handset reports |
-| [docs/history](docs/history/README.md) | Earlier planning and bring-up notes |
-| [archive](archive/README.md) | Superseded standalone tools, with a move/provenance manifest |
-
-Generated images, firmware archives, extracted ELF files and portable runtimes remain build artifacts rather than repository files. The old chronological README remains available in Git history.
-
-## Development
-
-Start with [Development and validation](docs/development.md) for source pins, build dependencies, image assembly and the current CI workflows. Windows launchers require the complete prepared package; they are not intended to run from a source checkout.
-
-The new offline analysis tools complement binary inspection:
-
-- [vmlinux-to-elf](https://github.com/marin-m/vmlinux-to-elf) recovers kernel symbols and an ELF suitable for ARM64 disassembly or Ghidra.
-- [DTC / libfdt](https://github.com/dgibson/dtc) decodes and composes DTB/DTBO device trees.
-- The reviewed Exynos 9820 QEMU fork has incomplete peripheral/UFS support and is not used as a full handset boot simulator.
-
-Contributions should state which validation level supports a result and include image identities for hardware observations. The next objectives are stable reboot/display behavior, validation of the remaining hardware and a repeatable installation path. An update channel has not yet been established.
-
-## Upstream and attribution
-
-This work builds on the [UBports Samsung Galaxy S10 community port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820), its matching Halium kernel, generic adaptation build tools, Ubuntu Touch images and TeamWin recovery. Exact source revisions are recorded in [upstream.lock.json](config/upstream.lock.json).
-
-Third-party licensing and attribution are documented in [THIRD_PARTY.md](THIRD_PARTY.md). This repository does not imply official Samsung, TeamWin or UBports support for the resulting experimental image.
+Upstream components retain their respective copyright and license terms. See [THIRD_PARTY.md](THIRD_PARTY.md) for attribution, component licenses and source references. This independent development port carries no claim of official Samsung, TeamWin or UBports support.

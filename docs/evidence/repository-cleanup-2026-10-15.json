@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "purpose": "Separate completed boot experiments from the maintained first-boot firmware and hardware-validation paths.",
+  "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+  "repository_visibility_verified": "public",
+  "archive": {
+    "source_files_moved": 33,
+    "original_native_entrypoint_test_preserved": true,
+    "groups": [
+      "boot-diagnostics",
+      "ubuntu-boot-4-inspector",
+      "first-boot-check",
+      "upstream-reconnaissance"
+    ],
+    "manifest": "archive/manifest.json",
+    "original_source_blob_identities_preserved": true,
+    "historical_workflows_outside_executable_directory": true,
+    "firmware_or_portable_runtimes_committed": false
+  },
+  "retained_shared_dependencies": [
+    "prepare_boot_diagnostic.py",
+    "early_boot_diagnostic.py",
+    "prepare_boot_update.py",
+    "collect-first-boot.py",
+    "tools/boot-diagnostic/init",
+    "config/early-boot-diagnostic.config",
+    "patches/diagnostic",
+    "scripts/templates"
+  ],
+  "changes": [
+    "Extracted AST-identical force_guard fixture into tests/boot_force_guard.py for current BOOT tests.",
+    "Removed only the obsolete standalone Windows-entrypoint branch from the active first-boot helper host tests.",
+    "Rewrote README in the project owner first-person voice; current hardware status and experimental release state are explicit.",
+    "Updated script, launcher, development and archive navigation."
+  ],
+  "validation": {
+    "success": true,
+    "python_ast_pass": true,
+    "bash_syntax_pass": true,
+    "active_workflow_yaml_and_direct_script_references_pass": 16,
+    "markdown_local_links_pass": true,
+    "all_preserved_archive_blobs_match": 70,
+    "non_archived_historical_document_moves_excluded_from_immutable_assertion": true,
+    "new_moves": 33,
+    "source_commit": "70bf0d9701b951826c2c2a8d7e27c68d1dd77b84",
+    "unittest": {
+      "tests": 157,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3,
+      "seconds": 12.567,
+      "scope": "Host unittest discovery; separate force-guard host and real ARM64 tests recorded in repository-cleanup-force-guard/validation.json."
+    }
+  },
+  "graphics_packages_preserved": [
+    {
+      "generated": "correction.zip",
+      "prior_delivered": "UbuntuTouch-S10plus-correzione-grafica-1-Windows.zip",
+      "identical": true,
+      "bytes": 25833,
+      "sha256": "f7329e445f7ed4a0a477571c9558c2f967fd8edfd70e75a853788213e3052e0d"
+    },
+    {
+      "generated": "probe.zip",
+      "prior_delivered": "UbuntuTouch-S10plus-test-grafica-1-Windows.zip",
+      "identical": true,
+      "bytes": 20898,
+      "sha256": "1644bf661ce65a2db9847b2349a05ad80fe89b00d6a3258da620b6241980aaff"
+    },
+    {
+      "generated": "graphics.zip",
+      "prior_delivered": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-v3-Windows.zip",
+      "identical": true,
+      "bytes": 12603,
+      "sha256": "90348d514eb0c84aa847ecb4a76421ab88c6521ada3447aec4f3ee1b2c98565f"
+    }
+  ],
+  "boot_package_preserved": {
+    "success": true,
+    "regenerated_package": "boot6.zip",
+    "prior_delivered_package": "UbuntuTouch-S10plus-avvio-Ubuntu-6-Windows.zip",
+    "all_member_names_and_bytes_identical": true,
+    "members": 20,
+    "zip_metadata_may_differ": true,
+    "image_bytes_unchanged": true
+  },
+  "force_guard_validation": {
+    "record_sha256": "3ea1534b77d66a4bbc38b772600c8a4d1dbc8a5f303e0b7037bf9bcd03cd8cb6",
+    "record_local": "firmware-inspection/repository-cleanup-force-guard/validation.json",
+    "host_and_static_arm64_cases": 4,
+    "mutation_without_guard_rejected": true,
+    "current_boot_builder_import_passed": true
+  },
+  "limits": [
+    "Unittest discovery is host validation, with three explicit skips; ARM64 force-guard execution is a separate check.",
+    "No new phone write or hardware test was performed during repository cleanup.",
+    "Kernel and SYSTEM firmware images remain unchanged."
+  ]
+}

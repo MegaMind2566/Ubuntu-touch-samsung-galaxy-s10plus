@@ -15,7 +15,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
 from ubuntu_boot_handoff import (ubuntu_initramfs,original_image,entries,image_kernel,
     PREVIOUS_SHA256,embedded_archive,BOOT_CMDLINE)
-from test_early_boot_diagnostic import force_guard
+from boot_force_guard import force_guard
 
 
 def shell_checks(qemu,payload,folder):

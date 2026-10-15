@@ -1,32 +1,32 @@
-# Windows package launchers
+# Windows package entry points
 
-These files are inputs to the packaging scripts. The scripts place them at the root of an extracted Windows ZIP together with pinned ADB/Python dependencies, configuration and the required image files. Their relative paths assume that prepared package layout.
+These files are packaging inputs. Use the complete extracted package, including its pinned Python/ADB dependencies. The current test handset boots Ubuntu Touch with BOOT 6 and graphics permission correction 1; touch and basic Wi-Fi work.
 
-## Current working test configuration
+## Working configuration and result collection
 
-The test user confirms the first graphical Ubuntu Touch boot, working touch and Wi-Fi after graphics permission correction 1 on BOOT 6. A screenshot and fresh correction/runtime report are pending. Retain that configuration while recording the result and validating stability; the older BOOT install/diagnostic launchers below apply only to their documented source-image states.
-
-| Launcher | Effect |
+| Launcher | Purpose |
 | --- | --- |
-| `INSTALLA-AVVIO-UBUNTU-6.cmd` | Installs BOOT 6 USB and RAM-profile corrections only from exact physical BOOT 5; writes only BOOT. |
-| `LEGGI-AVVIO-UBUNTU-6.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-6-log-report.zip`. |
-| `APPLICA-CORREZIONE-GRAFICA-1.cmd`, `LEGGI-CORREZIONE-GRAFICA-1.cmd`, `ANNULLA-CORREZIONE-GRAFICA-1.cmd` | Apply the persistent hwbinder/ion access correction on exact BOOT 6, read its result/session logs, or undo only its verified configuration. Keep it installed on the handset with the reported working GUI. |
-| `PREPARA-TEST-GRAFICA-1.cmd`, `LEGGI-TEST-GRAFICA-1.cmd`, `RIMUOVI-TEST-GRAFICA-1.cmd` | Prepare one bounded runtime inspection on BOOT 6 using userdata, read its logs after one boot, then remove its unit/assets. |
-| `LEGGI-GRAFICA-UBUNTU-6.cmd` | Collector version 3 reads fixed graphics/session log tails and a USC prefix with TWRP-compatible metadata and separate CRLF transfer limits after pinning RECOVERY, BOOT 6 and userdata; produces `ubuntu-graphics-6-report.zip`. |
-| `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 6. |
-| `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
-| `INSTALLA-TEST-AVVIO-2.cmd` | Installs the built-in-initramfs diagnostic from the exact verified diagnostic 1 BOOT; targets only BOOT. |
-| `LEGGI-TEST-AVVIO-2.cmd` | Reads test 2 logs and BOOT identity; produces `ubuntu-boot-diagnostic-2-log-report.zip`. |
-| `RIPRISTINA-TEST-AVVIO-1.cmd` | Restores the exact diagnostic 1 BOOT from diagnostic 2 through the same guarded path. |
-| `INSTALLA-TEST-AVVIO.cmd` | Controlled BOOT-only diagnostic installation, requiring verified BOOT 2 and recovery/preflight guards. Already completed on the test handset. |
-| `RIPRISTINA-BOOT-2.cmd` | Restores verified BOOT 2 from the diagnostic state. BOOT 2 is an experimental image, not a confirmed working Ubuntu boot. |
+| `APPLICA-CORREZIONE-GRAFICA-1.cmd` | Store the persistent hwbinder/ion correction for the next BOOT 6 start. Keep it installed on the working handset. |
+| `LEGGI-CORREZIONE-GRAFICA-1.cmd` | Read bounded correction and compositor/session logs from TWRP. |
+| `ANNULLA-CORREZIONE-GRAFICA-1.cmd` | Undo only the correction's verified userdata configuration; preserve logs. Read them before any undo. |
+| `LEGGI-GRAFICA-UBUNTU-6.cmd` | Read bounded retained graphics logs, including the compositor prefix. |
+| `LEGGI-AVVIO-UBUNTU-6.cmd` | Read BOOT 6 checkpoints and retained systemd/Android observations. |
 
-BOOT 5 confirms systemd and Android/HWC execution but reboots on a USB configfs NULL dereference. BOOT 6 corrects that driver and applies the missing profiles in RAM. Its installer distinguishes the current BOOT 5 apply baseline from the BOOT 4 rollback image. Completed BOOT 3/4/5 standalone inputs are archived with provenance; do not repeat their completed installations.
+## Installation and recovery support
 
-BOOT 6 has a matching earlier physical readback. The runtime comparison identifies hwbinder permissions as the mapper blocker and ion as another restricted device used by root. The user reports that the targeted correction now boots the GUI, with touch and Wi-Fi working. Keep BOOT 6 and the correction installed; use `LEGGI-CORREZIONE-GRAFICA-1.cmd` from TWRP to obtain fresh evidence. The old probe remains available for comparison and removal of its already installed diagnostic; it need not be prepared again. Read logs before removing any associated configuration.
+| Launcher | Prerequisite and effect |
+| --- | --- |
+| `INSTALLA-AVVIO-UBUNTU-6.cmd` | Exact BOOT 5 baseline; install BOOT 6 only. This is an upgrade tool for that development state. |
+| `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Exact BOOT 6 baseline; restore the separate experimental BOOT 4 rollback image. |
+| `PREPARA-RECOVERY.cmd`, `INSTALLA-RECOVERY-TEST.cmd`, `CONTROLLA-RECOVERY.cmd` | Prepare, validate or install the hash-pinned recovery in their documented package states. |
+| `PREPARA-UBUNTU-TOUCH.cmd`, `INSTALLA-UBUNTU-TWRP.cmd` | Original SYSTEM/BOOT preparation and guarded TWRP installation. Read the package instructions and exact image requirements. |
+| `SCARICA-FIRMWARE.cmd` | Retrieve the pinned stock firmware for the original recovery baseline. |
+| `CONTROLLA-DOWNLOAD.cmd`, `ESTRAI-DTB.cmd` | Download-mode layout checks and stock device-tree extraction. |
 
-## Maintained support
+## Optional diagnostics
 
-Recovery checks/preparation, the TWRP installation route, stock firmware/DTB inspection, first-boot/USB collectors and Android inventory launchers remain available for their documented states. `AVVIA-CONTROLLO.cmd` is now stored here with the other launcher inputs; its generated package name is unchanged.
+`PREPARA-TEST-GRAFICA-1.cmd`, `LEGGI-TEST-GRAFICA-1.cmd` and `RIMUOVI-TEST-GRAFICA-1.cmd` retain the controlled mapper comparison and removal path for a previously installed probe. Preparing that probe again is not a prerequisite for the working correction. `CONTROLLA-USB-AVVIO.cmd` remains a read-only Windows USB observer. `AVVIA-CONTROLLO.cmd` collects the initial stock-Android inventory for a new test handset.
 
-Old standalone BOOT 1/2 corrections, the superseded Odin SYSTEM/BOOT launcher and the one-time data-format add-on are under [archive](../../archive/README.md). They are not current entry points for the test handset.
+## Historical packages
+
+Completed PID 1 diagnostics, the BOOT 4 userspace inspector, old first-boot add-ons and BOOT 1–5 standalone updates are in [archive](../../archive/README.md). They are no longer current entry points. Shared dependencies, current collectors and the working correction remain maintained.

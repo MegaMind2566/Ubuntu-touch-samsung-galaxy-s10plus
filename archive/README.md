@@ -4,9 +4,13 @@ This archive preserves the source of completed experiments. It is separate from 
 
 | Area | Why archived | Current replacement |
 | --- | --- | --- |
+| `boot-diagnostics/` | Completed diagnostic 1/2 standalone builders, packages, collectors and launchers. | Current BOOT 6 builder/observer; shared image/CPIO/input modules remain active. |
+| `ubuntu-boot-4-inspector/` | Inspector pinned to an old BOOT 4 state. | Current BOOT 6 and graphics/session collectors. |
+| `first-boot-check/` | Standalone first-boot add-on pinned to the original images. | Version-specific BOOT 6 collectors; shared transport/redaction helper and host tests stay active. |
+| `upstream-reconnaissance/` | Initial unpinned latest/live-ref discovery. | Locked source checkout and current source/kernel/userspace audits. |
 | `ubuntu-boot-5/` | BOOT 5 confirms systemd/Android execution but hits the USB configfs NULL panic. | BOOT 6 USB correction, RAM profiles and exact BOOT 4 rollback. |
-| `ubuntu-boot-4/` | BOOT 4 handset test completed; its host repackage route pins the previous payload. | BOOT 5 compatibility build, post-handoff collector and exact BOOT 4 rollback. |
-| `ubuntu-boot-3/` | BOOT 3 handset test completed; its pinned host repackage workflow targets the previous payload. | Maintained Ubuntu BOOT 4 builder/collector and guarded BOOT 3 rollback. |
+| `ubuntu-boot-4/` | Completed BOOT 4 standalone upgrade. | Current BOOT 6 build and collectors. |
+| `ubuntu-boot-3/` | Completed BOOT 3 standalone upgrade. | Current BOOT 6 build and collectors. |
 | `boot-update-1/` | The standalone offset-fix package was applied and BOOT 1 still remained at the logo. | Both SAR fixes are in the current build; controlled BOOT diagnostic and BOOT 2 rollback. |
 | `boot-update-2/` | The standalone init-handoff package was applied and BOOT 2 still remained at the logo. | Current diagnostic package, using the verified BOOT 2 kernel. |
 | `odin-system-boot/` | The SYSTEM/BOOT Download-mode route failed during PIT transfer and was replaced by the tested TWRP route. | Maintained TWRP installer and shared image/preflight checks. |
@@ -23,3 +27,7 @@ Archived workflows are outside `.github/workflows/`, so GitHub cannot execute th
 Completed BOOT 4 standalone launchers and host repackage sources use source revision `8758c3747d4cc7909463f6b2d1660169e450fd4f`. The shared builder, verified install templates and immutable image references remain maintained.
 
 Completed BOOT 5 standalone apply/read/readme inputs use source revision `0703cda8ae8520900847f1d2fb89a2b67b6d5283`. The shared BOOT 4 rollback launcher remains maintained for BOOT 6.
+
+## First graphical boot cleanup
+
+The post-boot cleanup records source commit `70bf0d9701b951826c2c2a8d7e27c68d1dd77b84`. Archived files preserve their original bytes. The original full first-boot collector test is preserved here while its active file retains the shared host regressions. Current graphics packages, recovery guards, pinned build inputs and stock firmware support remain active. No firmware or generated runtime is stored in this archive.
