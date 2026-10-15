@@ -1,0 +1,539 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "purpose": "Identify mapper loader failure on unchanged BOOT6 using a removable controlled UID comparison.",
+  "hardware_experiment_pending": true,
+  "graphical_boot_confirmed": false,
+  "boot": {
+    "bytes": 57344000,
+    "sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "kernel_or_firmware_rebuild_required": false
+  },
+  "phone_write_scope": {
+    "raw_partition_writes": false,
+    "mount_changes": false,
+    "automatic_reboot": false,
+    "userdata_files": true,
+    "normal_ubuntu_systemd_configuration_in_userdata_changed": true,
+    "system_vendor_images_changed": false,
+    "existing_device_modes_or_display_services_changed": false,
+    "base": "/data/ubuntu-touch-graphics-probe-1",
+    "unit": "/data/system-data/etc/systemd/system/ubuntu-touch-graphics-probe.service",
+    "enable_link": "/data/system-data/etc/systemd/system/multi-user.target.wants/ubuntu-touch-graphics-probe.service"
+  },
+  "runtime": {
+    "unit_type": "simple",
+    "runtime_max_seconds": 150,
+    "owned_child_timeout_seconds": 15,
+    "max_log_bytes_per_file": 524288,
+    "max_temp_file_bytes": 1048576,
+    "controlled_users": [
+      "root",
+      "phablet",
+      "lightdm"
+    ],
+    "python_isolated_mode": true,
+    "TLS_padding_preloaded": true,
+    "logger_redirect": "Bionic liblog stderr setter in each new probe process, verified by marker; no daemon-wide logging change.",
+    "mapper_trigger": "GraphicBuffer default constructor enters GraphicBufferMapper without a surface or pixel allocation.",
+    "strace": "Only new owned child processes; filesystem syscalls, not application data or existing Lomiri attachment.",
+    "comparison_limit": "Controlled runuser environment and PAM/cgroup context may differ from the live LightDM session; process metadata is recorded separately.",
+    "one_shot": "armed marker consumed before collection; preparation never silently rearms an existing test.",
+    "removal": "Validate known identities, disable own unit, remove own assets/armed; preserve logs and unknown files. Collect before removal."
+  },
+  "provenance": {
+    "route": {
+      "schema": 1,
+      "created_utc": "2026-10-15T20:48:45.249431+00:00",
+      "scope": "Source and saved runtime evidence for a Data-only transient graphics inspection; not a handset test of this probe.",
+      "writable_paths": {
+        "path": "/workspace/scratch/3496a8d6f68b/firmware-inspection/system-handoff-audit/upstream-rootfs-audit-complete/etc--system-image--writable-paths",
+        "bytes": 8375,
+        "sha256": "5fbf9a6d4234fe6f6fdd333e8b84a8efa4d00f36243ca6c9d01f49e62c7a6181",
+        "exact_SYSTEM_debugfs_output_matches_pinned_upstream": true,
+        "mountpoint_line": 86,
+        "entry": "/etc/systemd/system auto synced none none",
+        "comment_lines": [
+          83,
+          84,
+          85
+        ]
+      },
+      "mapping_processor": {
+        "boot6_cpio": {
+          "path": "/workspace/scratch/3496a8d6f68b/firmware-inspection/boot-6-local-build/builder/out/ubuntu-boot-handoff-images/initramfs.cpio",
+          "bytes": 9150976,
+          "sha256": "41014358ec90fcf6590edd56a9802c209eaa7d8ae729fecd5fa84d686b2d2953"
+        },
+        "entry": "scripts/halium",
+        "bytes": 21538,
+        "sha256": "9231c0eb7244833a06946a026478e54a229bf8c95b3f7c9c7330afcd4a7d39c2",
+        "mapping_lines": [
+          335,
+          336,
+          337
+        ],
+        "early_mount_lines": [
+          378,
+          379,
+          380,
+          381,
+          382
+        ],
+        "sync_existing_lines": [
+          367,
+          368,
+          369
+        ],
+        "sync_non_destructive_copy_lines": [
+          226,
+          227,
+          228,
+          229,
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240
+        ],
+        "runtime_mountpoint": "/etc/systemd/system",
+        "persistent_source_runtime": "/userdata/system-data/etc/systemd/system",
+        "same_userdata_source_from_TWRP": "/data/system-data/etc/systemd/system",
+        "sync_semantics": "Adds missing base files/directories; does not delete custom entries and does not replace existing regular files/symlinks."
+      },
+      "saved_runtime_mount": {
+        "path": "/workspace/scratch/3496a8d6f68b/firmware-inspection/boot-6-handset-2026-10-15/ubuntu-boot-6-log-report--run-1-post-mounts.txt",
+        "bytes": 13189,
+        "sha256": "5d2dc8423a516d6c89a23a095eb1f635823ac929bd3dd5ffbd67f778714df726",
+        "line": 21,
+        "value": "/dev/sda31 /etc/systemd/system ext4 rw,relatime,discard,nodelalloc,errors=remount-ro,data=journal 0 0"
+      },
+      "rootfs_input": {
+        "name": "ubuntu-touch-android9plus-rootfs-arm64.tar.gz",
+        "url": "https://ci.ubports.com/job/ubuntu-touch-rootfs/job/ubports%252F24.04-2.x/125/artifact/ubuntu-touch-android9plus-rootfs-arm64.tar.gz",
+        "sha256": "fde4a33619101e1009725a18e3f8b4a6da1195935ec6ec69bb2a3f15b326203d",
+        "bytes": 971332425
+      },
+      "commands_and_python_from_pinned_rootfs": {
+        "usr/sbin/runuser": {
+          "rootfs_path": "/usr/sbin/runuser",
+          "bytes": 67744,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "ad60c93d69cfac7888605946c9eb8cca03034dbf39bc313e4c3aaa67979bef65",
+          "elf_aarch64": true
+        },
+        "usr/lib/python3.12/ctypes/__init__.py": {
+          "rootfs_path": "/usr/lib/python3.12/ctypes/__init__.py",
+          "bytes": 18182,
+          "mode": "0o644",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "0782592567ad71097198a3afe985ac3e2ea0b9b5e75452402c9460c89a86318a",
+          "elf_aarch64": false
+        },
+        "usr/lib/python3.12/lib-dynload/_ctypes.cpython-312-aarch64-linux-gnu.so": {
+          "rootfs_path": "/usr/lib/python3.12/lib-dynload/_ctypes.cpython-312-aarch64-linux-gnu.so",
+          "bytes": 145728,
+          "mode": "0o644",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "95972e7db95b14e3800db6bfb7c76a93c025f82ed1a28f6b161ed884343ea201",
+          "elf_aarch64": true
+        },
+        "usr/lib/aarch64-linux-gnu/libtls-padding.so": {
+          "rootfs_path": "/usr/lib/aarch64-linux-gnu/libtls-padding.so",
+          "bytes": 67288,
+          "mode": "0o4644",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "f6b7aa8a6c34c5eb4ac6aa7c9826a64ff20ec179ca91a3feb41f16e1f0810bba",
+          "elf_aarch64": true
+        },
+        "usr/bin/lxc-attach": {
+          "rootfs_path": "/usr/bin/lxc-attach",
+          "bytes": 1322760,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "24c7c0ddba142654a60f9aadbe6335cd73709e89d76a2bb492a98d4bc4d52248",
+          "elf_aarch64": true
+        },
+        "usr/bin/strace": {
+          "rootfs_path": "/usr/bin/strace",
+          "bytes": 1771800,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "33b3ea325915f1213dc477d80e0f0b2b09ffeff5e81d98b25a35320fbcbcaf42",
+          "elf_aarch64": true
+        },
+        "usr/bin/python3": {
+          "rootfs_path": "/usr/bin/python3",
+          "bytes": 0,
+          "mode": "0o777",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "2",
+          "link": "python3.12"
+        },
+        "usr/bin/python3.12": {
+          "rootfs_path": "/usr/bin/python3.12",
+          "bytes": 7845048,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960",
+          "elf_aarch64": true
+        },
+        "usr/bin/timeout": {
+          "rootfs_path": "/usr/bin/timeout",
+          "bytes": 68368,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "e9019c0a2fc634096cc1237f68b015fa8eb72f80cfc7d3fe69a1a4e2d9a24980",
+          "elf_aarch64": true
+        },
+        "usr/bin/env": {
+          "rootfs_path": "/usr/bin/env",
+          "bytes": 68368,
+          "mode": "0o755",
+          "uid": 0,
+          "gid": 0,
+          "tar_type": "0",
+          "link": "",
+          "sha256": "d38fa7db8452a564868961fd5e9a0aa787095676b0fd6e497b766ac40ec65c8b",
+          "elf_aarch64": true
+        }
+      },
+      "controller_unit": {
+        "path": "/usr/lib/systemd/system/lxc-android-config.service",
+        "sha256": "c3e4ca001b9feb57cc27b68240e000b8fee9c5fd2a0248b9cf98d500a25db181",
+        "lxc_android_service_is_absent": true
+      },
+      "runtime_interface": {
+        "TWRP_BASE": "/data/ubuntu-touch-graphics-probe-1",
+        "runtime_BASE": "/userdata/ubuntu-touch-graphics-probe-1",
+        "assets_directory_mode": "root:root 0755",
+        "script_files_mode": "root:root 0644",
+        "logs_directory": "run-1",
+        "logs_mode": "root:root 0700",
+        "marker": "armed",
+        "marker_bytes": 26,
+        "marker_value": "UT_GRAPHICS_PROBE_1_ARMED\n",
+        "unit": "ubuntu-touch-graphics-probe.service",
+        "type": "simple",
+        "global_deadline_seconds": 150,
+        "individual_command_timeout_seconds": 15,
+        "retained_file_cap_bytes": 524288,
+        "log_files": 11,
+        "does_not_modify_existing_services_or_devices": true,
+        "no_reboot_or_shutdown": true,
+        "controlled_UID_comparison_is_not_equivalent_to_live_LightDM_session": true
+      },
+      "payloads": {
+        "mapper-probe.py": {
+          "path": "/workspace/scratch/3496a8d6f68b/Ubuntu-touch-samsung-galaxy-s10plus/tools/graphics-probe/mapper-probe.py",
+          "bytes": 9341,
+          "sha256": "e3ea2b3e551cf7f5a2d7622badba45d91ba8d6d37e0278a4bfa26025f2ce282f"
+        },
+        "probe.sh": {
+          "path": "/workspace/scratch/3496a8d6f68b/Ubuntu-touch-samsung-galaxy-s10plus/tools/graphics-probe/probe.sh",
+          "bytes": 4832,
+          "sha256": "ba6b32d1a064658b7531bf45e07b0c3364bf3b84e37f22b257567a34278abc8b"
+        },
+        "ubuntu-touch-graphics-probe.service": {
+          "path": "/workspace/scratch/3496a8d6f68b/Ubuntu-touch-samsung-galaxy-s10plus/tools/graphics-probe/ubuntu-touch-graphics-probe.service",
+          "bytes": 486,
+          "sha256": "3be86a804d7339c1dfa42cf24f4add499a77f292c8ef2c32a78c70ac57e5633c"
+        }
+      }
+    },
+    "loader_and_ELF_audit": {
+      "schema": 1,
+      "read_only_source_and_elf_audit": true,
+      "new_handset_access": false,
+      "existing_services_modified": false,
+      "android_image": {
+        "path": "firmware-inspection/system-handoff-audit/android-rootfs.img",
+        "bytes": 464084992,
+        "sha256": "b424512f8136fe48bed1eb9df617c59f177873e1cd6e9e4747e4f9af132862c5"
+      },
+      "libraries": {
+        "bionic_liblog": {
+          "path": "firmware-inspection/system-handoff-audit/boot6-android-graphics/liblog.so",
+          "bytes": 62128,
+          "sha256": "899831bdb4a8443d2a7cc3fcb6f6335c6ffa64e008423c195b26fcc978c5d0a3"
+        },
+        "bionic_ui_compat": {
+          "path": "firmware-inspection/system-handoff-audit/boot6-android-graphics/libui_compat_layer.so",
+          "bytes": 19584,
+          "sha256": "693ad4d508767e82db96853d0d51a5ac4906560ae268b92bbecbe816ae2fde49"
+        },
+        "bionic_libui": {
+          "path": "firmware-inspection/system-handoff-audit/boot6-libui.so",
+          "bytes": 303120,
+          "sha256": "be8445e98f00e022a3577f9ca769a919f927a4c7973bc4d526024cbdbb3eb59d"
+        },
+        "glibc_hybris_common": {
+          "path": "firmware-inspection/system-handoff-audit/upstream-minroot/usr/lib/aarch64-linux-gnu/libhybris-common.so.1.0.0",
+          "bytes": 145216,
+          "sha256": "96295536b277baa23dbc744a6d913684fa929c02d606d96c0f53e260e5f6e24b"
+        },
+        "glibc_ui_wrapper": {
+          "path": "firmware-inspection/system-handoff-audit/upstream-minroot/usr/lib/aarch64-linux-gnu/libui.so.1.0.0",
+          "bytes": 67464,
+          "sha256": "76d92a49d6c59a4e5440595a44c9775eab1513bf14c0dbf557168c13762b2c3b"
+        },
+        "glibc_android_liblog_not_the_probe_target": {
+          "path": "firmware-inspection/system-handoff-audit/upstream-minroot/usr/lib/aarch64-linux-gnu/android/liblog.so.0",
+          "bytes": 48080,
+          "sha256": "9a855a46a606087eb1fb29648e381d43b50ddb4d4eba468b98ed51ceb5775902"
+        },
+        "tls_padding": {
+          "path": "firmware-inspection/system-handoff-audit/upstream-minroot/usr/lib/aarch64-linux-gnu/libtls-padding.so",
+          "bytes": 67288,
+          "sha256": "f6b7aa8a6c34c5eb4ac6aa7c9826a64ff20ec179ca91a3feb41f16e1f0810bba"
+        },
+        "hybris_q_linker": {
+          "path": "firmware-inspection/system-handoff-audit/upstream-minroot/usr/lib/aarch64-linux-gnu/libhybris/linker/q.so",
+          "bytes": 333040,
+          "sha256": "c927a57463c97a0175436e41fccd0a1488fbe2b479e4ba3c0f700c417050a533"
+        }
+      },
+      "actual_bionic_liblog_exports": {
+        "__android_log_set_logger": {
+          "address": "0x62a8",
+          "signature": "void(logger_function_pointer)",
+          "compiled_body": "ADRP; STR x0 to logger slot; RET"
+        },
+        "__android_log_stderr_logger": {
+          "address": "0x62dc",
+          "signature": "void(const android_log_message*)"
+        },
+        "__android_log_set_minimum_priority": {
+          "address": "0x627c",
+          "signature": "int32_t(int32_t)"
+        },
+        "__android_log_write": {
+          "address": "0x667c",
+          "signature": "int(int,const char*,const char*)"
+        },
+        "__android_log_print": {
+          "address": "0x6a44",
+          "signature": "int(int,const char*,const char*,...)"
+        },
+        "__android_log_buf_write": {
+          "address": "0x6730",
+          "signature": "int(int,int,const char*,const char*)"
+        }
+      },
+      "libhybris_source": {
+        "repository": "https://github.com/libhybris/libhybris",
+        "commit": "0cedf905768992328552c7d06b0ceb542bf91c67",
+        "files": [
+          {
+            "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--common--logging.c",
+            "bytes": 3219,
+            "sha256": "1545cef3f7e7b8350e9d4d745b3986b1cc2c08239db1a520c862d2cfc9280883"
+          },
+          {
+            "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--common--hooks.c",
+            "bytes": 113893,
+            "sha256": "3992c01fb9c117e9120a671b6dd313a69e9e849026384f808ea74a3192ac5f03"
+          },
+          {
+            "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--common--q--linker_main.cpp",
+            "bytes": 28553,
+            "sha256": "ea56f5ffb55307b238f155cc9195d993b15f0d00f13ecd405e4ade357970d66a"
+          },
+          {
+            "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--common--q--linker_debug.h",
+            "bytes": 3738,
+            "sha256": "e4df2e74d227c3878e4f2dcacebcfbded5b6af27563b3c121358b71facf5eaa5"
+          },
+          {
+            "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--common--q--linker_logger.cpp",
+            "bytes": 4727,
+            "sha256": "78f00a41b135586ab6f5800efe2931c84ea63e45ccde487c91b669a33743ecb0"
+          }
+        ],
+        "logging_level": "HYBRIS_LOGGING_LEVEL=debug controls HYBRIS logger only; not Android liblog LOGE.",
+        "logging_target": "Unset is stderr. HYBRIS_LOGGING_TARGET is a pathname passed to fopen(path,a), not a backend name.",
+        "android_log_hooks": "No __android_log_* entries in the pinned common/hooks.c default hook table.",
+        "linker_debug": "HYBRIS_LD_DEBUG in q/linker_main.cpp:793 sets g_ld_debug_verbosity; linker_debug.h emits INFO/TRACE/DEBUG to stderr.",
+        "linker_debug_limit": "LD_LOG(kLogDlopen) is separately gated. q/linker_logger.cpp property handling is disabled for HYBRIS and flags initialize to0; this env alone does not enable those error records."
+      },
+      "android_logging_api_reference": {
+        "upstream_reference_tag": "android-12.0.0_r1",
+        "whole_binary_source_equivalence_claimed": false,
+        "files": [
+          {
+            "path": "liblog/logger_write.cpp",
+            "bytes": 14277,
+            "sha256": "1122c0ab9339a542606cbe0dab609062dc6e2e1381229455f5297656da617232",
+            "source": "https://android.googlesource.com/platform/system/logging/+/refs/tags/android-12.0.0_r1/liblog/logger_write.cpp?format=TEXT"
+          },
+          {
+            "path": "liblog/include/android/log.h",
+            "bytes": 13770,
+            "sha256": "5bc4d976e0b5ae12ffadd3f2d0a5482a734c4a920485cc4ce10df6fac95ce7c0",
+            "source": "https://android.googlesource.com/platform/system/logging/+/refs/tags/android-12.0.0_r1/liblog/include/android/log.h?format=TEXT"
+          },
+          {
+            "path": "liblog/logd_writer.cpp",
+            "bytes": 6061,
+            "sha256": "111deed3614f6221907861540bc234545ffaf168d547e296ebdc64d395ef8b67",
+            "source": "https://android.googlesource.com/platform/system/logging/+/refs/tags/android-12.0.0_r1/liblog/logd_writer.cpp?format=TEXT"
+          }
+        ],
+        "default": "logger_write.cpp:157-165 defaults to logd on Android, stderr on non-Android hosts; setter replaces the process logger.",
+        "socket": "logd_writer.cpp:76-91 selects AF_UNIX SOCK_DGRAM /dev/socket/logdw.",
+        "env": "ANDROID_LOG_TAGS can affect consumer/base filtering; it is not a stderr backend switch in liblog logger_write.cpp."
+      },
+      "minimal_trigger_compiled_proof": {
+        "glibc_entry": "libui.so.1::graphic_buffer_new(void), return void*",
+        "compat_call": "ui_compat_layer.so graphic_buffer_new+0x28 @0x2054 calls Android GraphicBufferC1Ev.",
+        "mapper_call": "libui.so GraphicBufferC2Ev @0x35580 calls GraphicBufferMapperC1Ev; width/height remain0.",
+        "no_pixel_buffer_or_surface_created": true,
+        "free": "graphic_buffer_free(void*) releases the compatibility wrapper; child exit reclaims any remaining allocation.",
+        "insufficient_trigger": "hybris_gralloc_initialize(0) only selects the compat version after checking a symbol; it does not itself request the mapper."
+      },
+      "recommended_probe_route": {
+        "scope": "Only new short-lived mapper children for root, phablet and lightdm; no existing-process attach or service restart.",
+        "logger": "Resolve Bionic liblog.so via hybris android_dlopen/android_dlsym, register its stderr_logger pointer, set minimumpriority2, then emit ERROR marker before calling mapper constructor.",
+        "marker": "Bionic stderr route verified must be visible; function return alone is not proof of captured output.",
+        "padding": "LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libtls-padding.so, as exact LSC wrapper and session profile already require.",
+        "fallback_evidence": "strace of these owned children only: openat/access/faccessat/newfstatat/readlink records loader filename and errno even if another namespace has a separate liblog instance.",
+        "comparison_limit": "Clean child env/PAM/AppArmor are not identical to live Lomiri; compare selected live-process env, credentials, groups, namespace and maps before interpreting a difference.",
+        "namespace_limit": "A logger installed on one Bionic liblog instance may not cover a separate namespace instance; marker verifies only the resolved instance.",
+        "kernel_rebuild_required": false
+      },
+      "exact_session_padding_sources": [
+        {
+          "path": "firmware-inspection/system-handoff-audit/boot6-session-config/etc--profile.d--ld_preload_tls_padding.sh",
+          "bytes": 262,
+          "sha256": "11df52a0c0e0d5efe370b8f3ca2c774ce5a2fa8b8387af8a22f7cd53615f5d2d"
+        },
+        {
+          "path": "firmware-inspection/system-handoff-audit/boot6-session-config/usr--share--ubuntu-touch-session--lsc-wrapper",
+          "bytes": 1369,
+          "sha256": "3a8111c50621452436b08b39528434029eb7887ec7e5778bc53b1df137dc9fb4"
+        }
+      ],
+      "runtime_validation": {
+        "test_report": "firmware-inspection/graphics-runtime-probe-tests.json",
+        "test_report_sha256": "91a813b9eaa389f741c8261502c8c14410bb78a2bde6318226df9ee1aa7f5c6f",
+        "tests_run": 8,
+        "success": true,
+        "sources_unchanged_during_tests": true,
+        "source_sha256": {
+          "mapper-probe.py": "e3ea2b3e551cf7f5a2d7622badba45d91ba8d6d37e0278a4bfa26025f2ce282f",
+          "probe.sh": "ba6b32d1a064658b7531bf45e07b0c3364bf3b84e37f22b257567a34278abc8b",
+          "ubuntu-touch-graphics-probe.service": "3be86a804d7339c1dfa42cf24f4add499a77f292c8ef2c32a78c70ac57e5633c"
+        },
+        "scope": "Host compiled ctypes C fixtures and private userdata/process/readiness fixtures; no real Android/handset/graphics execution.",
+        "systemd_host_parser_record": "firmware-inspection/graphics-runtime-probe-2026-10-15/systemd-unit-verify.json"
+      }
+    }
+  },
+  "validation": {
+    "runtime_tests": {
+      "schema": 1,
+      "success": true,
+      "tests_run": 8,
+      "failures": 0,
+      "errors": 0,
+      "host_compiled_ctypes_fixture": true,
+      "actual_android_or_handset_executed": false,
+      "fixture_only_userdata_and_process_boundaries": true,
+      "fixture_socket_readiness_boundary": "private ordinary file; no Unix socket syscall available",
+      "sources_unchanged_during_tests": true,
+      "source_sha256": {
+        "mapper-probe.py": "e3ea2b3e551cf7f5a2d7622badba45d91ba8d6d37e0278a4bfa26025f2ce282f",
+        "probe.sh": "ba6b32d1a064658b7531bf45e07b0c3364bf3b84e37f22b257567a34278abc8b",
+        "ubuntu-touch-graphics-probe.service": "3be86a804d7339c1dfa42cf24f4add499a77f292c8ef2c32a78c70ac57e5633c"
+      }
+    },
+    "systemd_parser": {
+      "success": true,
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "scope": "Host systemd parser with stub Android dependency; not handset execution."
+    },
+    "installer_tests": {
+      "success": true,
+      "tests_run": 21,
+      "failures": 0,
+      "errors": 0,
+      "exact_recovery_busybox_tested": true,
+      "recovery_image_sha256": "c61eafa9146d4b148648d1ab6a0d9d2d4a2456ef6b95ce17df9a4f413b2cb07d",
+      "recovery_busybox_sha256": "5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87",
+      "negative_owner_fixture_substitutes_stat_uid_fields": true,
+      "native_windows_cmd_or_python_pe_tested": false,
+      "actual_twrp_arm64_shell_methods": 13,
+      "host_methods": 8,
+      "elapsed_seconds": 74.564,
+      "owner_negative_case_limit": "Host chown to32011 is unavailable; only the negative ownership scenario substitutes stat UID fields. Positive paths use the exact TWRP stat binary."
+    },
+    "total_test_methods_passed": 29,
+    "test_result_sha256": {
+      "runtime": "91a813b9eaa389f741c8261502c8c14410bb78a2bde6318226df9ee1aa7f5c6f",
+      "installer": "4ed17281b56b4daff745e3e57f3ef0b11f8bb0a2ab0580065b7393b0b0e6ee9f"
+    }
+  },
+  "validation_limits": [
+    "No new runtime probe has executed on the handset yet.",
+    "Host C stubs test ctypes ABI/callback order, not Android driver behavior.",
+    "TWRP/QEMU tests simulate mount/device responses and do not write a phone.",
+    "Native Windows CMD/Python PE execution is not claimed.",
+    "The experiment records evidence and does not claim to fix or reach the Lomiri shell."
+  ],
+  "user_sequence": [
+    "Extract whole ZIP into prepared original Windows folder.",
+    "In TWRP run PREPARA-TEST-GRAFICA-1.cmd.",
+    "After successful preparation choose Reboot > System and wait4minutes.",
+    "Return to TWRP; run LEGGI-TEST-GRAFICA-1.cmd and send the named ZIP.",
+    "Then run RIMUOVI-TEST-GRAFICA-1.cmd in TWRP."
+  ],
+  "package": {
+    "filename": "UbuntuTouch-S10plus-test-grafica-1-Windows.zip",
+    "bytes": 20898,
+    "sha256": "1644bf661ce65a2db9847b2349a05ad80fe89b00d6a3258da620b6241980aaff",
+    "members": 10,
+    "manifest_members": 9,
+    "zip_crc_paths_manifest_and_exact_sources_verified": true,
+    "payload_sha256": {
+      "probe.sh": "ba6b32d1a064658b7531bf45e07b0c3364bf3b84e37f22b257567a34278abc8b",
+      "mapper-probe.py": "e3ea2b3e551cf7f5a2d7622badba45d91ba8d6d37e0278a4bfa26025f2ce282f",
+      "ubuntu-touch-graphics-probe.service": "3be86a804d7339c1dfa42cf24f4add499a77f292c8ef2c32a78c70ac57e5633c"
+    },
+    "native_windows_executed": false,
+    "all_9_member_sha256_verified_against_current_sources": true
+  }
+}

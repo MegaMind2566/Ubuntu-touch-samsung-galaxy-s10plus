@@ -123,3 +123,17 @@ python3 scripts/package-ubuntu-graphics.py
 ```
 
 The package merges into the existing Windows installation folder. Its native launcher must be reviewed separately from the Python and ARM64 shell fixtures; this run does not claim native Windows execution. Preserve the existing BOOT 6 collector and shared helpers while these packages depend on them.
+
+## Controlled runtime graphics probe on BOOT 6
+
+The successful version 3 collection identifies a working root EGL/Mali display path but still lacks the failing nested mapper loader message. The separate `tools/graphics-probe/` payload uses the existing writable `/etc/systemd/system` mapping to install one removable diagnostic service from TWRP. It compares mapper initialization under controlled root/phablet/lightdm credentials, redirects the Bionic liblog instance within those probe children to stderr, and traces only their filesystem calls. It does not change existing display services or device permissions. A successful probe is not a graphical boot.
+
+`manage-graphics-probe.py` checks pinned tools, root recovery, model/bootloader, prepared RECOVERY, exact BOOT 6 and already mounted raw userdata for preparation, collection and removal. The fixed files and enabled-unit link reside only on userdata. Payload hashes, canonical root-owned paths, conflicting files and nested mounts are checked; the enable link is the final write. Removal disables the owned service after validating all present known files and preserves logs/unknown files. Read the logs before removal.
+
+```sh
+python3 tests/test_graphics_runtime_probe.py --report out/graphics-runtime-tests.json
+python3 tests/test_graphics_probe_installer.py --qemu /path/to/qemu-aarch64-static --recovery-image /path/to/twrp-3.7.0_9-2-beyond2lte.img --report out/graphics-installer-tests.json
+python3 scripts/package-graphics-probe.py
+```
+
+The unit is `Type=simple`, so collecting the evidence does not hold the graphical target behind a long oneshot job. Its own process tree has a 150-second maximum, per-child timeouts, core dumps disabled and bounded private logs. The handset procedure allows four minutes after selecting System, since Android boot precedes the service's runtime limit. The [probe evidence record](evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) separates host ABI fixtures, TWRP shell fixtures, parser validation and the pending real hardware experiment. Retain BOOT 6 and its firmware evidence unchanged.

@@ -8,6 +8,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | --- | --- |
 | `INSTALLA-AVVIO-UBUNTU-6.cmd` | Installs BOOT 6 USB and RAM-profile corrections only from exact physical BOOT 5; writes only BOOT. |
 | `LEGGI-AVVIO-UBUNTU-6.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-6-log-report.zip`. |
+| `PREPARA-TEST-GRAFICA-1.cmd`, `LEGGI-TEST-GRAFICA-1.cmd`, `RIMUOVI-TEST-GRAFICA-1.cmd` | Prepare one bounded runtime inspection on BOOT 6 using userdata, read its logs after one boot, then remove its unit/assets. |
 | `LEGGI-GRAFICA-UBUNTU-6.cmd` | Collector version 3 reads fixed graphics/session log tails and a USC prefix with TWRP-compatible metadata and separate CRLF transfer limits after pinning RECOVERY, BOOT 6 and userdata; produces `ubuntu-graphics-6-report.zip`. |
 | `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 6. |
 | `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
@@ -19,7 +20,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 
 BOOT 5 confirms systemd and Android/HWC execution but reboots on a USB configfs NULL dereference. BOOT 6 corrects that driver and applies the missing profiles in RAM. Its installer distinguishes the current BOOT 5 apply baseline from the BOOT 4 rollback image. Completed BOOT 3/4/5 standalone inputs are archived with provenance; do not repeat their completed installations.
 
-BOOT 6 is now installed with matching later readback. Its current blocker is the Lomiri mapper/session failure; use the graphics reader for the next evidence and retain BOOT 6.
+BOOT 6 is now installed with matching later readback. Its current blocker is the Lomiri mapper/session failure; the retained graphics collection is complete. Use the one-shot runtime test for the loader/process-context comparison and retain BOOT 6.
 
 ## Maintained support
 

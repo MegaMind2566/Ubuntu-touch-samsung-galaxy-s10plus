@@ -7,6 +7,7 @@ Reports retain their original names and contents so image identities and earlier
 | Report | Finding |
 | --- | --- |
 | [Ubuntu BOOT 6 handset result](ubuntu-boot-6-handset-2026-10-15.json) | Exact installation and later readback; systemd alive through 120 s, RAM profiles/Android/HWC running. Lomiri aborts for gralloc-mapper; no usable GUI confirmed. |
+| [BOOT 6 runtime graphics probe](ubuntu-graphics-runtime-probe-2026-10-15.json) | Removable userdata service compares mapper loading as root/phablet/lightdm without a new BOOT; 29 test methods pass, handset execution pending. |
 | [BOOT 6 graphics collector](ubuntu-graphics-collector-2026-10-15.json) | Version 2 returns four log files and confirms the greeter mapper failure; USC is discarded after CRLF expansion. Version 3 separates remote and transport limits, adds a bounded USC prefix and passes 24 tests. |
 | [Ubuntu BOOT 6 build/package](ubuntu-boot-6-build-2026-10-15.json) | Compiled USB NULL guard and RAM profile integration; 33 ARM64 profile and 25 portable PowerShell cases passed. Exact BOOT 5 apply baseline / BOOT 4 rollback; subsequent physical result above, usable GUI pending. |
 | [Ubuntu BOOT 5 handset execution](ubuntu-boot-5-handset-2026-10-15.json) | Exact install/readback; two systemd/Android/HWC starts; repeated USB configfs NULL panic. Graphical boot unconfirmed; RAM profile targets missing. |

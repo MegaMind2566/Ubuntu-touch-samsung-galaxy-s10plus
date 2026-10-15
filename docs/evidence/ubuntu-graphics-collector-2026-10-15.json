@@ -1,5 +1,5 @@
 {
-  "schema": 3,
+  "schema": 4,
   "date": "2026-10-15",
   "purpose": "Read retained graphics logs after BOOT6 reaches LSC/spinner but Lomiri aborts for gralloc-mapper",
   "requires_existing_prepared_windows_folder": true,
@@ -215,5 +215,50 @@
     "duration_seconds": 48.382
   },
   "usc_prefix_limit_bytes": 65536,
-  "transport_expansion_allowance": 2
+  "transport_expansion_allowance": 2,
+  "version3_handset_result": {
+    "input_filename": "ubuntu-graphics-6-report-2.zip",
+    "input_bytes": 38696,
+    "input_sha256": "051aea802ea0382e79e1745d81b2a68c3ca7835ed2d60f705303f9ee6994b036",
+    "zip_crc_checked": true,
+    "zip_members": 9,
+    "collector_version": 3,
+    "success": true,
+    "error": null,
+    "collected_log_count": 6,
+    "collection_errors": [],
+    "current_boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "prepared_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "all_image_checks_match": true,
+    "usc_head_transport_bytes": 66078,
+    "usc_head_remote_limit_bytes": 65536,
+    "usc_tail_transport_bytes": 528115,
+    "usc_tail_remote_limit_bytes": 524288,
+    "reported_transport_CRLF_limit_now_works": true,
+    "other_six_members_unchanged_from_version2": [
+      "greeter.txt",
+      "lightdm.txt",
+      "xsession.txt",
+      "xsession-old.txt",
+      "lightdm-inventory.txt",
+      "journal-inventory.txt"
+    ],
+    "confirmed": {
+      "root_lsc_driver": "ubports:android2 1.8.0",
+      "root_lsc_renderer": "ARM Mali-G76, OpenGL ES3.2, Android EGL1.4",
+      "root_lsc_display": "1440x3040 at70x148mm, outputpoweron; spinner grid27/portrait",
+      "libminisf": "Optional and explicitly tolerated: it only prevents fake SurfaceFlinger startup. Driver initializes EGL/GPU after message.",
+      "greeter": "Repeated mapper abort persists; no preceding HIDL transport/dlopen/permission error in supplied USC head/tail.",
+      "nonroot_user_session": "Lomiri fails before notify readiness. System compositor repeatedly becomes READY.",
+      "broken_promise": "USC head first instance19:50:42.727629, roughly68s after initialLSC start19:49:34.322412; same period asLightDM greeter teardown. This is downstream connection loss, not evidence of initial mappercause."
+    },
+    "specific_loader_error_available": false,
+    "negative_fix_assessments": {
+      "install_libminisf": "Not justified; GPU path already works and source log explicitly handles absence.",
+      "replace_or_reflash_vendor": "Not justified; root GPU path loads and renders successfully.",
+      "change_fscrypt": "Not justified; unencrypted probe is expected and targetfailure followsLomiri abort.",
+      "change_pidfd_kernel": "Not justified; LightDM tolerates ENOSYS and initializes compositor/session."
+    },
+    "scope_limit": "Prefix and tail are bounded portions of retained USC. The middle of the file and persistent journal binaries are not read. File identities do not independently date a retained attempt."
+  }
 }

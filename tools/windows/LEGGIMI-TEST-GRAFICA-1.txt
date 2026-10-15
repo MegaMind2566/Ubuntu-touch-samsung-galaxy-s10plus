@@ -1,0 +1,32 @@
+Samsung S10+ SM-G975F - test grafico 1 su BOOT 6
+
+Estrai TUTTO lo ZIP nella cartella originale di installazione Ubuntu Touch.
+Il pacchetto riusa Python e ADB gia verificati in quella cartella.
+Mantieni BOOT 6 installato; non installare immagini e non usare Format Data.
+
+1. Con TWRP aperta e USB collegato, avvia PREPARA-TEST-GRAFICA-1.cmd.
+2. Solo se la preparazione riesce: in TWRP scegli Reboot > System.
+   Se TWRP propone la propria app, scegli Do Not Install.
+3. Attendi 4 minuti dal riavvio. Il test parte una sola volta e conserva
+   piccoli log. Ha un limite di 150 secondi dopo l'avvio del servizio Android.
+4. Torna in TWRP, lascia USB collegato e avvia LEGGI-TEST-GRAFICA-1.cmd.
+5. Invia il rapporto ZIP indicato dal lettore.
+6. Dopo la lettura avvia RIMUOVI-TEST-GRAFICA-1.cmd, ancora da TWRP.
+   Questo disattiva il test e conserva i log gia prodotti.
+
+La preparazione scrive solo sotto la cartella dati del test e aggiunge una
+unita di avvio al sistema Ubuntu conservata nella memoria dati. Non modifica
+BOOT, SYSTEM, VENDOR, recovery o permessi dei dispositivi. Non formatta e non
+riavvia il telefono. Rifiuta immagini diverse da BOOT 6 e file in conflitto.
+Il lettore controlla di nuovo recovery, BOOT e memoria dati prima dei log.
+Ogni file letto e limitato a 512 KiB. I rapporti precedenti non sono sostituiti.
+Ripetere PREPARA non riattiva un test gia eseguito.
+
+Il test verifica l'accesso al mapper grafico con le identita root, phablet e
+lightdm e conserva gli errori del caricatore. Non sostituisce driver e non
+apre un'altra interfaccia grafica. Un test terminato non conferma che Ubuntu
+Touch abbia raggiunto la schermata iniziale o che il touch funzioni.
+
+Questa versione e verificata con il BusyBox ARM64 della recovery TWRP sotto
+QEMU. L'esecuzione nativa dei launcher CMD e di Python Windows non e stata
+provata in questo ambiente.

@@ -47,7 +47,7 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 The latest [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) confirms the exact installation and a matching later BOOT readback. The RAM profile hook completes, Android reports boot complete and HWC 2.2 runs. The root compositor/spinner starts; Lomiri then repeatedly aborts with `gralloc-mapper is missing`. The first run remains alive through 120.10 seconds. A panel power-down is logged; a later whole-device power-off is not established within that window.
 
-The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The retained greeter log now confirms 19 mapper aborts, while LightDM repeatedly restarts. The remaining USC log was discarded by the reader because ADB expanded its newlines beyond the transport limit. The next step is the revised [graphics collector, version 3](docs/evidence/ubuntu-graphics-collector-2026-10-15.json), with separate bounded transfer limits and a small USC prefix, to identify the Vendor mapper loading error. The fscrypt message is an expected unencrypted-home probe and does not justify formatting Data. No new BOOT, driver replacement or Format Data is requested.
+The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The complete graphics collection confirms that the root compositor initializes Mali-G76 / OpenGL ES 3.2 and the 1440x3040 display, while the retained greeter aborts 19 times on the mapper. Optional `libminisf.so` absence and the expected fscrypt probe are not established causes. The next step is a [removable runtime graphics probe](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) on the same BOOT 6, comparing mapper loading and process context as root, phablet and lightdm. No new BOOT, driver replacement or Format Data is requested.
 
 The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
@@ -66,6 +66,7 @@ BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NUL
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
 | [tools/boot-observer](tools/boot-observer) | Bounded tracing, post-root observation and guarded RAM device/Android profiles |
+| [tools/graphics-probe](tools/graphics-probe) | Bounded one-shot mapper/process-context inspection on existing BOOT 6 |
 | [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
 | [tests](tests) | Image, source, collector and Windows guard validation |
 | [docs](docs/README.md) | Current status and development documentation |
