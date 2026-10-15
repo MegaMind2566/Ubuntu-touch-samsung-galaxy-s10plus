@@ -1,0 +1,42 @@
+name: S10+ read-only Ubuntu handoff inspection
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/collect-ubuntu-userspace.py'
+      - 'scripts/inspect-ubuntu-userspace.sh'
+      - 'scripts/package-ubuntu-userspace-check.py'
+      - 'tests/test_ubuntu_userspace_check.py'
+      - 'tools/windows/*PASSAGGIO-UBUNTU-4*'
+      - '.github/workflows/inspect-ubuntu-handoff.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Test guards and root-confined shell inspection
+        if: runner.os == 'Linux'
+        run: python3 tests/test_ubuntu_userspace_check.py
+      - name: Test native Windows CMD and pinned embedded Python
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          python tests/test_ubuntu_userspace_check.py --native-windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package the read-only add-on
+        run: python scripts/package-ubuntu-userspace-check.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-userspace-inspection-${{ runner.os }}
+          path: |
+            out/UbuntuTouch-S10plus-controllo-passaggio-Ubuntu-4-Windows.zip
+            out/ubuntu-userspace-check-tests.json
+          if-no-files-found: error

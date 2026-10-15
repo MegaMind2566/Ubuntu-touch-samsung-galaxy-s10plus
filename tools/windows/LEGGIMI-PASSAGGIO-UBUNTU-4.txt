@@ -1,0 +1,29 @@
+SAMSUNG S10+ SM-G975F - CONTROLLO DEL PASSAGGIO A UBUNTU, BOOT 4
+
+Il BOOT 4 e gia installato e verificato. Non reinstallarlo.
+Questo controllo non richiede un altro tentativo di avvio.
+
+1. Copia il contenuto dello ZIP nella cartella originale di installazione Ubuntu,
+   unendo la cartella scripts. Nella stessa cartella devono esserci tools e
+   platform-tools del pacchetto gia preparato.
+2. Lascia aperta la schermata principale TWRP con USB collegato. Non riavviare.
+3. Esegui CONTROLLA-PASSAGGIO-UBUNTU-4.cmd e attendi la fine.
+4. Invia ubuntu-userspace-4-report.zip, o la sua copia numerata se esiste gia.
+
+Raccoglie fino a 8 MiB dall inizio del log del precedente avvio, piu la coda;
+controlla la dimensione per dire se l intero log e stato raccolto. Legge anche
+le tracce disponibili di systemd, Android e interfaccia e i marcatori BOOT 4.
+
+Prima di ispezionare SYSTEM verifica modello, recovery, BOOT 4, RECOVERY e VBMETA.
+Monta soltanto /dev/block/sda25 in una cartella privata nella RAM di TWRP con
+ro,noload,nosuid,nodev,noexec: sola lettura, senza ripetere il journal ext4 e
+senza eseguire i programmi di SYSTEM. Legge init, systemd, loader e unita di
+avvio. Alla fine smonta la propria cartella e la rimuove. Non cambia i mount
+gia esistenti: se SYSTEM risulta gia montata, salva i log e si ferma.
+
+Nessuna scrittura di partizioni, fsck, resize, Format Data o riavvio.
+Non chiudere la finestra durante il controllo. Un errore o una disconnessione
+puo impedire di confermare lo smontaggio temporaneo: invia comunque il rapporto.
+
+Il rapporto non certifica l avvio di Ubuntu: serve a distinguere problemi nel
+passaggio finale, nel programma init e nell avvio dei servizi.

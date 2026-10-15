@@ -1,0 +1,32 @@
+name: Inspect exact SYSTEM userspace
+on:
+  push:
+    paths:
+      - scripts/audit-system-userspace.py
+      - .github/workflows/system-userspace-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install read-only inspection tools
+        run: sudo apt-get update -qq && sudo apt-get install --no-install-recommends -y e2fsprogs zstd binutils
+      - name: Inspect immutable SYSTEM artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIT_OUTPUT: ${{ runner.temp }}/system-userspace-audit
+        run: python3 scripts/audit-system-userspace.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: beyond2lte-system-userspace-audit
+          path: ${{ runner.temp }}/system-userspace-audit/
+          if-no-files-found: error
+          retention-days: 14
