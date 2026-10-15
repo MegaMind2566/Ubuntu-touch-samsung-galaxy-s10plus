@@ -10,7 +10,7 @@ The Halium 12 adaptation and Ubuntu Touch 24.04 SYSTEM image have been built and
 
 The first collection stopped at `no devices found`; the later collection succeeded. The framebuffer helper reported an unsupported or unavailable layout. Pstore contains a panic tail with the same diagnostic kernel build banner but no initiating message. The unbounded last-kmsg request exceeded its output cap; a separate bounded start read is present. These limits do not invalidate the captured PID 1 execution, but the panic cause and complete graphics support are still unknown.
 
-The latest physical BOOT is diagnostic 2. **The test never executes the original Ubuntu init, so it is not a successful Ubuntu boot.** BOOT 3 is being prepared to embed the full original Ubuntu initramfs, with stage capture, through this verified route.
+The latest physical BOOT is diagnostic 2. **The test never executes the original Ubuntu init, so it is not a successful Ubuntu boot.** BOOT 3 now embeds the full original Ubuntu initramfs, with stage capture, through this verified route. Its Linux/ARM64 and native Windows checks have passed; it is ready for the next handset attempt.
 
 ## What has been verified
 
@@ -47,11 +47,13 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Prepare and host-test **Ubuntu BOOT 3** before delivering the next handset package. Its complete original Ubuntu initramfs is compressed into the kernel and also retained as the external ramdisk. It shares diagnostic 2's force guard and peripheral settings. The original rootfs/container logic is kept, with staged kernel-log snapshots to Data. The previous automatic `e2fsck -y` and userdata resize call block is skipped for this already-formatted, readable filesystem.
+Test the validated **Ubuntu BOOT 3** package once on the handset. Its complete original Ubuntu initramfs is compressed into the kernel and also retained as the external ramdisk. It shares diagnostic 2's force guard and peripheral settings. The original rootfs/container logic is kept, with staged kernel-log snapshots to Data. The previous automatic `e2fsck -y` and userdata resize call block is skipped for this already-formatted, readable filesystem.
 
-The package will accept only the exact diagnostic 2 BOOT above, write only `/dev/block/sda14`, read it back, and include the exact diagnostic 2 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is required. The collector uses bounded last-kmsg reads and captures up to five recorded initramfs attempts without mounting or writing anything on the phone.
+The package accepts only the exact diagnostic 2 BOOT above, writes only `/dev/block/sda14`, reads it back, and includes the exact diagnostic 2 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is required. The collector uses bounded last-kmsg reads and captures up to five recorded initramfs attempts without mounting or writing anything on the phone.
 
-After the Linux and native Windows checks pass, the handset sequence is:
+The [passing build record](evidence/ubuntu-boot-3-build-2026-10-15.json) identifies BOOT SHA-256 `33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc`, its 57,335,808-byte size and the delivered ZIP. It verifies the exact embedded/external CPIO, four initramfs-only configuration differences, ARM64 logging guards, the no-recompression regression, seven collector cases and 24 native Windows apply/restore cases. USB and raw writes in CI are simulated. The compiled image itself is preserved across host packaging fixes.
+
+The handset sequence is:
 
 1. Merge **`UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip`** into the original prepared installation folder.
 2. With TWRP open and USB connected, run **`INSTALLA-AVVIO-UBUNTU-3.cmd`** and require write/readback success.

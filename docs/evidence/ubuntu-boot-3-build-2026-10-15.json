@@ -1,0 +1,241 @@
+{
+  "schema": 1,
+  "recorded_date": "2026-10-15",
+  "boot_version": 3,
+  "reason": "Diagnostic 2 executed on the handset, read Data/SYSTEM/VENDOR and configured USB. Run the instrumented original Ubuntu initramfs through the same forced built-in route.",
+  "compilation_ci": {
+    "repository": "MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus",
+    "commit": "8e92d215fd271cff08fc0f9229a242eb26150c76",
+    "run": 38747176508,
+    "source_checks_job": 116463761338,
+    "images_job": 116464020742,
+    "images_conclusion": "success",
+    "workflow_conclusion": "failure",
+    "failure_scope": "Windows packaging rejected CRLF conversion of the firmware helper; no package released.",
+    "images_artifact": {
+      "id": 11980905738,
+      "bytes": 54458888,
+      "sha256": "8646a283e946ee31396f32dd4fcc5b633a5342cd05ff8321d7cf47f57f55c08e"
+    }
+  },
+  "release_ci": {
+    "commit": "81d458d422824463eca6fd97e886a2f5c52ab7be",
+    "run": 38750867704,
+    "images_job": 116476599979,
+    "windows_job": 116477197615,
+    "conclusion": "success",
+    "artifacts": [
+      {
+        "id": 11981731552,
+        "name": "beyond2lte-ubuntu-boot-handoff-windows",
+        "bytes": 48584875,
+        "sha256": "c67fce8ceb6481a6fba2db2c3243c29b937b7a317dafda08ae71d6b950d8db31"
+      },
+      {
+        "id": 11980658034,
+        "name": "beyond2lte-ubuntu-boot-handoff-images",
+        "bytes": 54458888,
+        "sha256": "a3f7393e2f265ed7d3f347f2e4c6b439114b44bc43721fd057be849441b68bea"
+      }
+    ]
+  },
+  "image": {
+    "schema": 1,
+    "boot_version": 3,
+    "purpose": "original_ubuntu_init_through_builtin_initramfs",
+    "boot_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "boot_bytes": 57335808,
+    "boot_partition_bytes": 57671680,
+    "previous_boot_sha256": "7d65acf13c1180b4ba77dfdd96a703546bc5b7083fb2e85714151203b740076d",
+    "previous_boot_bytes": 55638016,
+    "kernel_sha256": "4ec157b6e9b125ccdfb06bafcdd4d59c90cb9ac33c8965df8f567413b24f288f",
+    "kernel_bytes": 53231632,
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "kernel_config_differences": {
+      "CONFIG_INITRAMFS_COMPRESSION": {
+        "before": "\"\"",
+        "after": "\".gz\""
+      },
+      "CONFIG_INITRAMFS_COMPRESSION_GZIP": {
+        "before": "n",
+        "after": "y"
+      },
+      "CONFIG_INITRAMFS_COMPRESSION_NONE": {
+        "before": "y",
+        "after": "n"
+      },
+      "CONFIG_INITRAMFS_SOURCE": {
+        "before": "\"/home/runner/work/Ubuntu-touch-samsung-galaxy-s10plus/Ubuntu-touch-samsung-galaxy-s10plus/out/early-boot-diagnostic-images/initramfs.cpio\"",
+        "after": "\"/home/runner/work/Ubuntu-touch-samsung-galaxy-s10plus/Ubuntu-touch-samsung-galaxy-s10plus/out/ubuntu-boot-handoff-images/initramfs.cpio\""
+      }
+    },
+    "builtin_initramfs_sha256": "584da91521ecc86811ccb15880647bb77f1e96eb309ae85b0577bad8586c92a8",
+    "builtin_initramfs_bytes": 9122304,
+    "builtin_compressed_offset": 37877992,
+    "builtin_compressed_bytes": 4101569,
+    "force_builtin_initramfs": true,
+    "ramdisk_sha256": "a2a8ae8dde096f119bd42da56669352f914fc26ceca73a6269754f4332f233a1",
+    "ramdisk_bytes": 4099561,
+    "external_ramdisk_matches_builtin": true,
+    "unrelated_header_fields_preserved": true,
+    "target_device": "/dev/block/sda14",
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "runtime_automatic_fsck_resize_disabled": true,
+    "runtime_log_directory": "/data/ubuntu-touch-boot-3",
+    "runtime_log_attempts_limit": 5,
+    "ubuntu_init_execution_requested": true,
+    "hardware_tested": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "source": {
+    "kernel_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "normal_build_manifest": {
+      "sources": {
+        "schema": 1,
+        "target": {
+          "device": "beyond2lte",
+          "model": "SM-G975F/DS",
+          "halium": "12",
+          "ubuntu_touch_release": "24.04-2.x"
+        },
+        "sources": {
+          "port": {
+            "directory": "samsung-exynos9820",
+            "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820.git",
+            "branch": "halium-12",
+            "commit": "06facc6fbc9cfda5f57428a6d7eeb805f5dedb89"
+          },
+          "tools": {
+            "directory": "halium-generic-adaptation-build-tools",
+            "url": "https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git",
+            "branch": "main",
+            "commit": "78d5df8abeaa9b70e6c53c47b2a9d32692f0613c"
+          },
+          "kernel": {
+            "directory": "kernel-samsung-exynos9820",
+            "url": "https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/kernel-samsung-exynos9820.git",
+            "branch": "halium-12.0",
+            "commit": "b9b70b29c94c41365704fcc2ed33be09b4617907"
+          }
+        }
+      },
+      "kernel_patches": [
+        {
+          "path": "patches/kernel/0001-apparmor-socket-mediation.patch",
+          "sha256": "00f1bf609436cef86dcf227f9b98c944accf82368ede62239cc62866d4e3d6ff"
+        },
+        {
+          "path": "patches/kernel/0002-apparmor-af-unix-mediation.patch",
+          "sha256": "7bebc2494dc4ca578e71e333bedaad7e93f8f6096508f5b2bd603ec0bebc905b"
+        },
+        {
+          "path": "patches/kernel/0003-initialize-sar-ramdisk-offset.patch",
+          "sha256": "351f141b24ab9afa292a4eb14bbab3e78a9e12b0c88fadc1e98544c1f1d8e175"
+        },
+        {
+          "path": "patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch",
+          "sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6"
+        }
+      ],
+      "config_sha256": "e71801c691d0462088b2067559414a2b42174f46653dde9e1e96dfa25c865895",
+      "hardware_tested": false,
+      "scope": "Device adaptation only; rootfs and matching vendor not assembled"
+    },
+    "force_patch_sha256": "b92a4b86ead0ad9a605823d9ac5761a4c25cabe742832cdbfb19222d73b31fba",
+    "patched_initramfs_source_sha256": "93ee0bfbf5624557039b44bc840b389f913ad0dd59855b475ac412bcc5bd80a4",
+    "original_ubuntu_ramdisk_sha256": "439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c",
+    "original_init_sha256": "cda3570b6edc38c6aebf8a058bf75f5ada94e63a32b27da4d2f1eabf2200d0dc",
+    "initramfs_sha256": "584da91521ecc86811ccb15880647bb77f1e96eb309ae85b0577bad8586c92a8",
+    "initramfs_bytes": 9122304,
+    "modified_entries": [
+      "init",
+      "scripts/halium",
+      "scripts/functions"
+    ],
+    "added_entries": [
+      "ut-boot-functions"
+    ],
+    "runtime_automatic_fsck_resize_disabled": true
+  },
+  "linux_checks": {
+    "schema": 1,
+    "boot_version": 3,
+    "boot_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "original_entries_preserved_except_three_instrumented_scripts": true,
+    "embedded_external_cpio_equal": true,
+    "peripheral_configuration_preserved": true,
+    "actual_arm64_shell_syntax": true,
+    "actual_arm64_logging_guards_and_mount_move": true,
+    "actual_source_force_guard_cases": 4,
+    "corrupt_kernel_and_false_config_rejected": true,
+    "collector_mocked_cases": [
+      "success",
+      "missing-logs",
+      "old-marker",
+      "wrong-boot",
+      "wrong-device",
+      "tools-unavailable",
+      "usb-unavailable"
+    ],
+    "phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "native_windows_checks": {
+    "powershell_version": "5.1",
+    "guarded_apply_restore_cases": 24,
+    "actual_embedded_python_image_verifier": true,
+    "native_cmds": [
+      "INSTALLA-AVVIO-UBUNTU-3.cmd",
+      "RIPRISTINA-TEST-AVVIO-2.cmd",
+      "LEGGI-AVVIO-UBUNTU-3.cmd"
+    ],
+    "usb_and_partition_writes_simulated": true
+  },
+  "portable_image_verification": {
+    "firmware_recompressed_during_validation": false,
+    "encoder_disabled_regression_passed": true,
+    "exact_boot_kernel_ramdisk_hashes_verified": true,
+    "decoded_and_embedded_cpio_equal": true,
+    "header_checksum_padding_and_peripheral_config_verified": true,
+    "windows_helper_LF_enforced": true
+  },
+  "windows_package": {
+    "filename": "UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip",
+    "bytes": 48953904,
+    "sha256": "71366a33e76488e010ca23492b16226636da5be0781430ee080a4993e5a3c3d9"
+  },
+  "delivery_checks": {
+    "downloaded_source_and_windows_artifact_size_digest_crc_verified": true,
+    "all_inner_sha256sums_members_verified": 19,
+    "inner_zip_crc_verified": true,
+    "new_and_rollback_images_equal_compiled_linux_inputs": true,
+    "previous_boot_matches_latest_physical_diagnostic_2_readback": true,
+    "source_images_reference_used_by_native_windows": {
+      "run": 38750867704,
+      "commit": "81d458d422824463eca6fd97e886a2f5c52ab7be",
+      "artifact_id": 11980658034,
+      "filename": "ubuntu-handoff-images.zip",
+      "zip_bytes": 54458888,
+      "sha256": "a3f7393e2f265ed7d3f347f2e4c6b439114b44bc43721fd057be849441b68bea"
+    }
+  },
+  "earlier_unreleased_attempts": [
+    {
+      "run": 38743444926,
+      "commit": "fde1a50ac929bfda16d9e46c4e5743bec702cd2d",
+      "result": "Kernel/image composed, then ARM64 fixture failed because the runner had no phone device path. Fixed the fixture with an existing regular-file source; runtime payload unchanged."
+    },
+    {
+      "run": 38749814748,
+      "commit": "97c9199a992fea867d5b9fc8340f9d310fe171d2",
+      "result": "Linux revalidation passed; Windows verification still recompressed gzip and rejected a host-dependent stream. Removed recompression and repeated full validation."
+    }
+  ],
+  "handset_accessed": false,
+  "ubuntu_touch_boot_verified": false,
+  "latest_physical_boot": "Diagnostic 2; BOOT 3 has not yet been tried on the phone.",
+  "repository_publication": "Private until a confirmed Ubuntu Touch graphical boot.",
+  "next_action": "Merge the validated ZIP into the prepared Windows installation root; apply BOOT 3 from exact diagnostic 2; manually boot once, photograph the screen, and collect BOOT 3 logs from TWRP if blocked."
+}

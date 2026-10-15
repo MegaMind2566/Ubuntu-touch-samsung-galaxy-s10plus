@@ -33,7 +33,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Diagnostic 2 kernel and PID 1 | Confirmed on the phone with the exact BOOT hash |
 | Read Data, SYSTEM and VENDOR under the normal kernel | Confirmed by diagnostic 2 |
 | Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
-| Run the original Ubuntu initramfs via the built-in route | BOOT 3 in preparation; handset result pending |
+| Run the original Ubuntu initramfs via the built-in route | Built and checked on Linux/Windows; handset result pending |
 | Reach Ubuntu userspace and the graphical shell | Not achieved |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -45,7 +45,7 @@ The phone now executes the Halium 4.14.280 kernel and the built-in diagnostic in
 
 The diagnostic framebuffer helper could not use the reported fb0 layout. A retained panic tail includes the same diagnostic kernel banner, but omits the initiating message. Neither observation is a complete diagnosis of the remaining Ubuntu boot failure.
 
-BOOT 3 keeps the tested forced built-in-initramfs path and replaces the temporary diagnostic program with the complete original Ubuntu initramfs. Three scripts gain stage observations; the existing rootfs and Android-container mount logic remains. The one-off attempt skips the upstream automatic userdata repair and resize, preserves SYSTEM/VENDOR and collects bounded logs. It is still awaiting host validation and the handset test.
+BOOT 3 keeps the tested forced built-in-initramfs path and replaces the temporary diagnostic program with the complete original Ubuntu initramfs. Three scripts gain stage observations; the existing rootfs and Android-container mount logic remains. The one-off attempt skips the upstream automatic userdata repair and resize, preserves SYSTEM/VENDOR and collects bounded logs. Its 57,335,808-byte image fits the measured BOOT partition. Linux/ARM64 checks, the portable image-preservation regression and 24 native Windows apply/restore cases passed. The [BOOT 3 build record](docs/evidence/ubuntu-boot-3-build-2026-10-15.json) pins the tested image and delivered ZIP. The handset test is next.
 
 Earlier [symbol and device-tree inspection](docs/evidence/offline-tools-2026-10-14.json) and the two SAR fixes remain documented. The late external ramdisk route has not been proved to work on the phone. See [the current procedure and remaining milestones](docs/status.md#next-experiment).
 
