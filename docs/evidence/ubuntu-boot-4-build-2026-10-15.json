@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "boot_version": 4,
+  "status": "validated Windows package; handset attempt pending",
+  "compiled_source": {
+    "run": 38756613455,
+    "commit": "3b673e3d2b5cf520961ea7cb6b4dc03d1a36190f",
+    "artifact_id": 11985068265,
+    "sha256": "f6218c175747df6114c94644fae27f32ee63c68c6e8b7aca87f8073b3ab738a7"
+  },
+  "compiled_validation": {
+    "run": 38756613455,
+    "commit": "3b673e3d2b5cf520961ea7cb6b4dc03d1a36190f",
+    "source_checks_job": 116496596673,
+    "image_job": 116496903531,
+    "windows_job": 116509518385,
+    "all_jobs_success": true
+  },
+  "release_validation": {
+    "run": 38761125157,
+    "commit": "f24d09963efe81e3760559f9c4f101e6bef88521",
+    "images_job": 116512356334,
+    "windows_job": 116512808022,
+    "all_jobs_success": true,
+    "kernel_recompiled": false,
+    "compiled_image_files_unchanged": true,
+    "native_windows_apply_restore_cases": 24,
+    "usb_and_raw_writes_simulated": true
+  },
+  "artifacts": [
+    {
+      "id": 11985004475,
+      "name": "beyond2lte-ubuntu-boot-handoff-images",
+      "size_in_bytes": 57120061,
+      "digest": "sha256:27dcad0efe95306a08ebce492fc4536ef77359b34140ad3eb91a9a2b80754e06"
+    },
+    {
+      "id": 11985662817,
+      "name": "beyond2lte-ubuntu-boot-handoff-windows",
+      "size_in_bytes": 51285667,
+      "digest": "sha256:af05096ef236c338a03961a0e86dcb8921fd2841b5878e1771a8ff9cb6845cb7"
+    }
+  ],
+  "image": {
+    "schema": 1,
+    "boot_version": 4,
+    "purpose": "original_ubuntu_init_through_builtin_initramfs",
+    "boot_sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "boot_bytes": 57337856,
+    "boot_partition_bytes": 57671680,
+    "previous_boot_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "previous_boot_bytes": 57335808,
+    "kernel_sha256": "09c7a1ddb49f89a6c478b8c1263aaf6f733b83d3882dc7805a8bcfb8d47969a7",
+    "kernel_bytes": 53231632,
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "kernel_config_differences": {},
+    "builtin_initramfs_sha256": "4d27b0365008992b53cc8b02a9f1dca48951291e2bff4efb6ce3726605b9443d",
+    "builtin_initramfs_bytes": 9125376,
+    "builtin_compressed_offset": 37877992,
+    "builtin_compressed_bytes": 4103387,
+    "force_builtin_initramfs": true,
+    "ramdisk_sha256": "ba015757f128034f714c1785a3f00c3d97da69ce33bb19c2a15e66eb7aba3883",
+    "ramdisk_bytes": 4100754,
+    "external_ramdisk_matches_builtin": true,
+    "unrelated_header_fields_preserved": true,
+    "target_device": "/dev/block/sda14",
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "runtime_automatic_fsck_resize_disabled": true,
+    "runtime_log_directory": "/data/ubuntu-touch-boot-4",
+    "runtime_log_attempts_limit": 5,
+    "trace_bytes_limit": 4194304,
+    "passive_wait_samples": 12,
+    "passive_wait_interval_seconds": 10,
+    "ubuntu_init_execution_requested": true,
+    "hardware_tested": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "tests": {
+    "schema": 1,
+    "boot_version": 4,
+    "boot_sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "original_entries_preserved_except_four_instrumented_scripts": true,
+    "embedded_external_cpio_equal": true,
+    "trace_bounded_and_drains_after_cap": true,
+    "actual_arm64_trace_transport_and_passive_wait_watch": true,
+    "pid1_global_sync_removed": true,
+    "actual_arm64_post_devtmpfs_move_logging": true,
+    "peripheral_configuration_preserved": true,
+    "actual_arm64_shell_syntax": true,
+    "actual_arm64_logging_guards_and_mount_move": true,
+    "actual_source_force_guard_cases": 4,
+    "corrupt_kernel_and_false_config_rejected": true,
+    "collector_mocked_cases": [
+      "success",
+      "missing-logs",
+      "old-marker",
+      "wrong-boot",
+      "wrong-device",
+      "tools-unavailable",
+      "usb-unavailable"
+    ],
+    "phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "delivery": {
+    "filename": "UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip",
+    "bytes": 51644485,
+    "sha256": "3b58114bcf99530b2283ab485d0fa5bef65bd5e1c3f6875c235fef69a31d9b13",
+    "zip_crc_verified": true,
+    "manifest_members_verified": 19,
+    "tested_boot_and_rollback_preserved": true,
+    "no_host_recompression_regression_passed": true
+  },
+  "scope": {
+    "target": "/dev/block/sda14",
+    "required_previous_boot_version": 3,
+    "rollback": "exact physically verified Ubuntu BOOT 3",
+    "original_root_mount_logic_preserved": true,
+    "global_sync_removed_from_pid1_observer": true,
+    "canonical_userdata_paths": [
+      "/dev/sda31",
+      "/root/dev/sda31"
+    ],
+    "format_data_required": false,
+    "system_vendor_rewrite_required": false
+  },
+  "prior_unreleased_outputs": [
+    {
+      "run": 38755835240,
+      "commit": "1865c3ac96cce34fb6ba80c725504ce378550d0c",
+      "reason": "Superseded by the post-devtmpfs-move logger guard correction; never delivered."
+    },
+    {
+      "run": 38756613455,
+      "reason": "The full BOOT 4 build and Windows checks passed, but the outer ZIP filename still said Ubuntu-3. Host-only packaging fixed that name while preserving every compiled image file."
+    }
+  ],
+  "handset_tested": false,
+  "ubuntu_touch_graphical_boot_verified": false,
+  "publication_criterion_met": false
+}

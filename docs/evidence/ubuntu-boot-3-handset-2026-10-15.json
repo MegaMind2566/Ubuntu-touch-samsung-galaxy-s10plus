@@ -124,7 +124,7 @@
   "conclusion": "BOOT 3 write and original Ubuntu init execution are confirmed. Intended SYSTEM and embedded Android filesystem mounted on both recorded attempts. No successful userspace or graphical boot is established.",
   "next_experiment": {
     "version": 4,
-    "status": "source-prepared; image build and native Windows validation pending",
+    "status": "BOOT 4 compiled and revalidated; Linux/ARM64 and 24 native Windows apply/restore cases passed; handset attempt pending",
     "changes": [
       "Bounded line-buffered regular-file shell trace with periodic Data snapshots.",
       "Passive PID 1/child wait-state sampling for up to 120 seconds.",
@@ -136,7 +136,8 @@
     "expected_previous_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
     "rollback": "exact Ubuntu BOOT 3",
     "system_vendor_rewrite": false,
-    "format_data": false
+    "format_data": false,
+    "build_record": "ubuntu-boot-4-build-2026-10-15.json"
   },
   "ubuntu_touch_boot_verified": false,
   "publication_criterion_met": false,

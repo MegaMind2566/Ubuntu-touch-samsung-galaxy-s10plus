@@ -12,7 +12,7 @@ Both attempts last saved `root-mounted`. The user observed a black screen follow
 
 Android API 32 is identified, but the original ramdisk reports an unknown device name and no top-level Android `fstab*`. VENDOR is absent from this saved mount table. This is a mount/discovery finding, **not evidence that VENDOR was erased**; diagnostic 2 previously read that filesystem. These warnings and the exact wait after `root-mounted` need investigation with usable trace data.
 
-The latest confirmed physical BOOT is **Ubuntu BOOT 3**. BOOT 4 is being prepared with bounded regular-file shell tracing and passive wait-state sampling. It keeps the original Ubuntu mount logic and peripheral settings; its build and Windows validation are pending.
+The latest confirmed physical BOOT is **Ubuntu BOOT 3**. BOOT 4 has passed its Linux/ARM64 checks and 24 native Windows apply/restore cases. It is ready with bounded regular-file tracing, passive wait sampling and the post-devtmpfs-move logging correction. Original Ubuntu mount logic and peripheral settings are preserved; handset execution is pending.
 
 ## What has been verified
 
@@ -24,7 +24,7 @@ The latest confirmed physical BOOT is **Ubuntu BOOT 3**. BOOT 4 is being prepare
 | Recovery preparation | Modified RECOVERY and VBMETA match pinned hashes | The installed recovery removes TWRP's automatic `nuker` modifications. |
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
-| Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | The tested built-in diagnostic image is on the handset. |
+| Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | That built-in diagnostic image was verified on the handset before BOOT 3. |
 | Ubuntu BOOT 3 installed image | Exact 57,335,808-byte readback matches its pin | Original Ubuntu initramfs BOOT is installed. |
 | Original Ubuntu init and root mounts | Two attempts, versioned PID 1/stage markers and saved mount tables | SYSTEM, embedded Android and Data mounts execute; systemd/container startup is still unconfirmed. |
 | Normal kernel and diagnostic PID 1 | Versioned init/kernel markers with the matching compiled kernel | The forced built-in-initramfs route executes on this phone. |
@@ -43,7 +43,7 @@ Two source defects in the Samsung system-as-root ramdisk path have been correcte
 
 Source fixtures test those paths, but neither defect has been established as the complete cause of the handset's blocked boot. BOOT 2 still remains at the logo.
 
-On 14 October, `vmlinux-to-elf` recovered **113,088 symbols from each of BOOT 1 and BOOT 2**. An independent ELF reader verified the mapped raw kernel bytes and the `_text` base. ARM64 disassembly confirms the additional access check and pointer restoration in the compiled BOOT 2. This also applies to the byte-identical kernel in the current diagnostic image.
+On 14 October, `vmlinux-to-elf` recovered **113,088 symbols from each of BOOT 1 and BOOT 2**. An independent ELF reader verified the mapped raw kernel bytes and the `_text` base. ARM64 disassembly confirms the additional access check and pointer restoration in the compiled BOOT 2. Diagnostic 1 used that same kernel. Diagnostic 2 and the Ubuntu BOOT family preserve those source fixes while adding their separately tested built-in initramfs route.
 
 Pinned DTC 1.8.1 successfully decoded the stock base tree and applied DTBO entry 9, the index observed in TWRP on hardware revision 26. The resulting tree also decodes successfully. DTC reported 214 warnings for the base tree and 273 for the composed tree; these are retained in the report. This is an offline composition, not a capture of the normal-boot tree or proof that every custom-kernel driver binding matches. Diagnostic 2 now also reports `androidboot.dtbo_idx=9` and hardware revision 26 in its normal-kernel command line.
 
@@ -51,13 +51,22 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Prepare **Ubuntu BOOT 4** from the exact physically verified BOOT 3 baseline. A bounded awk pipe retains complete shell trace lines in a regular RAM file instead of the empty `/dev/kmsg` fragments observed with BOOT 3. Stage snapshots and a passive 10-second sampler retain that trace, PID 1 and child wait states on the already-mounted Data filesystem. The sampler is limited to 120 seconds; at most five attempt directories are created. No extra filesystem is mounted by the observer.
+Test the validated **Ubuntu BOOT 4** once from the exact physically verified BOOT 3 baseline. A bounded awk pipe retains complete shell trace lines in a regular RAM file instead of the empty `/dev/kmsg` fragments observed with BOOT 3. Stage snapshots and a passive 10-second sampler retain that trace, PID 1 and child wait states on the already-mounted Data filesystem. The sampler is limited to 120 seconds; at most five attempt directories are created. No extra filesystem is mounted by the observer.
 
 Add checkpoints before the `/usr` check, root cleanup and init-bottom, plus markers around udev's exit command. Remove global `sync` from stage capture so that filesystem-wide writeback cannot block PID 1 inside the observer. Its role in the BOOT 3 stall is unproven. The original Ubuntu `/usr`, device-name, Android mount, service and handoff logic is preserved for the next observation.
 
-The package will accept only BOOT 3 above, target `/dev/block/sda14`, verify the write, and include the exact BOOT 3 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is needed. Do not rerun the already-completed BOOT 3 installer or remove its checkpoint.
+The package accepts only BOOT 3 above, targets `/dev/block/sda14`, verifies the write, and includes the exact BOOT 3 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is needed. Do not rerun the already-completed BOOT 3 installer or remove its checkpoint.
 
-The [BOOT 3 handset evidence](evidence/ubuntu-boot-3-handset-2026-10-15.json) records the new runtime result. The [BOOT 3 build record](evidence/ubuntu-boot-3-build-2026-10-15.json) remains the immutable validation record for that delivered image. BOOT 4 is not ready for handset installation until actual image and native Windows checks pass.
+The [BOOT 3 handset evidence](evidence/ubuntu-boot-3-handset-2026-10-15.json) records the new runtime result. The [BOOT 3 build record](evidence/ubuntu-boot-3-build-2026-10-15.json) remains the immutable validation record for that delivered image. The [BOOT 4 build record](evidence/ubuntu-boot-4-build-2026-10-15.json) identifies its 57,337,856-byte image, SHA-256 `f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df`, and the delivered ZIP. The image leaves 333,824 bytes in the measured BOOT partition. Actual-image preservation, embedded/external CPIO, source force guards, ARM64 trace/cap/mount-move cases and 24 native Windows apply/restore cases passed. USB and raw writes in CI are simulated.
+
+The handset sequence is:
+
+1. Merge **`UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip`** into the original prepared installation folder.
+2. With TWRP open and USB connected, run **`INSTALLA-AVVIO-UBUNTU-4.cmd`** and require write/readback success.
+3. Choose **Reboot > System**, declining the optional TWRP app. Wait up to three minutes. Record any black screen, automatic reboot or stationary logo.
+4. If blocked or rebooted, return to TWRP and run **`LEGGI-AVVIO-UBUNTU-4.cmd`**. Inspect **`ubuntu-boot-4-log-report.zip`** together with the observed screen. Do not manually repeat the installation.
+
+**`RIPRISTINA-AVVIO-UBUNTU-3.cmd`** is the exact BOOT 3 rollback if needed after reviewing the report. It does not restore stock Android or a confirmed working Ubuntu image.
 
 The next test must distinguish an initramfs wait, udev/console or init validation failure, and any later systemd/Android problem. A saved `userspace-handoff` marker alone will not establish a graphical boot.
 

@@ -16,7 +16,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | `INSTALLA-TEST-AVVIO.cmd` | Controlled BOOT-only diagnostic installation, requiring verified BOOT 2 and recovery/preflight guards. Already completed on the test handset. |
 | `RIPRISTINA-BOOT-2.cmd` | Restores verified BOOT 2 from the diagnostic state. BOOT 2 is an experimental image, not a confirmed working Ubuntu boot. |
 
-Diagnostic 2 and the original Ubuntu init in BOOT 3 have executed. BOOT 4 is being built and checked before the next handset package. Completed BOOT 3 launchers are archived with their provenance. Earlier launchers remain immutable baseline/rollback inputs; they are not instructions to repeat completed installations.
+Diagnostic 2 and the original Ubuntu init in BOOT 3 have executed. BOOT 4 passed Linux/ARM64 checks and 24 native Windows cases and is ready for one handset attempt. Completed BOOT 3 launchers are archived with their provenance. Earlier launchers remain immutable baseline/rollback inputs; they are not instructions to repeat completed installations.
 
 ## Maintained support
 

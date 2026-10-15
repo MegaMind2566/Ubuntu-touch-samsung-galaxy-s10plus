@@ -16,4 +16,4 @@ The shared BOOT installer/verifier template and Windows guard fixtures remain ac
 
 Archived workflows are outside `.github/workflows/`, so GitHub cannot execute them as current workflows. Their scripts retain the original source layout and package identities. For exact reproduction, check out the recorded historical revision in a separate working directory and use the original paths. Moving a source into this archive does not revalidate it for the current handset state.
 
-[manifest.json](manifest.json) maps old paths to their new locations and records original Git blob identities. The historical source revision is `8dd7a511131d113e5e5d541639c8bfd5e68512fb`. Later current-status reports remain in [docs/evidence](../docs/evidence/README.md).
+[manifest.json](manifest.json) maps old paths to their new locations and records original Git blob identities. The initial archive uses source revision `8dd7a511131d113e5e5d541639c8bfd5e68512fb`. Later moves record their own `source_commit`; the completed BOOT 3 tools use `fc6ffd6b57bdfcf10dab781c7125d4905728cc4b`. Later current-status reports remain in [docs/evidence](../docs/evidence/README.md).

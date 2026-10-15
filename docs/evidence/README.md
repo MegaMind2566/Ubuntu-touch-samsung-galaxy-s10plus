@@ -6,6 +6,7 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
+| [Ubuntu BOOT 4 ready package](ubuntu-boot-4-build-2026-10-15.json) | Corrected post-devtmpfs logging, bounded regular-file trace and passive wait samples. Linux/ARM64 and 24 native Windows cases passed; hardware attempt pending. |
 | [Ubuntu BOOT 3 handset execution](ubuntu-boot-3-handset-2026-10-15.json) | Exact write/readback and two original Ubuntu init attempts; SYSTEM/Android/Data mounted. Last saved stage root-mounted; userspace/GUI unconfirmed. |
 | [Ubuntu BOOT 3 build/package](ubuntu-boot-3-build-2026-10-15.json) | Complete original Ubuntu initramfs through the observed route; Linux/ARM64 and native Windows checks passed. Handset execution recorded separately below. |
 | [Diagnostic 2 handset execution](boot-diagnostic-2-handset-2026-10-15.json) | Exact BOOT, normal kernel/PID 1, readable storage and USB configuration confirmed. Ubuntu init not executed. |
