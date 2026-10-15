@@ -1,0 +1,55 @@
+name: Materialize immutable release SYSTEM
+on:
+  push:
+    paths:
+      - scripts/materialize-release-system.py
+      - .github/workflows/materialize-release-system.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate bounded artifact transport with small host fixtures
+        run: python3 scripts/materialize-release-system.py --self-test
+      - name: Download and verify original SYSTEM, then split compressed bytes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/materialize-release-system.py --output "${{ runner.temp }}/release-system"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-system-v0.1.0-alpha.1-part01
+          path: ${{ runner.temp }}/release-system/rootfs.img.zst.part01
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-system-v0.1.0-alpha.1-part02
+          path: ${{ runner.temp }}/release-system/rootfs.img.zst.part02
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-system-v0.1.0-alpha.1-part03
+          path: ${{ runner.temp }}/release-system/rootfs.img.zst.part03
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-system-v0.1.0-alpha.1-source-manifest
+          path: |
+            ${{ runner.temp }}/release-system/source-relay-manifest.json
+            ${{ runner.temp }}/release-system/source-SHA256SUMS
+            ${{ runner.temp }}/release-system/source-system-report.json
+            ${{ runner.temp }}/release-system/source-assembly-manifest.json
+          if-no-files-found: error
+          retention-days: 14
