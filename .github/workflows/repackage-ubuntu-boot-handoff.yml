@@ -5,6 +5,12 @@ on:
     paths:
       - '.gitattributes'
       - 'scripts/repackage_ubuntu_boot_handoff.py'
+      - 'scripts/package-ubuntu-boot-handoff.py'
+      - 'scripts/collect-ubuntu-handoff.py.in'
+      - 'tools/windows/*AVVIO-UBUNTU-3*'
+      - 'tools/windows/RIPRISTINA-TEST-AVVIO-2.cmd'
+      - 'tests/test_ubuntu_image_preservation.py'
+      - '.github/workflows/ubuntu-boot-handoff.yml'
       - '.github/workflows/repackage-ubuntu-boot-handoff.yml'
 permissions:
   contents: read
@@ -29,6 +35,7 @@ jobs:
           python3 scripts/repackage_ubuntu_boot_handoff.py inputs
           python3 scripts/audit_kernel_boot_sources.py
           python3 scripts/repackage_ubuntu_boot_handoff.py force-source
+          python3 tests/test_ubuntu_image_preservation.py --images out/ubuntu-boot-handoff-images
           python3 tests/test_ubuntu_boot_handoff.py --images out/ubuntu-boot-handoff-images --qemu qemu-aarch64
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

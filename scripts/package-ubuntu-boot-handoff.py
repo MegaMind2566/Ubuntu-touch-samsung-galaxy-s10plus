@@ -6,8 +6,8 @@ from pathlib import Path
 import zipfile
 
 from ubuntu_boot_handoff import (ROOT,OUT,PREVIOUS_SHA256,PREVIOUS_BYTES,sha,
-    compose,image_kernel,kernel_config,config_values,ubuntu_initramfs,original_image,embedded_archive)
-from inspect_stock_firmware import boot_header
+    image_kernel,kernel_config,config_values,ubuntu_initramfs,original_image,embedded_archive)
+from inspect_stock_firmware import boot_header,aligned
 
 
 def render(text,lock):
@@ -29,16 +29,35 @@ def validate(folder):
     lock=json.loads((folder/'ubuntu-boot-handoff.lock.json').read_text());payload=(folder/'initramfs.cpio').read_bytes()
     if (sha(previous)!=PREVIOUS_SHA256 or len(previous)!=PREVIOUS_BYTES or lock['boot_version']!=3
             or lock['hardware_tested'] or lock['ubuntu_touch_boot_verified']
-            or sha(image)!=lock['boot_sha256'] or len(image)!=lock['boot_bytes']):
+            or sha(image)!=lock['boot_sha256'] or len(image)!=lock['boot_bytes'] or len(image)>57671680):
         raise ValueError('ubuntu_boot_identity')
     if payload!=ubuntu_initramfs(original_image()) or sha(payload)!=lock['builtin_initramfs_sha256']:
         raise ValueError('ubuntu_payload_changed')
-    rebuilt,differences=compose(previous,image,payload)
-    h=boot_header(image)
-    if (rebuilt!=image or differences!=lock['kernel_config_differences']
-            or sha(image_kernel(image))!=lock['kernel_sha256']
-            or gzip.decompress(image[h['ramdisk_offset']:h['ramdisk_offset']+h['ramdisk_bytes']])!=payload
-            or config_values((folder/'kernel.config').read_text())!=config_values(kernel_config(image_kernel(image)))):
+    # Verify immutable firmware bytes without recompressing them on the host.
+    # Python/zlib versions can emit a different gzip OS byte for the same CPIO.
+    h=boot_header(image);before=boot_header(previous);kernel=image_kernel(image)
+    ramdisk=image[h['ramdisk_offset']:h['ramdisk_offset']+h['ramdisk_bytes']]
+    embedded_archive(kernel,payload)
+    old=config_values(kernel_config(image_kernel(previous)));new=config_values(kernel_config(kernel))
+    differences={k:{'before':old.get(k,'n'),'after':new.get(k,'n')} for k in sorted(set(old)|set(new))
+                 if old.get(k,'n')!=new.get(k,'n')}
+    allowed={'CONFIG_INITRAMFS_SOURCE','CONFIG_INITRAMFS_COMPRESSION',
+             'CONFIG_INITRAMFS_COMPRESSION_NONE','CONFIG_INITRAMFS_COMPRESSION_GZIP'}
+    page=h['page_bytes'];changes={i for i,(a,b) in enumerate(zip(previous[:page],image[:page])) if a!=b}
+    layout=image[:page]+kernel+b'\0'*(aligned(len(kernel),page)-len(kernel))
+    layout+=ramdisk+b'\0'*(aligned(len(ramdisk),page)-len(ramdisk))
+    if (set(differences)-allowed or differences!=lock['kernel_config_differences']
+            or new.get('CONFIG_INITRAMFS_FORCE')!='y' or new.get('CONFIG_INITRAMFS_COMPRESSION_GZIP')!='y'
+            or new.get('CONFIG_ANDROID_SAR_RAMDISK')!='y' or new.get('CONFIG_CMDLINE_EXTEND')!='y'
+            or new.get('CONFIG_ANDROID_BOOT_PARTITION')!='"/dev/sda14"'
+            or page!=before['page_bytes'] or kernel[56:60]!=b'ARM\x64'
+            or changes-set(range(8,12))-set(range(16,20))-set(range(576,608))
+            or not h['boot_id_sha1_valid'] or h['boot_id_variant']!='lineage-empty-legacy-dt'
+            or image[596:608]!=b'\0'*12 or image!=layout
+            or len(kernel)!=lock['kernel_bytes'] or len(ramdisk)!=lock['ramdisk_bytes']
+            or sha(kernel)!=lock['kernel_sha256'] or sha(ramdisk)!=lock['ramdisk_sha256']
+            or gzip.decompress(ramdisk)!=payload
+            or config_values((folder/'kernel.config').read_text())!=new):
         raise ValueError('ubuntu_boot_structure')
     return image,previous,lock
 

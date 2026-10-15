@@ -4,15 +4,11 @@ on:
   push:
     paths:
       - 'config/ubuntu-boot-handoff.config'
+      - 'patches/diagnostic/**'
       - 'scripts/ubuntu_boot_handoff.py'
       - 'scripts/build-ubuntu-boot-handoff.sh'
-      - 'scripts/package-ubuntu-boot-handoff.py'
-      - 'scripts/collect-ubuntu-handoff.py.in'
       - 'tools/boot-observer/**'
-      - 'tools/windows/*AVVIO-UBUNTU-3*'
-      - 'tools/windows/RIPRISTINA-TEST-AVVIO-2.cmd'
       - 'tests/test_ubuntu_boot_handoff.py'
-      - '.github/workflows/ubuntu-boot-handoff.yml'
 permissions:
   contents: read
   actions: read

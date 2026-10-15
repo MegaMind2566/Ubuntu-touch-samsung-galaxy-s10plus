@@ -103,3 +103,7 @@ The dedicated `ubuntu-boot-handoff.yml` workflow checks the real compressed kern
 The observer helper is a binary firmware input, so `.gitattributes` forces LF on Windows. The first Windows BOOT 3 packaging attempt stopped safely because checkout had converted this file to CRLF. The compiled image and Linux checks had already passed.
 
 `repackage_ubuntu_boot_handoff.py` pins that successful image job, artifact ID and ZIP digest. `repackage-ubuntu-boot-handoff.yml` rechecks the exact payload, peripheral configuration and actual ARM64 helpers, and compares the patched source used by the force-guard harness with the compiled-source manifest. It then tests the prepared ZIP on Windows. The resulting package uses the same kernel/image; this route is for host packaging changes that preserve the runtime payload byte for byte.
+
+Firmware validation preserves the original tested gzip stream. A host recompression previously differed only in its gzip OS byte (255 versus 3 in the reproduced case), which made byte comparisons fail despite equal decoded CPIO. The validator now checks exact image/kernel/ramdisk hashes, decoded CPIO identity, embedded payload, boot checksum, padding, header preservation and peripheral configuration without recompression. `test_ubuntu_image_preservation.py` enforces that property.
+
+Full kernel rebuilds track runtime source/configuration changes. Host packaging, reader and launcher changes use the pinned revalidation workflow. Update its immutable source pins after selecting a newly successful image job.
