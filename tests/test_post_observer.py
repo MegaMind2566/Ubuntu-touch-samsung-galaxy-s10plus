@@ -86,11 +86,14 @@ def main():
             journals.mkdir(parents=True)
             (journals / 'system.journal').write_bytes(b'journal header fixture')
             patched = source.replace('/dev/.ut-boot-5.', str(folder / '.ut-boot-5.'))
+            # CI runs unprivileged; map only the fixture's expected owner.
+            # The firmware helper retains its strict UID 0 guard unchanged.
+            patched = patched.replace(' = 0:700 ]', f' = {os.getuid()}:700 ]')
             patched = patched.replace('/userdata/', str(folder / 'userdata') + '/')
             patched = patched.replace('/proc/', str(proc) + '/')
             patched = patched.replace('/run/log/journal', str(journals.parent))
             patched = patched.replace('/var/log/journal', str(folder / 'missing-journals'))
-            patched = patched.replace('"$BB" sleep 120', '"$BB" sleep ' + ('0.08' if deadline else '15'))
+            patched = patched.replace('"$BB" sleep 120', '"$BB" sleep ' + ('0.8' if deadline else '15'))
             patched = patched.replace('"$BB" sleep "$delay"', '"$BB" sleep ' + ('2' if deadline else '0.01'))
             script = folder / 'watch'
             script.write_text(patched)
@@ -147,6 +150,7 @@ def main():
             + ('exec ' + backend + ' "$@"\n' if backend else 'exec "$@"\n'))
         launch_bridge.chmod(0o700)
         prepare = (HERE / 'post-handoff-functions').read_text()
+        prepare = prepare.replace(' = 0:700 ]', f' = {os.getuid()}:700 ]')
         prepare = prepare.replace('/root', str(folder / 'root'))
         prepare = prepare.replace('/bin/busybox', str(launch_bridge))
         prepare = prepare.replace('/proc/mounts', str(mounts))
@@ -183,6 +187,8 @@ def main():
                           'independent_deadline': True, 'bounded_outputs': True,
                           'private_ram_cleanup': True, 'preparation_guards': True,
                           'old_trace_fds_closed_before_chroot': True,
+                          'fixture_owner_uid': os.getuid(),
+                          'firmware_owner_guard_uid': 0,
                           'chroot_boundary_in_test': 'mocked'}))
 
 

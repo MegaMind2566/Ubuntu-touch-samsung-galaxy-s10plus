@@ -176,7 +176,9 @@ def main():
         result = {'schema': 1, 'actual_arm64_busybox': True, 'busybox_sha256': hashlib.sha256(peers[0]).hexdigest(),
                   'phone_accessed': False, 'mounts_simulated': True, 'getprop_simulated': True,
                   'original_overlay_sha256': ORIGINAL_SHA, 'observations': observations, 'success': True}
-        (HERE / 'test-results.json').write_text(json.dumps(result, indent=2) + '\n')
+        output = args.repository / 'out/hwc-readiness-tests.json'
+        output.parent.mkdir(exist_ok=True)
+        output.write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps(result))
 
 
