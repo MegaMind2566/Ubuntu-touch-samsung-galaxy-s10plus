@@ -17,7 +17,25 @@ permissions:
   contents: read
   actions: read
 jobs:
+  source-checks:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the ARM64 userspace test runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qemu-user
+      - name: Check original-entry preservation and real ARM64 logging guards before compiling
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/early_boot_diagnostic.py inputs
+          python3 tests/test_ubuntu_boot_handoff.py --qemu qemu-aarch64
   images:
+    needs: source-checks
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
@@ -33,6 +51,7 @@ jobs:
           UT_ARTIFACT_TOKEN: ${{ github.token }}
         run: bash scripts/build-ubuntu-boot-handoff.sh
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
         with:
           name: beyond2lte-ubuntu-boot-handoff-images
           path: out/ubuntu-boot-handoff-images/

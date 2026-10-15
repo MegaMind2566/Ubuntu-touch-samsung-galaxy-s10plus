@@ -31,17 +31,22 @@ def shell_checks(qemu,payload,folder):
         subprocess.run([qemu,str(binary),'sh','-n',str(path)],check=True)
     helper=files['ut-boot-functions']['data'].decode()
     mounts=folder/'fixture-mounts';kmsg=folder/'fixture-kmsg'
+    physical_data=folder/'physical-data';physical_data.write_text('regular-file fixture, not a block device')
+    physical_system=folder/'physical-system';physical_system.write_text('different regular-file fixture')
     first=folder/'first';second=folder/'second';first.mkdir();second.symlink_to(first,target_is_directory=True)
     # Execute the real helper under ARM64 BusyBox with only device paths redirected
     # to temporary fixtures. No host mount or physical phone is accessed.
     helper=helper.replace('/bin/busybox',str(wrapper)).replace('/proc/mounts',str(mounts))
     helper=helper.replace('for candidate in /tmpmnt /root/userdata;',f'for candidate in {first} {second};')
     helper=helper.replace('/dev/kmsg',str(kmsg))
+    # BusyBox readlink -f requires this final path to exist. A runner has no
+    # phone /dev/sda31, so map the expected source and mount text consistently.
+    helper=helper.replace('/dev/sda31',str(physical_data))
     script=folder/'fixture.sh'
     def invoke(extra):
         script.write_text(helper+'\n'+extra+'\n')
         subprocess.run([qemu,str(binary),'sh',str(script)],check=True)
-    mounts.write_text('/dev/sda31 '+str(first)+' ext4 rw 0 0\n')
+    mounts.write_text(str(physical_data)+' '+str(first)+' ext4 rw 0 0\n')
     for _ in range(6):invoke('ut_boot_stage root-mounted')
     base=first/'ubuntu-touch-boot-3'
     assert sorted(p.name for p in base.iterdir())==['run-'+str(n) for n in range(1,6)]
@@ -54,11 +59,11 @@ def shell_checks(qemu,payload,folder):
     # An existing symlink cannot redirect log creation into an unrelated folder.
     outside=folder/'outside';outside.mkdir();base.symlink_to(outside,target_is_directory=True)
     invoke('ut_boot_stage symlink-refused');assert not list(outside.iterdir());base.unlink()
-    mounts.write_text('/dev/sda25 '+str(first)+' ext4 ro 0 0\n')
+    mounts.write_text(str(physical_system)+' '+str(first)+' ext4 ro 0 0\n')
     invoke('ut_boot_stage wrong-partition');assert not base.exists()
     # A mount move retains the same owned run name and updates the same log set.
-    mounts.write_text('/dev/sda31 '+str(first)+' ext4 rw 0 0\n')
-    invoke('ut_boot_stage userdata-mounted\nprintf "/dev/sda31 '+str(second)+' ext4 rw 0 0\\n" >'+str(mounts)+'\nut_boot_stage userspace-handoff')
+    mounts.write_text(str(physical_data)+' '+str(first)+' ext4 rw 0 0\n')
+    invoke('ut_boot_stage userdata-mounted\nprintf "'+str(physical_data)+' '+str(second)+' ext4 rw 0 0\\n" >'+str(mounts)+'\nut_boot_stage userspace-handoff')
     assert (base/'run-1/stage.txt').read_text().endswith('stage=userspace-handoff\n')
     assert len(list(base.iterdir()))==1
 
