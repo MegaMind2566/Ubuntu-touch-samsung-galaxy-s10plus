@@ -1,4 +1,4 @@
-"""Collect BOOT 3 stages and retained userspace logs after return to TWRP."""
+"""Collect BOOT 4 stages and retained userspace logs after return to TWRP."""
 import argparse
 from datetime import datetime, timezone
 import importlib.util
@@ -12,14 +12,16 @@ spec=importlib.util.spec_from_file_location('first_boot_helpers',Path(__file__).
 legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
 BOOT_BYTES=__BOOT_UPDATE_BYTES__
 BOOT_SHA256='__BOOT_UPDATE_SHA256__'
-LOGDIR='/data/ubuntu-touch-boot-3'
-MEMBERS={'stage':('stage.txt',65536),'kernel':('kernel.log',2097152),'mounts':('mounts.txt',65536)}
+LOGDIR='/data/ubuntu-touch-boot-4'
+MEMBERS={'stage':('stage.txt',65536),'kernel':('kernel.log',2097152),'mounts':('mounts.txt',65536),
+         'trace':('trace.log',1048576),'wait-tasks':('wait-tasks.log',65536),
+         'wait-kernel':('wait-kernel.log',2097152)}
 USER_LOGS={'syslog':'syslog','lightdm':'lightdm/lightdm.log','lomiri':'lomiri/lomiri.log',
            'android':'lxc/android.log','boot':'boot.log'}
 
 
 def command_for(name):
-    match=re.fullmatch(r'run-([1-5])-(stage|kernel|mounts)',name)
+    match=re.fullmatch(r'run-([1-5])-(stage|kernel|mounts|trace|wait-tasks|wait-kernel)',name)
     if match:
         directory=LOGDIR+'/run-'+match[1];filename,limit=MEMBERS[match[2]];path=directory+'/'+filename
         return ['-d','shell',"test ! -L '"+LOGDIR+"' && test -d '"+LOGDIR+"' && test ! -L '"+directory+"' && test -d '"+directory+"' && test ! -L '"+path+"' && test -f '"+path+"' && /sbin/busybox head -c "+str(limit)+" '"+path+"'"]
@@ -48,7 +50,7 @@ def run_query(exe,name):
 
 
 def collect(root,runner=run_query,verifier=legacy.check_tools):
-    root=Path(root).resolve();files={};report={'schema':1,'boot_version':3,
+    root=Path(root).resolve();files={};report={'schema':1,'boot_version':4,
         'date_utc':datetime.now(timezone.utc).isoformat(),'adb_usb_only':True,'partition_writes':False,
         'mount_changes_requested':False,'data_format_requested':False,'reboot_requested':False,
         'ubuntu_touch_boot_verified':False,'success':False,'error':None,'steps':[],'attempts':[]}
@@ -76,13 +78,13 @@ def collect(root,runner=run_query,verifier=legacy.check_tools):
             if stage is None:continue
             files[prefix+'-stage.txt']=stage
             kernel=''
-            for suffix in ('kernel','mounts'):
+            for suffix in ('kernel','mounts','trace','wait-tasks','wait-kernel'):
                 value=read(prefix+'-'+suffix)
                 if value is not None:files[prefix+'-'+suffix+'.txt']=value
                 if suffix=='kernel':kernel=value or ''
-            match=re.search(r'UT_BOOT_3: stage=([a-z-]+)',stage)
+            match=re.search(r'UT_BOOT_4: stage=([a-z-]+)',stage)
             version=re.search(r'Linux version (\S+)',kernel)
-            report['attempts'].append({'run':attempt,'pid1_marker_found':'UT_BOOT_3: PID 1 STARTED' in stage,
+            report['attempts'].append({'run':attempt,'pid1_marker_found':'UT_BOOT_4: PID 1 STARTED' in stage,
                 'last_recorded_stage':match[1] if match else None,'kernel_version':version[1] if version else None})
         for name in ('last-kmsg-start','last-kmsg-tail','recovery-kernel','mounts',*USER_LOGS):
             value=read(name)
@@ -98,8 +100,8 @@ def collect(root,runner=run_query,verifier=legacy.check_tools):
         report['interpretation']='Saved stages prove recorded initramfs execution only. Kernel/readback identities and the observed screen must be considered together. A userspace-handoff marker does not prove a graphical Ubuntu boot.'
     except (OSError,ValueError) as e:
         report['error']=str(e) if isinstance(e,ValueError) and re.fullmatch('[a-z_]+',str(e)) else reason
-    path=root/'ubuntu-boot-3-log-report.zip';i=1
-    while path.exists():path=root/('ubuntu-boot-3-log-report-'+str(i)+'.zip');i+=1
+    path=root/'ubuntu-boot-4-log-report.zip';i=1
+    while path.exists():path=root/('ubuntu-boot-4-log-report-'+str(i)+'.zip');i+=1
     with zipfile.ZipFile(path,'x',zipfile.ZIP_DEFLATED) as z:
         for name,value in files.items():z.writestr(name,value)
         z.writestr('ubuntu-boot-log-report.json',json.dumps(report,indent=2))

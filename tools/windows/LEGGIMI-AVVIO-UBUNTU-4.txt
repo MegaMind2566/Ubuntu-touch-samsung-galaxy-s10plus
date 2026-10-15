@@ -1,0 +1,30 @@
+Samsung Galaxy S10+ SM-G975F/DS - Ubuntu BOOT 4
+
+BOOT 3 ha eseguito l init Ubuntu e montato SYSTEM e l immagine Android.
+I servizi Ubuntu non sono ancora confermati. BOOT 4 conserva una traccia
+completa e limitata su Data e campiona le eventuali attese di PID 1.
+Non cambia i driver o la logica originale di montaggio di Ubuntu.
+1. Copia tutto il contenuto dello ZIP nella cartella originale di installazione
+   Ubuntu, unendo le cartelle e sostituendo i file corrispondenti.
+2. Lascia TWRP aperta, USB collegato e SYSTEM/VENDOR non montate.
+3. Avvia INSTALLA-AVVIO-UBUNTU-4.cmd. Accetta solo il BOOT Ubuntu 3 esatto.
+   Aspetta la conferma di scrittura e rilettura riuscite.
+4. In TWRP scegli Reboot > System. Se propone l app TWRP: Do Not Install.
+5. Attendi fino a 3 minuti e fotografa la schermata.
+6. Se resta bloccato, torna in TWRP e avvia LEGGI-AVVIO-UBUNTU-4.cmd.
+   Invia ubuntu-boot-4-log-report.zip e la foto. I rapporti precedenti restano.
+
+L installazione scrive solo BOOT. Non ripete Format Data e non scrive SYSTEM,
+VENDOR, RECOVERY, VBMETA o la tabella delle partizioni.
+Il normale avvio Ubuntu prepara i suoi dati persistenti; salva anche fino a
+cinque tentativi di log in /data/ubuntu-touch-boot-4. Non esegue il controllo
+automatico e2fsck -y o il ridimensionamento automatico presenti nel vecchio init.
+La traccia temporanea in RAM e limitata a 4 MiB. I log su Data conservano
+al massimo cinque tentativi; il campionamento dura al massimo 120 secondi.
+Non esegue un sync globale nel percorso di PID 1.
+Il lettore dei log non effettua mount, scritture o riavvii.
+
+Il pacchetto contiene RIPRISTINA-AVVIO-UBUNTU-3.cmd per ripristinare il BOOT
+Ubuntu 3 precedente, se richiesto dopo il controllo del rapporto.
+Non ripristina Android o un Ubuntu funzionante. Non ripetere l installazione
+dopo un errore di scrittura: invia il rapporto e resta in TWRP.

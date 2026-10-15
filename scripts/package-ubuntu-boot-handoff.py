@@ -1,4 +1,4 @@
-"""Package BOOT 3, the exact diagnostic 2 rollback and a read-only log reader."""
+"""Package BOOT 4, the exact Ubuntu BOOT 3 rollback and a read-only log reader."""
 import argparse
 import gzip
 import json
@@ -17,17 +17,17 @@ def render(text,lock):
 
 
 def identity(text):
-    return (text.replace('boot-update-1','boot-diagnostic-2').replace('boot-update-2','boot-update-3')
-        .replace('verify_boot_update_2.py','verify_ubuntu_boot_3.py')
-        .replace('BOOT handoff with spaces','BOOT Ubuntu 3 with spaces')
-        .replace('INSTALLA-CORREZIONE-AVVIO.cmd','INSTALLA-AVVIO-UBUNTU-3.cmd')
-        .replace('RIPRISTINA-BOOT-1.cmd','RIPRISTINA-TEST-AVVIO-2.cmd'))
+    return (text.replace('boot-update-1','boot-update-3').replace('boot-update-2','boot-update-4')
+        .replace('verify_boot_update_2.py','verify_ubuntu_boot_4.py')
+        .replace('BOOT handoff with spaces','BOOT Ubuntu 4 with spaces')
+        .replace('INSTALLA-CORREZIONE-AVVIO.cmd','INSTALLA-AVVIO-UBUNTU-4.cmd')
+        .replace('RIPRISTINA-BOOT-1.cmd','RIPRISTINA-AVVIO-UBUNTU-3.cmd'))
 
 
 def validate(folder):
-    previous=(folder/'previous-diagnostic-2.img').read_bytes();image=(folder/'boot.img').read_bytes()
+    previous=(folder/'previous-ubuntu-3.img').read_bytes();image=(folder/'boot.img').read_bytes()
     lock=json.loads((folder/'ubuntu-boot-handoff.lock.json').read_text());payload=(folder/'initramfs.cpio').read_bytes()
-    if (sha(previous)!=PREVIOUS_SHA256 or len(previous)!=PREVIOUS_BYTES or lock['boot_version']!=3
+    if (sha(previous)!=PREVIOUS_SHA256 or len(previous)!=PREVIOUS_BYTES or lock['boot_version']!=4
             or lock['hardware_tested'] or lock['ubuntu_touch_boot_verified']
             or sha(image)!=lock['boot_sha256'] or len(image)!=lock['boot_bytes'] or len(image)>57671680):
         raise ValueError('ubuntu_boot_identity')
@@ -41,8 +41,7 @@ def validate(folder):
     old=config_values(kernel_config(image_kernel(previous)));new=config_values(kernel_config(kernel))
     differences={k:{'before':old.get(k,'n'),'after':new.get(k,'n')} for k in sorted(set(old)|set(new))
                  if old.get(k,'n')!=new.get(k,'n')}
-    allowed={'CONFIG_INITRAMFS_SOURCE','CONFIG_INITRAMFS_COMPRESSION',
-             'CONFIG_INITRAMFS_COMPRESSION_NONE','CONFIG_INITRAMFS_COMPRESSION_GZIP'}
+    allowed={'CONFIG_INITRAMFS_SOURCE'}
     page=h['page_bytes'];changes={i for i,(a,b) in enumerate(zip(previous[:page],image[:page])) if a!=b}
     layout=image[:page]+kernel+b'\0'*(aligned(len(kernel),page)-len(kernel))
     layout+=ramdisk+b'\0'*(aligned(len(ramdisk),page)-len(ramdisk))
@@ -73,35 +72,35 @@ def package(folder,output):
                           "$script:BootPreviousHash='"+PREVIOUS_SHA256+"'")
     script=script.replace('$script:BootPreviousBytes=53215232','$script:BootPreviousBytes='+str(PREVIOUS_BYTES))
     script=script.replace('schema=1;update_version=2;',
-                          'schema=1;update_version=5;boot_version=3;purpose="ubuntu_init_builtin_handoff";')
+                          'schema=1;update_version=6;boot_version=4;purpose="ubuntu_init_trace_and_waits";')
     footer="""        Write-Host 'AGGIORNAMENTO BOOT COMPLETATO E VERIFICATO.'
         Write-Host 'Ora in TWRP: Reboot > System. Se propone l app TWRP, scegli Do Not Install.'
         Write-Host 'Invia il rapporto e la schermata ottenuta al primo avvio.'"""
     if footer not in script:raise ValueError('mode_footer_anchor')
     script=script.replace(footer,"""        if ($UpdateMode -ceq 'Apply') {
-            Write-Host 'BOOT UBUNTU 3 INSTALLATO E VERIFICATO.'
+            Write-Host 'BOOT UBUNTU 4 INSTALLATO E VERIFICATO.'
             Write-Host 'Ora TWRP > Reboot > System. Se propone l app TWRP, scegli Do Not Install.'
             Write-Host 'Attendi fino a 3 minuti. Fotografa la schermata e inviala.'
-            Write-Host 'Se resta bloccato, torna in TWRP e usa LEGGI-AVVIO-UBUNTU-3.cmd.'
+            Write-Host 'Se resta bloccato, torna in TWRP e usa LEGGI-AVVIO-UBUNTU-4.cmd.'
         } else {
-            Write-Host 'BOOT DEL TEST 2 RIPRISTINATO E VERIFICATO.'
+            Write-Host 'BOOT UBUNTU 3 RIPRISTINATO E VERIFICATO.'
             Write-Host 'Il telefono resta in TWRP. Invia il rapporto di ripristino.'
         }""",1)
     verifier=(ROOT/'scripts/templates/verified-boot-image.py.in').read_text()
     verifier=verifier.replace('439b535193a8e6315e3da3884755db49b04794c28d5e06686fc595dfab8f5a4c',lock['ramdisk_sha256'])
     verifier=verifier.replace('rsize!=4108120','rsize!='+str(lock['ramdisk_bytes']))
     verifier=verifier.replace('BOOT corretto verificato. Ramdisk e selettore di SYSTEM conservati.',
-                              'BOOT Ubuntu 3 verificato. Initramfs Ubuntu integrato; selettore di SYSTEM conservato.')
-    members={'boot-update-3/boot.img':image,'boot-diagnostic-2/boot.img':previous,
+                              'BOOT Ubuntu 4 verificato. Initramfs Ubuntu integrato; selettore di SYSTEM conservato.')
+    members={'boot-update-4/boot.img':image,'boot-update-3/boot.img':previous,
         'config/ubuntu-boot-handoff.lock.json':json.dumps(lock,indent=2).encode(),
-        'scripts/install-boot-update-3.ps1':render(script,lock).encode('ascii'),
-        'scripts/verify_ubuntu_boot_3.py':render(verifier,lock).encode('ascii'),
+        'scripts/install-boot-update-4.ps1':render(script,lock).encode('ascii'),
+        'scripts/verify_ubuntu_boot_4.py':render(verifier,lock).encode('ascii'),
         'scripts/collect-ubuntu-handoff.py':collector(lock).encode('ascii'),
-        'boot-update-3/ubuntu-handoff-tests.json':(folder/'ubuntu-handoff-tests.json').read_bytes()}
+        'boot-update-4/ubuntu-handoff-tests.json':(folder/'ubuntu-handoff-tests.json').read_bytes()}
     for name in ['install-ubuntu-twrp.ps1','install-ubuntu-touch.ps1','check-recovery.ps1','flash-recovery-test.ps1',
                  'check-download-mode.ps1','prepare_ubuntu_install.py','verify_recovery_test.py','collect-first-boot.py']:
         members['scripts/'+name]=(ROOT/'scripts'/name).read_bytes()
-    for name in ['INSTALLA-AVVIO-UBUNTU-3.cmd','LEGGI-AVVIO-UBUNTU-3.cmd','RIPRISTINA-TEST-AVVIO-2.cmd','LEGGIMI-AVVIO-UBUNTU-3.txt']:
+    for name in ['INSTALLA-AVVIO-UBUNTU-4.cmd','LEGGI-AVVIO-UBUNTU-4.cmd','RIPRISTINA-AVVIO-UBUNTU-3.cmd','LEGGIMI-AVVIO-UBUNTU-4.txt']:
         members[name]=(ROOT/'tools/windows'/name).read_bytes()
     for name,value in list(members.items()):
         if name.endswith(('.ps1','.cmd','.txt')):members[name]=value.decode('ascii').replace('\r\n','\n').replace('\n','\r\n').encode('ascii')
@@ -110,11 +109,11 @@ def package(folder,output):
     with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for name,value in sorted(members.items()):z.writestr(name,value)
     test=identity((ROOT/'tests/test-boot-template.ps1').read_text())
-    test=test.replace('ubuntu-boot-update-apply-state.json','ubuntu-boot-diagnostic-2-apply-state.json')
-    test=test.replace('version 1 checkpoint preserved and does not block version 2','diagnostic 2 checkpoint preserved and does not block Ubuntu BOOT 3')
-    test=test.replace('version 1 cannot be mistaken for version 2','diagnostic 2 cannot be mistaken for Ubuntu BOOT 3')
-    test=test.replace('version 2 update/restore cases','Ubuntu BOOT 3 update/restore cases')
-    test=test.replace('version 1/version 2 BOOT','diagnostic 2/Ubuntu BOOT 3')
+    test=test.replace('ubuntu-boot-update-apply-state.json','ubuntu-boot-update-3-apply-state.json')
+    test=test.replace('version 1 checkpoint preserved and does not block version 2','Ubuntu BOOT 3 checkpoint preserved and does not block Ubuntu BOOT 4')
+    test=test.replace('version 1 cannot be mistaken for version 2','Ubuntu BOOT 3 cannot be mistaken for Ubuntu BOOT 4')
+    test=test.replace('version 2 update/restore cases','Ubuntu BOOT 4 update/restore cases')
+    test=test.replace('version 1/version 2 BOOT','Ubuntu BOOT 3/Ubuntu BOOT 4')
     test=test.replace('param([string]$Cmd)','param([string]$Cmd,[string]$Expected="previous_boot_update_needs_review")')
     test=test.replace("$output -match 'previous_boot_update_needs_review'","$output -match $Expected")
     anchor="    Write-Host 'PASS: 24"
@@ -123,13 +122,13 @@ def package(folder,output):
     $adbHidden=Join-Path $script:BootTestRoot 'platform-tools\adb-test-hidden.exe'
     Move-Item -LiteralPath $adbSource -Destination $adbHidden
     try {
-        Invoke-BootNativeEntry 'LEGGI-AVVIO-UBUNTU-3.cmd' 'Lettura fermata: local_tools_unavailable'
-        $logZip=[IO.Compression.ZipFile]::OpenRead((Join-Path $script:BootTestRoot 'ubuntu-boot-3-log-report.zip'))
+        Invoke-BootNativeEntry 'LEGGI-AVVIO-UBUNTU-4.cmd' 'Lettura fermata: local_tools_unavailable'
+        $logZip=[IO.Compression.ZipFile]::OpenRead((Join-Path $script:BootTestRoot 'ubuntu-boot-4-log-report.zip'))
         try {
             $reader=New-Object IO.StreamReader($logZip.GetEntry('ubuntu-boot-log-report.json').Open())
             try { $logReport=$reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
-            Assert-BootTest ($logReport.boot_version -eq 3 -and $logReport.error -ceq 'local_tools_unavailable' -and
-                $logReport.steps.Count -eq 0 -and -not $logReport.partition_writes -and -not $logReport.mount_changes_requested) 'real BOOT 3 collector stops before USB when tools are unavailable'
+            Assert-BootTest ($logReport.boot_version -eq 4 -and $logReport.error -ceq 'local_tools_unavailable' -and
+                $logReport.steps.Count -eq 0 -and -not $logReport.partition_writes -and -not $logReport.mount_changes_requested) 'real BOOT 4 collector stops before USB when tools are unavailable'
         } finally { $logZip.Dispose() }
     } finally { Move-Item -LiteralPath $adbHidden -Destination $adbSource }
 '''

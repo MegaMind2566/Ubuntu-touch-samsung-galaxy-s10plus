@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "device": "SM-G975F beyond2lte",
+  "firmware": "G975FXXSGHWC1",
+  "inputs": [
+    {
+      "filename": "recovery-check-report-23.zip",
+      "bytes": 1627,
+      "sha256": "2ad2635dbadff7e4659e771d3e72aa5408c644fa14d6d6bbf67985f776e93bc1"
+    },
+    {
+      "filename": "recovery-check-report-24.zip",
+      "bytes": 1627,
+      "sha256": "930cac6efcd388cce6ccbe64723d476b097a1343154099cdcb0f508c75902fe0"
+    },
+    {
+      "filename": "ubuntu-boot-update-3-report.zip",
+      "bytes": 930,
+      "sha256": "8ea8f117e514ff7537b55c4a2ab4efe18f57a7ab1dd0ac3c19bbd67557bb6fb3"
+    },
+    {
+      "filename": "ubuntu-boot-update-3-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    },
+    {
+      "filename": "ubuntu-boot-3-log-report.zip",
+      "bytes": 400410,
+      "sha256": "783b2087c312c149c23592546b240f77e530554e1dd3308f0c5d715f2669ba55"
+    }
+  ],
+  "installed_boot": {
+    "version": 3,
+    "bytes": 57335808,
+    "sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "write_and_readback_success": true,
+    "apply_checkpoint": {
+      "write_started": true,
+      "success": true
+    }
+  },
+  "recovery_checks": {
+    "reports": [
+      23,
+      24
+    ],
+    "both_success": true,
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+    "data_ext4_raw_sda31_mounted": true
+  },
+  "runtime": {
+    "attempts": [
+      {
+        "run": 1,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "root-mounted",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      },
+      {
+        "run": 2,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "root-mounted",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      }
+    ],
+    "original_ubuntu_init_executed": true,
+    "system_ext4_ro_at_root": true,
+    "android_image_loop_ro_mounted": true,
+    "userdata_ext4_rw_at_root_userdata": true,
+    "original_writable_path_binds_created": true,
+    "observed_mounts": [
+      "rootfs / rootfs rw 0 0",
+      "sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0",
+      "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0",
+      "udev /dev devtmpfs rw,nosuid,relatime,size=3482848k,nr_inodes=870712,mode=755 0 0",
+      "devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0",
+      "tmpfs /run tmpfs rw,nosuid,noexec,relatime,size=712548k,nr_inodes=890680,mode=755 0 0",
+      "/dev/sda31 /root/userdata ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/disk/by-partlabel/system /root ext4 ro,relatime,data=ordered 0 0",
+      "/dev/loop0 /root/var/lib/lxc/android/rootfs ext4 ro,relatime 0 0",
+      "/dev/loop0 /root/android/system ext4 ro,relatime 0 0",
+      "/dev/loop0 /root/android ext4 ro,relatime 0 0",
+      "/dev/sda31 /root/android/data ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "tmpfs /root/run tmpfs rw,nosuid,noexec,relatime,mode=755 0 0",
+      "tmpfs /root/etc/fstab tmpfs rw,nosuid,noexec,relatime,mode=755 0 0",
+      "/dev/sda31 /root/etc/NetworkManager/system-connections ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/netplan ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/default/ufw ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/ufw ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/ssh ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/writable ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/udev/rules.d ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/modules-load.d ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/systemd/system ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/binfmt.d ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/lightdm/lightdm.conf.d ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/hosts ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/keyd ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/etc/machine-id ext4 rw,relatime,discard,nodelalloc,data=journal 0 0",
+      "/dev/sda31 /root/android/cache ext4 rw,relatime,discard,nodelalloc,data=journal 0 0"
+    ],
+    "last_saved_stage": "root-mounted",
+    "init_bottom_complete_recorded": false,
+    "userspace_handoff_recorded": false,
+    "systemd_pid1_confirmed": false,
+    "android_container_started_confirmed": false,
+    "graphical_boot_confirmed": false,
+    "warnings": [
+      "Android API 32 identified but device name reported unknown.",
+      "No top-level fstab* in mounted Android rootfs; normal VENDOR mount absent from saved mount table.",
+      "Most shell xtrace records through /dev/kmsg are empty.",
+      "Stage snapshots do not identify the exact subsequent wait or failure."
+    ],
+    "retained_last_kmsg": "Contains a normal-kernel tail through hard_reset_hook_callback and repeated pstore scheduling warnings, followed by recovery boot logs. The initiating normal-boot failure is not retained; do not classify recovery init messages as Ubuntu messages."
+  },
+  "conclusion": "BOOT 3 write and original Ubuntu init execution are confirmed. Intended SYSTEM and embedded Android filesystem mounted on both recorded attempts. No successful userspace or graphical boot is established.",
+  "next_experiment": {
+    "version": 4,
+    "status": "source-prepared; image build and native Windows validation pending",
+    "changes": [
+      "Bounded line-buffered regular-file shell trace with periodic Data snapshots.",
+      "Passive PID 1/child wait-state sampling for up to 120 seconds.",
+      "Additional checkpoints around /usr, cleanup and udev exit.",
+      "Remove blocking global sync from PID 1 stage capture; no claim it caused the failure."
+    ],
+    "target": "BOOT only",
+    "expected_previous_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "rollback": "exact Ubuntu BOOT 3",
+    "system_vendor_rewrite": false,
+    "format_data": false
+  },
+  "ubuntu_touch_boot_verified": false,
+  "publication_criterion_met": false,
+  "screen_observations": {
+    "source": "user report on 15 October 2026",
+    "first_boot": "Screen became black and the phone rebooted.",
+    "second_boot": "Remained on the Samsung screen.",
+    "association_limit": "Two saved original-init attempts exist. Reset tail does not establish which exact initiating event caused the first reboot."
+  }
+}

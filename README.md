@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: Ubuntu initramfs handoff. Ubuntu Touch has not yet booted successfully on the test handset.** Diagnostic 2 now confirms execution of the Halium kernel and its diagnostic PID 1 on the phone. Data, SYSTEM and VENDOR are readable, and USB ACM configuration works. The next BOOT runs the original Ubuntu initramfs through that verified built-in route, with saved stages to locate any remaining userspace failure.
+**Current stage: original Ubuntu init executes and mounts SYSTEM; userspace boot is still blocked.** BOOT 3 has executed on the test handset with matching physical readback. Two attempts mounted the Ubuntu root filesystem, its embedded Android image and Data. Their last saved stage is `root-mounted`; Ubuntu services and the graphical shell have not been confirmed. BOOT 4 will retain a complete bounded shell trace and sample the init process's waits to locate the next failure.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -33,7 +33,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Diagnostic 2 kernel and PID 1 | Confirmed on the phone with the exact BOOT hash |
 | Read Data, SYSTEM and VENDOR under the normal kernel | Confirmed by diagnostic 2 |
 | Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
-| Run the original Ubuntu initramfs via the built-in route | Built and checked on Linux/Windows; handset result pending |
+| Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed twice by BOOT 3 on the handset |
 | Reach Ubuntu userspace and the graphical shell | Not achieved |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -41,13 +41,11 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 ## Current boot investigation
 
-The phone now executes the Halium 4.14.280 kernel and the built-in diagnostic initramfs. The [15 October handset report](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json) matches the tested diagnostic 2 BOOT and contains the PID 1 marker, readable storage and USB configuration. This confirms the earlier kernel-to-initramfs milestone; it does not start Ubuntu.
+The [BOOT 3 handset report](docs/evidence/ubuntu-boot-3-handset-2026-10-15.json) confirms original Ubuntu init execution and the intended root mounts. Both recorded attempts last saved `root-mounted`. The user observed a black screen followed by a reboot on the first attempt, then a stationary Samsung screen on the second. The trace sent directly to `/dev/kmsg` loses most shell-command text, so the exact subsequent wait or failure is still unknown. Android API 32 is recognized, while device-name and Android fstab discovery report warnings. These findings do not demonstrate missing or erased vendor contents.
 
-The diagnostic framebuffer helper could not use the reported fb0 layout. A retained panic tail includes the same diagnostic kernel banner, but omits the initiating message. Neither observation is a complete diagnosis of the remaining Ubuntu boot failure.
+BOOT 4 keeps the forced built-in-initramfs route and the original Ubuntu mount logic, adding bounded regular-file tracing, passive PID 1/child wait samples and finer cleanup/udev checkpoints. It also removes global filesystem sync from the observer's PID 1 path; no claim is made that sync caused the failure. Build and native Windows validation are pending. The update will write only BOOT from the exact installed BOOT 3 and include that image as rollback.
 
-BOOT 3 keeps the tested forced built-in-initramfs path and replaces the temporary diagnostic program with the complete original Ubuntu initramfs. Three scripts gain stage observations; the existing rootfs and Android-container mount logic remains. The one-off attempt skips the upstream automatic userdata repair and resize, preserves SYSTEM/VENDOR and collects bounded logs. Its 57,335,808-byte image fits the measured BOOT partition. Linux/ARM64 checks, the portable image-preservation regression and 24 native Windows apply/restore cases passed. The [BOOT 3 build record](docs/evidence/ubuntu-boot-3-build-2026-10-15.json) pins the tested image and delivered ZIP. The handset test is next.
-
-Earlier [symbol and device-tree inspection](docs/evidence/offline-tools-2026-10-14.json) and the two SAR fixes remain documented. The late external ramdisk route has not been proved to work on the phone. See [the current procedure and remaining milestones](docs/status.md#next-experiment).
+The earlier [diagnostic 2 execution](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json), [BOOT 3 build](docs/evidence/ubuntu-boot-3-build-2026-10-15.json), and [symbol/device-tree analysis](docs/evidence/offline-tools-2026-10-14.json) remain traceable evidence. See [current status](docs/status.md#next-experiment) for the next test and unverified milestones.
 
 ## Repository map
 
@@ -55,7 +53,7 @@ Earlier [symbol and device-tree inspection](docs/evidence/offline-tools-2026-10-
 | --- | --- |
 | [config](config) | Source, configuration and installation image pins |
 | [patches/kernel](patches/kernel) | AppArmor and Samsung SAR kernel fixes |
-| [patches/diagnostic](patches/diagnostic) | Forced built-in-initramfs change shared by diagnostic 2 and Ubuntu BOOT 3 |
+| [patches/diagnostic](patches/diagnostic) | Forced built-in-initramfs change shared by diagnostic 2 and the Ubuntu BOOT family |
 | [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |

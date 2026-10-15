@@ -4,6 +4,7 @@ This archive preserves the source of completed experiments. It is separate from 
 
 | Area | Why archived | Current replacement |
 | --- | --- | --- |
+| `ubuntu-boot-3/` | BOOT 3 handset test completed; its pinned host repackage workflow targets the previous payload. | Maintained Ubuntu BOOT 4 builder/collector and guarded BOOT 3 rollback. |
 | `boot-update-1/` | The standalone offset-fix package was applied and BOOT 1 still remained at the logo. | Both SAR fixes are in the current build; controlled BOOT diagnostic and BOOT 2 rollback. |
 | `boot-update-2/` | The standalone init-handoff package was applied and BOOT 2 still remained at the logo. | Current diagnostic package, using the verified BOOT 2 kernel. |
 | `odin-system-boot/` | The SYSTEM/BOOT Download-mode route failed during PIT transfer and was replaced by the tested TWRP route. | Maintained TWRP installer and shared image/preflight checks. |

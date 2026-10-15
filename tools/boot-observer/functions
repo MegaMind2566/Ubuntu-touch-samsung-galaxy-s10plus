@@ -1,13 +1,58 @@
-# Observations for Ubuntu BOOT 3. Sourced by the original initramfs PID 1.
-# No extra filesystem mounts, raw writes, fsck, resize or format operations.
+# BOOT 4 observation only: no mounts, raw writes, filesystem repair or resize.
 UT_BOOT_LOG_NAME=''
+UT_BOOT_WATCH_PID=''
+UT_BOOT_TRACE_PID=''
+ut_boot_trace_start() {
+    : >/run/initramfs/ubuntu-init.trace
+    exec 8</run/initramfs/ubuntu-init.trace
+    if /bin/busybox mkfifo -m 0600 /run/initramfs/ubuntu-init.pipe; then
+        /bin/busybox awk -f /ut-boot-trace.awk </run/initramfs/ubuntu-init.pipe >/run/initramfs/ubuntu-init.trace &
+        UT_BOOT_TRACE_PID=$!
+        exec >/run/initramfs/ubuntu-init.pipe 2>&1
+    else
+        exec >/dev/kmsg 2>&1
+    fi
+}
+
+ut_boot_trace_copy() {
+    # The open descriptor follows /run when the original init moves that mount.
+    /bin/busybox tail -c 1048576 /proc/self/fd/8 >"$1/trace.log" 2>/dev/null || :
+}
+
+ut_boot_wait_watch() {
+    # A private Data cwd survives the original init's mount moves.
+    cd "$1" || return 0
+    exec >/dev/null 2>&1
+    local sample='' child='' sleeper=''
+    trap '[ -z "$sleeper" ] || kill "$sleeper" 2>/dev/null; exit 0' TERM INT
+    for sample in 1 2 3 4 5 6 7 8 9 10 11 12; do
+        /bin/busybox sleep 10 &
+        sleeper=$!
+        wait "$sleeper"
+        sleeper=''
+        ut_boot_trace_copy .
+        {
+            printf 'UT_BOOT_4: wait-sample=%s\n' "$sample"
+            /bin/busybox cat /proc/uptime
+            /bin/busybox cat /proc/1/status /proc/1/wchan /proc/1/stack
+            for child in $(/bin/busybox head -c 2048 /proc/1/task/1/children); do
+                case "$child" in ''|*[!0-9]*) continue;; esac
+                printf '\nCHILD %s\n' "$child"
+                /bin/busybox cat "/proc/$child/comm" "/proc/$child/wchan" "/proc/$child/stack"
+            done
+            /bin/busybox ps
+        } 2>&1 | /bin/busybox head -c 65536 >wait-tasks.log
+        /bin/busybox dmesg | /bin/busybox tail -c 2097152 >wait-kernel.log
+    done
+}
+
 ut_boot_snapshot() {
     local base='' source='' candidate='' number='' target=''
     for candidate in /tmpmnt /root/userdata; do
         source=$(/bin/busybox awk -v p="$candidate" '$2==p && $3=="ext4" {print $1; exit}' /proc/mounts)
         [ -n "$source" ] || continue
         [ "$(/bin/busybox readlink -f "$source")" = /dev/sda31 ] || continue
-        base="$candidate/ubuntu-touch-boot-3"
+        base="$candidate/ubuntu-touch-boot-4"
         [ ! -L "$base" ] || continue
         if [ ! -e "$base" ]; then /bin/busybox mkdir -m 0700 "$base" || continue; fi
         [ -d "$base" ] || continue
@@ -24,15 +69,30 @@ ut_boot_snapshot() {
         [ -d "$target" ] && [ ! -L "$target" ] || return 0
         /bin/busybox dmesg | /bin/busybox tail -c 2097152 >"$target/kernel.log"
         /bin/busybox head -c 65536 /proc/mounts >"$target/mounts.txt"
-        printf 'UT_BOOT_3: PID 1 STARTED\nUT_BOOT_3: stage=%s\n' "$1" >"$target/stage.txt"
-        /bin/busybox sync
+        ut_boot_trace_copy "$target"
+        printf 'UT_BOOT_4: PID 1 STARTED\nUT_BOOT_4: stage=%s\n' "$1" >"$target/stage.txt"
+        if [ -z "$UT_BOOT_WATCH_PID" ]; then
+            ut_boot_wait_watch "$target" &
+            UT_BOOT_WATCH_PID=$!
+        fi
+        # Do not put global filesystem sync in PID 1's critical path.
+        # Data uses its existing journal; the passive watcher records later waits.
         return 0
     done
     return 0
 }
 
 ut_boot_stage() {
-    printf 'UT_BOOT_3: stage=%s\n' "$1" >/dev/kmsg
+    printf 'UT_BOOT_4: stage=%s\n' "$1" >/dev/kmsg
     ut_boot_snapshot "$1"
+    return 0
+}
+
+ut_boot_trace_stop() {
+    set +x
+    exec >/dev/kmsg 2>&1
+    [ -z "$UT_BOOT_WATCH_PID" ] || kill "$UT_BOOT_WATCH_PID" 2>/dev/null
+    [ -z "$UT_BOOT_TRACE_PID" ] || kill "$UT_BOOT_TRACE_PID" 2>/dev/null
+    exec 8<&-
     return 0
 }

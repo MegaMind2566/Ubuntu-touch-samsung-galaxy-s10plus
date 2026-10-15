@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-10-14",
+  "date": "2026-10-15",
   "source_commit": "8dd7a511131d113e5e5d541639c8bfd5e68512fb",
   "archive_policy": "Historical sources are kept once. Archived workflows are outside .github/workflows and cannot run automatically. Reproduce old packages from the recorded source commit in the original layout.",
   "moves": [
@@ -387,6 +387,54 @@
       "to": "archive/boot-update-1/tools/windows/RIPRISTINA-BOOT-PRECEDENTE.cmd",
       "original_git_blob": "9dd8d302ecabe7c1c23acf1569726f190fa94585",
       "archived": true
+    },
+    {
+      "from": "tools/windows/INSTALLA-AVVIO-UBUNTU-3.cmd",
+      "to": "archive/ubuntu-boot-3/tools/windows/INSTALLA-AVVIO-UBUNTU-3.cmd",
+      "original_git_blob": "69e3caff9665bc22cb3ff8e5d9b0d3e1e166f61e",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
+    },
+    {
+      "from": "tools/windows/LEGGI-AVVIO-UBUNTU-3.cmd",
+      "to": "archive/ubuntu-boot-3/tools/windows/LEGGI-AVVIO-UBUNTU-3.cmd",
+      "original_git_blob": "613fef1f0af58c44e24098280391b323ff856992",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-TEST-AVVIO-2.cmd",
+      "to": "archive/ubuntu-boot-3/tools/windows/RIPRISTINA-TEST-AVVIO-2.cmd",
+      "original_git_blob": "091efe8b11ccc9586b2b51efad4abf40726f1000",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
+    },
+    {
+      "from": "tools/windows/LEGGIMI-AVVIO-UBUNTU-3.txt",
+      "to": "archive/ubuntu-boot-3/tools/windows/LEGGIMI-AVVIO-UBUNTU-3.txt",
+      "original_git_blob": "a8d2d9a1fa3e60988a22869d093abc0da861e126",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
+    },
+    {
+      "from": "scripts/repackage_ubuntu_boot_handoff.py",
+      "to": "archive/ubuntu-boot-3/scripts/repackage_ubuntu_boot_handoff.py",
+      "original_git_blob": "fd9c387e0586f018b4bbe5dcc694e65ca5ef88c4",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
+    },
+    {
+      "from": ".github/workflows/repackage-ubuntu-boot-handoff.yml",
+      "to": "archive/ubuntu-boot-3/.github/workflows/repackage-ubuntu-boot-handoff.yml",
+      "original_git_blob": "2c74453c0476d772a01f148bbf9a4f2d9a210bb9",
+      "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
+      "archived": true,
+      "replacement": "scripts/ubuntu_boot_handoff.py and tools/windows/*AVVIO-UBUNTU-4*"
     }
   ]
 }

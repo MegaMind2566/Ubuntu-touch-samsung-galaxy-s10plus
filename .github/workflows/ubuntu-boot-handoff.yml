@@ -1,4 +1,4 @@
-name: S10+ Ubuntu initramfs handoff
+name: S10+ Ubuntu BOOT 4 trace and waits
 on:
   workflow_dispatch:
   push:
@@ -9,6 +9,12 @@ on:
       - 'scripts/build-ubuntu-boot-handoff.sh'
       - 'tools/boot-observer/**'
       - 'tests/test_ubuntu_boot_handoff.py'
+      - 'scripts/package-ubuntu-boot-handoff.py'
+      - 'scripts/collect-ubuntu-handoff.py.in'
+      - 'tools/windows/*AVVIO-UBUNTU-4*'
+      - 'tools/windows/RIPRISTINA-AVVIO-UBUNTU-3.cmd'
+      - '.gitattributes'
+      - '.github/workflows/ubuntu-boot-handoff.yml'
 permissions:
   contents: read
   actions: read
@@ -29,6 +35,7 @@ jobs:
           UT_ARTIFACT_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/early_boot_diagnostic.py inputs
+          python3 scripts/ubuntu_boot_handoff.py inputs
           python3 tests/test_ubuntu_boot_handoff.py --qemu qemu-aarch64
   images:
     needs: source-checks
@@ -89,7 +96,7 @@ jobs:
         shell: powershell
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 3 with spaces')
+          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 4 with spaces')
           [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
           $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip'))
           try {
