@@ -8,7 +8,7 @@ The Halium 12 adaptation and Ubuntu Touch 24.04 SYSTEM image have been built and
 
 A temporary diagnostic BOOT 1 is installed. Its kernel is byte-identical to BOOT 2; its ramdisk replaces Ubuntu's init with a small diagnostic program. The report received on 15 October reconfirms its exact BOOT hash and shows `/data` mounted in TWRP, but no diagnostic data logs were found. Its `last_kmsg` is S-Boot entering recovery after a pin reset, with explicit debug-buffer clearing. It does not contain an identifiable normal-kernel trace. Kernel/PID 1 execution remains unconfirmed.
 
-Diagnostic 2 is being built to place a minimal initramfs inside the kernel and use it before the late SYSTEM-dependent ramdisk path. This is a controlled observation experiment; it does not start Ubuntu.
+Diagnostic 2 has been built to place a minimal initramfs inside the kernel and use it before the late SYSTEM-dependent ramdisk path. Its Linux image checks and native Windows apply/restore tests passed. The 55,638,016-byte BOOT fits the measured 57,671,680-byte partition, and its kernel configuration differs from BOOT 2 only in six initramfs-related symbols. This is a controlled observation experiment; it does not start Ubuntu. The latest confirmed physical BOOT remains diagnostic 1 until the next handset test.
 
 ## What has been verified
 
@@ -43,12 +43,14 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Build and validate diagnostic 2, then test it once on the handset:
+Test the validated diagnostic 2 package once on the handset:
 
-1. Embed the pinned diagnostic's static BusyBox and display helper with a distinct `UT_DIAG_2` init in the kernel. Preserve the previous peripheral configuration and external ramdisk. `CONFIG_INITRAMFS_FORCE` plus a diagnostic-only guard change makes the built-in rootfs available even if `skip_initramfs` is supplied.
-2. Validate the real image, compiled configuration, ARM64 helpers, source guard and Windows BOOT-only apply/restore paths. Keep the exact diagnostic 1 image as rollback.
-3. After those checks pass, install using **`INSTALLA-TEST-AVVIO-2.cmd`** from TWRP. Reboot to System manually, wait 60 seconds and photograph the screen.
-4. Return to TWRP and run **`LEGGI-TEST-AVVIO-2.cmd`**. Inspect **`ubuntu-boot-diagnostic-2-log-report.zip`** together with the observed screen and new BOOT identity.
+1. Copy the contents of **`UbuntuTouch-S10plus-test-AVVIO-2-Windows.zip`** into the original prepared installation folder, merging directories and replacing matching files.
+2. With TWRP open and USB connected, keep SYSTEM/VENDOR unmounted and Data available. Run **`INSTALLA-TEST-AVVIO-2.cmd`**. The installer accepts only the exact diagnostic 1 BOOT reconfirmed in the latest report. Continue only after its write/readback success message.
+3. Select TWRP **Reboot > System** manually, wait 60 seconds and photograph the screen. The expected diagnostic screen says **`UBUNTU TOUCH TEST 2`**; record the Samsung logo too if it remains there.
+4. Return to TWRP and run **`LEGGI-TEST-AVVIO-2.cmd`**. Inspect **`ubuntu-boot-diagnostic-2-log-report.zip`** together with the observed screen and new BOOT identity. **`RIPRISTINA-TEST-AVVIO-1.cmd`** restores the exact previous diagnostic BOOT if required.
+
+The [build record](evidence/early-boot-diagnostic-build-2026-10-15.json) pins the image and ZIP, verifies the embedded CPIO and unchanged peripheral configuration, and records actual ARM64 helper execution, four source force-guard cases, six collector fixtures and 24 native Windows apply/restore cases. `CONFIG_INITRAMFS_FORCE` plus a diagnostic-only guard change makes the built-in rootfs available even if `skip_initramfs` is supplied.
 
 The installer targets only BOOT. The collector is read-only. SYSTEM/VENDOR and the existing userdata format are preserved; the running diagnostic creates its own bounded data logs.
 

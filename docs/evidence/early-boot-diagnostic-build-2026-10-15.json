@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-15",
+  "diagnostic_version": 2,
+  "reason": "Diagnostic 1 BOOT readback matched and Data was mounted, but no PID 1 data logs were collected; recovery entry cleared Samsung debug buffers.",
+  "ci": {
+    "repository": "MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus",
+    "commit": "128d4640d76825e4219d9a958b2ab9c231a6153c",
+    "workflow_run": 38735252560,
+    "linux_job": 116422787417,
+    "windows_job": 116430942988,
+    "conclusion": "success",
+    "artifacts": [
+      {
+        "id": 11974623084,
+        "name": "beyond2lte-early-boot-diagnostic-windows",
+        "bytes": 44774672,
+        "sha256": "2db3b24d47832edc92c48eb73fe695cebac2d06806092f2c46a744b295b25aea"
+      },
+      {
+        "id": 11973698382,
+        "name": "beyond2lte-early-boot-diagnostic-images",
+        "bytes": 47595781,
+        "sha256": "a3b9edbbfa5426b7b2bcdd244ebe620acf517d5307e3d3220136c9055a3e043a"
+      },
+      {
+        "id": 11973478683,
+        "name": "beyond2lte-early-boot-build-log",
+        "bytes": 78530,
+        "sha256": "8341cf67a96e0db31d8a1ae02ed043bd90c3e8bc33e7fa3552ed7ca2cf9d62d0"
+      }
+    ]
+  },
+  "image": {
+    "schema": 1,
+    "diagnostic_version": 2,
+    "purpose": "builtin_initramfs_before_system_mount",
+    "boot_sha256": "7d65acf13c1180b4ba77dfdd96a703546bc5b7083fb2e85714151203b740076d",
+    "boot_bytes": 55638016,
+    "boot_partition_bytes": 57671680,
+    "previous_boot_sha256": "2b51b9a0950744dc59d63f8847ff65549830e8c870d7f4f49a4d2ee7cc65fe25",
+    "previous_boot_bytes": 53475328,
+    "kernel_sha256": "908182b1285c6d71c1ace755f9a5c1db2ba45ce105b439c41d564008cb4a8058",
+    "kernel_bytes": 51265552,
+    "kernel_source_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "kernel_config_differences": {
+      "CONFIG_INITRAMFS_COMPRESSION": {
+        "before": "n",
+        "after": "\"\""
+      },
+      "CONFIG_INITRAMFS_COMPRESSION_NONE": {
+        "before": "n",
+        "after": "y"
+      },
+      "CONFIG_INITRAMFS_FORCE": {
+        "before": "n",
+        "after": "y"
+      },
+      "CONFIG_INITRAMFS_ROOT_GID": {
+        "before": "n",
+        "after": "0"
+      },
+      "CONFIG_INITRAMFS_ROOT_UID": {
+        "before": "n",
+        "after": "0"
+      },
+      "CONFIG_INITRAMFS_SOURCE": {
+        "before": "\"\"",
+        "after": "\"/home/runner/work/Ubuntu-touch-samsung-galaxy-s10plus/Ubuntu-touch-samsung-galaxy-s10plus/out/early-boot-diagnostic-images/initramfs.cpio\""
+      }
+    },
+    "builtin_initramfs_sha256": "828725ed7d7eace7b1a80f2045b23e022b0ecca861b79c5494f71253b6acc347",
+    "builtin_initramfs_bytes": 2158080,
+    "builtin_initramfs_kernel_offset": 37877992,
+    "force_builtin_initramfs": true,
+    "ramdisk_sha256": "20bb67491135afbf32d9a3612cc480ca09ae283bf2ed18f1f803bc617226c421",
+    "ramdisk_bytes": 4368262,
+    "external_ramdisk_preserved_from_diagnostic_1": true,
+    "unrelated_header_fields_preserved": true,
+    "target_device": "/dev/block/sda14",
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "diagnostic_log_directory": "/data/ubuntu-touch-boot-diagnostic-2",
+    "original_ubuntu_init_executed": false,
+    "hardware_tested": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "diagnostic_source": {
+    "kernel_commit": "b9b70b29c94c41365704fcc2ed33be09b4617907",
+    "normal_kernel_patches": [
+      {
+        "path": "patches/kernel/0001-apparmor-socket-mediation.patch",
+        "sha256": "00f1bf609436cef86dcf227f9b98c944accf82368ede62239cc62866d4e3d6ff"
+      },
+      {
+        "path": "patches/kernel/0002-apparmor-af-unix-mediation.patch",
+        "sha256": "7bebc2494dc4ca578e71e333bedaad7e93f8f6096508f5b2bd603ec0bebc905b"
+      },
+      {
+        "path": "patches/kernel/0003-initialize-sar-ramdisk-offset.patch",
+        "sha256": "351f141b24ab9afa292a4eb14bbab3e78a9e12b0c88fadc1e98544c1f1d8e175"
+      },
+      {
+        "path": "patches/kernel/0004-restore-init-after-sar-ramdisk-load.patch",
+        "sha256": "d272905882c166c5f815992c5759d50e812b9014233de2f3c8bffb13796b4dd6"
+      }
+    ],
+    "diagnostic_patch_sha256": "b92a4b86ead0ad9a605823d9ac5761a4c25cabe742832cdbfb19222d73b31fba",
+    "patched_initramfs_source_sha256": "93ee0bfbf5624557039b44bc840b389f913ad0dd59855b475ac412bcc5bd80a4",
+    "initramfs_sha256": "828725ed7d7eace7b1a80f2045b23e022b0ecca861b79c5494f71253b6acc347",
+    "initramfs_bytes": 2158080
+  },
+  "linux_checks": {
+    "schema": 1,
+    "diagnostic_version": 2,
+    "boot_sha256": "7d65acf13c1180b4ba77dfdd96a703546bc5b7083fb2e85714151203b740076d",
+    "embedded_cpio_exact_match": true,
+    "peripheral_configuration_preserved": true,
+    "actual_arm64_busybox_syntax_test": true,
+    "actual_arm64_display_self_test": true,
+    "actual_populate_rootfs_force_guard_cases": 4,
+    "corrupt_kernel_and_false_config_rejected": true,
+    "collector_mocked_cases": [
+      "success",
+      "missing-logs",
+      "old-marker",
+      "wrong-boot",
+      "wrong-device",
+      "tools-unavailable"
+    ],
+    "phone_accessed": false,
+    "ubuntu_touch_boot_verified": false
+  },
+  "native_windows_checks": {
+    "powershell_version": "5.1",
+    "guarded_apply_restore_cases": 24,
+    "actual_embedded_python_image_verifier": true,
+    "native_cmds": [
+      "INSTALLA-TEST-AVVIO-2.cmd",
+      "RIPRISTINA-TEST-AVVIO-1.cmd",
+      "LEGGI-TEST-AVVIO-2.cmd"
+    ],
+    "usb_and_partition_writes_simulated": true
+  },
+  "windows_package": {
+    "bytes": 45143426,
+    "sha256": "02dd3900b04e33de98fc30c12910e12817943b6467b84ae05b6c81010f3e75a9",
+    "filename": "UbuntuTouch-S10plus-test-AVVIO-2-Windows.zip"
+  },
+  "handoff_checks": {
+    "artifact_size_digest_and_crc_verified": true,
+    "all_inner_SHA256SUMS_verified": true,
+    "new_and_rollback_images_equal_tested_linux_images": true,
+    "previous_boot_pin_matches_latest_handset_report": true
+  },
+  "kernel_emulated_as_handset": false,
+  "handset_accessed": false,
+  "hardware_boot_verified": false,
+  "ubuntu_touch_boot_verified": false,
+  "next_action": "Install test 2 from the verified diagnostic 1 state, manually boot once, return to TWRP and collect the version 2 report with the observed screen."
+}

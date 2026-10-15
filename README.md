@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: first-boot investigation. Ubuntu Touch has not yet booted successfully on the test handset.** The adaptation and SYSTEM image are built, recovery works, and image writes have been verified by readback. Normal boot remains at the Samsung logo. The first diagnostic report confirms the installed image but contains no PID 1 marker. A second test is being built with its diagnostic initramfs inside the kernel.
+**Current stage: first-boot investigation. Ubuntu Touch has not yet booted successfully on the test handset.** The adaptation and SYSTEM image are built, recovery works, and image writes have been verified by readback. Normal boot remains at the Samsung logo. The first diagnostic report confirms the installed image but contains no PID 1 marker. A second test with its diagnostic initramfs inside the kernel has passed Linux and Windows host checks and is ready for the handset.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -32,7 +32,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Correct the SAR ramdisk offset and late `/init` handoff | Implemented and tested; compiled handoff fix verified |
 | Install the controlled diagnostic BOOT | Write and exact readback confirmed |
 | Collect the first diagnostic result | BOOT identity confirmed; no saved PID 1 marker or normal-kernel trace |
-| Build a diagnostic initramfs inside the kernel | In progress; bypasses the late SYSTEM-dependent ramdisk path |
+| Build a diagnostic initramfs inside the kernel | Built and host-tested; awaiting the handset attempt |
 | Confirm normal kernel / diagnostic PID 1 execution | Still unconfirmed |
 | Reach Ubuntu userspace and the graphical shell | Not achieved |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
@@ -47,7 +47,7 @@ Offline analysis has now recovered **113,088 kernel symbols** from BOOT 1 and BO
 
 The report collected on 15 October matches diagnostic BOOT 1 and shows `/data` mounted in TWRP, but the diagnostic data logs are absent. Its `last_kmsg` contains S-Boot entering recovery and clearing debug buffers after a pin reset; it is not a trace of the blocked normal kernel. These observations do not identify the exact failing stage.
 
-The next experiment embeds a minimal diagnostic initramfs in the kernel and forces that built-in payload to be used, so PID 1 can run before mounting SYSTEM. The image build checks that peripheral configuration and the external ramdisk remain unchanged. The Windows package must pass native apply/restore tests before handset use.
+The next experiment embeds a minimal diagnostic initramfs in the kernel and forces that built-in payload to be used, so PID 1 can run before mounting SYSTEM. The build verified that peripheral configuration and the external ramdisk remain unchanged. The generated Windows package passed 24 guarded apply/restore cases and its native CMD checks. See the [diagnostic 2 build record](docs/evidence/early-boot-diagnostic-build-2026-10-15.json) and [handset procedure](docs/status.md#next-experiment). These host results do not confirm handset execution.
 
 See [the diagnostic procedure and remaining milestones](docs/status.md#next-experiment).
 
