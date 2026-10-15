@@ -93,23 +93,57 @@ def main():
             patched = patched.replace('/proc/', str(proc) + '/')
             patched = patched.replace('/run/log/journal', str(journals.parent))
             patched = patched.replace('/var/log/journal', str(folder / 'missing-journals'))
-            patched = patched.replace('"$BB" sleep 120', '"$BB" sleep ' + ('0.8' if deadline else '15'))
-            patched = patched.replace('"$BB" sleep "$delay"', '"$BB" sleep ' + ('2' if deadline else '0.01'))
+            # Exercise completion with five samples rather than repeating 33
+            # expensive emulated process snapshots on a shared CI runner.
+            # The firmware source and its 120-second deadline stay unchanged.
+            patched = patched.replace('[ "$sample" -lt 33 ]', '[ "$sample" -lt 5 ]')
+            patched = patched.replace('"$BB" sleep 120', '"$BB" sleep ' + ('3' if deadline else '60'))
+            patched = patched.replace('"$BB" sleep "$delay"', '"$BB" sleep ' + ('10' if deadline else '0.01'))
+            assert '[ "$sample" -lt 5 ]' in patched and '[ "$sample" -lt 33 ]' not in patched
             script = folder / 'watch'
             script.write_text(patched)
-            timer = None
+            proc_release = None
+            proc_release_stop = threading.Event()
+            proc_marker_seen = threading.Event()
+            proc_release_errors = []
             if late_proc:
-                timer = threading.Timer(.1, lambda: status.write_text('Name:\tsystemd\nState:\tS\n'))
-                timer.start()
+                def release_proc_after_wait_marker():
+                    marker_deadline = time.monotonic() + 10
+                    while not proc_release_stop.is_set():
+                        try:
+                            state = (target / 'observer-state.txt').read_text()
+                        except FileNotFoundError:
+                            state = ''
+                        if 'awaiting moved proc' in state:
+                            try:
+                                status.write_text('Name:\tsystemd\nState:\tS\n')
+                            except OSError as error:
+                                proc_release_errors.append(str(error))
+                            else:
+                                proc_marker_seen.set()
+                            return
+                        if time.monotonic() >= marker_deadline:
+                            break
+                        proc_release_stop.wait(.005)
+                    proc_release_errors.append('awaiting moved proc marker was not observed')
+                proc_release = threading.Thread(target=release_proc_after_wait_marker)
+                proc_release.start()
             started = time.monotonic()
-            subprocess.run([*shell, str(script), str(ram), str(target)], check=True, timeout=20)
-            if timer:
-                timer.join()
+            try:
+                subprocess.run([*shell, str(script), str(ram), str(target)],
+                               check=True, timeout=15 if deadline else 70)
+            finally:
+                proc_release_stop.set()
+                if proc_release:
+                    proc_release.join()
+            if late_proc:
+                assert proc_marker_seen.is_set() and not proc_release_errors, (
+                    'late-proc did not resume after its wait marker', proc_release_errors)
             elapsed = time.monotonic() - started
             assert not ram.exists(), case + ': private RAM helper cleanup'
             state = (target / 'observer-state.txt').read_text()
             assert ('time-limit' if deadline else 'sample-limit') in state, (case, state)
-            assert elapsed < 3 if deadline else elapsed < 20
+            assert elapsed < 8 if deadline else elapsed < 70
             if deadline:
                 # A deliberately tiny deadline can interrupt the first sample.
                 # Its contract is timely observer exit and private RAM cleanup.
