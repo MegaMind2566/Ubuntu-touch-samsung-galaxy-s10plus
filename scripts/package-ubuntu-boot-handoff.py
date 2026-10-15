@@ -140,5 +140,5 @@ def package(folder,output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--images',type=Path,default=OUT)
-    p.add_argument('--output',type=Path,default=ROOT/'out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip')
+    p.add_argument('--output',type=Path,default=ROOT/'out/UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip')
     a=p.parse_args();package(a.images,a.output)

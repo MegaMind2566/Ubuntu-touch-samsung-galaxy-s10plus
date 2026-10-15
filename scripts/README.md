@@ -9,7 +9,7 @@ The flat script directory preserves explicit sibling imports and the tested Wind
 | New offline analysis | `audit_kernel_symbols.py`, `audit_device_trees.py` |
 | Controlled diagnostic | `prepare_boot_diagnostic.py`, `package-boot-diagnostic.py`, `collect-boot-diagnostic.py` |
 | Built-in initramfs diagnostic 2 | `early_boot_diagnostic.py`, `build-early-boot-diagnostic.sh`, `package-early-boot-diagnostic.py` |
-| Ubuntu BOOT 4 observation | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py`, `collect-ubuntu-handoff.py.in` |
+| Ubuntu BOOT 4 observation | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py`, `collect-ubuntu-handoff.py.in`, `repackage_ubuntu_boot_handoff.py` |
 | Shared immutable artifact transport | `github_artifacts.py`, `fetch_boot_diagnostic_inputs.py` |
 | Recovery/TWRP support | `prepare_recovery.py`, `check-recovery.ps1`, `prepare_ubuntu_install.py`, `install-ubuntu-twrp.ps1` |
 | Windows package creation | Maintained `package-*.py` scripts and the launchers in `tools/windows/` |
@@ -18,4 +18,4 @@ The flat script directory preserves explicit sibling imports and the tested Wind
 
 Generated installers and the diagnostic collector contain pinned substitutions supplied by their packager. Run them from the prepared Windows package, not from an unrendered template or source checkout. See [Development](../docs/development.md) for the build and analysis entry points.
 
-The diagnostic 1 sources remain active as the immutable input and rollback reference for diagnostic 2. The second collector is rendered from the maintained collector template with version-specific pins, markers and log paths. The normal Ubuntu build uses only `patches/kernel/`; the additional built-in-initramfs patch is scoped to the diagnostic 2 and Ubuntu BOOT builders. The exact BOOT 3 image is retained as BOOT 4's previous image and rollback. Its superseded launchers and host-only repackage workflow are archived.
+The diagnostic 1 sources remain active as the immutable input and rollback reference for diagnostic 2. The second collector is rendered from the maintained collector template with version-specific pins, markers and log paths. The normal Ubuntu build uses only `patches/kernel/`; the additional built-in-initramfs patch is scoped to the diagnostic 2 and Ubuntu BOOT builders. The exact BOOT 3 image is retained as BOOT 4's previous image and rollback. Its superseded launchers and BOOT 3 repackage sources are archived; the active repackage route pins the successful BOOT 4 image.

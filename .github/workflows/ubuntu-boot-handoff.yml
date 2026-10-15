@@ -9,12 +9,6 @@ on:
       - 'scripts/build-ubuntu-boot-handoff.sh'
       - 'tools/boot-observer/**'
       - 'tests/test_ubuntu_boot_handoff.py'
-      - 'scripts/package-ubuntu-boot-handoff.py'
-      - 'scripts/collect-ubuntu-handoff.py.in'
-      - 'tools/windows/*AVVIO-UBUNTU-4*'
-      - 'tools/windows/RIPRISTINA-AVVIO-UBUNTU-3.cmd'
-      - '.gitattributes'
-      - '.github/workflows/ubuntu-boot-handoff.yml'
 concurrency:
   group: ubuntu-boot-handoff-${{ github.ref }}
   cancel-in-progress: true
@@ -101,7 +95,7 @@ jobs:
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 4 with spaces')
           [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
-          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip'))
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip'))
           try {
             foreach ($entry in $zip.Entries) {
               $destination=Join-Path $root $entry.FullName
@@ -116,6 +110,6 @@ jobs:
         with:
           name: beyond2lte-ubuntu-boot-handoff-windows
           path: |
-            out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip
+            out/UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip
             out/ubuntu-handoff-artifact-reference.json
           if-no-files-found: error
