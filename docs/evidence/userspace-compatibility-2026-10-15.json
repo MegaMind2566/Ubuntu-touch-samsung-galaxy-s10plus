@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-15",
+  "scope": "Exact SYSTEM static audit and pinned upstream ARM64 ELF load tests; no handset systemd or GUI boot claim",
+  "system": {
+    "artifact_id": 11775595258,
+    "source_commit": "c9e44ce3d38e86b51584a5e6ce05d0f8bb7f3e08",
+    "sha256": "d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3",
+    "bytes": 5368709120,
+    "audit_run_id": 38776438667,
+    "audit_artifact_id": 11994420996
+  },
+  "halium_source": {
+    "name": "halium_halium_arm64.tar.xz",
+    "url": "https://ci.ubports.com/job/UBportsCommunityPortsJenkinsCI/job/ubports%252Fporting%252Fcommunity-ports%252Fjenkins-ci%252Fgeneric_arm64/job/halium-12.0/1310/artifact/halium_halium_arm64.tar.xz",
+    "sha256": "c1a50985fffd728cc494a4d97e02f23a773b118b2cc5c45c747135f0d5a4a33c",
+    "bytes": 147425832
+  },
+  "android_image": {
+    "bytes": 464084992,
+    "sha256": "b424512f8136fe48bed1eb9df617c59f177873e1cd6e9e4747e4f9af132862c5"
+  },
+  "same_android_image_in_system_and_pinned_halium_archive": true,
+  "cgroups_json": {
+    "path": "/system/etc/cgroups.json",
+    "bytes": 877,
+    "sha256": "8898401625cc4bd524a024104c9277382e03926b32ee5bec1ad548d1cf8a2e1f",
+    "content": "{\n  \"Cgroups\": [\n    {\n      \"Controller\": \"blkio\",\n      \"Path\": \"/dev/blkio\",\n      \"Mode\": \"0755\",\n      \"UID\": \"system\",\n      \"GID\": \"system\"\n    },\n    {\n      \"Controller\": \"cpu\",\n      \"Path\": \"/dev/cpuctl\",\n      \"Mode\": \"0755\",\n      \"UID\": \"system\",\n      \"GID\": \"system\"\n    },\n    {\n      \"Controller\": \"cpuset\",\n      \"Path\": \"/dev/cpuset\",\n      \"Mode\": \"0755\",\n      \"UID\": \"system\",\n      \"GID\": \"system\"\n    },\n    {\n      \"Controller\": \"memory\",\n      \"Path\": \"/dev/memcg\",\n      \"Mode\": \"0700\",\n      \"UID\": \"root\",\n      \"GID\": \"system\",\n      \"Optional\": true\n    }\n  ],\n  \"Cgroups2\": {\n    \"Path\": \"/sys/fs/cgroup\",\n    \"Mode\": \"0755\",\n    \"UID\": \"system\",\n    \"GID\": \"system\",\n    \"Controllers\": [\n      {\n        \"Controller\": \"freezer\",\n        \"Path\": \".\",\n        \"Mode\": \"0755\",\n        \"UID\": \"system\",\n        \"GID\": \"system\"\n      }\n    ]\n  }\n}\n"
+  },
+  "rootfs_source": {
+    "name": "ubuntu-touch-android9plus-rootfs-arm64.tar.gz",
+    "bytes": 971332425,
+    "sha256": "fde4a33619101e1009725a18e3f8b4a6da1195935ec6ec69bb2a3f15b326203d"
+  },
+  "arm64_user_mode_tests": {
+    "systemd_version_exit": 0,
+    "dash_wrapper_syntax_exit": 0,
+    "dynamic_loader_list_exit": 0,
+    "systemd_version": "255.4-1ubuntu8.17",
+    "compiled_default_hierarchy": "unified",
+    "resolved_dependencies": 24,
+    "scope": "QEMU user mode on host kernel; not Exynos hardware emulation or PID1 boot"
+  },
+  "maintained_sources_cgroup_override": {
+    "rootfs_cgroup_path_scan_found_cmdline_override": false,
+    "generic_tools_commit": "78d5df8abeaa9b70e6c53c47b2a9d32692f0613c",
+    "generic_tools_supplies_cgroup_override": false,
+    "boot_4_handoff_mount_snapshot_contains_cgroup_filesystem": false,
+    "rootfs_cgroup_path_scan_scope": "Archive path names containing cgroup or cmdline, plus extracted /etc/systemd config text; does not claim a search of every rootfs file."
+  },
+  "compatibility_change": {
+    "boot_cmdline_add": "systemd.unified_cgroup_hierarchy=0",
+    "reason": "Permit legacy Android 12 cgroup controllers while Ubuntu Touch systemd defaults to unified; prevent early cgroup2 ownership from conflicting with Android v1 mounts.",
+    "hardware_failure_causality_proven": false,
+    "reversible_boot_only": true
+  },
+  "sources": [
+    {
+      "url": "https://github.com/systemd/systemd/blob/v255/src/shared/cgroup-setup.c",
+      "git_blob": "811f129f6cd9bc4747af683b0a792fa7c0286a3f",
+      "finding": "cg_is_unified_wanted obeys systemd.unified_cgroup_hierarchy; absent setting defaults to compiled hierarchy unless legacy controllers already mounted."
+    },
+    {
+      "url": "https://github.com/torvalds/linux/blob/v4.14/Documentation/cgroup-v2.txt",
+      "git_blob": "dc44785dc0fa146a2de30aa11ef2c410f1b00622",
+      "finding": "A controller in active v2 use cannot bind to a legacy hierarchy until released; choose associations before boot use."
+    }
+  ],
+  "graphical_readiness_gate": {
+    "artifact_id": 11770694913,
+    "artifact_sha256": "9f63fe26d4cff97a7735eda09a3f5fe61ffabe6b2c465be2c8f75d892a304e7c",
+    "device_overlay_sha256": "ab1cdca326c38bfde49dda3ff0d8cfd1278cd291834183c7239fc8c91e618c06",
+    "path": "/opt/halium-overlay/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf",
+    "bytes": 172,
+    "sha256": "b56435dc9766c4e8caa50ce8af95dfb369240ff0e33e90efc7f6d95e2dd00fcb",
+    "finding": "Waits indefinitely for init.svc.vendor.hwcomposer-2-2=running; actual installed stock Vendor service name and readiness not yet observed."
+  }
+}

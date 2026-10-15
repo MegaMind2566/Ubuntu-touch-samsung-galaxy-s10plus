@@ -1,0 +1,131 @@
+#!/bin/sh
+# Executed by a copied static BusyBox inside the future real root.
+# Standard output never feeds PID 1. Everything is bounded local observation.
+ram=$1
+target=$2
+case "$ram" in /dev/.ut-boot-5.*) ;; *) exit 0;; esac
+case "$target" in /userdata/ubuntu-touch-boot-5/run-[1-5]) ;; *) exit 0;; esac
+BB="$ram/busybox"
+[ -x "$BB" ] && [ -d "$target" ] && [ ! -L "$target" ] || exit 0
+[ "$("$BB" stat -c '%u:%a' "$target")" = 0:700 ] || exit 0
+cd "$target" || exit 0
+umask 077
+exec </dev/null >/dev/null 2>&1
+guardian=''
+sleeper=''
+state=starting
+cleanup() {
+    trap - EXIT TERM INT HUP
+    [ -z "$sleeper" ] || kill "$sleeper" 2>/dev/null
+    [ -z "$guardian" ] || kill "$guardian" 2>/dev/null
+    printf 'UT_BOOT_5: observer=%s\n' "$state" >observer-state.txt
+    # RAM helper files only: no path supplied by proc or a SYSTEM executable.
+    "$BB" rm -rf "$ram"
+    exit 0
+}
+trap cleanup EXIT
+trap 'state=time-limit; cleanup' TERM
+trap 'state=interrupted; cleanup' INT HUP
+printf 'UT_BOOT_5: observer=starting\n' >observer-state.txt
+observer_pid=$$
+(
+    # An independent deadline stops the sampler even if its shell is waiting.
+    # It sends a signal only to this observer, never to PID 1.
+    deadline_sleep=''
+    trap '[ -z "$deadline_sleep" ] || kill "$deadline_sleep" 2>/dev/null; exit 0' TERM INT HUP
+    "$BB" sleep 120 &
+    deadline_sleep=$!
+    wait "$deadline_sleep"
+    kill -TERM "$observer_pid" 2>/dev/null
+) &
+guardian=$!
+
+sample_tasks() {
+    printf 'UT_BOOT_5: post-handoff sample=%s\n' "$sample"
+    "$BB" cat /proc/uptime
+    printf '\nPID1_EXE\n'
+    "$BB" readlink /proc/1/exe
+    printf '\nPID1_CMDLINE\n'
+    "$BB" head -c 4096 /proc/1/cmdline | "$BB" tr '\000' ' '
+    printf '\nPID1_STATUS_WAIT_STACK\n'
+    "$BB" cat /proc/1/status /proc/1/wchan /proc/1/stack /proc/1/cgroup
+    child_count=0
+    for child in $("$BB" head -c 2048 /proc/1/task/1/children); do
+        case "$child" in ''|*[!0-9]*) continue;; esac
+        child_count=$((child_count+1))
+        [ "$child_count" -le 64 ] || break
+        printf '\nCHILD %s\n' "$child"
+        "$BB" readlink "/proc/$child/exe"
+        "$BB" cat "/proc/$child/comm" "/proc/$child/wchan" "/proc/$child/stack"
+    done
+    printf '\nPROCESSES\n'
+    "$BB" ps
+}
+journal_inventory() {
+    printf 'UT_BOOT_5: journal inventory sample=%s\n' "$sample"
+    for directory in /run/log/journal /var/log/journal; do
+        [ -d "$directory" ] || continue
+        printf '\nDIRECTORY %s\n' "$directory"
+        "$BB" find "$directory" -maxdepth 3 -type f | "$BB" head -n 64 |
+            while IFS= read -r path; do
+                "$BB" stat -c '%s bytes mode=%a uid=%u %n' "$path"
+            done
+    done
+}
+
+# /proc and /sys move after launch. Starting early is deliberate; missing proc
+# in the first samples is recorded and cannot delay the original handoff.
+sample=0
+while [ "$sample" -lt 33 ]; do
+    sample=$((sample+1))
+    if [ -r /proc/1/status ]; then
+        state=sampling
+        sample_tasks 2>&1 | "$BB" head -c 65536 >post-tasks.txt
+        {
+            printf '\nUT_BOOT_5: post-handoff sample=%s\n' "$sample"
+            "$BB" head -c 128 /proc/uptime
+            "$BB" readlink /proc/1/exe
+            "$BB" awk '/^Name:|^State:/ {print}' /proc/1/status
+        } 2>&1 | "$BB" head -c 1024 >>post-timeline.txt
+        "$BB" head -c 32768 /proc/cmdline >post-cmdline.txt 2>/dev/null
+        "$BB" head -c 65536 /proc/mounts >post-mounts.txt 2>/dev/null
+        {
+            printf 'UT_BOOT_5: observer pid=%s\n' "$$"
+            "$BB" readlink "/proc/$$/root" "/proc/$$/cwd" "/proc/$$/exe"
+            "$BB" ls -l "/proc/$$/fd"
+        } 2>&1 | "$BB" head -c 16384 >post-observer-fds.txt
+        "$BB" dmesg 2>&1 | "$BB" tail -c 2097152 >post-kernel.txt
+        [ -f post-first-kernel.txt ] || "$BB" cp post-kernel.txt post-first-kernel.txt
+        journal_inventory 2>&1 | "$BB" head -c 65536 >post-journal-inventory.txt
+        # Query existing services only; no start/restart or remote access.
+        if [ -S /run/systemd/private ] && [ -x /usr/bin/systemctl ]; then
+            "$BB" timeout -t 2 -s 9 /usr/bin/systemctl --no-pager --failed 2>&1 | "$BB" head -c 65536 >post-failed-units.txt
+            "$BB" timeout -t 2 -s 9 /usr/bin/systemctl --no-pager list-jobs 2>&1 | "$BB" head -c 65536 >post-systemd-jobs.txt
+            if [ -x /usr/bin/journalctl ]; then
+                "$BB" timeout -t 2 -s 9 /usr/bin/journalctl -b --no-pager -n 250 -o short-monotonic 2>&1 | "$BB" head -c 131072 >post-journal.txt
+            fi
+        fi
+        if [ -x /usr/bin/getprop ]; then
+            "$BB" timeout -t 2 -s 9 /usr/bin/getprop 2>/dev/null | "$BB" grep -E 'init[.]svc[.].*(composer|surfaceflinger|zygote)|sys[.]boot_completed|ro[.]product[.].*device' | "$BB" head -c 32768 >post-android-properties.txt
+        fi
+        {
+            for path in /android/vendor/etc/init/*composer*.rc; do
+                [ -f "$path" ] || continue
+                printf '\nVENDOR_RC %s\n' "$path"
+                "$BB" head -c 8192 "$path"
+            done
+            "$BB" ls -l /android/vendor/bin/hw/*composer* 2>/dev/null
+        } 2>&1 | "$BB" head -c 65536 >post-composer-files.txt
+        printf 'UT_BOOT_5: observer=sampling sample=%s\n' "$sample" >observer-state.txt
+    else
+        printf 'UT_BOOT_5: awaiting moved proc sample=%s\n' "$sample" >observer-state.txt
+    fi
+    # Ten one-second intervals, then five-second intervals. Deadline 120 s.
+    delay=5
+    [ "$sample" -gt 10 ] || delay=1
+    "$BB" sleep "$delay" &
+    sleeper=$!
+    wait "$sleeper"
+    sleeper=''
+done
+state=sample-limit

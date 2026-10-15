@@ -6,9 +6,11 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
-| [Ubuntu BOOT 4 ready package](ubuntu-boot-4-build-2026-10-15.json) | Corrected post-devtmpfs logging, bounded regular-file trace and passive wait samples. Linux/ARM64 and 24 native Windows cases passed; hardware attempt pending. |
+| [Userspace compatibility audit](userspace-compatibility-2026-10-15.json) | Exact SYSTEM/Android identities; ARM64 init/systemd dependency checks; cgroup v1-controller mismatch and HWC readiness gate identified. No handset userspace boot claim. |
+| [Ubuntu BOOT 4 handset execution](ubuntu-boot-4-handset-2026-10-15.json) | Exact write/readback and successful checkpoint; original init completes udev cleanup and saves userspace-handoff at 3.509624 s. Trace redirection and early observer stop limit evidence; systemd/GUI unconfirmed. |
+| [Ubuntu BOOT 4 build/package](ubuntu-boot-4-build-2026-10-15.json) | Immutable delivered image/package pins; Linux/ARM64 and 24 native Windows cases passed. Subsequent hardware findings are recorded separately above. |
 | [Ubuntu BOOT 3 handset execution](ubuntu-boot-3-handset-2026-10-15.json) | Exact write/readback and two original Ubuntu init attempts; SYSTEM/Android/Data mounted. Last saved stage root-mounted; userspace/GUI unconfirmed. |
-| [Ubuntu BOOT 3 build/package](ubuntu-boot-3-build-2026-10-15.json) | Complete original Ubuntu initramfs through the observed route; Linux/ARM64 and native Windows checks passed. Handset execution recorded separately below. |
+| [Ubuntu BOOT 3 build/package](ubuntu-boot-3-build-2026-10-15.json) | Complete original Ubuntu initramfs through the observed route; Linux/ARM64 and native Windows checks passed. Handset execution recorded separately above. |
 | [Diagnostic 2 handset execution](boot-diagnostic-2-handset-2026-10-15.json) | Exact BOOT, normal kernel/PID 1, readable storage and USB configuration confirmed. Ubuntu init not executed. |
 | [Diagnostic 2 build and package](early-boot-diagnostic-build-2026-10-15.json) | Built-in initramfs verified in the real kernel; Linux and native Windows checks passed; its subsequent handset execution is recorded above. |
 | [Diagnostic 1 collected report](boot-diagnostic-1-log-report-2026-10-15.json) | Exact BOOT matches and Data is mounted, but no saved diagnostic logs; S-Boot clears buffers while entering recovery. |

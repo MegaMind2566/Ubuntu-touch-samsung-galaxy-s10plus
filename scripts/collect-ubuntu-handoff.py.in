@@ -1,4 +1,4 @@
-"""Collect BOOT 4 stages and retained userspace logs after return to TWRP."""
+"""Collect BOOT 5 stages and retained userspace logs after return to TWRP."""
 import argparse
 from datetime import datetime, timezone
 import importlib.util
@@ -12,16 +12,25 @@ spec=importlib.util.spec_from_file_location('first_boot_helpers',Path(__file__).
 legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
 BOOT_BYTES=__BOOT_UPDATE_BYTES__
 BOOT_SHA256='__BOOT_UPDATE_SHA256__'
-LOGDIR='/data/ubuntu-touch-boot-4'
+LOGDIR='/data/ubuntu-touch-boot-5'
 MEMBERS={'stage':('stage.txt',65536),'kernel':('kernel.log',2097152),'mounts':('mounts.txt',65536),
          'trace':('trace.log',1048576),'wait-tasks':('wait-tasks.log',65536),
-         'wait-kernel':('wait-kernel.log',2097152)}
+         'wait-kernel':('wait-kernel.log',2097152),
+         'observer-start':('observer-start.log',65536),'observer-state':('observer-state.txt',65536),
+         'post-tasks':('post-tasks.txt',65536),'post-timeline':('post-timeline.txt',65536),
+         'post-cmdline':('post-cmdline.txt',32768),'post-mounts':('post-mounts.txt',65536),
+         'post-observer-fds':('post-observer-fds.txt',16384),'post-kernel':('post-kernel.txt',2097152),
+         'post-first-kernel':('post-first-kernel.txt',2097152),
+         'post-journal-inventory':('post-journal-inventory.txt',65536),
+         'post-failed-units':('post-failed-units.txt',65536),'post-systemd-jobs':('post-systemd-jobs.txt',65536),
+         'post-journal':('post-journal.txt',131072),'post-android-properties':('post-android-properties.txt',32768),
+         'post-composer-files':('post-composer-files.txt',65536)}
 USER_LOGS={'syslog':'syslog','lightdm':'lightdm/lightdm.log','lomiri':'lomiri/lomiri.log',
            'android':'lxc/android.log','boot':'boot.log'}
 
 
 def command_for(name):
-    match=re.fullmatch(r'run-([1-5])-(stage|kernel|mounts|trace|wait-tasks|wait-kernel)',name)
+    match=re.fullmatch(r'run-([1-5])-('+'|'.join(re.escape(n) for n in MEMBERS)+')',name)
     if match:
         directory=LOGDIR+'/run-'+match[1];filename,limit=MEMBERS[match[2]];path=directory+'/'+filename
         return ['-d','shell',"test ! -L '"+LOGDIR+"' && test -d '"+LOGDIR+"' && test ! -L '"+directory+"' && test -d '"+directory+"' && test ! -L '"+path+"' && test -f '"+path+"' && /sbin/busybox head -c "+str(limit)+" '"+path+"'"]
@@ -32,6 +41,10 @@ def command_for(name):
         return ['-d','shell','/sbin/busybox head -c '+str(BOOT_BYTES)+' /dev/block/sda14 | /sbin/busybox sha256sum']
     if name=='last-kmsg-tail':
         return ['-d','shell','test -f /proc/last_kmsg && /sbin/busybox tail -c 1048576 /proc/last_kmsg']
+    if name=='last-kmsg-head':
+        return ['-d','shell','test -f /proc/last_kmsg && /sbin/busybox head -c 8388608 /proc/last_kmsg']
+    if name=='last-kmsg-size':
+        return ['-d','shell','test -f /proc/last_kmsg && /sbin/busybox wc -c </proc/last_kmsg']
     if name in ('state','uid','properties','last-kmsg-start','recovery-kernel','mounts','pstore-list') or name.startswith('pstore:'):
         return legacy.command_for(name)
     raise ValueError('handoff_query_not_allowed')
@@ -41,7 +54,8 @@ def run_query(exe,name):
     try:
         r=subprocess.run([str(exe),*command_for(name)],capture_output=True,timeout=45,
                          creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
-        if len(r.stdout)>2097152+4096 or len(r.stderr)>65536:
+        limit=8388608 if name=='last-kmsg-head' else 2097152
+        if len(r.stdout)>limit+4096 or len(r.stderr)>65536:
             return {'exit_code':None,'timed_out':False,'stdout':'','stderr':'output_limit'}
         return {'exit_code':r.returncode,'timed_out':False,'stdout':r.stdout.decode('utf-8','replace'),
                 'stderr':r.stderr.decode('utf-8','replace')}
@@ -50,7 +64,7 @@ def run_query(exe,name):
 
 
 def collect(root,runner=run_query,verifier=legacy.check_tools):
-    root=Path(root).resolve();files={};report={'schema':1,'boot_version':4,
+    root=Path(root).resolve();files={};report={'schema':1,'boot_version':5,
         'date_utc':datetime.now(timezone.utc).isoformat(),'adb_usb_only':True,'partition_writes':False,
         'mount_changes_requested':False,'data_format_requested':False,'reboot_requested':False,
         'ubuntu_touch_boot_verified':False,'success':False,'error':None,'steps':[],'attempts':[]}
@@ -78,15 +92,15 @@ def collect(root,runner=run_query,verifier=legacy.check_tools):
             if stage is None:continue
             files[prefix+'-stage.txt']=stage
             kernel=''
-            for suffix in ('kernel','mounts','trace','wait-tasks','wait-kernel'):
+            for suffix in (n for n in MEMBERS if n!='stage'):
                 value=read(prefix+'-'+suffix)
                 if value is not None:files[prefix+'-'+suffix+'.txt']=value
                 if suffix=='kernel':kernel=value or ''
-            match=re.search(r'UT_BOOT_4: stage=([a-z-]+)',stage)
+            match=re.search(r'UT_BOOT_5: stage=([a-z-]+)',stage)
             version=re.search(r'Linux version (\S+)',kernel)
-            report['attempts'].append({'run':attempt,'pid1_marker_found':'UT_BOOT_4: PID 1 STARTED' in stage,
+            report['attempts'].append({'run':attempt,'pid1_marker_found':'UT_BOOT_5: PID 1 STARTED' in stage,
                 'last_recorded_stage':match[1] if match else None,'kernel_version':version[1] if version else None})
-        for name in ('last-kmsg-start','last-kmsg-tail','recovery-kernel','mounts',*USER_LOGS):
+        for name in ('last-kmsg-size','last-kmsg-head','last-kmsg-tail','recovery-kernel','mounts',*USER_LOGS):
             value=read(name)
             if value is not None:files[name+'.txt']=value
         names=read('pstore-list') or ''
@@ -100,8 +114,8 @@ def collect(root,runner=run_query,verifier=legacy.check_tools):
         report['interpretation']='Saved stages prove recorded initramfs execution only. Kernel/readback identities and the observed screen must be considered together. A userspace-handoff marker does not prove a graphical Ubuntu boot.'
     except (OSError,ValueError) as e:
         report['error']=str(e) if isinstance(e,ValueError) and re.fullmatch('[a-z_]+',str(e)) else reason
-    path=root/'ubuntu-boot-4-log-report.zip';i=1
-    while path.exists():path=root/('ubuntu-boot-4-log-report-'+str(i)+'.zip');i+=1
+    path=root/'ubuntu-boot-5-log-report.zip';i=1
+    while path.exists():path=root/('ubuntu-boot-5-log-report-'+str(i)+'.zip');i+=1
     with zipfile.ZipFile(path,'x',zipfile.ZIP_DEFLATED) as z:
         for name,value in files.items():z.writestr(name,value)
         z.writestr('ubuntu-boot-log-report.json',json.dumps(report,indent=2))

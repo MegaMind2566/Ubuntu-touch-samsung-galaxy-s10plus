@@ -1,0 +1,18 @@
+#!/bin/sh
+# Keep the original readiness wait, allowing actual Android HWC service names.
+# This RAM helper is retained through LightDM restarts and disappears at reboot.
+set +x
+BB="${0%/*}/busybox"
+hwc_ready() {
+    # A failed query must never permit LightDM to start, even with partial output.
+    properties=$(/usr/bin/getprop 2>/dev/null) || return 1
+    printf '%s\n' "$properties" | "$BB" grep -E -q '^\[init[.]svc[.][^]]*(hwcomposer|graphics[.]composer)[^]]*\]: \[running\]$'
+}
+case "$#:${1-}" in
+    0:) ;;
+    1:--ready) hwc_ready; exit "$?" ;;
+    *) exit 2 ;;
+esac
+while ! hwc_ready; do
+    "$BB" sleep 0.5 || exit 1
+done

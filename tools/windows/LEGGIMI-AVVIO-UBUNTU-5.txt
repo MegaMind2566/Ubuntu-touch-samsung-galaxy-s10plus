@@ -1,0 +1,38 @@
+Samsung Galaxy S10+ SM-G975F/DS - Ubuntu BOOT 5
+
+BOOT 4 raggiunge la preparazione del passaggio a Ubuntu. Non ha ancora
+confermato systemd o l interfaccia grafica. BOOT 5 tenta l avvio completo con:
+- controller cgroup v1 compatibili con l Android Halium 12 incluso;
+- passaggio finale senza dipendere dall apertura della console;
+- attesa di un compositore HWC realmente running, senza fissare solo il nome 2.2;
+- log systemd e osservazione di PID 1 anche dopo il cambio di root.
+Queste correzioni sono verificate offline; il boot sul telefono resta da provare.
+
+1. Copia TUTTO il contenuto dello ZIP nella cartella originale di installazione
+   Ubuntu, unendo le cartelle e sostituendo i file corrispondenti.
+2. Lascia TWRP aperta, USB collegato e SYSTEM/VENDOR non montate.
+3. Avvia INSTALLA-AVVIO-UBUNTU-5.cmd. Accetta solo il BOOT Ubuntu 4 esatto.
+   Aspetta la conferma di scrittura e rilettura riuscite.
+4. In TWRP scegli Reboot > System. Se propone l app TWRP: Do Not Install.
+5. Attendi fino a 3 minuti e fotografa la schermata.
+6. Se si blocca o si riavvia, torna in TWRP e avvia LEGGI-AVVIO-UBUNTU-5.cmd.
+   Invia ubuntu-boot-5-log-report.zip e la foto. Non reinstallare BOOT 5.
+
+L installazione scrive solo BOOT. Non ripete Format Data e non scrive SYSTEM,
+VENDOR, RECOVERY, VBMETA o la tabella delle partizioni.
+Il normale avvio Ubuntu prepara i propri dati. Il vecchio controllo automatico
+e2fsck -y e il ridimensionamento nel ramdisk restano disattivati.
+La correzione del nome HWC e applicata solo al file esatto verificato e tramite
+un file RAM sopra la configurazione originale. Non modifica SYSTEM su disco.
+Il controllo resta in attesa se non esiste un servizio HWC running: non finge
+che il display sia pronto. La correzione RAM scompare al successivo riavvio.
+
+I log su Data conservano al massimo cinque tentativi. La traccia RAM e limitata
+a 4 MiB. Il campionamento dopo il cambio di root dura al massimo 120 secondi e
+legge PID 1, processi, kernel, journal, cgroup, mount e stato Android. Non avvia
+servizi di accesso remoto e non richiede un secondo pacchetto diagnostico.
+Il lettore non monta partizioni, non scrive sul telefono e non lo riavvia.
+
+RIPRISTINA-AVVIO-UBUNTU-4.cmd ripristina il BOOT Ubuntu 4 esatto precedente.
+Non ripristina Android o un Ubuntu gia funzionante. Dopo un errore di scrittura
+resta in TWRP e invia il rapporto; non ripetere l installazione.

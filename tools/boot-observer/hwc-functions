@@ -1,0 +1,54 @@
+# BOOT 5: replace only the exact pinned HWC wait drop-in, through a RAM bind.
+# Call after init-bottom moves devtmpfs to /root/dev, before exec run-init.
+# No SYSTEM/Data file is modified; this RAM helper must survive observer exit.
+ut_boot_hwc_prepare() {
+    local target='/root/opt/halium-overlay/usr/lib/systemd/system/lightdm.service.d/wait-for-hwc.conf'
+    local expected='b56435dc9766c4e8caa50ce8af95dfb369240ff0e33e90efc7f6d95e2dd00fcb'
+    local actual='' ram='' runtime='' staged='' mounted=false
+    # No directory, file, mount or marker is created before exact source identity.
+    [ -f "$target" ] && [ ! -L "$target" ] || return 1
+    [ "$(/bin/busybox readlink -f "$target")" = "$target" ] || return 1
+    actual=$(/bin/busybox sha256sum "$target") || return 1
+    [ "${actual%% *}" = "$expected" ] || return 1
+    [ -f /ut-boot-hwc-wait ] && [ ! -L /ut-boot-hwc-wait ] || return 1
+    [ -d /root/dev ] && [ ! -L /root/dev ] || return 1
+    [ "$(/bin/busybox readlink -f /root/dev)" = /root/dev ] || return 1
+    /bin/busybox awk '$2=="/root/dev" && $3=="devtmpfs" {
+        n=split($4,a,","); for(i=1;i<=n;i++) {if(a[i]=="rw") ok=1; if(a[i]=="ro"||a[i]=="noexec") bad=1}
+    } END {exit !(ok && !bad)}' /proc/mounts || return 1
+    /bin/busybox awk '$2=="/root" && $3=="ext4" {
+        n=split($4,a,","); for(i=1;i<=n;i++) v[a[i]]=1
+        if(v["ro"] && !v["rw"]) ok=1
+    } END {exit !ok}' /proc/mounts || return 1
+    /bin/busybox awk -v p="$target" '$2==p {found=1} END {exit found}' /proc/mounts || return 1
+    ram=$(/bin/busybox mktemp -d /root/dev/.ut-boot-5-hwc.XXXXXX) || return 1
+    runtime="/dev/${ram##*/}"
+    # mktemp's private 0700 directory is independent of the observer's directory.
+    if /bin/busybox cp /bin/busybox "$ram/busybox" &&
+       /bin/busybox cp /ut-boot-hwc-wait "$ram/wait" &&
+       /bin/busybox chmod 0700 "$ram/busybox" "$ram/wait" &&
+       /bin/busybox awk -v command="ExecStartPre=$runtime/busybox sh $runtime/wait" '
+           /^ExecStartPre=/ {print command; next} {print}
+       ' "$target" >"$ram/wait-for-hwc.conf" &&
+       /bin/busybox chmod 0400 "$ram/wait-for-hwc.conf"; then
+        staged=$(/bin/busybox sha256sum "$ram/wait-for-hwc.conf")
+        if [ -n "$staged" ] && /bin/busybox mount -n -o bind "$ram/wait-for-hwc.conf" "$target"; then
+            mounted=true
+            actual=$(/bin/busybox sha256sum "$target")
+            if [ "${actual%% *}" = "${staged%% *}" ]; then
+                printf 'UT_BOOT_5: hwc_wait_ram_override=%s\n' "$runtime" >/dev/kmsg
+                return 0
+            fi
+        fi
+    fi
+    # Roll back only a mount created by this invocation. Never force unmount.
+    if [ "$mounted" = true ]; then
+        if ! /bin/busybox umount "$target"; then
+            printf 'UT_BOOT_5: hwc_wait_cleanup=unconfirmed\n' >/dev/kmsg
+            return 1
+        fi
+    fi
+    /bin/busybox rm -f "$ram/busybox" "$ram/wait" "$ram/wait-for-hwc.conf"
+    /bin/busybox rmdir "$ram" || :
+    return 1
+}

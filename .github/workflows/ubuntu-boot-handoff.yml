@@ -1,4 +1,4 @@
-name: S10+ Ubuntu BOOT 4 trace and waits
+name: S10+ Ubuntu BOOT 5 userspace compatibility
 on:
   workflow_dispatch:
   push:
@@ -9,6 +9,10 @@ on:
       - 'scripts/build-ubuntu-boot-handoff.sh'
       - 'tools/boot-observer/**'
       - 'tests/test_ubuntu_boot_handoff.py'
+      - 'tests/test_post_observer.py'
+      - 'tests/test_hwc_readiness.py'
+      - 'tests/fixtures/wait-for-hwc-original.conf'
+      - '.github/workflows/ubuntu-boot-handoff.yml'
 concurrency:
   group: ubuntu-boot-handoff-${{ github.ref }}
   cancel-in-progress: true
@@ -93,9 +97,9 @@ jobs:
         shell: powershell
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 4 with spaces')
+          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 5 with spaces')
           [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
-          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip'))
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-5-Windows.zip'))
           try {
             foreach ($entry in $zip.Entries) {
               $destination=Join-Path $root $entry.FullName
@@ -110,6 +114,6 @@ jobs:
         with:
           name: beyond2lte-ubuntu-boot-handoff-windows
           path: |
-            out/UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip
+            out/UbuntuTouch-S10plus-avvio-Ubuntu-5-Windows.zip
             out/ubuntu-handoff-artifact-reference.json
           if-no-files-found: error

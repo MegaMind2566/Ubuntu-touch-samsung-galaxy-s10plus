@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: original Ubuntu init executes and mounts SYSTEM; userspace and graphical startup remain unconfirmed.** BOOT 3 has executed on the test handset with matching physical readback. Two attempts mounted the Ubuntu root filesystem, its embedded Android image and Data. Their last saved stage is `root-mounted`; Ubuntu services and the graphical shell have not been confirmed. BOOT 4 is ready with bounded shell tracing and passive wait sampling to locate the next failure.
+**Current stage: Ubuntu initramfs reaches its final userspace handoff; systemd and graphical startup remain unconfirmed.** BOOT 4 is installed on the test handset with matching physical readback. Its recorded attempt mounts Ubuntu SYSTEM, the embedded Android image and Data, completes udev cleanup, then saves `userspace-handoff` at 3.510 seconds. That marker precedes the final `run-init` execution; it does not establish a working Ubuntu boot.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -33,19 +33,22 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Diagnostic 2 kernel and PID 1 | Confirmed on the phone with the exact BOOT hash |
 | Read Data, SYSTEM and VENDOR under the normal kernel | Confirmed by diagnostic 2 |
 | Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
-| Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed twice by BOOT 3 on the handset |
-| Reach Ubuntu userspace and the graphical shell | Not achieved |
+| Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
+| Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
+| Reach Ubuntu userspace and the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
 The detailed [current status](docs/status.md) distinguishes source checks, host tests, physical readback and actual runtime observations. Its conclusions link to the [evidence index](docs/evidence/README.md).
 
 ## Current boot investigation
 
-The [BOOT 3 handset report](docs/evidence/ubuntu-boot-3-handset-2026-10-15.json) confirms original Ubuntu init execution and the intended root mounts. Both recorded attempts last saved `root-mounted`. The user observed a black screen followed by a reboot on the first attempt, then a stationary Samsung screen on the second. The trace sent directly to `/dev/kmsg` loses most shell-command text, so the exact subsequent wait or failure is still unknown. The original udev cleanup moves devtmpfs to `/root/dev`; the BOOT 3 logger then rejects the changed canonical userdata path and stops saving snapshots. Therefore `root-mounted` alone does not locate the actual stall. BOOT 4 accepts both exact raw-node paths, with a regression test. Android API 32 is recognized, while device-name and Android fstab discovery report warnings. These findings do not demonstrate missing or erased vendor contents.
+The [BOOT 4 handset report](docs/evidence/ubuntu-boot-4-handset-2026-10-15.json) confirms the exact 57,337,856-byte BOOT write/readback and original Ubuntu init execution through `userspace-handoff`. The saved mounts retain SYSTEM and Android read-only, Data read-write and the original writable-path bindings. Udev's exit command completes. No BOOT 4 screen observation was supplied, and neither systemd nor the graphical shell is confirmed.
 
-BOOT 4 keeps the forced built-in-initramfs route and the original Ubuntu mount logic, adding bounded regular-file tracing, passive PID 1/child wait samples and finer cleanup/udev checkpoints. It also removes global filesystem sync from the observer's PID 1 path; no claim is made that sync caused the failure. Linux/ARM64 checks and 24 native Windows apply/restore cases passed. The [BOOT 4 build record](docs/evidence/ubuntu-boot-4-build-2026-10-15.json) pins the tested 57,337,856-byte BOOT and Windows ZIP. The package writes only BOOT from the exact installed BOOT 3 and includes that image as rollback. Its handset result is pending.
+The 7,280-byte shell trace stops when the original Halium mount code redirects output to `/dev/kmsg`; later stage markers still reach the kernel log. The observer is stopped at handoff, before its first 10-second passive sample. Missing wait samples and userspace log files therefore do not identify the failure or prove userspace never ran.
 
-The earlier [diagnostic 2 execution](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json), [BOOT 3 build](docs/evidence/ubuntu-boot-3-build-2026-10-15.json), and [symbol/device-tree analysis](docs/evidence/offline-tools-2026-10-14.json) remain traceable evidence. See [current status](docs/status.md#next-experiment) for the next test and unverified milestones.
+The [exact userspace audit](docs/evidence/userspace-compatibility-2026-10-15.json) verifies Ubuntu init and its loader/dependencies. It identifies a compatibility mismatch between systemd 255's unified cgroup default and the included Android image's v1 controllers. BOOT 5 corrects that selection, removes console opening from the final handoff, retains the real HWC readiness gate across compositor service names, and records startup after the root transition. BOOT 5 has no validated image identity or handset result yet. The optional read-only TWRP inspector can collect additional evidence, but is not a required extra handset step. No new SYSTEM/VENDOR flash or Format Data is justified by the current reports.
+
+The immutable [BOOT 4 build record](docs/evidence/ubuntu-boot-4-build-2026-10-15.json) retains its source/image pins and Linux/ARM64 plus 24 native Windows validation cases. Earlier [BOOT 3 execution](docs/evidence/ubuntu-boot-3-handset-2026-10-15.json), [diagnostic 2 execution](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json), and [symbol/device-tree analysis](docs/evidence/offline-tools-2026-10-14.json) remain available. See [current status](docs/status.md#next-experiment) for the next experiment and its limits.
 
 ## Repository map
 

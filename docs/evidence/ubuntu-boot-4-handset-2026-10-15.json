@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "device": "SM-G975F beyond2lte",
+  "firmware": "G975FXXSGHWC1",
+  "inputs": [
+    {
+      "filename": "ubuntu-boot-update-4-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    },
+    {
+      "filename": "ubuntu-boot-update-4-report.zip",
+      "bytes": 926,
+      "sha256": "9978e16b77d64b82d0d4bc0db80f26b7f770702fda5901a64e640dc374704ca3"
+    },
+    {
+      "filename": "recovery-check-report-25.zip",
+      "bytes": 1627,
+      "sha256": "c0ea637edb43438a593288e763b1a6cc5c1ce758a775107ca84a8b4e17f3fb21"
+    },
+    {
+      "filename": "recovery-check-report-26.zip",
+      "bytes": 1627,
+      "sha256": "752b6a7f962b812aed07fee2b746a4df195e5ce430732542d94c705d626f97e9"
+    },
+    {
+      "filename": "ubuntu-boot-4-log-report.zip",
+      "bytes": 216738,
+      "sha256": "09f38b12df6ca0c904bb20114aec6d93ae681dd3d0e4fa4ea3b42e958b4cc6eb"
+    }
+  ],
+  "reported_clock_note": "PC report timestamps are retained in the source reports; they are not used to infer chronology against CI build timestamps.",
+  "installed_boot": {
+    "version": 4,
+    "bytes": 57337856,
+    "sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "target_device": "/dev/block/sda14",
+    "write_and_readback_success": true,
+    "collector_readback_matches": true,
+    "previous_boot_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",
+    "apply_checkpoint": {
+      "write_started": true,
+      "success": true
+    },
+    "staging_cleanup_succeeded": true,
+    "system_write_requested": false,
+    "vendor_write_requested": false,
+    "data_format_requested": false,
+    "repartition_requested": false
+  },
+  "recovery_checks": {
+    "reports": [
+      25,
+      26
+    ],
+    "both_success": true,
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "vbmeta_sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025",
+    "automatic_vendor_mutation_patch_confirmed": true,
+    "data_ext4_raw_sda31_mounted": true,
+    "system_vendor_mounted": false
+  },
+  "runtime": {
+    "attempts": [
+      {
+        "run": 1,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "userspace-handoff",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      }
+    ],
+    "original_ubuntu_init_executed": true,
+    "recorded_stages": [
+      {
+        "stage": "ubuntu-init",
+        "seconds": 2.238751
+      },
+      {
+        "stage": "udev-ready",
+        "seconds": 2.535901
+      },
+      {
+        "stage": "userdata-mount",
+        "seconds": 2.559573
+      },
+      {
+        "stage": "userdata-mounted",
+        "seconds": 2.576608
+      },
+      {
+        "stage": "system-mount",
+        "seconds": 2.596579
+      },
+      {
+        "stage": "system-mounted",
+        "seconds": 2.61654
+      },
+      {
+        "stage": "android-image-mounted",
+        "seconds": 2.675888
+      },
+      {
+        "stage": "root-mounted",
+        "seconds": 3.361622
+      },
+      {
+        "stage": "usr-check-start",
+        "seconds": 3.386481
+      },
+      {
+        "stage": "root-cleanup-start",
+        "seconds": 3.415864
+      },
+      {
+        "stage": "init-bottom-start",
+        "seconds": 3.442416
+      },
+      {
+        "stage": "init-bottom-complete",
+        "seconds": 3.479156
+      },
+      {
+        "stage": "userspace-handoff",
+        "seconds": 3.509624
+      }
+    ],
+    "udev_control_start_seconds": 3.475405,
+    "udev_control_complete_seconds": 3.477426,
+    "system_ext4_ro_at_root": true,
+    "android_image_loop_ro_mounted": true,
+    "userdata_ext4_rw_at_root_userdata": true,
+    "original_writable_path_binds_created": true,
+    "devtmpfs_moved_to_root_dev": true,
+    "trace_bytes": 7280,
+    "trace_limitations": {
+      "last_traced_operation": "exec in original Halium mountroot",
+      "cause": "The original exec &>/dev/kmsg redirects PID 1 output away from the bounded trace pipe. Later stage markers remain in kernel.log.",
+      "passive_wait_samples_found": false,
+      "passive_wait_first_sample_delay_seconds": 10,
+      "observer_stopped_at_userspace_handoff": true,
+      "implication": "No sample covers the final run-init or subsequent userspace. Missing wait/log files do not prove systemd never executed."
+    },
+    "userspace_handoff_recorded": true,
+    "userspace_handoff_seconds": 3.509624,
+    "handoff_marker_precedes": "Final /sys and /proc mount moves and exec run-init",
+    "systemd_pid1_confirmed": false,
+    "android_container_started_confirmed": false,
+    "graphical_boot_confirmed": false,
+    "userspace_log_queries_missing": [
+      "syslog",
+      "lightdm",
+      "lomiri",
+      "android",
+      "boot"
+    ],
+    "retained_last_kmsg": "Collected start/tail excerpts do not identify a decisive initiating failure and include subsequent recovery activity; recovery init output is not Ubuntu startup evidence.",
+    "vendor_interpretation": "No VENDOR mount in the saved initramfs table. Diagnostic 2 previously read VENDOR; no erasure is established."
+  },
+  "screen_observations": {
+    "provided_for_boot_4": false,
+    "note": "Earlier black-screen/reboot and stationary Samsung observations apply to BOOT 3. No BOOT 4 screen observation accompanies these five inputs."
+  },
+  "conclusion": "BOOT 4 write/readback and original Ubuntu initramfs preparation through userspace-handoff are confirmed. Final run-init, systemd and graphical execution are not confirmed.",
+  "next_work": {
+    "system_audit": "Inspect init, loader/dependencies and startup units in the exact assembled SYSTEM artifact with scripts/audit-system-userspace.py.",
+    "planned_boot_version": 5,
+    "status": "Source investigation and design; no validated BOOT 5 image identity or handset result yet.",
+    "focus": [
+      "Final console and run-init handoff",
+      "Bounded persistent logging after the root transition"
+    ],
+    "intended_expected_previous_sha256": "f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df",
+    "intended_rollback": "Exact physically verified BOOT 4",
+    "optional_tool": "Read-only BOOT 4 TWRP userspace inspector; not a mandatory extra handset step.",
+    "system_vendor_rewrite_planned": false,
+    "format_data_planned": false
+  },
+  "build_record": "ubuntu-boot-4-build-2026-10-15.json",
+  "ubuntu_touch_boot_verified": false,
+  "publication_criterion_met": false,
+  "repository_must_remain_private": true
+}

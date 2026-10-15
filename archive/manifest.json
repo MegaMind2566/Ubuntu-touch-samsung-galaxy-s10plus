@@ -435,6 +435,54 @@
       "source_commit": "fc6ffd6b57bdfcf10dab781c7125d4905728cc4b",
       "archived": true,
       "replacement": ".github/workflows/repackage-ubuntu-boot-handoff.yml (current BOOT 4 image pins; archived file preserves BOOT 3)"
+    },
+    {
+      "from": "tools/windows/INSTALLA-AVVIO-UBUNTU-4.cmd",
+      "to": "archive/ubuntu-boot-4/tools/windows/INSTALLA-AVVIO-UBUNTU-4.cmd",
+      "original_git_blob": "4b3f03d5780701ed59deb9a579b0994f6b217b4d",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/LEGGI-AVVIO-UBUNTU-4.cmd",
+      "to": "archive/ubuntu-boot-4/tools/windows/LEGGI-AVVIO-UBUNTU-4.cmd",
+      "original_git_blob": "7558b7581e725d31d58f8077d04c30076ff908c3",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/RIPRISTINA-AVVIO-UBUNTU-3.cmd",
+      "to": "archive/ubuntu-boot-4/tools/windows/RIPRISTINA-AVVIO-UBUNTU-3.cmd",
+      "original_git_blob": "7c70db717fdaf931a0ffcf1dd469bc7dee4223ce",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": "tools/windows/LEGGIMI-AVVIO-UBUNTU-4.txt",
+      "to": "archive/ubuntu-boot-4/tools/windows/LEGGIMI-AVVIO-UBUNTU-4.txt",
+      "original_git_blob": "05c60095556d233969fa1e54e24b91726b982a74",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": "scripts/repackage_ubuntu_boot_handoff.py",
+      "to": "archive/ubuntu-boot-4/scripts/repackage_ubuntu_boot_handoff.py",
+      "original_git_blob": "3c6626ecc4d505bdafb4f7b34a1b10e1042ff536",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
+    },
+    {
+      "from": ".github/workflows/repackage-ubuntu-boot-handoff.yml",
+      "to": "archive/ubuntu-boot-4/.github/workflows/repackage-ubuntu-boot-handoff.yml",
+      "original_git_blob": "1dce01235e4c0104856d00a1e4ee032a40d4441b",
+      "archived": true,
+      "source_commit": "8758c3747d4cc7909463f6b2d1660169e450fd4f",
+      "replacement": "Ubuntu BOOT 5 builder, collector, Windows package and exact BOOT 4 rollback"
     }
   ]
 }

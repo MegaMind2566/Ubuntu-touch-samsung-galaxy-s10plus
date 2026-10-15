@@ -6,13 +6,15 @@ Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 
 
 The Halium 12 adaptation and Ubuntu Touch 24.04 SYSTEM image have been built and inspected. The test handset accepts the prepared TWRP recovery and the experimental images can be written and read back with matching hashes. **Ubuntu Touch has not reached a confirmed working boot.** Normal BOOT versions 0, 1 and 2 remained at the Samsung Galaxy S10+ logo.
 
-**Ubuntu BOOT 3 has now executed the original Ubuntu init on the handset.** Its BOOT-only write and readback match SHA-256 `33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc`. Both recorded attempts mount the intended SYSTEM read-only at `/root`, its embedded Android image read-only at `/root/var/lib/lxc/android/rootfs`, and Data read-write at `/root/userdata`. The original writable-path bindings are present.
+**Ubuntu BOOT 4 is installed and reaches the original initramfs's final userspace-handoff checkpoint.** Its exact 57,337,856-byte BOOT write/readback matches SHA-256 `f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df`; the apply checkpoint records both `write_started` and `success`. Recovery checks 25 and 26 confirm the prepared TWRP/VBMETA identities, root ADB and the unchanged partition layout. No SYSTEM/VENDOR write or Format Data was requested by this update.
 
-Both attempts last saved `root-mounted`. The user observed a black screen followed by a reboot on the first attempt, then a stationary Samsung screen on the second. No `init-bottom-complete`, userspace handoff, Ubuntu systemd PID 1 or graphical shell is confirmed. Most detailed shell trace records sent directly to `/dev/kmsg` are empty. The original udev cleanup moves devtmpfs to `/root/dev`; the BOOT 3 logger then rejects the changed canonical userdata path and stops saving snapshots. Therefore `root-mounted` alone does not locate the actual stall. BOOT 4 accepts both exact raw-node paths, with a regression test. The retained last-kmsg is dominated by a reset-hook/pstore tail and subsequent recovery boot; it does not retain the initiating normal-boot failure.
+The single saved BOOT 4 attempt records PID 1 with kernel `4.14.280-gb9b70b29c94c-dirty`. It mounts SYSTEM read-only at `/root`, the embedded Android image read-only, and Data read-write at `/root/userdata`, retaining the original writable-path bindings. The original udev exit command completes at 3.477426 seconds, `init-bottom-complete` is recorded at 3.479156 seconds, and `userspace-handoff` at **3.509624 seconds**. This marker is before the final virtual-filesystem moves and `exec run-init`; it does not prove systemd executed.
 
-Android API 32 is identified, but the original ramdisk reports an unknown device name and no top-level Android `fstab*`. VENDOR is absent from this saved mount table. This is a mount/discovery finding, **not evidence that VENDOR was erased**; diagnostic 2 previously read that filesystem. These warnings and the exact wait after `root-mounted` need investigation with usable trace data.
+Two observer limitations remain. The 7,280-byte shell trace stops at the original Halium `exec &>/dev/kmsg` inside `mountroot`, which bypasses its trace pipe. Later stages still appear in the saved kernel log. The passive sampler waits 10 seconds, but the observer is stopped at the 3.510-second handoff; it therefore retains no samples of the actual root transition or later userspace. Missing wait files and userspace logs cannot be treated as proof those processes never ran. The collected last-kmsg excerpts do not retain a decisive initiating failure and include recovery activity.
 
-The latest confirmed physical BOOT is **Ubuntu BOOT 3**. BOOT 4 has passed its Linux/ARM64 checks and 24 native Windows apply/restore cases. It is ready with bounded regular-file tracing, passive wait sampling and the post-devtmpfs-move logging correction. Original Ubuntu mount logic and peripheral settings are preserved; handset execution is pending.
+No BOOT 4 screen observation was supplied with these reports. Ubuntu systemd PID 1, Android container startup and a graphical boot remain **unconfirmed**. BOOT 3's earlier black-screen/reboot and stationary-logo observations belong to that image, not automatically to BOOT 4.
+
+Android API 32 is identified, while device-name and Android fstab discovery emit warnings. VENDOR is absent from the saved initramfs mount table. Diagnostic 2 previously read that filesystem; these observations do not demonstrate erased VENDOR contents. The latest confirmed physical image is BOOT 4. Its [handset evidence](evidence/ubuntu-boot-4-handset-2026-10-15.json) supplements the unchanged historical build record.
 
 ## What has been verified
 
@@ -25,8 +27,8 @@ The latest confirmed physical BOOT is **Ubuntu BOOT 3**. BOOT 4 has passed its L
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
 | Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | That built-in diagnostic image was verified on the handset before BOOT 3. |
-| Ubuntu BOOT 3 installed image | Exact 57,335,808-byte readback matches its pin | Original Ubuntu initramfs BOOT is installed. |
-| Original Ubuntu init and root mounts | Two attempts, versioned PID 1/stage markers and saved mount tables | SYSTEM, embedded Android and Data mounts execute; systemd/container startup is still unconfirmed. |
+| Ubuntu BOOT 4 installed image | Exact 57,337,856-byte write/readback and successful apply checkpoint | Latest installed BOOT identity is confirmed. |
+| Original Ubuntu init, root mounts and cleanup | BOOT 3/4 PID 1 markers and saved mounts; BOOT 4 udev exit and userspace-handoff at 3.509624 s | Initramfs preparation reaches the final handoff; systemd/container startup is still unconfirmed. |
 | Normal kernel and diagnostic PID 1 | Versioned init/kernel markers with the matching compiled kernel | The forced built-in-initramfs route executes on this phone. |
 | Runtime storage probes | Data mounted; SYSTEM Android image and VENDOR directories readable | No missing SYSTEM/VENDOR filesystem was demonstrated; this is not a full content comparison. |
 | Runtime USB | PID 1 configfs success and kernel `USB_STATE=CONFIGURED` | USB gadget configuration works under the normal kernel; no shell was provided. |
@@ -51,31 +53,21 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Test the validated **Ubuntu BOOT 4** once from the exact physically verified BOOT 3 baseline. A bounded awk pipe retains complete shell trace lines in a regular RAM file instead of the empty `/dev/kmsg` fragments observed with BOOT 3. Stage snapshots and a passive 10-second sampler retain that trace, PID 1 and child wait states on the already-mounted Data filesystem. The sampler is limited to 120 seconds; at most five attempt directories are created. No extra filesystem is mounted by the observer.
+The [exact SYSTEM/userspace audit](evidence/userspace-compatibility-2026-10-15.json) completed successfully in CI. Ubuntu init, the ARM64 loader and systemd dependencies are present; pinned upstream ARM64 load tests pass. The included Android image requires v1 controllers while systemd 255 defaults to unified v2, with no cgroup hierarchy mounted at the BOOT 4 handoff. This is a concrete compatibility mismatch, not proof that it was the only blocked-boot cause.
 
-Add checkpoints before the `/usr` check, root cleanup and init-bottom, plus markers around udev's exit command. Remove global `sync` from stage capture so that filesystem-wide writeback cannot block PID 1 inside the observer. Its role in the BOOT 3 stall is unproven. The original Ubuntu `/usr`, device-name, Android mount, service and handoff logic is preserved for the next observation.
+Build **BOOT 5** with v1-controller compatibility in the exact built-in command line and header; final null/kmsg descriptors instead of opening the console; complete trace retention through Halium; a post-root observer; and a hash-guarded RAM HWC wait override that accepts real compositor service names without bypassing readiness. Its baseline and rollback are exact physical BOOT 4. Source ARM64 trace, eight observer cases and 26 HWC cases passed locally. The compiled image and native Windows package still require validation; no BOOT 5 image hash or successful handset boot is claimed yet. One complete boot attempt is the objective, without a separate preliminary handset package.
 
-The package accepts only BOOT 3 above, targets `/dev/block/sda14`, verifies the write, and includes the exact BOOT 3 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is needed. Do not rerun the already-completed BOOT 3 installer or remove its checkpoint.
+The read-only BOOT 4 TWRP inspector remains an optional evidence tool, not a required next test. It can recover more previous-boot output and inspect SYSTEM through a temporary `ro,noload,nosuid,nodev,noexec` mount. Do not rerun the completed BOOT 4 installer or remove its successful checkpoint. Current evidence does not justify SYSTEM/VENDOR rewriting, repartitioning or Format Data.
 
-The [BOOT 3 handset evidence](evidence/ubuntu-boot-3-handset-2026-10-15.json) records the new runtime result. The [BOOT 3 build record](evidence/ubuntu-boot-3-build-2026-10-15.json) remains the immutable validation record for that delivered image. The [BOOT 4 build record](evidence/ubuntu-boot-4-build-2026-10-15.json) identifies its 57,337,856-byte image, SHA-256 `f9264d385d4915157fbc16562683df7bdc0fad1517d55962884e194d1c5db3df`, and the delivered ZIP. The image leaves 333,824 bytes in the measured BOOT partition. Actual-image preservation, embedded/external CPIO, source force guards, ARM64 trace/cap/mount-move cases and 24 native Windows apply/restore cases passed. USB and raw writes in CI are simulated.
-
-The handset sequence is:
-
-1. Merge **`UbuntuTouch-S10plus-avvio-Ubuntu-4-Windows.zip`** into the original prepared installation folder.
-2. With TWRP open and USB connected, run **`INSTALLA-AVVIO-UBUNTU-4.cmd`** and require write/readback success.
-3. Choose **Reboot > System**, declining the optional TWRP app. Wait up to three minutes. Record any black screen, automatic reboot or stationary logo.
-4. If blocked or rebooted, return to TWRP and run **`LEGGI-AVVIO-UBUNTU-4.cmd`**. Inspect **`ubuntu-boot-4-log-report.zip`** together with the observed screen. Do not manually repeat the installation.
-
-**`RIPRISTINA-AVVIO-UBUNTU-3.cmd`** is the exact BOOT 3 rollback if needed after reviewing the report. It does not restore stock Android or a confirmed working Ubuntu image.
-
-The next test must distinguish an initramfs wait, udev/console or init validation failure, and any later systemd/Android problem. A saved `userspace-handoff` marker alone will not establish a graphical boot.
+The [BOOT 4 build record](evidence/ubuntu-boot-4-build-2026-10-15.json) remains an immutable account of the delivered image and its Linux/ARM64 plus 24 native Windows apply/restore checks; USB/raw writes in CI were simulated. The [BOOT 4 handset record](evidence/ubuntu-boot-4-handset-2026-10-15.json) adds actual write/readback and runtime checkpoints. A build result, a pre-handoff marker and a graphical boot are separate validation levels.
 
 ## Milestones after a first boot
 
 | Milestone | Status |
 | --- | --- |
 | Confirm normal kernel and diagnostic PID 1 execution | Confirmed by diagnostic 2 on 15 October |
-| Run the original Ubuntu ramdisk init and mount the intended SYSTEM | Confirmed by BOOT 3 on 15 October |
+| Run the original Ubuntu ramdisk init and mount the intended SYSTEM | Confirmed by BOOT 3 and BOOT 4 on 15 October |
+| Complete original initramfs cleanup and reach userspace-handoff | Confirmed by BOOT 4 on 15 October; final run-init execution unconfirmed |
 | Start Ubuntu userspace and the Halium Android container | Pending |
 | Reach the graphical shell with working display and touch | Pending |
 | Validate charging, suspend, Wi-Fi, Bluetooth, modem/calls/SMS, audio, camera and sensors | Untested |

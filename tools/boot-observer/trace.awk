@@ -8,7 +8,7 @@ BEGIN { bytes = 0; limit = 4194304; capped = 0 }
         bytes += size
         fflush()
     } else if (!capped) {
-        print "UT_BOOT_4: trace limit reached; remaining output discarded"
+        print "UT_BOOT_5: trace limit reached; remaining output discarded"
         capped = 1
         fflush()
     }
