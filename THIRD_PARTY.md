@@ -51,3 +51,16 @@ repository. Their source and license notices remain at the pinned revisions.
 Generated ELF files and DTC executables are analysis/build artifacts. Firmware
 identity and artifact references are recorded in the evidence reports.
 
+
+## First alpha firmware package
+
+The release combines separately licensed upstream components. Its image and runtime identities are recorded in [the release manifest](config/releases/v0.1.0-alpha.1.json) and [packaging evidence](docs/evidence/firmware-alpha-1-packaging-2026-10-15.json).
+
+| Component | Origin and retained notices |
+| --- | --- |
+| Ubuntu Touch userspace / Halium adaptation | Upstream sources pinned in `config/upstream.lock.json`; SYSTEM assembly inputs and the existing image's package notices remain intact. |
+| Prepared TWRP 3.7.0_9-2 for beyond2lte | [TeamWin download](https://eu.dl.twrp.me/beyond2lte/twrp-3.7.0_9-2-beyond2lte.img.html); the exact original and transformation are recorded in `scripts/prepare_recovery.py`. Recovery retains upstream component terms. |
+| Python 3.14.4 Windows embedded runtime | [Official Python archive](https://www.python.org/ftp/python/3.14.4/python-3.14.4-embed-amd64.zip); complete archive members, including `tools/python/LICENSE.txt`, are retained. |
+| Android Platform-Tools 37.0.1 for Windows | [Official Google archive](https://dl.google.com/android/repository/platform-tools_r37.0.1-win.zip); complete archive members, including `platform-tools/NOTICE.txt`, are retained. |
+
+The release does not redistribute Samsung stock firmware or a Vendor image. The modified kernel's pinned source, build patches and build procedure remain available in this source repository. No single license statement here replaces the terms of the bundled components.

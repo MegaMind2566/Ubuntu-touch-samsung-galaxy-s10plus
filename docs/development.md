@@ -146,3 +146,9 @@ python3 scripts/package-graphics-permissions.py
 ```
 
 Runtime device/sysfs/UID boundaries are simulated in host tests, including real signals delivered to dedicated fixture children. Installer shell cases execute the exact pinned TWRP BusyBox/linker/libraries under QEMU with controlled mounts/device metadata. Native Windows CMD/Python PE is not exercised by these fixtures. The GUI, touch and Wi-Fi now have the user's confirmation; a screenshot and fresh correction/runtime report have not yet been supplied. The [correction record](evidence/ubuntu-graphics-permission-fix-2026-10-15.json) records final payload identities, tests, delivery and the reported outcome. Keep the correction installed on the working handset; collect logs before any undo.
+
+## First alpha release publication
+
+The source-controlled release manifest is `config/releases/v0.1.0-alpha.1.json`. The publication workflow recovers the exact assembled SYSTEM artifact, checks its compressed identity, prepares a draft prerelease and uploads SYSTEM plus metadata. The separately built BOOT/tools ZIP is attached to that draft with its exact filename. The workflow streams and hashes all five assets before publishing. An absent or conflicting ZIP leaves the draft unpublished.
+
+Use the same original workflow run when resuming a timed-out draft: its commit is the release target. A new run at a different commit deliberately refuses to repoint the draft or tag. The publisher never deletes or overwrites release assets. Firmware and portable runtime bytes remain outside Git.

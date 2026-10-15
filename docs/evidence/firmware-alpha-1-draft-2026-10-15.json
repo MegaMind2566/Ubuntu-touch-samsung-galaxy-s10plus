@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "state": "draft_waiting_for_pinned_boot_and_tools_zip",
+  "repository": "MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus",
+  "tag": "v0.1.0-alpha.1",
+  "release_id": 414321760,
+  "release_target_commit": "aa1a423ca53fa30bf2851173bd127dce35859226",
+  "draft_url": "https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/untagged-5cf1251ea358e7024991",
+  "workflow_run": 38815229230,
+  "uploaded_assets": [
+    {
+      "name": "release-manifest.json",
+      "bytes": 596,
+      "digest": "sha256:0c784c1da46890d4f8887852aa007166a20487a3f6abfc3d3bf01e85d950e50b",
+      "state": "uploaded"
+    },
+    {
+      "name": "release-notes.md",
+      "bytes": 3220,
+      "digest": "sha256:52d2998bf27babef6c787202c2bfff4947455b070a7c76e803aa28113d2534f7",
+      "state": "uploaded"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 380,
+      "digest": "sha256:229363853c87b8dd3cf5d53774269f46a1a5ae0a9945bb6f65dc3f08fb1c3874",
+      "state": "uploaded"
+    },
+    {
+      "name": "SYSTEM.img.zst",
+      "bytes": 1114706918,
+      "digest": "sha256:6729e58ca7924a7682a332c4a58a1e1ad1dc3b31437707fb49366b518da99928",
+      "state": "uploaded"
+    }
+  ],
+  "pending_asset": {
+    "name": "UbuntuTouch-S10plus-v0.1.0-alpha.1-boot-and-tools-Windows.zip",
+    "bytes": 73287864,
+    "sha256": "643bcc8c137060c87871d472c8bd35a6b03f55aa905fc2f4a92d833975acdedb"
+  },
+  "publication_requirement": "Attach the unchanged ZIP to the draft; all five assets must pass streamed SHA-256 verification before publication.",
+  "published": false
+}
+

@@ -43,6 +43,10 @@ Reports retain their original names and contents so image identities and earlier
 
 Other dated JSON files preserve intermediate build, transport and hardware observations. Filenames identify the experiment; a successful write is not recorded as a successful Ubuntu boot.
 
+## Release packaging
+
+[First alpha package](firmware-alpha-1-packaging-2026-10-15.json) records the firmware/runtime pins, ZIP integrity and offline test boundaries. It is a packaging record; the [draft upload record](firmware-alpha-1-draft-2026-10-15.json) records assets already uploaded and the remaining publication gate.
+
 ## Repository maintenance
 
 [Post-boot cleanup](repository-cleanup-2026-10-15.json) records the preserved archive moves, current dependency checks and byte-identical package validation.
