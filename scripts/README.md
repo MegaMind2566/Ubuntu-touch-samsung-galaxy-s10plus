@@ -9,7 +9,7 @@ The flat script directory preserves explicit sibling imports and the tested Wind
 | New offline analysis | `audit_kernel_symbols.py`, `audit_device_trees.py` |
 | Controlled diagnostic | `prepare_boot_diagnostic.py`, `package-boot-diagnostic.py`, `collect-boot-diagnostic.py` |
 | Built-in initramfs diagnostic 2 | `early_boot_diagnostic.py`, `build-early-boot-diagnostic.sh`, `package-early-boot-diagnostic.py` |
-| Ubuntu BOOT 3 handoff | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py`, `collect-ubuntu-handoff.py.in` |
+| Ubuntu BOOT 3 handoff | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py`, `collect-ubuntu-handoff.py.in`, `repackage_ubuntu_boot_handoff.py` |
 | Shared immutable artifact transport | `github_artifacts.py`, `fetch_boot_diagnostic_inputs.py` |
 | Recovery/TWRP support | `prepare_recovery.py`, `check-recovery.ps1`, `prepare_ubuntu_install.py`, `install-ubuntu-twrp.ps1` |
 | Windows package creation | Maintained `package-*.py` scripts and the launchers in `tools/windows/` |

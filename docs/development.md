@@ -97,3 +97,9 @@ The [publication criterion](status.md#publication-criterion) is a confirmed Ubun
 `ubuntu_boot_handoff.py` preserves all 347 original entries except three observed scripts and adds one bounded stage helper. The original rootfs/container mount logic remains; the automatic userdata repair/resize call block is skipped during this measured first-boot attempt. Logs are limited to five owned runs and 2 MiB of kernel text per run. No framebuffer test helper is added.
 
 The dedicated `ubuntu-boot-handoff.yml` workflow checks the real compressed kernel payload, the actual ARM64 BusyBox parser and log-directory guards, source force behavior, corrupted inputs and the read-only collector. The Windows job uses the established 24 apply/restore cases and real CMD startup with the actual images. Phone operations in CI are simulated. Hardware Ubuntu boot remains a separate milestone. The original diagnostic builders and shared templates remain dependencies and are not archived.
+
+### Revalidate and package a successful image without compiling it again
+
+The observer helper is a binary firmware input, so `.gitattributes` forces LF on Windows. The first Windows BOOT 3 packaging attempt stopped safely because checkout had converted this file to CRLF. The compiled image and Linux checks had already passed.
+
+`repackage_ubuntu_boot_handoff.py` pins that successful image job, artifact ID and ZIP digest. `repackage-ubuntu-boot-handoff.yml` rechecks the exact payload, peripheral configuration and actual ARM64 helpers, and compares the patched source used by the force-guard harness with the compiled-source manifest. It then tests the prepared ZIP on Windows. The resulting package uses the same kernel/image; this route is for host packaging changes that preserve the runtime payload byte for byte.

@@ -196,7 +196,12 @@
     "usb": "Configfs ACM configured by PID 1; kernel log also records USB_STATE=CONFIGURED. No remote shell was started.",
     "display": "fb0 layout unsupported or unavailable",
     "pstore": "Panic#2 Part1 is a tail fragment with the matching diagnostic 2 kernel banner and a panic-handler upload cause 0x66 at 24.479s. The initiating panic message is not included; the cause is not established by this fragment.",
-    "last_kmsg": "The unbounded read exceeded the collector output cap. The separate bounded start read succeeded."
+    "last_kmsg": "The unbounded read exceeded the collector output cap. The separate bounded start read succeeded.",
+    "normal_kernel_command_line": {
+      "androidboot.dtbo_idx": 9,
+      "androidboot.revision": 26,
+      "androidboot.bootloader": "G975FXXSGHWC1"
+    }
   },
   "conclusions": {
     "normal_kernel_pid1_execution_confirmed": true,
