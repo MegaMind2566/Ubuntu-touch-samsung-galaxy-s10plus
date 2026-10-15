@@ -15,6 +15,9 @@ on:
       - 'tools/windows/RIPRISTINA-AVVIO-UBUNTU-3.cmd'
       - '.gitattributes'
       - '.github/workflows/ubuntu-boot-handoff.yml'
+concurrency:
+  group: ubuntu-boot-handoff-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
   actions: read

@@ -41,6 +41,7 @@ def shell_checks(qemu,payload,folder):
     assert output.endswith(b'UT_BOOT_4: trace limit reached; remaining output discarded\n')
     mounts=folder/'fixture-mounts';kmsg=folder/'fixture-kmsg'
     physical_data=folder/'physical-data';physical_data.write_text('regular-file fixture, not a block device')
+    moved_data=folder/'root-dev-data';moved_data.write_text('same permitted userdata path after the devtmpfs move')
     physical_system=folder/'physical-system';physical_system.write_text('different regular-file fixture')
     first=folder/'first';second=folder/'second';first.mkdir();second.symlink_to(first,target_is_directory=True)
     # Execute the real helper under ARM64 BusyBox with only device paths redirected
@@ -50,7 +51,7 @@ def shell_checks(qemu,payload,folder):
     helper=helper.replace('/dev/kmsg',str(kmsg))
     # BusyBox readlink -f requires this final path to exist. A runner has no
     # phone /dev/sda31, so map the expected source and mount text consistently.
-    helper=helper.replace('/dev/sda31',str(physical_data))
+    helper=helper.replace('/root/dev/sda31',str(moved_data)).replace('/dev/sda31',str(physical_data))
     # Stage fixtures exercise the actual guards without starting timers.
     # The real passive timer is exercised separately below with regular files.
     helper+='\nut_boot_wait_watch() { :; }\n'
@@ -76,6 +77,13 @@ def shell_checks(qemu,payload,folder):
     # A mount move retains the same owned run name and updates the same log set.
     mounts.write_text(str(physical_data)+' '+str(first)+' ext4 rw 0 0\n')
     invoke('ut_boot_stage userdata-mounted\nprintf "'+str(physical_data)+' '+str(second)+' ext4 rw 0 0\\n" >'+str(mounts)+'\nut_boot_stage userspace-handoff')
+    assert (base/'run-1/stage.txt').read_text().endswith('stage=userspace-handoff\n')
+    assert len(list(base.iterdir()))==1
+    # Moving /dev changes the canonical node path as well as Data's mount path.
+    # A matching raw node still records the post-udev and handoff stages.
+    shutil.rmtree(base)
+    mounts.write_text(str(physical_data)+' '+str(first)+' ext4 rw 0 0\n')
+    invoke('ut_boot_stage root-mounted\n'+str(wrapper)+' rm '+str(physical_data)+'\n'+str(wrapper)+' ln -s '+str(moved_data)+' '+str(physical_data)+'\nprintf "'+str(physical_data)+' '+str(second)+' ext4 rw 0 0\\n" >'+str(mounts)+'\nut_boot_stage init-bottom-complete\nut_boot_stage userspace-handoff')
     assert (base/'run-1/stage.txt').read_text().endswith('stage=userspace-handoff\n')
     assert len(list(base.iterdir()))==1
     # Exercise the actual FIFO/awk bridge and descriptor-based trace reads.
@@ -180,6 +188,7 @@ def main():
         'original_entries_preserved_except_four_instrumented_scripts':True,'embedded_external_cpio_equal':bool(a.images),
         'trace_bounded_and_drains_after_cap':bool(a.qemu),
         'actual_arm64_trace_transport_and_passive_wait_watch':bool(a.qemu),'pid1_global_sync_removed':True,
+        'actual_arm64_post_devtmpfs_move_logging':bool(a.qemu),
         'peripheral_configuration_preserved':bool(a.images),'actual_arm64_shell_syntax':bool(a.qemu),
         'actual_arm64_logging_guards_and_mount_move':bool(a.qemu),'actual_source_force_guard_cases':4 if a.images else 0,
         'corrupt_kernel_and_false_config_rejected':bool(a.images),'collector_mocked_cases':cases,

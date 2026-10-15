@@ -113,7 +113,13 @@
       "Most shell xtrace records through /dev/kmsg are empty.",
       "Stage snapshots do not identify the exact subsequent wait or failure."
     ],
-    "retained_last_kmsg": "Contains a normal-kernel tail through hard_reset_hook_callback and repeated pstore scheduling warnings, followed by recovery boot logs. The initiating normal-boot failure is not retained; do not classify recovery init messages as Ubuntu messages."
+    "retained_last_kmsg": "Contains a normal-kernel tail through hard_reset_hook_callback and repeated pstore scheduling warnings, followed by recovery boot logs. The initiating normal-boot failure is not retained; do not classify recovery init messages as Ubuntu messages.",
+    "logging_guard_defect": {
+      "source": "tools/boot-observer/functions and original scripts/init-bottom/udev",
+      "behavior": "After devtmpfs moves to /root/dev and /dev becomes a symlink, readlink -f /dev/sda31 resolves to /root/dev/sda31. The BOOT 3 logger accepts only /dev/sda31 and skips subsequent snapshots.",
+      "implication": "The last saved root-mounted stage does not prove PID 1 stopped there.",
+      "fix": "BOOT 4 accepts both canonical raw userdata paths and tests the post-devtmpfs-move case."
+    }
   },
   "conclusion": "BOOT 3 write and original Ubuntu init execution are confirmed. Intended SYSTEM and embedded Android filesystem mounted on both recorded attempts. No successful userspace or graphical boot is established.",
   "next_experiment": {
@@ -123,7 +129,8 @@
       "Bounded line-buffered regular-file shell trace with periodic Data snapshots.",
       "Passive PID 1/child wait-state sampling for up to 120 seconds.",
       "Additional checkpoints around /usr, cleanup and udev exit.",
-      "Remove blocking global sync from PID 1 stage capture; no claim it caused the failure."
+      "Remove blocking global sync from PID 1 stage capture; no claim it caused the failure.",
+      "Preserve stage capture after devtmpfs moves to /root/dev; test both raw userdata canonical paths."
     ],
     "target": "BOOT only",
     "expected_previous_sha256": "33e9b86294bce1d7bb61ae0b44af1186ef788bbcdc7137e945a1331e8f0718cc",

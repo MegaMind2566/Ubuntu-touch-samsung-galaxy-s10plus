@@ -51,7 +51,10 @@ ut_boot_snapshot() {
     for candidate in /tmpmnt /root/userdata; do
         source=$(/bin/busybox awk -v p="$candidate" '$2==p && $3=="ext4" {print $1; exit}' /proc/mounts)
         [ -n "$source" ] || continue
-        [ "$(/bin/busybox readlink -f "$source")" = /dev/sda31 ] || continue
+        source=$(/bin/busybox readlink -f "$source")
+        # init-bottom moves devtmpfs to /root/dev, then symlinks /dev there.
+        # It is the same raw userdata node before and after that move.
+        case "$source" in /dev/sda31|/root/dev/sda31) ;; *) continue;; esac
         base="$candidate/ubuntu-touch-boot-4"
         [ ! -L "$base" ] || continue
         if [ ! -e "$base" ]; then /bin/busybox mkdir -m 0700 "$base" || continue; fi
