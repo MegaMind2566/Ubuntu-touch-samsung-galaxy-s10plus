@@ -6,6 +6,7 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
+| [Diagnostic 1 collected report](boot-diagnostic-1-log-report-2026-10-15.json) | Exact BOOT matches and Data is mounted, but no saved diagnostic logs; S-Boot clears buffers while entering recovery. |
 | [Diagnostic installation](boot-diagnostic-1-handset-2026-10-14.json) | BOOT-only write and exact readback succeeded. |
 | [Latest recovery logs](boot-diagnostic-1-recovery-logs-2026-10-14.json) | Logs describe active TWRP; diagnostic normal-boot execution remains unconfirmed. |
 | [Offline tool results](offline-tools-2026-10-14.json) | Kernel symbol recovery, compiled init-handoff check and stock device-tree inspection. |

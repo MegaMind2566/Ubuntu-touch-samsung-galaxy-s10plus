@@ -30,8 +30,22 @@ def obtain(run_id,commit,filename,artifact_id,token):
         if time.monotonic()>=deadline:raise ValueError('build_wait_expired')
         time.sleep(20)
     if run['conclusion']!='success':raise ValueError('build_failed')
+    return obtain_artifact(run_id,commit,filename,artifact_id,token)
+
+
+def obtain_job(run_id,commit,filename,artifact_name,job_name,token,artifact_id=None):
+    """Read a successful dependency job without waiting for its entire workflow."""
+    run=api('actions/runs/'+str(run_id),token)
+    if run['head_sha']!=commit or run['head_branch']!='main':raise ValueError('build_identity_mismatch')
+    jobs=api('actions/runs/'+str(run_id)+'/jobs',token)['jobs']
+    matches=[j for j in jobs if j['name']==job_name]
+    if len(matches)!=1 or matches[0]['conclusion']!='success':raise ValueError('dependency_job_not_successful')
+    return obtain_artifact(run_id,commit,filename,artifact_id,token,artifact_name)
+
+
+def obtain_artifact(run_id,commit,filename,artifact_id,token,artifact_name=None):
     candidates=[a for a in api('actions/runs/'+str(run_id)+'/artifacts',token)['artifacts']
-                if a['name'].startswith('beyond2lte-halium12-') and not a['expired']]
+                if (a['name']==artifact_name if artifact_name else a['name'].startswith('beyond2lte-halium12-')) and not a['expired']]
     if len(candidates)!=1:raise ValueError('artifact_count')
     artifact=candidates[0]
     if artifact_id is not None and artifact['id']!=artifact_id:raise ValueError('rollback_artifact_changed')

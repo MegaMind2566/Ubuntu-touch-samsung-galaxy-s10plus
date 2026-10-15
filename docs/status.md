@@ -1,12 +1,14 @@
 # Project status
 
-Updated: **14 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
+Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
 
 ## Current result
 
 The Halium 12 adaptation and Ubuntu Touch 24.04 SYSTEM image have been built and inspected. The test handset accepts the prepared TWRP recovery and the experimental images can be written and read back with matching hashes. **Ubuntu Touch has not reached a confirmed working boot.** Normal BOOT versions 0, 1 and 2 remained at the Samsung Galaxy S10+ logo.
 
-A temporary diagnostic BOOT is now installed. Its kernel is byte-identical to BOOT 2; its ramdisk replaces Ubuntu's init with a small diagnostic program. Successful installation and readback are confirmed. Execution of that kernel and diagnostic PID 1 is still unconfirmed. The latest uploaded `dmesg` and recovery logs describe the running TWRP kernel, not the preceding normal boot.
+A temporary diagnostic BOOT 1 is installed. Its kernel is byte-identical to BOOT 2; its ramdisk replaces Ubuntu's init with a small diagnostic program. The report received on 15 October reconfirms its exact BOOT hash and shows `/data` mounted in TWRP, but no diagnostic data logs were found. Its `last_kmsg` is S-Boot entering recovery after a pin reset, with explicit debug-buffer clearing. It does not contain an identifiable normal-kernel trace. Kernel/PID 1 execution remains unconfirmed.
+
+Diagnostic 2 is being built to place a minimal initramfs inside the kernel and use it before the late SYSTEM-dependent ramdisk path. This is a controlled observation experiment; it does not start Ubuntu.
 
 ## What has been verified
 
@@ -19,6 +21,7 @@ A temporary diagnostic BOOT is now installed. Its kernel is byte-identical to BO
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
 | Diagnostic BOOT | Exact 53,475,328-byte prefix readback matches its SHA-256 | The temporary diagnostic payload is installed. |
+| Diagnostic 1 log collection | BOOT matches; Data is mounted; no PID 1 marker; recovery S-Boot buffer only | The kernel's actual normal-boot stage is still unknown. |
 | Vendor filesystem | Read-only filesystem check completed cleanly | No filesystem corruption was demonstrated; a full stock-content comparison was not performed. |
 
 See the [evidence index](evidence/README.md) for the reports supporting these statements.
@@ -40,14 +43,14 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Collect the result of the diagnostic image already installed:
+Build and validate diagnostic 2, then test it once on the handset:
 
-1. Record whether the normal-boot attempt displayed `UBUNTU TOUCH TEST 1`, another diagnostic status, or the Samsung logo.
-2. Return to TWRP with USB connected and run the already delivered **`LEGGI-TEST-AVVIO.cmd`**.
-3. Inspect **`ubuntu-boot-diagnostic-log-report.zip`**, including any diagnostic data, pstore/last-kmsg and BOOT identity. A report with no diagnostic markers remains useful, but marker absence alone does not prove that the kernel never ran.
-4. Use the earliest observed boot stage to choose the next change. Preserve the measured stock/vendor baseline and keep any new experiment limited to the component being tested.
+1. Embed the pinned diagnostic's static BusyBox and display helper with a distinct `UT_DIAG_2` init in the kernel. Preserve the previous peripheral configuration and external ramdisk. `CONFIG_INITRAMFS_FORCE` plus a diagnostic-only guard change makes the built-in rootfs available even if `skip_initramfs` is supplied.
+2. Validate the real image, compiled configuration, ARM64 helpers, source guard and Windows BOOT-only apply/restore paths. Keep the exact diagnostic 1 image as rollback.
+3. After those checks pass, install using **`INSTALLA-TEST-AVVIO-2.cmd`** from TWRP. Reboot to System manually, wait 60 seconds and photograph the screen.
+4. Return to TWRP and run **`LEGGI-TEST-AVVIO-2.cmd`**. Inspect **`ubuntu-boot-diagnostic-2-log-report.zip`** together with the observed screen and new BOOT identity.
 
-The collector is read-only. This step does not require another Format Data, SYSTEM write or speculative VENDOR replacement.
+The installer targets only BOOT. The collector is read-only. SYSTEM/VENDOR and the existing userdata format are preserved; the running diagnostic creates its own bounded data logs.
 
 ### How the next report selects the next experiment
 
@@ -56,7 +59,7 @@ Start with `diagnostic_boot_matches` and the recorded screen. Pair runtime obser
 | Observation | Conclusion and next action |
 | --- | --- |
 | Installed BOOT hash differs from the diagnostic pin | Establish the actual installed image before attributing logs to this diagnostic or preparing another update. |
-| `UT_DIAG_1: PID 1 STARTED` is present in the diagnostic data logs | The controlled ramdisk executed. Inspect its kernel, storage and display results to decide where to instrument the original Ubuntu init. |
+| The selected version's PID 1 marker is present (`UT_DIAG_2` for test 2) | The controlled ramdisk executed. Inspect its kernel, storage and display results to decide where to instrument the original Ubuntu init. |
 | No data marker, but previous-boot buffers contain an identifiable normal-kernel failure | Use the earliest failure and its surrounding trace to select a focused kernel or device-tree experiment. |
 | Data logs are missing and recovery's mount list shows `/data` unavailable | Saved-data evidence is unavailable in that collection; inspect the remaining buffers without treating this as a failed PID 1 execution. |
 | No diagnostic marker or identifiable previous-boot trace | The failing stage remains unknown. Define an earlier observation point before preparing another BOOT image. |

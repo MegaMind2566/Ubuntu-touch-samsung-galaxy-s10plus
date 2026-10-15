@@ -7,6 +7,9 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | Launcher | Effect |
 | --- | --- |
 | `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
+| `INSTALLA-TEST-AVVIO-2.cmd` | Installs the built-in-initramfs diagnostic from the exact verified diagnostic 1 BOOT; targets only BOOT. |
+| `LEGGI-TEST-AVVIO-2.cmd` | Reads test 2 logs and BOOT identity; produces `ubuntu-boot-diagnostic-2-log-report.zip`. |
+| `RIPRISTINA-TEST-AVVIO-1.cmd` | Restores the exact diagnostic 1 BOOT from diagnostic 2 through the same guarded path. |
 | `INSTALLA-TEST-AVVIO.cmd` | Controlled BOOT-only diagnostic installation, requiring verified BOOT 2 and recovery/preflight guards. Already completed on the test handset. |
 | `RIPRISTINA-BOOT-2.cmd` | Restores verified BOOT 2 from the diagnostic state. BOOT 2 is an experimental image, not a confirmed working Ubuntu boot. |
 

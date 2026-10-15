@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-15",
+  "diagnostic_version": 1,
+  "source": {
+    "filename": "ubuntu-boot-diagnostic-log-report.zip",
+    "bytes": 24185,
+    "sha256": "dbd4439658079fd7b30391f984bb0f807939e64762f35711ffa7a4bda486fbd0"
+  },
+  "collector_report_date_utc": "2026-10-15T10:03:47.084382+00:00",
+  "collection_succeeded": true,
+  "boot_sha256": "2b51b9a0950744dc59d63f8847ff65549830e8c870d7f4f49a4d2ee7cc65fe25",
+  "boot_matches_diagnostic_1": true,
+  "recovery_kernel": "Linux localhost 4.14.113-g55f042627 #1 SMP PREEMPT Sat Feb 4 21:04:26 UTC 2023 aarch64 GNU/Linux",
+  "data_mounted": true,
+  "diagnostic_pid1_marker_found": false,
+  "diagnostic_kernel_version": null,
+  "diagnostic_data_files_collected": [],
+  "accepted_pstore_files_collected": 0,
+  "last_kmsg": {
+    "bytes": 44488,
+    "sha256": "50c3d190662a01057f6b836e91ebf6a458457f10a37371032cd6ca91fc0b50e1",
+    "head_and_tail_identical": true,
+    "classification": "Samsung S-Boot entering recovery, not the normal Linux kernel",
+    "evidence": [
+      "s5p_check_keypad: recovery mode",
+      "set_oneshot_recovery: recovery mode set!",
+      "sec_debug_init_buffer: this is PIN RESET, clear all",
+      "first2m_kmsg: 0x917c4500 ~ 0x919c4500 (clear)",
+      "clear_all_debug_param: Clear All Debug Param Section",
+      "Starting kernel..."
+    ],
+    "normal_linux_version_marker_present": false
+  },
+  "partition_writes": false,
+  "mount_changes_requested": false,
+  "ubuntu_touch_boot_verified": false,
+  "interpretation": "The correct diagnostic BOOT is installed and Data is accessible in recovery. No saved diagnostic PID 1 evidence was collected. Missing logs do not prove the kernel never ran. The last_kmsg content describes recovery entry with debug-buffer clearing and cannot identify the preceding normal-kernel failure.",
+  "next_experiment": "Build a minimal forced built-in initramfs from the pinned diagnostic payloads, preserving peripheral configuration, to observe PID 1 before the SYSTEM-dependent late ramdisk path."
+}

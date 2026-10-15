@@ -1,0 +1,96 @@
+name: S10+ built-in initramfs diagnostic
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/early-boot-diagnostic.config'
+      - 'patches/diagnostic/**'
+      - 'scripts/early_boot_diagnostic.py'
+      - 'scripts/build-early-boot-diagnostic.sh'
+      - 'scripts/package-early-boot-diagnostic.py'
+      - 'tests/test_early_boot_diagnostic.py'
+      - 'tests/test_github_artifacts.py'
+      - 'tools/windows/*TEST-AVVIO-2*'
+      - 'tools/windows/RIPRISTINA-TEST-AVVIO-1.cmd'
+      - '.github/workflows/early-boot-diagnostic.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  images:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install the established kernel build dependencies and ARM64 test runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bc bison build-essential ca-certificates clang cpio curl fakeroot flex git kmod libelf-dev libssl-dev libtinfo5 lz4 python2 python3 qemu-user unzip wget xz-utils
+      - name: Test dependency-job artifact checks
+        run: python3 -m unittest discover -s tests -p test_github_artifacts.py
+      - name: Build and inspect the kernel with diagnostic 2 embedded
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: bash scripts/build-early-boot-diagnostic.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-early-boot-diagnostic-images
+          path: out/early-boot-diagnostic-images/
+          if-no-files-found: error
+      - name: Save build diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-early-boot-build-log
+          include-hidden-files: true
+          path: |
+            out/early-diagnostic-build.log
+            build/early-diagnostic/workdir/downloads/KERNEL_OBJ/.config
+          if-no-files-found: warn
+  windows:
+    needs: images
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Obtain the tested images and existing portable tools
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/early_boot_diagnostic.py images
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/prepare_boot_update.py inputs --out out
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-ubuntu-install.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-early-boot-diagnostic.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Merge into the established tools at a path with spaces
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/BOOT early diagnostic with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-test-AVVIO-2-Windows.zip'))
+          try {
+            foreach ($entry in $zip.Entries) {
+              $destination=Join-Path $root $entry.FullName
+              [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($destination)) | Out-Null
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$destination,$true)
+            }
+          } finally { $zip.Dispose() }
+      - name: Test real PowerShell 5.1 launchers and BOOT-only apply/restore guards
+        shell: powershell
+        run: .\out\test-early-boot.generated.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-early-boot-diagnostic-windows
+          path: |
+            out/UbuntuTouch-S10plus-test-AVVIO-2-Windows.zip
+            out/early-diagnostic-artifact-reference.json
+          if-no-files-found: error

@@ -1,0 +1,12 @@
+diff --git a/init/initramfs.c b/init/initramfs.c
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -623,7 +623,7 @@ static int __init populate_rootfs(void)
+ {
+ 	char *err;
+ 
+-	if (do_skip_initramfs) {
++	if (do_skip_initramfs && !IS_ENABLED(CONFIG_INITRAMFS_FORCE)) {
+ 		if (initrd_start)
+ 			free_initrd();
+ 		return default_rootfs();

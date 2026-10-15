@@ -1,0 +1,24 @@
+SECONDO TEST DI AVVIO - SAMSUNG S10+ SM-G975F / HWC1
+
+La diagnostica e integrata nel kernel per partire prima del montaggio di SYSTEM.
+Il test non avvia Ubuntu. Puo mostrare UBUNTU TOUCH TEST 2 sul display e creare
+una porta USB ACM. L'assenza di questi segnali da sola non identifica il guasto.
+
+Il programma sul PC aggiorna solo BOOT dal test 1 gia verificato. Il test salva
+piccoli log in /data/ubuntu-touch-boot-diagnostic-2. SYSTEM e VENDOR vengono
+esaminate con mount ro,noload. Nessun Format Data o riavvio automatico.
+
+1. Copia tutto lo ZIP nella cartella originale di installazione Ubuntu,
+   unendo le cartelle e sostituendo i file omonimi.
+2. Telefono nella schermata principale TWRP, USB collegato. In Mount, SYSTEM
+   e VENDOR deselezionate; lascia Data disponibile.
+3. Avvia INSTALLA-TEST-AVVIO-2.cmd. Attendi TEST 2 INSTALLATO E VERIFICATO.
+   Se si ferma, lascia TWRP aperta e invia il rapporto, senza ripetere.
+4. TWRP > Reboot > System. Se propone l'app TWRP, scegli Do Not Install.
+   Attendi 60 secondi con USB collegato e fotografa la schermata.
+5. Torna in TWRP con il metodo gia usato e avvia LEGGI-TEST-AVVIO-2.cmd.
+6. Invia ubuntu-boot-diagnostic-2-log-report.zip e la foto. Anche un rapporto
+   senza marker e utile. Conserva il rapporto della scrittura.
+
+Per tornare al BOOT del test 1: da TWRP usa RIPRISTINA-TEST-AVVIO-1.cmd.
+Il ripristino completo Android e una procedura diversa.

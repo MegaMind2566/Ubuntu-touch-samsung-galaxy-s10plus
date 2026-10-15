@@ -26,6 +26,10 @@ The [SYSTEM assembly workflow](../.github/workflows/assemble-system.yml) combine
 
 ## Current diagnostic
 
+[early-boot-diagnostic.yml](../.github/workflows/early-boot-diagnostic.yml) builds diagnostic 2 after the first test produced no saved PID 1 evidence. It embeds a minimal raw CPIO derived from the pinned diagnostic 1 BusyBox/display payloads. A separate [configuration fragment](../config/early-boot-diagnostic.config) enables the built-in initramfs, and a [diagnostic-only patch](../patches/diagnostic/0001-honor-force-for-builtin-initramfs.patch) makes `CONFIG_INITRAMFS_FORCE` take precedence over `skip_initramfs`.
+
+The builder compares the new kernel's embedded configuration with BOOT 2's embedded configuration and rejects changes outside initramfs options. It verifies the exact CPIO bytes in the compiled ARM64 Image, preserves diagnostic 1's external ramdisk and header fields, and packages that exact image as rollback. Generated Windows guard fixtures remain under `out/`. Builds and native host tests do not establish handset execution.
+
 [boot-diagnostic.yml](../.github/workflows/boot-diagnostic.yml) obtains the previously verified BOOT 2 artifact, builds the static ARM64 display helper, and substitutes only the controlled diagnostic ramdisk. It validates kernel/header preservation and tests the collector and generated Windows guards.
 
 The diagnostic does not start Ubuntu. It attempts to record its progress, enumerate a USB ACM function and show a framebuffer status. It saves bounded logs in a dedicated data directory and mounts SYSTEM/VENDOR read-only for layout checks. Its rollback restores BOOT 2; BOOT 2 itself is not a known working Ubuntu boot.

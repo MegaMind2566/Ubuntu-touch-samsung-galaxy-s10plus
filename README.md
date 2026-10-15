@@ -2,9 +2,9 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: first-boot investigation. Ubuntu Touch has not yet booted successfully on the test handset.** The adaptation and SYSTEM image are built, recovery works, and image writes have been verified by readback. Normal boot remains at the Samsung logo. A temporary diagnostic BOOT is installed; its execution result is the next missing evidence.
+**Current stage: first-boot investigation. Ubuntu Touch has not yet booted successfully on the test handset.** The adaptation and SYSTEM image are built, recovery works, and image writes have been verified by readback. Normal boot remains at the Samsung logo. The first diagnostic report confirms the installed image but contains no PID 1 marker. A second test is being built with its diagnostic initramfs inside the kernel.
 
-Status updated **14 October 2026**. This repository documents an experimental port, not a supported release for daily use.
+Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
 Publication is planned after the first confirmed Ubuntu Touch graphical boot on the test handset. The published status will identify the tested images and list hardware features that remain untested.
 
@@ -31,7 +31,9 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Install SYSTEM/BOOT and verify the written image prefixes | Confirmed on the test handset |
 | Correct the SAR ramdisk offset and late `/init` handoff | Implemented and tested; compiled handoff fix verified |
 | Install the controlled diagnostic BOOT | Write and exact readback confirmed |
-| Confirm normal kernel / diagnostic PID 1 execution | Pending diagnostic screen and log report |
+| Collect the first diagnostic result | BOOT identity confirmed; no saved PID 1 marker or normal-kernel trace |
+| Build a diagnostic initramfs inside the kernel | In progress; bypasses the late SYSTEM-dependent ramdisk path |
+| Confirm normal kernel / diagnostic PID 1 execution | Still unconfirmed |
 | Reach Ubuntu userspace and the graphical shell | Not achieved |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -43,7 +45,9 @@ The kernel uses Samsung's late system-as-root ramdisk loading path. Two defects 
 
 Offline analysis has now recovered **113,088 kernel symbols** from BOOT 1 and BOOT 2 and confirmed the compiled init-handoff correction. Pinned DTC also decodes the stock tree and applies the TWRP-selected overlay. These results narrow the investigation; they do not demonstrate normal execution on the phone.
 
-The next step is to collect the result of the diagnostic already installed: record the displayed screen, return to TWRP and run the supplied **`LEGGI-TEST-AVVIO.cmd`**. The resulting **`ubuntu-boot-diagnostic-log-report.zip`** is needed to select the next change. The latest ordinary TWRP logs describe recovery's own kernel and do not establish what happened during the preceding normal boot.
+The report collected on 15 October matches diagnostic BOOT 1 and shows `/data` mounted in TWRP, but the diagnostic data logs are absent. Its `last_kmsg` contains S-Boot entering recovery and clearing debug buffers after a pin reset; it is not a trace of the blocked normal kernel. These observations do not identify the exact failing stage.
+
+The next experiment embeds a minimal diagnostic initramfs in the kernel and forces that built-in payload to be used, so PID 1 can run before mounting SYSTEM. The image build checks that peripheral configuration and the external ramdisk remain unchanged. The Windows package must pass native apply/restore tests before handset use.
 
 See [the diagnostic procedure and remaining milestones](docs/status.md#next-experiment).
 
@@ -53,6 +57,7 @@ See [the diagnostic procedure and remaining milestones](docs/status.md#next-expe
 | --- | --- |
 | [config](config) | Source, configuration and installation image pins |
 | [patches/kernel](patches/kernel) | AppArmor and Samsung SAR kernel fixes |
+| [patches/diagnostic](patches/diagnostic) | Conditional built-in-initramfs change used only by the second diagnostic |
 | [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Temporary init and static ARM64 display helper |
