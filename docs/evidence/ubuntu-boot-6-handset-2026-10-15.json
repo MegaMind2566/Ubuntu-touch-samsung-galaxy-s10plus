@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reported_at": "2026-10-15T21:50:04+02:00",
+  "experiment": "Ubuntu BOOT 6 first reported Ubuntu Touch splash",
+  "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
+  "source_of_observation": "User message in the current conversation",
+  "user_report_original": "è apparsa la schermata di boot di ubuntu touch",
+  "reported_observation": "Ubuntu Touch boot screen appeared on the handset.",
+  "prepared_candidate": {
+    "boot_version": 6,
+    "boot_bytes": 57344000,
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "package_sha256": "cfd33e32870cd39eae3d53a69391340635607bd03c64d47cd3afad557dbe53a5",
+    "source_commit": "819f5e0ed39a8dbe6d2dfb802c612749db4fe14a",
+    "identity_status": "Identity of delivered candidate; new handset installation/readback report not yet received."
+  },
+  "new_photo_received": false,
+  "new_runtime_logs_received": false,
+  "new_installation_readback_received": false,
+  "graphical_shell_confirmed": false,
+  "setup_or_home_screen_confirmed": false,
+  "touch_input_confirmed": false,
+  "sustained_boot_without_panic_confirmed": false,
+  "last_physical_readback_evidence": {
+    "boot_version": 5,
+    "boot_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b"
+  },
+  "interpretation": "A new reported visual milestone. A boot splash alone does not establish usable Ubuntu Touch graphics, touch, continued USB stability or absence of later panic.",
+  "next_action": "Allow the current boot up to three minutes. Capture the setup/home screen if reached. If stuck or restarting, return to TWRP and run LEGGI-AVVIO-UBUNTU-6.cmd; retain the installation report. Do not repeat the installation.",
+  "repository_visibility": "Keep private until confirmed usable Ubuntu Touch graphical boot."
+}

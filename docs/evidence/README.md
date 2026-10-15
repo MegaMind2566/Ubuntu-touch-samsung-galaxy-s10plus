@@ -6,6 +6,7 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
+| [Ubuntu BOOT 6 handset update](ubuntu-boot-6-handset-2026-10-15.json) | User reports the Ubuntu Touch boot screen. No new photo/logs/readback yet; setup/home, touch and sustained boot remain unconfirmed. |
 | [Ubuntu BOOT 6 build/package](ubuntu-boot-6-build-2026-10-15.json) | Compiled USB NULL guard and RAM profile integration; 33 ARM64 profile and 25 portable PowerShell cases passed. Exact BOOT 5 apply baseline / BOOT 4 rollback; handset/GUI test pending. |
 | [Ubuntu BOOT 5 handset execution](ubuntu-boot-5-handset-2026-10-15.json) | Exact install/readback; two systemd/Android/HWC starts; repeated USB configfs NULL panic. Graphical boot unconfirmed; RAM profile targets missing. |
 | [Ubuntu BOOT 5 build/package](ubuntu-boot-5-build-2026-10-15.json) | Local compiled-image/ARM64 and 24 portable PowerShell cases passed; exact BOOT 4 rollback. New native Windows CI could not start. Subsequent handset execution and USB panic are recorded separately above. |

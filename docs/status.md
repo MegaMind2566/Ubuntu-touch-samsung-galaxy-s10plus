@@ -4,6 +4,10 @@ Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 
 
 ## Current result
 
+**The user reports that the Ubuntu Touch boot screen has appeared during the BOOT 6 test. The usable graphical shell is still unconfirmed.** This is a direct text report; no new photo, runtime logs or installation/readback report has been received. The [BOOT 6 handset record](evidence/ubuntu-boot-6-handset-2026-10-15.json) distinguishes the delivered image identity from the new visual observation. A splash alone does not prove that the previous USB panic is absent for the rest of the boot.
+
+The following BOOT 5 findings remain the latest evidence backed by logs and physical readback.
+
 **BOOT 5 starts Ubuntu systemd and the Android hardware container, then reboots on a kernel USB fault. Ubuntu Touch has not reached a confirmed graphical boot.** The exact 57,341,952-byte write/readback matches SHA-256 `0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b`; the apply checkpoint records `write_started` and `success`. The read-only collector finds two normal-boot attempts with the BOOT 5 kernel `4.14.280-gb9b70b29c94c-dirty`.
 
 The first attempt records systemd 255.4 starting at 3.119406 seconds; its PID 1 executable is confirmed at 4.11 seconds. The second starts systemd at 6.321031 seconds. Android/Halium and the actual vendor HWC 2.2 service execute. VENDOR is mounted read-only from its expected raw partition. The selected cgroup hybrid hierarchy and legacy CPU/cpuset/memory controllers are visible at runtime. These reports do not support the earlier hypothesis of a lost VENDOR partition.
@@ -14,7 +18,7 @@ The new observer captures systemd, its jobs/journal and Android properties; its 
 
 Separately, upstream overlay application skips missing destinations for the device YAML, force-HWC2 setting and LightDM wait file, plus nested Android RC adjustments. Vendor reports `beyond2`, which needs an alias in the canonical `beyond2lte` profile. Runtime tasks also show Samsung `install-recovery.sh`/`applypatch`; the pre-boot recovery checks do not establish the recovery hash after that attempt. The handset returned to TWRP, but a post-runtime prefix readback is still a separate check. The next BOOT package's existing recovery preflight performs it before writing.
 
-The [BOOT 5 handset record](evidence/ubuntu-boot-5-handset-2026-10-15.json) retains the upload hashes, line references and validation limits. BOOT 4's [earlier handoff result](evidence/ubuntu-boot-4-handset-2026-10-15.json) and the immutable [BOOT 5 build record](evidence/ubuntu-boot-5-build-2026-10-15.json) remain historical evidence. Latest confirmed installed image: **BOOT 5**. Repository publication remains gated on a confirmed graphical boot.
+The [BOOT 5 handset record](evidence/ubuntu-boot-5-handset-2026-10-15.json) retains the upload hashes, line references and validation limits. BOOT 4's [earlier handoff result](evidence/ubuntu-boot-4-handset-2026-10-15.json) and the immutable [BOOT 5 build record](evidence/ubuntu-boot-5-build-2026-10-15.json) remain historical evidence. Latest image confirmed by physical readback: **BOOT 5**. The new BOOT 6 visual report has not yet been matched to a new readback report. Repository publication remains gated on a confirmed graphical boot.
 
 ## What has been verified
 
@@ -27,7 +31,8 @@ The [BOOT 5 handset record](evidence/ubuntu-boot-5-handset-2026-10-15.json) reta
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
 | Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | That built-in diagnostic image was verified on the handset before BOOT 3. |
-| Ubuntu BOOT 5 installed image | Exact 57,341,952-byte write/readback and successful apply checkpoint | Latest installed BOOT identity is confirmed. |
+| Ubuntu BOOT 5 installed image | Exact 57,341,952-byte write/readback and successful apply checkpoint | Latest BOOT identity backed by physical readback evidence. |
+| BOOT 6 visual milestone | User reports that the Ubuntu Touch boot screen appeared; no photo/logs yet | Splash reported; usable shell and exact BOOT 6 handset readback remain unconfirmed. |
 | Ubuntu userspace and Android container | BOOT 5 PID 1 executable, journal/jobs, Android init and HWC 2.2 properties | Actual userspace execution confirmed; graphical shell is not confirmed. |
 | Normal kernel and diagnostic PID 1 | Versioned init/kernel markers with the matching compiled kernel | The forced built-in-initramfs route executes on this phone. |
 | Runtime storage probes | Data mounted; SYSTEM Android image and VENDOR directories readable | No missing SYSTEM/VENDOR filesystem was demonstrated; this is not a full content comparison. |
@@ -53,13 +58,15 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Test the prepared **BOOT 6** package on the handset. Its kernel contains the USB configuration-string NULL guard. It preserves the working cgroup selection and original Ubuntu wrapper, supplies the small device/HWC destination directories in RAM, retains their existing files and adds the `beyond2` alias. After upstream overlay mounting and before its requiring Android container, its hook applies the pinned Android RC files and masks Samsung's recovery-restoration script in RAM. Preparation failure stops before the container can execute.
+Continue observing the current **BOOT 6** test; the user has now reported its Ubuntu Touch boot screen. Do not repeat installation. Allow up to three minutes for this boot. Capture the setup/home screen if it appears; if the phone stays on the splash or reboots, return to TWRP and run `LEGGI-AVVIO-UBUNTU-6.cmd`, retaining its ZIP and the installation report.
+
+The prepared candidate has the following scope. Its kernel contains the USB configuration-string NULL guard. It preserves the working cgroup selection and original Ubuntu wrapper, supplies the small device/HWC destination directories in RAM, retains their existing files and adds the `beyond2` alias. After upstream overlay mounting and before its requiring Android container, its hook applies the pinned Android RC files and masks Samsung's recovery-restoration script in RAM. Preparation failure stops before the container can execute.
 
 The current image accepted by the installer is exact BOOT 5 (`0d66508e...`, 57,341,952 bytes). The included rollback remains exact BOOT 4 (`f9264d38...`, 57,337,856 bytes), rather than the BOOT 5 image that now loops. Both roles are checked separately in the package and apply/restore fixtures. No SYSTEM/VENDOR write, partition change or Format Data is requested.
 
 The USB helper regression cases pass on host and ARM64: the original code reaches `strcmp(NULL,...)`; the corrected helper handles eight list/string cases while preserving every non-NULL decision. All 33 ARM64 RAM-profile integration/rollback fixtures pass, including successful preparation after the five optional log slots are exhausted. The actual compiled kernel disassembly confirms that NULL skips `strcmp`. BOOT 6 is 57,344,000 bytes, SHA-256 `2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad`, with 327,680 bytes of partition margin. Image/archive checks, 8 observer cases, 26 HWC cases and the collector checks pass.
 
-The Windows ZIP passes exact-member/manifest verification and 25 portable PowerShell 7/Linux control-flow cases. That run simulates USB/raw writes and does not establish native Windows 5.1/CMD/PE execution or FileShare denial. Hosted run 38793867953 received no runner and executed no steps; its cause is unconfirmed. The [BOOT 6 build record](evidence/ubuntu-boot-6-build-2026-10-15.json) retains the exact image/package/source/toolchain identities, compiled fix and validation limits. The next handset action is one aggregated BOOT-only install from TWRP, followed by Reboot > System and a screen/report capture. BOOT 6 has not yet been flashed or booted on the phone.
+The Windows ZIP passes exact-member/manifest verification and 25 portable PowerShell 7/Linux control-flow cases. That run simulates USB/raw writes and does not establish native Windows 5.1/CMD/PE execution or FileShare denial. Hosted run 38793867953 received no runner and executed no steps; its cause is unconfirmed. The [BOOT 6 build record](evidence/ubuntu-boot-6-build-2026-10-15.json) retains the exact image/package/source/toolchain identities, compiled fix and validation limits. The handset has now reportedly reached the Ubuntu Touch boot screen during this test; the next action is to observe completion and capture the screen/report. New installation/readback and runtime evidence are pending. A usable graphical boot is not claimed.
 
 ## Milestones after a first boot
 

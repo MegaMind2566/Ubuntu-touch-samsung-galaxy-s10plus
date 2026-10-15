@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: Ubuntu systemd and the Android hardware container execute; graphical boot is pending.** BOOT 5 is installed with exact physical readback. Two recorded attempts reach systemd and HWC 2.2, then a Samsung USB configfs NULL dereference causes a kernel panic and reboot. BOOT 6 has been compiled and its test package validated to correct that driver and apply the missing device profiles in RAM; its handset test is next.
+**Current stage: the user reports that the Ubuntu Touch boot screen has appeared during the BOOT 6 test. A usable graphical shell is not yet confirmed.** No new photo, runtime logs or BOOT 6 installation/readback report has been received. The latest log-backed result remains BOOT 5: systemd and Android/HWC execute, then a USB configfs NULL fault causes a reboot. BOOT 6 contains the compiled USB fix and RAM device profiles.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -36,7 +36,7 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
 | Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
 | BOOT 5 compatibility image and prepared test package | Applied and read back; subsequent USB panic identified |
-| BOOT 6 USB correction and RAM profiles | Compiled and validated offline; handset test pending |
+| BOOT 6 USB correction and RAM profiles | Offline validation passed; Ubuntu Touch boot screen reported by the user |
 | Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 5 runtime logs |
 | Reach the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
@@ -44,6 +44,8 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 The detailed [current status](docs/status.md) distinguishes source checks, host tests, physical readback and actual runtime observations. Its conclusions link to the [evidence index](docs/evidence/README.md).
 
 ## Current boot investigation
+
+The latest [BOOT 6 handset update](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) records the user's report that the Ubuntu Touch boot screen appeared. This is a splash-screen milestone; setup/home, touch operation, sustained stability and the exact new handset image readback remain unconfirmed.
 
 The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
