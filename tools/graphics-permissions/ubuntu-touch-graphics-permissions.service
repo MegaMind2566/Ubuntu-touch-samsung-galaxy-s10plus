@@ -1,0 +1,18 @@
+[Unit]
+Description=Validate Samsung S10+ graphics IPC and allocator access
+Requires=lxc-android-config.service
+After=lxc-android-config.service systemd-udev-trigger.service
+Before=lightdm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /userdata/ubuntu-touch-graphics-permissions-1/assets/apply-permissions.py
+RemainAfterExit=yes
+TimeoutStartSec=45
+TimeoutStopSec=3
+KillMode=control-group
+UMask=0077
+LimitCORE=0
+LimitFSIZE=1M
+StandardOutput=journal
+StandardError=journal

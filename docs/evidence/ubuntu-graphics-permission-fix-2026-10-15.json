@@ -1,0 +1,240 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "experiment": "graphics-permission-correction-1",
+  "purpose": "Restore the two demonstrated missing graphics access modes before LightDM on the existing BOOT 6.",
+  "physical_correction_result_pending": true,
+  "graphical_boot_confirmed": false,
+  "repository_visibility": "private_pending_confirmed_graphical_boot",
+  "baseline": {
+    "device": "Samsung Galaxy S10+ SM-G975F/DS beyond2lte Exynos9820",
+    "firmware": "G975FXXSGHWC1",
+    "boot": {
+      "version": 6,
+      "bytes": 57344000,
+      "sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad"
+    },
+    "recovery": {
+      "bytes": 57556992,
+      "sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e"
+    }
+  },
+  "causal_handset_evidence": {
+    "record": "ubuntu-graphics-runtime-probe-2026-10-15.json",
+    "inputs": [
+      {
+        "filename": "ubuntu-graphics-probe-1-prepare-report.zip",
+        "bytes": 1203,
+        "sha256": "31ff5bddb5f5cf76467749b40f795d94ff7b55df144bee9914b7ad13ad774706"
+      },
+      {
+        "filename": "ubuntu-graphics-probe-1-read-report.zip",
+        "bytes": 36692,
+        "sha256": "5878c47f363ce0438f2c075012b1d42152b996de30f2d85e61de1342d9311769"
+      }
+    ],
+    "root_mapper2_constructor_and_release_exit": 0,
+    "phablet_and_lightdm_abort_exit": 134,
+    "observed_nodes": {
+      "hwbinder": {
+        "major": 10,
+        "minor": 96,
+        "uid": 0,
+        "gid": 0,
+        "mode": "0600"
+      },
+      "ion": {
+        "major": 10,
+        "minor": 126,
+        "uid": 0,
+        "gid": 0,
+        "mode": "0600"
+      }
+    },
+    "decisive_failure": "Nonroot hwbinder R_OK|W_OK access returns EACCES; defaultServiceManager is null; no mapper supported and SIGABRT. Root loads mapper2.0-impl/gralloc.exynos9820 and opens ion.",
+    "underlying_overlay_warning": "BOOT 5 at 4.015338: //usr/lib/udev/rules.d/70-exynos7904.rules does not exist; overlay cannot be applied.",
+    "inference": "Missing destination prevents the adaptation access rules being installed; actual node modes and root/nonroot comparison support the targeted correction.",
+    "limits": "Original source rules request ion system ownership; this correction retains observed root ownership and restores access mode only. Full GUI execution may reveal later blockers."
+  },
+  "correction": {
+    "persistent_data_base": "/data/ubuntu-touch-graphics-permissions-1",
+    "normal_runtime_base": "/userdata/ubuntu-touch-graphics-permissions-1",
+    "runtime_device_mode_changes": {
+      "/dev/hwbinder": "0666",
+      "/dev/ion": "0666"
+    },
+    "owner_changes": false,
+    "udev_mapping": "/etc/udev/rules.d -> /userdata/system-data/etc/udev/rules.d (existing auto-persistent writable-paths mapping)",
+    "ordered_unit": "lxc-android-config.service and systemd-udev-trigger.service -> ubuntu-touch-graphics-permissions.service -> lightdm.service",
+    "unit_timeout_seconds": 45,
+    "lightdm_requires_verification_success": true,
+    "runtime_guards": [
+      "Both character nodes preflighted before any chmod",
+      "O_PATH and O_NOFOLLOW pin validated root:root inodes without opening drivers",
+      "Device identity compared to bounded sysfs major/minor, not static misc minors",
+      "Accept only 0600 or 0666; preserve root ownership",
+      "Verify mode and phablet/lightdm read/write access",
+      "Reverse rollback on errors or SIGTERM/SIGINT"
+    ],
+    "scope_excludes": [
+      "raw partition writes",
+      "BOOT/kernel/SYSTEM/VENDOR/RECOVERY changes",
+      "Format Data",
+      "TWRP device mode changes",
+      "vndbinder/binder/Mali mode changes",
+      "LXC attach",
+      "sys.boot_completed polling"
+    ],
+    "apply": "Validate all fixed owned paths and payload hashes; publish LightDM dependency last; identical reapply preserves logs.",
+    "undo": "Validate all present owned files before removing dependency first; retain logs/unknown files; reboot restores kernel default node modes.",
+    "logs": {
+      "private_max_bytes_each": 524288,
+      "names": [
+        "permissions.json",
+        "root-mapper.txt",
+        "phablet-mapper.txt",
+        "lightdm-mapper.txt"
+      ],
+      "retained_session_queries": [
+        "usc-head",
+        "usc",
+        "greeter",
+        "lightdm"
+      ]
+    },
+    "optional_mapper_comparison": "Reuse exact historical mapper-probe.py only if still installed and hash-matching; absent or failed diagnostic does not block permission correction.",
+    "probe1_unchanged_and_retained": "Old installed probe removal state is unknown; keep its source/manager for removal and the optional comparison."
+  },
+  "source_sha256": {
+    "scripts/manage-graphics-permissions.py": {
+      "bytes": 21611,
+      "sha256": "04ef3ec510e53e52d826c072bd5aecd78afd8aac642a919cc3ca2f0fffd0104d"
+    },
+    "scripts/package-graphics-permissions.py": {
+      "bytes": 2753,
+      "sha256": "2073bfc05d6d4e773659b89b6b6436776cc1b843e878b63e70b7c0e145b6c57b"
+    },
+    "tests/test_graphics_permissions_runtime.py": {
+      "bytes": 18357,
+      "sha256": "c6a3c699fc18b29f00b13a53faaa97b5e16eaaf21602f8b63022fce0a417a950"
+    },
+    "tests/test_graphics_permissions_installer.py": {
+      "bytes": 23403,
+      "sha256": "0dc61169be4eaf76c12505b68ab81f2b41ce3506ffebe08f715bb8db73cfb500"
+    },
+    "tools/graphics-permissions/50-ubuntu-touch-graphics-permissions.conf": {
+      "bytes": 106,
+      "sha256": "44bcf2ac1ec140e3a4d86d854234944c7d0c5ab8c5419db815b5ed463415fcf8"
+    },
+    "tools/graphics-permissions/99-ubuntu-touch-s10plus-graphics.rules": {
+      "bytes": 260,
+      "sha256": "2fa0e44d37bb3e71726b4099d1de124139bfcb8e17aab906cdaca1b8ee2a35da"
+    },
+    "tools/graphics-permissions/apply-permissions.py": {
+      "bytes": 12164,
+      "sha256": "f53e3432444691d86c099057bb81402cb395b3ded28d483951b7c8745001870c"
+    },
+    "tools/graphics-permissions/ubuntu-touch-graphics-permissions.service": {
+      "bytes": 485,
+      "sha256": "8d02903da053300c81ed8e6ee518ba0e5fb2e35e3deb2d86b0303e4ca0c4cd04"
+    },
+    "tools/windows/APPLICA-CORREZIONE-GRAFICA-1.cmd": {
+      "bytes": 628,
+      "sha256": "c8415818d51a64688530742e5aa08f69627e1ceb641a54623f2987901ae42d11"
+    },
+    "tools/windows/LEGGI-CORREZIONE-GRAFICA-1.cmd": {
+      "bytes": 559,
+      "sha256": "c755b617f0b9e41949b887a5f8b815af5cdb618f9eefe4c0add258c89b539ff9"
+    },
+    "tools/windows/ANNULLA-CORREZIONE-GRAFICA-1.cmd": {
+      "bytes": 616,
+      "sha256": "facd07fc3fc4c9ebab2c40c9049a651795f13abe80175122722fc8915ea4ddb2"
+    },
+    "tools/windows/LEGGIMI-CORREZIONE-GRAFICA-1.txt": {
+      "bytes": 2274,
+      "sha256": "98f05ee412119d99127ab3ec160665fb6c6f68db7b42a1393cd2a95d9aab24a3"
+    }
+  },
+  "validation": {
+    "runtime_host_methods": 15,
+    "installer_guard_baseline_methods": 23,
+    "final_hash_only_update_rechecks": 13,
+    "final_rechecks_detail": "All ten host methods and three exact TWRP shell methods: apply/readback/drop-in last, partial-failure cleanup and full undo. No installer logic change after full guard suite.",
+    "exact_recovery_shell": {
+      "image_sha256": "c61eafa9146d4b148648d1ab6a0d9d2d4a2456ef6b95ce17df9a4f413b2cb07d",
+      "busybox_sha256": "5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87",
+      "executed_under": "qemu-aarch64-static"
+    },
+    "reports": [
+      {
+        "local_record": "firmware-inspection/graphics-permissions-runtime-tests.json",
+        "bytes": 6832,
+        "sha256": "3d9cf04a47f35d6f547395e8acc42bdc7e4addcafea15cea714bddec4ee985b0",
+        "tests_run": 15,
+        "success": true
+      },
+      {
+        "local_record": "firmware-inspection/graphics-permissions-installer/test-results-before-signal-hardening.json",
+        "bytes": 5530,
+        "sha256": "3876693e38f0fbfbe712f9831de112e83e8d1808fd6c8bc55ac2275af090a3b2",
+        "tests_run": 23,
+        "success": true
+      },
+      {
+        "local_record": "firmware-inspection/graphics-permissions-installer/test-results-final-payload.json",
+        "bytes": 1140,
+        "sha256": "3dd6cadea71062cee6841868fc83bbdde0b2a1351ed8b036061f7d1ab79bb6fb",
+        "tests_run": 13,
+        "success": true
+      },
+      {
+        "local_record": "firmware-inspection/graphics-permissions-1-2026-10-15/systemd-unit-verify.json",
+        "bytes": 194,
+        "sha256": "5aae4fafb967898e28f45d31a158c2fee62d62f13396098848e3d3f9f66586ee",
+        "tests_run": null,
+        "success": true
+      }
+    ],
+    "systemd_unit_parser_passed": true
+  },
+  "validation_limits": [
+    "Runtime device/sysfs/UID/PAM boundaries use host fixtures; real signals only in fixture children.",
+    "TWRP shell uses real ARM64 binary/linker/libraries but controlled mounts and metadata; negative-owner case substitutes stat UID fields.",
+    "Host systemd verification uses stub LightDM/LXC dependencies.",
+    "Native Windows CMD and Python PE not executed here.",
+    "Correction has not run on the handset; usable GUI and touch remain unconfirmed."
+  ],
+  "package": {
+    "success": true,
+    "filename": "UbuntuTouch-S10plus-correzione-grafica-1-Windows.zip",
+    "bytes": 25833,
+    "sha256": "f7329e445f7ed4a0a477571c9558c2f967fd8edfd70e75a853788213e3052e0d",
+    "members": [
+      "ANNULLA-CORREZIONE-GRAFICA-1.cmd",
+      "APPLICA-CORREZIONE-GRAFICA-1.cmd",
+      "LEGGI-CORREZIONE-GRAFICA-1.cmd",
+      "LEGGIMI-CORREZIONE-GRAFICA-1.txt",
+      "SHA256SUMS-graphics-permissions-1",
+      "graphics-permissions-1/50-ubuntu-touch-graphics-permissions.conf",
+      "graphics-permissions-1/99-ubuntu-touch-s10plus-graphics.rules",
+      "graphics-permissions-1/apply-permissions.py",
+      "graphics-permissions-1/ubuntu-touch-graphics-permissions.service",
+      "scripts/collect-first-boot.py",
+      "scripts/collect-ubuntu-graphics.py",
+      "scripts/manage-graphics-permissions.py"
+    ],
+    "manifest_entries": 11,
+    "manifest_sha256_all_match": true,
+    "source_bytes_match": true,
+    "cmd_and_text_crlf_verified": true,
+    "crc_and_flat_safe_member_paths_verified": true,
+    "source_base_commit": "6a513733eb24ce63db60180563367cb13135a080"
+  },
+  "user_sequence": [
+    "Extract the full ZIP into the original prepared installation folder.",
+    "With TWRP and USB ready, run APPLICA-CORREZIONE-GRAFICA-1.cmd.",
+    "Only after success select TWRP Reboot > System and decline its app installation.",
+    "Wait four minutes and check for the Ubuntu initial screen and touch. Keep the correction installed.",
+    "Return to TWRP and run LEGGI-CORREZIONE-GRAFICA-1.cmd for result/session logs before any undo."
+  ]
+}

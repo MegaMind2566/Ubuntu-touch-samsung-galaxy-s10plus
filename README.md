@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: BOOT 6 reaches the Ubuntu Touch boot screen, but the Lomiri graphical session aborts.** The installed image matches exact physical readback. Its first normal run keeps systemd alive beyond two minutes with Android, HWC 2.2 and the system compositor running. Lomiri repeatedly reports `gralloc-mapper is missing`; the specific Vendor loading failure is still being identified.
+**Current stage: BOOT 6 reaches the Ubuntu Touch boot screen, but the Lomiri graphical session aborts.** The installed image matches exact physical readback. Its first normal run keeps systemd alive beyond two minutes with Android, HWC 2.2 and the system compositor running. The failing mapper path is now identified: root can load it, while phablet/lightdm are denied access to hwbinder because its mode is 0600. A targeted permission correction is ready for validation.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -47,7 +47,9 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 The latest [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) confirms the exact installation and a matching later BOOT readback. The RAM profile hook completes, Android reports boot complete and HWC 2.2 runs. The root compositor/spinner starts; Lomiri then repeatedly aborts with `gralloc-mapper is missing`. The first run remains alive through 120.10 seconds. A panel power-down is logged; a later whole-device power-off is not established within that window.
 
-The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The complete graphics collection confirms that the root compositor initializes Mali-G76 / OpenGL ES 3.2 and the 1440x3040 display, while the retained greeter aborts 19 times on the mapper. Optional `libminisf.so` absence and the expected fscrypt probe are not established causes. The next step is a [removable runtime graphics probe](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) on the same BOOT 6, comparing mapper loading and process context as root, phablet and lightdm. No new BOOT, driver replacement or Format Data is requested.
+The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The complete graphics collection confirms that the root compositor initializes Mali-G76 / OpenGL ES 3.2 and the 1440x3040 display. The [runtime graphics comparison](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) now reproduces the cause: root loads Mapper 2.0 successfully, while phablet and lightdm receive `EACCES` on `/dev/hwbinder` (root:root, mode 0600) and abort. `/dev/ion` is also restricted and is opened by the working root mapper.
+
+The intended udev overlay was skipped because its destination file did not exist. The next test is a [targeted correction](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) restoring the intended access modes for hwbinder/ion before LightDM, using userdata configuration on the existing BOOT 6. Driver replacement or a new firmware flash is not indicated. A usable shell and touch are still unconfirmed.
 
 The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
@@ -66,7 +68,8 @@ BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NUL
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
 | [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
 | [tools/boot-observer](tools/boot-observer) | Bounded tracing, post-root observation and guarded RAM device/Android profiles |
-| [tools/graphics-probe](tools/graphics-probe) | Bounded one-shot mapper/process-context inspection on existing BOOT 6 |
+| [tools/graphics-permissions](tools/graphics-permissions) | Targeted persistent hwbinder/ion access correction before LightDM on BOOT 6 |
+| [tools/graphics-probe](tools/graphics-probe) | Bounded mapper inspection; retained for comparison and removal of the installed diagnostic |
 | [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
 | [tests](tests) | Image, source, collector and Windows guard validation |
 | [docs](docs/README.md) | Current status and development documentation |

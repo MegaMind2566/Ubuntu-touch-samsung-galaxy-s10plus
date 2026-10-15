@@ -1,5 +1,5 @@
 {
-  "schema": 5,
+  "schema": 6,
   "date": "2026-10-15",
   "experiment": "Ubuntu BOOT 6 physical readback and graphics-session failure",
   "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
@@ -68,6 +68,20 @@
       "sha256": "051aea802ea0382e79e1745d81b2a68c3ca7835ed2d60f705303f9ee6994b036",
       "zip_crc_checked": true,
       "zip_members": 9
+    },
+    {
+      "filename": "ubuntu-graphics-probe-1-prepare-report.zip",
+      "bytes": 1203,
+      "sha256": "31ff5bddb5f5cf76467749b40f795d94ff7b55df144bee9914b7ad13ad774706",
+      "zip_crc_checked": true,
+      "zip_members": 1
+    },
+    {
+      "filename": "ubuntu-graphics-probe-1-read-report.zip",
+      "bytes": 36692,
+      "sha256": "5878c47f363ce0438f2c075012b1d42152b996de30f2d85e61de1342d9311769",
+      "zip_crc_checked": true,
+      "zip_members": 12
     }
   ],
   "image_identity": {
@@ -247,19 +261,11 @@
       ]
     },
     "loaded_libui_sha256": "be8445e98f00e022a3577f9ca769a919f927a4c7973bc4d526024cbdbb3eb59d",
-    "interpretation": "Android GraphicBufferMapper failed to acquire any supported mapper; libui itself loaded. Specific Vendor dlopen/getTransport failure is not in supplied logs.",
-    "exact_vendor_failure_known": false,
-    "unknowns_needed_before_fix": [
-      "Actual Vendor mapper implementation filename, SHA, ELF DT_NEEDED closure",
-      "Vendor VINTF graphics.mapper version and transport declaration",
-      "Preceding HidlServiceManagement/vndksupport dlopen error or Android logcat",
-      "Runtime root LSC versus phablet/lightdm supplementary groups and graphics-related environment",
-      "Generated /android/linkerconfig/ld.config.txt and visibility from host libhybris loader"
-    ],
+    "interpretation": "Vendor mapper2.0 and gralloc.exynos9820 work as root. Nonroot cannot access hwbinder root:root0600, causing service-manager discovery failure and the mapper abort.",
+    "exact_vendor_failure_known": true,
+    "unknowns_needed_before_fix": [],
     "hypotheses_not_proven": [
-      "Non-root permission to mapper service or implementation/dependencies",
-      "Vendor mapper ABI or dependency loader namespace mismatch",
-      "Process-specific environment selecting a different gralloc path"
+      "Any later graphical/session blocker after restoring the two device-node modes."
     ]
   },
   "retained_hard_reset": {
@@ -442,7 +448,7 @@
   "graphical_shell_confirmed": false,
   "setup_or_home_screen_confirmed": false,
   "touch_input_confirmed": false,
-  "next_action": "Prepare a bounded one-shot runtime comparison of mapper loading as root, phablet and lightdm on BOOT6. Persistent systemd-unit mapping permits this without a new kernel or firmware write.",
+  "next_action": "Apply narrowly scoped persistent udev modes for hwbinder/ion, with a verified pre-LightDM runtime check, on unchanged BOOT6. Validate the resulting graphical boot on the handset.",
   "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot",
   "graphics_collector_followup": {
     "source": "ubuntu-graphics-6-report.zip/ubuntu-graphics-report.json",
@@ -580,5 +586,203 @@
       "change_pidfd_kernel": "Not justified; LightDM tolerates ENOSYS and initializes compositor/session."
     },
     "scope_limit": "Prefix and tail are bounded portions of retained USC. The middle of the file and persistent journal binaries are not read. File identities do not independently date a retained attempt."
+  },
+  "graphics_runtime_probe_1": {
+    "inputs": [
+      {
+        "filename": "ubuntu-graphics-probe-1-prepare-report.zip",
+        "bytes": 1203,
+        "sha256": "31ff5bddb5f5cf76467749b40f795d94ff7b55df144bee9914b7ad13ad774706",
+        "members": [
+          {
+            "name": "ubuntu-graphics-probe-report.json",
+            "bytes": 2804,
+            "sha256": "24b4e552f28c6241f54a49e98d31f062146653411d9e781d2c07b94b6ceee314"
+          }
+        ]
+      },
+      {
+        "filename": "ubuntu-graphics-probe-1-read-report.zip",
+        "bytes": 36692,
+        "sha256": "5878c47f363ce0438f2c075012b1d42152b996de30f2d85e61de1342d9311769",
+        "members": [
+          {
+            "name": "01-summary.txt",
+            "bytes": 450,
+            "sha256": "b0c45c3bcc9b0c686f9c601fcd3a55b7dd686d92867143ba7ea3b4b3cb71bef2"
+          },
+          {
+            "name": "02-inventory-start.json",
+            "bytes": 107893,
+            "sha256": "4260a45f195ab9e93e3717f0f2cea42df8b0a3c8927c81e9243b3b6026b886f9"
+          },
+          {
+            "name": "03-systemd.txt",
+            "bytes": 444,
+            "sha256": "bb1ed77151db2c9cc52e052670fb8691e16fba0eaf66d8186b0f38e73fd92f41"
+          },
+          {
+            "name": "04-android-before.txt",
+            "bytes": 26,
+            "sha256": "84937f9214a933c5b957fab9a20dc492f145067a7c36747bd4dd51a6adeab04f"
+          },
+          {
+            "name": "05-root-probe.txt",
+            "bytes": 87601,
+            "sha256": "0b3895fd31f1201b5784d704c3506509d70c8584d94c654b5a3b5536c0efaa4b"
+          },
+          {
+            "name": "06-phablet-probe.txt",
+            "bytes": 80180,
+            "sha256": "d7e8e0786bef34f9053379b936e67893cc1ff9bba718caf7a8dce6db12782faf"
+          },
+          {
+            "name": "07-lightdm-probe.txt",
+            "bytes": 79860,
+            "sha256": "ce11e0f4b8dc210bb4ced10b3875a64cf05fac6834648dd008d6502aaf9fed4f"
+          },
+          {
+            "name": "08-android-after.txt",
+            "bytes": 26,
+            "sha256": "84937f9214a933c5b957fab9a20dc492f145067a7c36747bd4dd51a6adeab04f"
+          },
+          {
+            "name": "09-inventory-end.json",
+            "bytes": 121585,
+            "sha256": "d915de0d679f0ccbb6b0528a37de74f7850219ee977fd456637551845e731f49"
+          },
+          {
+            "name": "10-journal.txt",
+            "bytes": 828,
+            "sha256": "d2c492741fda16cf40efcbee4809ae41012025d5e10939574c949d9dfb90ae9a"
+          },
+          {
+            "name": "11-complete.txt",
+            "bytes": 63,
+            "sha256": "167a46309be9c96072e193b8dc7a11ff84bb739aef69cb0cdf7a02757bcb26e0"
+          },
+          {
+            "name": "ubuntu-graphics-probe-report.json",
+            "bytes": 4394,
+            "sha256": "964a5259f05902bcab57d24962389e192ce43ebc1a93d830789d38f36258a690"
+          }
+        ]
+      }
+    ],
+    "prepare_success": true,
+    "read_success": true,
+    "prepared_payload_matches_delivered": true,
+    "boot_and_recovery_readback_match": true,
+    "all11_fixed_logs_returned": true,
+    "runtime_start_uptime": 11.6,
+    "runtime_complete_uptime": 17.75,
+    "root_probe_exit_code": 0,
+    "phablet_probe_exit_code": 134,
+    "lightdm_probe_exit_code": 134,
+    "android_logcat_exit_codes": [
+      153,
+      153
+    ],
+    "android_logcat_limit": "Both optional attach attempts report File size limit exceeded; the decisive child strace/liblog route succeeded independently.",
+    "confirmed_cause": "Nonroot graphics initialization fails at access(R_OK|W_OK) on /dev/hwbinder, which is root:root0600. No hardware service manager is created, so all mapper versions report unavailable and GraphicBufferMapper aborts.",
+    "device_state_start": [
+      {
+        "gid": 0,
+        "major": 10,
+        "minor": 97,
+        "mode": "0o666",
+        "path": "/dev/binder",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "major": 10,
+        "minor": 96,
+        "mode": "0o600",
+        "path": "/dev/hwbinder",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "major": 10,
+        "minor": 126,
+        "mode": "0o600",
+        "path": "/dev/ion",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "major": 10,
+        "minor": 121,
+        "mode": "0o666",
+        "path": "/dev/mali0",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "major": 10,
+        "minor": 95,
+        "mode": "0o600",
+        "path": "/dev/vndbinder",
+        "uid": 0
+      }
+    ],
+    "device_state_end_matches_start": true,
+    "root_mapper": "Mapper2.0 passthrough and gralloc.exynos9820 load, IMapper/default registers, default GraphicBuffer constructor and release succeed.",
+    "nonroot_failure": "phablet and lightdm get EACCES on /dev/hwbinder R_OK|W_OK, then defaultServiceManager null, mapper4/3/2 unavailable and SIGABRT.",
+    "source_log_lines": {
+      "root": [
+        749,
+        766,
+        767,
+        867,
+        868,
+        869
+      ],
+      "phablet": [
+        768,
+        769,
+        771,
+        772,
+        774,
+        775,
+        777,
+        778
+      ],
+      "lightdm": [
+        766,
+        767,
+        769,
+        770,
+        772,
+        773,
+        775,
+        776
+      ]
+    },
+    "underlying_overlay_configuration": {
+      "observed_log": {
+        "path": "firmware-inspection/boot-5-handset-2026-10-15/ubuntu-boot-5-log-report--run-1-post-journal.txt",
+        "line": 44,
+        "message": "[    4.015338] ubuntu-phablet mount-halium-overlay[4118]: WARNING: //usr/lib/udev/rules.d/70-exynos7904.rules doesn't exist, cannot overlay.",
+        "sha256": "af73d20b268d250ab1ff5472af284c17ca13833e61343764a167b6b773111110"
+      },
+      "adaptation_rules": {
+        "path": "firmware-inspection/boot-5-local-build/sources/samsung-exynos9820/overlay/system/usr/lib/udev/rules.d/70-exynos7904.rules",
+        "sha256": "96ce8c5107680977e62ddc469c145b55e0bed89029af7d6c9324fa31090253ee",
+        "relevant_rules": [
+          "ACTION==\"add\", KERNEL==\"hwbinder\", OWNER=\"root\", GROUP=\"root\", MODE=\"0666\"",
+          "ACTION==\"add\", KERNEL==\"vndbinder\", OWNER=\"root\", GROUP=\"root\", MODE=\"0666\"",
+          "ACTION==\"add\", KERNEL==\"ion\", OWNER=\"system\", GROUP=\"system\", MODE=\"0666\""
+        ]
+      },
+      "interpretation": "The intended device permission rules were skipped because the overlay destination file is absent. This is the same existing-target-only overlay behavior already verified for the profile files. A narrow runtime permission fix should be followed by a durable assembly/overlay target correction rather than treating it as a missing graphics driver."
+    },
+    "next_fix_scope": [
+      "/dev/hwbinder mode0666",
+      "/dev/ion mode0666"
+    ],
+    "excluded": "vndbinder is also0600, but is not required by the observed constructor and remains unchanged in this correction.",
+    "limitation": "The successful root constructor is not a pixel-buffer allocation or graphical-shell boot. The permission correction still requires handset validation."
   }
 }

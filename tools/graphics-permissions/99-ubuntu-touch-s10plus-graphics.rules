@@ -1,0 +1,3 @@
+# BOOT6 handset evidence: these two misc devices need the same access as binder.
+ACTION=="add|change", SUBSYSTEM=="misc", KERNEL=="hwbinder", ENV{MAJOR}=="10", MODE:="0666"
+ACTION=="add|change", SUBSYSTEM=="misc", KERNEL=="ion", ENV{MAJOR}=="10", MODE:="0666"

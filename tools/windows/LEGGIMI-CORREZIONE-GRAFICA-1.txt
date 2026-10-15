@@ -1,0 +1,39 @@
+Samsung S10+ SM-G975F - correzione grafica 1 su BOOT 6
+
+Il test precedente ha mostrato il blocco: il mapper funziona come root,
+mentre phablet e lightdm non possono aprire /dev/hwbinder (modo 0600).
+Questa correzione rende accessibili hwbinder e ion (modo 0666) prima di
+avviare LightDM. Non cambia altre periferiche, immagini o librerie.
+
+1. Estrai TUTTO lo ZIP nella cartella originale di installazione Ubuntu Touch,
+   sostituendo i file corrispondenti. Riusa Python e ADB gia presenti.
+2. Mantieni BOOT 6. Con TWRP aperta e USB collegato, avvia
+   APPLICA-CORREZIONE-GRAFICA-1.cmd.
+3. Solo se l'applicazione riesce: in TWRP scegli Reboot > System.
+   Se TWRP propone la propria app, scegli Do Not Install.
+4. Attendi 4 minuti. Controlla se compare la schermata iniziale di Ubuntu.
+5. Per inviare il risultato torna in TWRP e avvia
+   LEGGI-CORREZIONE-GRAFICA-1.cmd. Invia il rapporto ZIP indicato.
+
+La correzione resta attiva ai successivi avvii. Non eseguire ANNULLA se vuoi
+mantenerla. Per tornare alla configurazione precedente, con TWRP aperta
+avvia ANNULLA-CORREZIONE-GRAFICA-1.cmd e poi riavvia Ubuntu. La rimozione
+elimina solo i file verificati della correzione e conserva i log. Leggi
+quindi i log PRIMA di annullare la correzione.
+
+Non usare Format Data. Non installare altri BOOT o riscrivere VENDOR.
+Le operazioni controllano ogni volta BOOT 6, recovery preparata, modello,
+strumenti e memoria dati ext4. Nessun mount o riavvio viene eseguito dal PC.
+L'applicazione scrive solo file propri nella memoria dati e la configurazione
+udev/systemd conservata li. I permessi delle periferiche TWRP non cambiano.
+La modifica ai due dispositivi viene eseguita solo nel normale avvio Ubuntu.
+Il programma rifiuta file in conflitto; ripetere APPLICA su un'installazione
+identica non sostituisce i log o gli altri file del telefono.
+
+I log del controllo sono limitati a 512 KiB ciascuno. Il lettore aggiunge
+porzioni limitate dei log di compositor, greeter e LightDM. I rapporti
+precedenti non vengono sostituiti. Un rapporto riuscito non certifica che
+Ubuntu abbia raggiunto la schermata iniziale o che il touch funzioni.
+
+Il gestore viene verificato con il BusyBox ARM64 della TWRP esatta sotto
+QEMU. Windows CMD e Python Windows non sono eseguiti in questo ambiente.

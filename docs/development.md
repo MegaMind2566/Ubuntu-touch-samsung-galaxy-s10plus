@@ -126,7 +126,7 @@ The package merges into the existing Windows installation folder. Its native lau
 
 ## Controlled runtime graphics probe on BOOT 6
 
-The successful version 3 collection identifies a working root EGL/Mali display path but still lacks the failing nested mapper loader message. The separate `tools/graphics-probe/` payload uses the existing writable `/etc/systemd/system` mapping to install one removable diagnostic service from TWRP. It compares mapper initialization under controlled root/phablet/lightdm credentials, redirects the Bionic liblog instance within those probe children to stderr, and traces only their filesystem calls. It does not change existing display services or device permissions. A successful probe is not a graphical boot.
+The successful version 3 collection identified a working root EGL/Mali display path; the following runtime probe recovered the missing nested mapper failure. The separate `tools/graphics-probe/` payload uses the existing writable `/etc/systemd/system` mapping to install one removable diagnostic service from TWRP. It compares mapper initialization under controlled root/phablet/lightdm credentials, redirects the Bionic liblog instance within those probe children to stderr, and traces only their filesystem calls. It does not change existing display services or device permissions. A successful probe is not a graphical boot.
 
 `manage-graphics-probe.py` checks pinned tools, root recovery, model/bootloader, prepared RECOVERY, exact BOOT 6 and already mounted raw userdata for preparation, collection and removal. The fixed files and enabled-unit link reside only on userdata. Payload hashes, canonical root-owned paths, conflicting files and nested mounts are checked; the enable link is the final write. Removal disables the owned service after validating all present known files and preserves logs/unknown files. Read the logs before removal.
 
@@ -136,4 +136,23 @@ python3 tests/test_graphics_probe_installer.py --qemu /path/to/qemu-aarch64-stat
 python3 scripts/package-graphics-probe.py
 ```
 
-The unit is `Type=simple`, so collecting the evidence does not hold the graphical target behind a long oneshot job. Its own process tree has a 150-second maximum, per-child timeouts, core dumps disabled and bounded private logs. The handset procedure allows four minutes after selecting System, since Android boot precedes the service's runtime limit. The [probe evidence record](evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) separates host ABI fixtures, TWRP shell fixtures, parser validation and the pending real hardware experiment. Retain BOOT 6 and its firmware evidence unchanged.
+The unit is `Type=simple`, so collecting the evidence does not hold the graphical target behind a long oneshot job. Its own process tree has a 150-second maximum, per-child timeouts, core dumps disabled and bounded private logs. The handset procedure allows four minutes after selecting System, since Android boot precedes the service's runtime limit. The [probe evidence record](evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) separates host ABI fixtures, TWRP shell fixtures, parser validation and the completed handset comparison: root loads Mapper 2.0, while phablet/lightdm fail hwbinder access with EACCES. Both hwbinder and ion remain 0600; root opens ion in the working path. Retain BOOT 6 and its firmware evidence unchanged.
+
+
+## Targeted graphics permission correction on BOOT 6
+
+`tools/graphics-permissions/` provides the next correction, distinct from the immutable probe. The handset evidence establishes a device access failure rather than a missing vendor mapper ABI. The intended adaptation udev rules were skipped because their overlay destination did not exist. Persist a dedicated rule through the existing `/etc/udev/rules.d` writable mapping instead of changing SYSTEM or flashing another image.
+
+`manage-graphics-permissions.py` verifies pinned tools, root TWRP, model/SoC/bootloader, prepared RECOVERY, exact BOOT 6 and already mounted raw ext4 userdata before any operation. It stores four hash-pinned payloads and fixed udev/systemd configuration on userdata. The LightDM dependency is published last; repeat application is idempotent. Conflicts stop the operation, and failed creation rolls back only its own new files. Undo validates all present known files before removing the dependency first and preserves logs/unknown files. Undo takes effect after reboot; it does not chmod recovery devices.
+
+On normal Ubuntu boot, the 45-second service runs after LXC configuration and udev triggering, before LightDM. It pins both root-owned character-device inodes with O_PATH, compares their major/minor identities with `/sys/class/misc`, accepts only the observed 0600 or intended 0666 modes, and completes both preflights before changing either. It changes mode only, retaining root ownership. The service verifies read/write access as phablet/lightdm, reverses its own changes on errors or SIGTERM/SIGINT and blocks LightDM on failure. No vndbinder/binder/Mali or SYSTEM permissions change. The udev rule retains those two modes across matching events.
+
+An optional controlled comparison reuses only the hash-pinned historical mapper probe if it is still installed. Absence or diagnostic failure does not block the correction. There is no LXC attach or Android boot-completed polling in this path. Four private bounded logs and bounded existing compositor/greeter/LightDM excerpts support the next handset result.
+
+```sh
+python3 tests/test_graphics_permissions_runtime.py --report out/graphics-permissions-runtime-tests.json
+python3 tests/test_graphics_permissions_installer.py --qemu /path/to/qemu-aarch64-static --recovery-image /path/to/twrp-3.7.0_9-2-beyond2lte.img --report out/graphics-permissions-installer-tests.json
+python3 scripts/package-graphics-permissions.py
+```
+
+Runtime device/sysfs/UID boundaries are simulated in host tests, including real signals delivered to dedicated fixture children. Installer shell cases execute the exact pinned TWRP BusyBox/linker/libraries under QEMU with controlled mounts/device metadata. Native Windows CMD/Python PE and a GUI on the handset remain untested. The [correction record](evidence/ubuntu-graphics-permission-fix-2026-10-15.json) records final payload identities, tests and delivery. Keep the correction installed for the GUI test; collect logs before any undo.
