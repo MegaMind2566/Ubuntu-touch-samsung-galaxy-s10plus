@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "repository": "MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus",
+  "tag": "v0.1.0-alpha.1",
+  "name": "Ubuntu Touch for Samsung Galaxy S10+ — v0.1.0-alpha.1",
+  "notes_path": "docs/releases/v0.1.0-alpha.1.md",
+  "system": {
+    "name": "SYSTEM.img.zst",
+    "bytes": 1114706918,
+    "sha256": "6729e58ca7924a7682a332c4a58a1e1ad1dc3b31437707fb49366b518da99928"
+  },
+  "boot_and_tools": {
+    "name": "UbuntuTouch-S10plus-v0.1.0-alpha.1-boot-and-tools-Windows.zip",
+    "bytes": 73287864,
+    "sha256": "643bcc8c137060c87871d472c8bd35a6b03f55aa905fc2f4a92d833975acdedb"
+  }
+}

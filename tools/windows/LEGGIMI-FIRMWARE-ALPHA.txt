@@ -1,0 +1,33 @@
+Ubuntu Touch S10+ v0.1.0-alpha.1 - primo firmware sperimentale
+
+Solo Samsung Galaxy S10+ SM-G975F/DS Exynos (beyond2lte).
+Baseline Samsung Android 12 G975FXXSGHWC1. Altri modelli non sono verificati.
+Il primo avvio grafico, touch e Wi-Fi funzionano sul telefono di sviluppo.
+Le altre funzioni e la stabilita prolungata sono ancora da verificare.
+
+Questa release e per una procedura manuale avanzata con TWRP. Non contiene
+un flasher automatico delle immagini o una procedura universale con un clic.
+
+PREPARAZIONE SUL PC
+1. Scarica entrambi gli asset della release: questo ZIP e SYSTEM.img.zst.
+2. Estrai TUTTO lo ZIP. Lascia SYSTEM.img.zst nella cartella estratta oppure
+   nella cartella che la contiene, accanto allo ZIP scaricato.
+   Deve esistere una sola copia in queste due posizioni.
+3. Avvia PREPARA-IMMAGINI-FIRMWARE.cmd. Occorrono almeno 6 GB liberi sul PC.
+   Il programma verifica i checksum ed estrae images/system.img (5 GiB).
+   Non collega il telefono, non scrive partizioni e non monta filesystem.
+4. Le immagini verificate sono in images/. Non vengono installate da questo
+   programma. Consulta la guida della release e lo stato corrente del progetto.
+
+BOOT 6 e la correzione grafica formano la configurazione di questa alpha.
+Dopo l'installazione manuale delle immagini, la correzione si applica da
+TWRP con APPLICA-CORREZIONE-GRAFICA-1.cmd; il programma verifica modello,
+recovery preparata e BOOT 6 prima di scrivere i soli file della correzione.
+LEGGI-CORREZIONE-GRAFICA-1.cmd raccoglie i log; ANNULLA rimuove i file propri
+verificati e disabilita la correzione per il successivo avvio. Mantieni la
+correzione installata per usare la configurazione che ha raggiunto la GUI.
+
+Python 3.14.4 e Android platform-tools 37.0.1 ufficiali sono inclusi completi,
+con le rispettive licenze e avvertenze. SHA256SUMS elenca tutti i file;
+config/firmware-release.json descrive le immagini e gli input della release.
+L'esecuzione nativa di CMD/Python Windows non e stata provata qui.

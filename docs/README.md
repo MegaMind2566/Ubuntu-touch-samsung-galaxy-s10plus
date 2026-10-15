@@ -5,6 +5,8 @@ Start with the [project README](../README.md), then use:
 | Document | Purpose |
 | --- | --- |
 | [Current status](status.md) | Current hardware status, first graphical boot and next validation steps. |
+| [Alpha installation](install-alpha.md) | Exact model/baseline, firmware assets, required graphics correction and recovery procedure. |
+| [First release notes](releases/v0.1.0-alpha.1.md) | Scope and validation of the first experimental firmware package. |
 | [Development](development.md) | Source/image pins, builds, offline analysis and validation boundaries. |
 | [Evidence index](evidence/README.md) | Compact reports supporting the current conclusions. |
 | [Historical notes](history/README.md) | Earlier planning and provisioning observations. |

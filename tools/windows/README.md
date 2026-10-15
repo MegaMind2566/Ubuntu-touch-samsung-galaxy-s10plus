@@ -2,6 +2,10 @@
 
 These files are packaging inputs. Use the complete extracted package, including its pinned Python/ADB dependencies. The current test handset boots Ubuntu Touch with BOOT 6 and graphics permission correction 1; touch and basic Wi-Fi work.
 
+## First alpha firmware package
+
+`PREPARA-IMMAGINI-FIRMWARE.cmd` verifies and expands the separately downloaded SYSTEM on the PC. It is included with BOOT 6, prepared recovery/VBMETA, pinned Python/ADB and graphics correction 1 in the alpha tools ZIP. It does not write phone partitions. Follow the [alpha installation guide](../../docs/install-alpha.md); the original upgrade launchers below have different state requirements.
+
 ## Working configuration and result collection
 
 | Launcher | Purpose |

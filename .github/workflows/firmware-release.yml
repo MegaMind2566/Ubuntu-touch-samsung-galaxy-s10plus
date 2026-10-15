@@ -1,0 +1,39 @@
+name: Publish verified Ubuntu Touch alpha firmware
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'config/releases/v0.1.0-alpha.1.json'
+      - 'docs/releases/v0.1.0-alpha.1.md'
+      - 'scripts/publish-firmware-release.py'
+      - 'scripts/materialize-release-system.py'
+      - 'tests/test_firmware_release.py'
+      - 'tests/test_firmware_images.py'
+      - 'scripts/prepare-firmware-images.py'
+      - 'scripts/package-firmware-release.py'
+      - '.github/workflows/firmware-release.yml'
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: firmware-release-v0.1.0-alpha.1
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Test publication gates without network or publishing
+        run: python3 tests/test_firmware_release.py
+      - name: Test offline image preparation and packaging
+        run: python3 tests/test_firmware_images.py
+      - name: Verify immutable SYSTEM transport fixtures
+        run: python3 scripts/materialize-release-system.py --self-test
+      - name: Prepare draft, wait for pinned BOOT/tools ZIP and publish only verified assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish-firmware-release.py --wait-seconds 1500

@@ -13,6 +13,7 @@ Current entry points build the adaptation, assemble SYSTEM, package BOOT 6 and s
 | Recovery and installation support | `prepare_recovery.py`, `verify_recovery_test.py`, `prepare_ubuntu_install.py`, `install-ubuntu-twrp.ps1`, `check-recovery.ps1` |
 | Firmware and source inspection | `inspect_stock_firmware.py`, `inspect_stock_dtb.py`, `audit_install_artifact.py`, `audit_kernel_boot_sources.py` |
 | Kernel, device-tree and userspace analysis | `audit_kernel_symbols.py`, `audit_device_trees.py`, `audit-system-userspace.py`, `audit_boot_observability.py` |
+| Alpha release preparation and publication | `package-firmware-release.py`, `prepare-firmware-images.py`, `publish-firmware-release.py`; [manifest](../config/releases/v0.1.0-alpha.1.json) and [installation guide](../docs/install-alpha.md) |
 | Immutable artifact transport | `github_artifacts.py`, `materialize-release-system.py` |
 | Initial firmware/USB support | Maintained `package-*.py` tools and launchers listed in [Windows support](../tools/windows/README.md) |
 

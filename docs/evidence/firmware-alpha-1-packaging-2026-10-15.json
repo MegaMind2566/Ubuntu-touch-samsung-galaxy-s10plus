@@ -1,0 +1,55 @@
+{
+  "success": true,
+  "asset": "UbuntuTouch-S10plus-v0.1.0-alpha.1-boot-and-tools-Windows.zip",
+  "bytes": 73287864,
+  "sha256": "643bcc8c137060c87871d472c8bd35a6b03f55aa905fc2f4a92d833975acdedb",
+  "zip_members": 71,
+  "manifest_members_verified": 70,
+  "crc_valid": true,
+  "all_official_runtime_members_byte_preserved": true,
+  "four_python_sources_byte_preserved": true,
+  "cmd_crlf_checked": [
+    "APPLICA-CORREZIONE-GRAFICA-1.cmd",
+    "LEGGI-CORREZIONE-GRAFICA-1.cmd",
+    "ANNULLA-CORREZIONE-GRAFICA-1.cmd",
+    "PREPARA-IMMAGINI-FIRMWARE.cmd"
+  ],
+  "image_pins": {
+    "boot.img": {
+      "bytes": 57344000,
+      "sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad"
+    },
+    "recovery.img": {
+      "bytes": 57556992,
+      "sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e"
+    },
+    "vbmeta.img": {
+      "bytes": 65536,
+      "sha256": "9cce7c2d752df367292cc17b4e2d21834629360f40521cb1784233b87e3c0025"
+    }
+  },
+  "separate_system_asset": {
+    "name": "SYSTEM.img.zst",
+    "bytes": 1114706918,
+    "sha256": "6729e58ca7924a7682a332c4a58a1e1ad1dc3b31437707fb49366b518da99928",
+    "raw_name": "images/system.img",
+    "raw_bytes": 5368709120,
+    "raw_sha256": "d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3"
+  },
+  "tests": {
+    "offline_system_preparer_and_packager": {
+      "passed": 12,
+      "native_windows_executed": false
+    },
+    "publisher_fixtures": {
+      "passed": 14,
+      "network_accessed": false
+    },
+    "immutable_system_transport": {
+      "passed": 5
+    },
+    "clean_install_repeated_end_to_end": false
+  },
+  "publication_state": "prepared; publication requires final release asset verification",
+  "manifest": "config/releases/v0.1.0-alpha.1.json"
+}
