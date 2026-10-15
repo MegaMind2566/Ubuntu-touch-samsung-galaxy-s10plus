@@ -5,7 +5,7 @@ set -u
 RAM=${1:-}
 RUN=${2:-}
 case "$RAM" in /dev/.ut-boot-6-profile.*) ;; *) exit 1;; esac
-case "$RUN" in run-[1-5]) ;; *) exit 1;; esac
+case "$RUN" in run-[1-5]|none) ;; *) exit 1;; esac
 BB="$RAM/busybox"
 [ -f "$BB" ] && [ ! -L "$BB" ] || exit 1
 [ "$("$BB" readlink -f "$RAM")" = "$RAM" ] || exit 1
@@ -14,7 +14,7 @@ BB="$RAM/busybox"
 LOG=''
 SOURCE=$("$BB" awk '$2=="/userdata"&&$3=="ext4"{print $1;exit}' /proc/mounts)
 SOURCE=$("$BB" readlink -f "$SOURCE" 2>/dev/null)
-if [ "$SOURCE" = /dev/sda31 ]; then
+if [ "$RUN" != none ] && [ "$SOURCE" = /dev/sda31 ]; then
     BASE=/userdata/ubuntu-touch-boot-6
     if [ -d "$BASE" ] && [ ! -L "$BASE" ] &&
        [ -d "$BASE/$RUN" ] && [ ! -L "$BASE/$RUN" ] &&

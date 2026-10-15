@@ -136,7 +136,7 @@ def main():
     assert b'<${rootmnt}/dev/console' not in files['init']['data']
     assert b'ut_boot_post_handoff_start "$UT_BOOT_LOG_NAME"' in files['init']['data']
     assert b'ut_boot_hwc_prepare' in files['init']['data']
-    assert b'ut_boot_profiles_prepare "$UT_BOOT_LOG_NAME"' in files['init']['data']
+    assert b'ut_boot_profiles_prepare "${UT_BOOT_LOG_NAME:-none}"' in files['init']['data']
     assert b'BOOT 6 RAM profiles could not be prepared' in files['init']['data']
     assert 'systemd.unified_cgroup_hierarchy=0' in BOOT_CMDLINE
     assert b'UT_DIAG_' not in files['init']['data'] and 'ut-diag-display' not in files

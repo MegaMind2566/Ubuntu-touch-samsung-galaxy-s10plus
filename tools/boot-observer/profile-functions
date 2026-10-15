@@ -9,7 +9,7 @@ ut_boot_profiles_prepare() {
     local unit='/root/usr/lib/systemd/system/mount-halium-overlay.service'
     local yaml="$overlay/etc/deviceinfo/devices/beyond2lte.yaml"
     local file='' expected='' actual='' destination='' staged=''
-    case "$run" in run-[1-5]) ;; *) return 1;; esac
+    case "$run" in run-[1-5]|none) ;; *) return 1;; esac
     # No mutation until all source hashes and mount/layout guards have passed.
     /bin/busybox awk '$2=="/root/dev" && $3=="devtmpfs" {
         n=split($4,a,",");for(i=1;i<=n;i++){if(a[i]=="rw")ok=1;if(a[i]=="ro"||a[i]=="noexec")bad=1}

@@ -76,7 +76,7 @@ def ubuntu_initramfs(original):
         init=replace_once(init,'\n'+line+'\n','\n'+line+'\nut_boot_stage '+stage+'\n')
     init=replace_once(init,'# Move virtual filesystems over to the real filesystem\n',
         'ut_boot_stage userspace-handoff\n'
-        'if ! ut_boot_profiles_prepare "$UT_BOOT_LOG_NAME"; then\n'
+        'if ! ut_boot_profiles_prepare "${UT_BOOT_LOG_NAME:-none}"; then\n'
         '    panic "BOOT 6 RAM profiles could not be prepared"\n'
         '    exit 1\n'
         'fi\n'

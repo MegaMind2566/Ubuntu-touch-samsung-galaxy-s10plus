@@ -33,6 +33,7 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--qemu',required=True);parser.add_argument('--cpio',type=Path,required=True)
  parser.add_argument('--repository',type=Path,default=ROOT)
+ parser.add_argument('--log-independent-only',action='store_true')
  args=parser.parse_args();sys.path.insert(0,str(args.repository/'scripts'))
  from prepare_boot_diagnostic import entries
  items=entries(args.cpio.read_bytes());entry=next(i for i in items if i['name']=='bin/busybox')
@@ -99,6 +100,7 @@ sys.exit(subprocess.call(BACKEND+[name,*args]))
   def calls(case):return [json.loads(l) for l in (case/'calls').read_text().splitlines()]
   # Every immutable input, plus layout and mount guards, is checked before mutation.
   guards=['hash-'+str(i) for i in range(len(SOURCES))]+['source-link','parent-link','missing-parent','root-rw','dev-noexec','already-mounted','destination-exists','special-file']
+  if args.log_independent_only:guards=[]
   for name in guards:
    case,root,mounts,script=fixture(name)
    if name.startswith('hash-'):write(root/SOURCES[int(name[5:])][1][1:],b'changed\n')
@@ -116,11 +118,13 @@ sys.exit(subprocess.call(BACKEND+[name,*args]))
    assert not any(a[0] in ['mktemp','cp','mount','umount','rm','rmdir','mkdir','chmod'] for a in calls(case)),name
    observations.append({'prepare_guard':name,'rejected_before_mutation':True})
   # Check exact content preservation, source alias, unit ordering, and rollback.
-  for scenario in ['success','bind-fail-3','bind-fail-5','readback-mismatch']:
-   case,root,mounts,script=fixture('prep-'+scenario,scenario);result=run(script)
-   assert (result.returncode==0)==(scenario=='success'),(scenario,result.stderr)
+  for scenario in (['no-log'] if args.log_independent_only else ['success','no-log','bind-fail-3','bind-fail-5','readback-mismatch']):
+   case,root,mounts,script=fixture('prep-'+scenario,scenario)
+   if scenario=='no-log':script.write_text(script.read_text().replace('ut_boot_profiles_prepare run-1','ut_boot_profiles_prepare none'))
+   result=run(script);successful=scenario in ['success','no-log']
+   assert (result.returncode==0)==successful,(scenario,result.stderr)
    ramdirs=list((root/'dev').glob('.ut-boot-6-profile.*'))
-   if scenario!='success':
+   if not successful:
     assert not ramdirs,scenario
     assert (root/SOURCES[0][1][1:]).read_bytes()==(FIXTURES/SOURCES[0][0]).read_bytes()
    else:
@@ -131,10 +135,11 @@ sys.exit(subprocess.call(BACKEND+[name,*args]))
     assert (root/(PARENTS[0]+'/beyond2lte.yaml')[1:]).read_text()==expected
     assert (root/SOURCES[0][1][1:]).read_text()==expected
     unit=(root/SOURCES[5][1][1:]).read_text();assert unit.startswith((FIXTURES/SOURCES[5][0]).read_text())
-    assert unit.endswith(f'ExecStartPost={ram}/busybox sh {ram}/android-profile-fix {ram} run-1\n')
+    run_name='none' if scenario=='no-log' else 'run-1'
+    assert unit.endswith(f'ExecStartPost={ram}/busybox sh {ram}/android-profile-fix {ram} {run_name}\n')
    observations.append({'prepare_case':scenario,'success':result.returncode==0})
   # Full post-overlay stage with both LXC aliases and recovery mask before RC binds.
-  cases=['success','source-hash','cached-hash','vendor-rw','wrong-vendor','missing-script','script-link','alias-missing','special-rc','bind-fail-2','bind-fail-6','readback-mismatch']
+  cases=['no-log'] if args.log_independent_only else ['success','no-log','source-hash','cached-hash','vendor-rw','wrong-vendor','missing-script','script-link','alias-missing','special-rc','bind-fail-2','bind-fail-6','readback-mismatch']
   for scenario in cases:
    case,root,mounts,script=fixture('android-'+scenario);assert run(script).returncode==0
    ram=next((root/'dev').glob('.ut-boot-6-profile.*'));(case/'scenario').write_text(scenario if scenario.startswith('bind-') or scenario=='readback-mismatch' else 'success')
@@ -155,10 +160,12 @@ sys.exit(subprocess.call(BACKEND+[name,*args]))
     p=root/'android/vendor/bin/install-recovery.sh';p.unlink();p.symlink_to('other.sh');write(p.with_name('other.sh'))
    elif scenario=='alias-missing':shutil.rmtree(root/(ALIAS+'/vendor/etc/init')[1:])
    elif scenario=='special-rc':os.mkfifo(root/'android/vendor/etc/init/unexpected')
-   invoke=case/'invoke';invoke.write_text('exec '+quote(ram/'busybox')+' sh '+quote(ram/'android-profile-fix')+' '+quote(ram)+' run-1\n')
-   result=run(invoke);assert (result.returncode==0)==(scenario=='success'),(scenario,result.returncode,result.stderr)
+   run_name='none' if scenario=='no-log' else 'run-1'
+   invoke=case/'invoke';invoke.write_text('exec '+quote(ram/'busybox')+' sh '+quote(ram/'android-profile-fix')+' '+quote(ram)+' '+run_name+'\n')
+   result=run(invoke);successful=scenario in ['success','no-log']
+   assert (result.returncode==0)==successful,(scenario,result.returncode,result.stderr)
    actions=calls(case);mounts_called=[a for a in actions if a[0]=='mount']
-   if scenario=='success':
+   if successful:
     assert len(mounts_called)==6
     assert all(a[-1].endswith('/install-recovery.sh') for a in mounts_called[:2]),mounts_called
     for p in ['/android/vendor/bin/install-recovery.sh',ALIAS+'/vendor/bin/install-recovery.sh']:
@@ -167,13 +174,14 @@ sys.exit(subprocess.call(BACKEND+[name,*args]))
      assert (root/(p+'/init.disabled.rc')[1:]).read_bytes()==(FIXTURES/SOURCES[4][0]).read_bytes()
     for p in ['/android/vendor/etc/init',ALIAS+'/vendor/etc/init']:
      d=root/p[1:];assert (d/'vndservicemanager.rc').read_bytes()==(FIXTURES/SOURCES[3][0]).read_bytes();assert (d/'original.rc').read_bytes()==b'keep original rc\n';assert (d/'original-link').is_symlink()
-    assert 'complete' in (data/'android-profile.log').read_text();assert (data/'android-profile.log').stat().st_size<4096
+    if scenario=='no-log':assert not (data/'android-profile.log').exists()
+    else:assert 'complete' in (data/'android-profile.log').read_text();assert (data/'android-profile.log').stat().st_size<4096
    else:
     state=json.loads((case/'mount-state.json').read_text()) if (case/'mount-state.json').exists() else {'mounts':[]}
     assert not state['mounts'],(scenario,state)
     if not scenario.startswith('bind-') and scenario!='readback-mismatch':assert not mounts_called,scenario
-   observations.append({'android_case':scenario,'success':result.returncode==0,'recovery_mask_first':scenario=='success'})
+   observations.append({'android_case':scenario,'success':result.returncode==0,'recovery_mask_first':successful})
   result={'schema':1,'success':True,'actual_arm64_busybox':True,'busybox_sha256':hashlib.sha256(peers[0]).hexdigest(),'mount_boundaries_mocked':True,'handset_accessed':False,'observations':observations}
-  output=args.repository/'out/boot-profile-tests.json';output.parent.mkdir(exist_ok=True);output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
+  output=args.repository/('out/boot-profile-no-log-tests.json' if args.log_independent_only else 'out/boot-profile-tests.json');output.parent.mkdir(exist_ok=True);output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
 
 if __name__=='__main__':main()
