@@ -1,32 +1,426 @@
 {
-  "schema": 1,
+  "schema": 2,
   "date": "2026-10-15",
-  "reported_at": "2026-10-15T21:50:04+02:00",
-  "experiment": "Ubuntu BOOT 6 first reported Ubuntu Touch splash",
+  "experiment": "Ubuntu BOOT 6 physical readback and graphics-session failure",
   "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
-  "source_of_observation": "User message in the current conversation",
-  "user_report_original": "è apparsa la schermata di boot di ubuntu touch",
-  "reported_observation": "Ubuntu Touch boot screen appeared on the handset.",
-  "prepared_candidate": {
+  "user_observations": [
+    {
+      "reported_at": "2026-10-15T21:50:04+02:00",
+      "text": "è apparsa la schermata di boot di ubuntu touch"
+    },
+    {
+      "reported_at": "2026-10-15T21:57:11+02:00",
+      "text": "ad un certo punto si è spento, nel frattempo che ci lavori su provo a lasciarlo in lavoro",
+      "interpretation": "User-described power-off; later whole-device power loss is not established by the retained two-minute run1 evidence."
+    }
+  ],
+  "inputs": [
+    {
+      "filename": "recovery-check-report-30.zip",
+      "bytes": 1627,
+      "sha256": "6251181775b0f5a91d91a581654683a78b45371fc8e1db7dad6e4dbb3f1a1bcc",
+      "zip_crc_checked": true,
+      "zip_members": 1
+    },
+    {
+      "filename": "recovery-check-report-29.zip",
+      "bytes": 1627,
+      "sha256": "29ddaea70b9079b6a7817e8207aa2575351520a023b9f8952d4b51ac27e76f34",
+      "zip_crc_checked": true,
+      "zip_members": 1
+    },
+    {
+      "filename": "ubuntu-boot-6-log-report.zip",
+      "bytes": 1797567,
+      "sha256": "181c12f9cbafe7af814aea5896a8fe0c30e3f95f137f1a6acb7a41eac271cce7",
+      "zip_crc_checked": true,
+      "zip_members": 83
+    },
+    {
+      "filename": "ubuntu-boot-update-6-apply-state.json",
+      "bytes": 37,
+      "sha256": "4c8e5f1f7032bf5de95aea46fdf10854ca3afa6ffff73bd8a70a6eb3829b2648"
+    },
+    {
+      "filename": "ubuntu-boot-update-6-report.zip",
+      "bytes": 935,
+      "sha256": "0604bff80da09d29b98b33b5e24d103ac6365f4083269e998ee822bf94727cbb",
+      "zip_crc_checked": true,
+      "zip_members": 1
+    }
+  ],
+  "image_identity": {
+    "source": "ubuntu-boot-update-6-report.zip/boot-update-report.json",
+    "schema": 1,
+    "update_version": 8,
     "boot_version": 6,
-    "boot_bytes": 57344000,
-    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
-    "package_sha256": "cfd33e32870cd39eae3d53a69391340635607bd03c64d47cd3afad557dbe53a5",
-    "source_commit": "819f5e0ed39a8dbe6d2dfb802c612749db4fe14a",
-    "identity_status": "Identity of delivered candidate; new handset installation/readback report not yet received."
+    "mode": "Apply",
+    "purpose": "usb_panic_and_ram_device_profiles",
+    "success": true,
+    "error": null,
+    "route": "root_twrp_boot_only",
+    "target_partitions": [
+      "BOOT"
+    ],
+    "target_device": "/dev/block/sda14",
+    "bytes": 57344000,
+    "expected_boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "expected_previous_boot_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b",
+    "local_images_verified": true,
+    "full_stock_backup_verified": true,
+    "staged_boot_verified": true,
+    "prewrite_checks_passed": true,
+    "current_boot_verified_twice": true,
+    "all_10_actions_exit_zero": true,
+    "write_and_readback_verified": true,
+    "staging_cleanup_succeeded": true,
+    "apply_checkpoint": {
+      "source": "ubuntu-boot-update-6-apply-state.json",
+      "content": {
+        "write_started": true,
+        "success": true
+      },
+      "matches_completed_install": true
+    },
+    "system_vendor_write_requested": false,
+    "format_or_repartition_requested": false,
+    "automatic_reboot_requested": false
+  },
+  "collector": {
+    "source": "ubuntu-boot-6-log-report.zip/ubuntu-boot-log-report.json",
+    "schema": 1,
+    "boot_version": 6,
+    "success": true,
+    "error": null,
+    "recovery_confirmed": true,
+    "current_boot_readback_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "current_boot_matches_delivered_candidate": true,
+    "boot_hash_operation_exit_zero": true,
+    "partition_writes_or_mount_changes_requested": false,
+    "any_query_timed_out": false,
+    "recorded_attempts": [
+      {
+        "run": 1,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "userspace-handoff",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      },
+      {
+        "run": 2,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "userspace-handoff",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      },
+      {
+        "run": 3,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "userspace-handoff",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      },
+      {
+        "run": 4,
+        "pid1_marker_found": true,
+        "last_recorded_stage": "userspace-handoff",
+        "kernel_version": "4.14.280-gb9b70b29c94c-dirty"
+      }
+    ],
+    "optional_queries_with_no_saved_result": [
+      "run-1-wait-tasks",
+      "run-1-wait-kernel",
+      "run-2-wait-tasks",
+      "run-2-wait-kernel",
+      "run-3-wait-tasks",
+      "run-3-wait-kernel",
+      "run-4-wait-tasks",
+      "run-4-wait-kernel",
+      "run-4-post-failed-units",
+      "run-4-post-systemd-jobs",
+      "run-4-post-journal",
+      "run-4-android-profile",
+      "run-5-stage",
+      "syslog",
+      "lomiri",
+      "android",
+      "boot"
+    ],
+    "optional_query_limit": "Collector success describes evidence collection and BOOT hash retrieval. Missing optional files do not certify whether a component executed or failed.",
+    "recovery_kernel": "Linux localhost 4.14.113-g55f042627 #1 SMP PREEMPT Sat Feb 4 21:04:26 UTC 2023 aarch64 GNU/Linux",
+    "kernel_identity_limit": "Recovery uname describes active TWRP. The four saved UT_BOOT_6 attempts identify the normal 4.14.280 kernel; current BOOT prefix readback independently matches the compiled BOOT 6 candidate."
+  },
+  "boot_readback_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+  "boot_readback_bytes": 57344000,
+  "boot_readback_matches_delivered_candidate": true,
+  "apply_checkpoint": {
+    "write_started": true,
+    "success": true
+  },
+  "recovery_vbmeta_limit": "Preflight29/30 verified the pinned recovery/VBMETA before BOOT6 was written; no post-runtime hashes of these two partitions are in this set.",
+  "runtime": {
+    "run1": {
+      "profile_hook": "checking,staged,complete; all6 bind/readback operations passed",
+      "mounts": "RAM recovery script source+LXC alias and system/vendor init directory binds are present",
+      "android": "sys.boot_completed=1, hwcomposer2.2 running, servicemanager/hwservicemanager/vndservicemanager and allocator2.0 visible",
+      "graphics": "root LSC and spinner alive; repeated Lomiri gralloc-mapper aborts; nested Mir socket absent",
+      "system_manager": "0 failed units; no pending jobs at snapshot around120s; user-session restarts are not reflected in global failed-unit inventory",
+      "poweroff": "not established by run1 observer; PID1 alive through120s"
+    },
+    "run2": {
+      "profile_hook": "complete log exists; early4.2s mount snapshot precedes post-overlay hook completion",
+      "boot_mode": "androidboot.mode=charger; charger.target requested"
+    },
+    "run3": {
+      "profile_hook": "complete log exists; early4.2s mount snapshot precedes post-overlay hook completion",
+      "boot_mode": "androidboot.mode=charger; charger.target requested"
+    },
+    "run4": {
+      "profile_hook": "no log at early3.13s capture; do not infer failure",
+      "boot_mode": "normal, no androidboot.mode=charger"
+    }
+  },
+  "run1_evidence": {
+    "systemd_alive_at_seconds": 120.1,
+    "timeline_reference": "ubuntu-boot-6-log-report.zip/run-1-post-timeline.txt:182-186",
+    "last_retained_kernel_seconds": 119.924672,
+    "observer_completion": "time-limit",
+    "old_usb_strcmp_panic_seen": false,
+    "autonomous_kernel_panic_seen": false,
+    "scope_of_absence": "Only the retained evidence window, not proof of indefinite stability.",
+    "android_properties_reference": "ubuntu-boot-6-log-report.zip/run-1-post-android-properties.txt",
+    "android_profile_reference": "ubuntu-boot-6-log-report.zip/run-1-android-profile.txt",
+    "panel_powerdown": {
+      "seconds": 85.606686,
+      "reference": "ubuntu-boot-6-log-report.zip/run-1-post-kernel.txt:4826",
+      "scope": "Panel blanking/power-down event; not whole-SoC power-off."
+    }
+  },
+  "graphics_failure": {
+    "message": "gralloc-mapper is missing",
+    "journal_times_seconds": [
+      94.907411,
+      95.670759,
+      96.397123
+    ],
+    "journal_line_references": [
+      2,
+      38,
+      71
+    ],
+    "source": "ubuntu-boot-6-log-report.zip/run-1-post-journal.txt",
+    "lightdm": {
+      "source": "ubuntu-boot-6-log-report.zip/lightdm.txt",
+      "compositor_ready": true,
+      "phablet_authentication_succeeded": true,
+      "first_user_session_exit_code": 1,
+      "first_user_session_exit_seconds_relative_to_lightdm": 7.2,
+      "greeter_stopped_seconds_relative_to_lightdm": 68.28,
+      "compositor_stopped_seconds_relative_to_lightdm": 68.78,
+      "source_lines": [
+        38,
+        43,
+        46,
+        53,
+        71,
+        74,
+        78,
+        88
+      ]
+    },
+    "loaded_libui_sha256": "be8445e98f00e022a3577f9ca769a919f927a4c7973bc4d526024cbdbb3eb59d",
+    "interpretation": "Android GraphicBufferMapper failed to acquire any supported mapper; libui itself loaded. Specific Vendor dlopen/getTransport failure is not in supplied logs.",
+    "exact_vendor_failure_known": false,
+    "unknowns_needed_before_fix": [
+      "Actual Vendor mapper implementation filename, SHA, ELF DT_NEEDED closure",
+      "Vendor VINTF graphics.mapper version and transport declaration",
+      "Preceding HidlServiceManagement/vndksupport dlopen error or Android logcat",
+      "Runtime root LSC versus phablet/lightdm supplementary groups and graphics-related environment",
+      "Generated /android/linkerconfig/ld.config.txt and visibility from host libhybris loader"
+    ],
+    "hypotheses_not_proven": [
+      "Non-root permission to mapper service or implementation/dependencies",
+      "Vendor mapper ABI or dependency loader namespace mismatch",
+      "Process-specific environment selecting a different gralloc path"
+    ]
+  },
+  "retained_hard_reset": {
+    "attempt": 3,
+    "mechanism": "Power and Volume Down remain pressed for six seconds; intended Samsung hard-reset hook calls BUG().",
+    "key_press_seconds": [
+      7.658314,
+      7.662311
+    ],
+    "timer_fires_seconds": 13.662524,
+    "panic_seconds": 13.692424,
+    "soc_reset_seconds": 13.940887,
+    "source": "ubuntu-boot-6-log-report.zip/last-kmsg-head.txt",
+    "source_lines": {
+      "keys_and_timer": [
+        7952,
+        7954
+      ],
+      "gpio_and_bug": [
+        8672,
+        8678
+      ],
+      "panic": [
+        9129,
+        9131
+      ],
+      "reset": [
+        10256,
+        10263
+      ]
+    },
+    "compiled_mapping": "hard_reset_hook_callback+0x184 -> drivers/samsung/sec_hard_reset_hook.c:157",
+    "vmlinux_sha256": "ce86f98c3e8271fbbbb48320d9916f1c9e3c63218e99c0cb85a527652f730adf",
+    "interpretation": "Evidence of a key-triggered reset, not a new spontaneous kernel fault."
+  },
+  "offline_graphics_audit": {
+    "android_identity": {
+      "bytes": 464084992,
+      "sha256": "b424512f8136fe48bed1eb9df617c59f177873e1cd6e9e4747e4f9af132862c5"
+    },
+    "packages": [
+      {
+        "Package": "libhybris",
+        "Version": "0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b",
+        "Architecture": "arm64"
+      },
+      {
+        "Package": "libmir1server53",
+        "Version": "1.8.3-0ubports1+0~20260922183534.3+ubports24.04.2~1.gbp5e637d",
+        "Architecture": "arm64",
+        "Source": "mir1"
+      },
+      {
+        "Package": "lxc-android-config",
+        "Version": "1.1+0~20260912191733.7+ubports24.04.2~1.gbpf8bea3",
+        "Architecture": "all"
+      },
+      {
+        "Package": "qtmir-qt5-mir1",
+        "Version": "0.7.2+0~20260902145802.6+ubports24.04.2~1.gbp418ba7",
+        "Architecture": "arm64",
+        "Source": "qtmir"
+      },
+      {
+        "Package": "ubuntu-touch-session",
+        "Version": "1.1~20260825154551.3~c9cb1a2+ubports24.04.2",
+        "Architecture": "all"
+      }
+    ],
+    "loader_evidence": {
+      "needed": {
+        "boot6-libui.so": [
+          "android.hardware.graphics.allocator@2.0.so",
+          "android.hardware.graphics.allocator@3.0.so",
+          "android.hardware.graphics.allocator@4.0.so",
+          "android.hardware.graphics.common-V2-ndk_platform.so",
+          "android.hardware.graphics.common@1.2.so",
+          "android.hardware.graphics.mapper@2.0.so",
+          "android.hardware.graphics.mapper@2.1.so",
+          "android.hardware.graphics.mapper@3.0.so",
+          "android.hardware.graphics.mapper@4.0.so",
+          "libbase.so",
+          "libcutils.so",
+          "libgralloctypes.so",
+          "libhidlbase.so",
+          "libsync.so",
+          "libutils.so",
+          "liblog.so",
+          "libc++.so",
+          "libc.so",
+          "libm.so",
+          "libdl.so"
+        ],
+        "libhidlbase.so": [
+          "libbase.so",
+          "liblog.so",
+          "libutils.so",
+          "libcutils.so",
+          "libvndksupport.so",
+          "libc++.so",
+          "libc.so",
+          "libm.so",
+          "libdl.so"
+        ],
+        "libui_compat_layer.so": [
+          "libcutils.so",
+          "libutils.so",
+          "libbinder.so",
+          "libhardware.so",
+          "libhidlbase.so",
+          "liblog.so",
+          "libui.so",
+          "libc++.so",
+          "libc.so",
+          "libm.so",
+          "libdl.so"
+        ]
+      },
+      "libhidlbase": {
+        "path": "firmware-inspection/system-handoff-audit/boot6-android-graphics/libhidlbase.so",
+        "bytes": 774776,
+        "sha256": "12deafc5adfe7a38e0f69b1b81defbc218058527ced0591416f4aeadca20d4cc"
+      },
+      "mapper_interfaces_in_system": [
+        "android.hardware.graphics.mapper@2.0.so",
+        "android.hardware.graphics.mapper@2.1.so",
+        "android.hardware.graphics.mapper@3.0.so",
+        "android.hardware.graphics.mapper@4.0.so"
+      ],
+      "system_hw_implementations": [
+        "android.hidl.memory@1.0-impl.so",
+        "audio.hidl_compat.default.so"
+      ],
+      "implementation_location": "Vendor/ODM required; absence from SYSTEM/hw is expected and does not prove a missing Vendor file",
+      "hidlbase_search_paths": [
+        "/vendor/lib64/hw/",
+        "/odm/lib64/hw/",
+        "/system/lib64/hw/"
+      ],
+      "libvndksupport_used": true,
+      "system_vintf": "framework manifest contains no graphics.mapper/allocator declaration; device declaration belongs to Vendor",
+      "linkerconfig": "/android/linkerconfig and LXC alias mounted tmpfs in run1; generated contents not yet collected"
+    },
+    "environment": {
+      "lsc_wrapper": {
+        "path": "firmware-inspection/system-handoff-audit/boot6-session-config/usr--share--ubuntu-touch-session--lsc-wrapper",
+        "bytes": 1369,
+        "sha256": "3a8111c50621452436b08b39528434029eb7887ec7e5778bc53b1df137dc9fb4"
+      },
+      "lsc_only_override": "MIR_ANDROID_FORCE_HWC2=1 from /etc/default/lsc-wrapper.d/10-force-hwc2.conf; session and greeter scripts do not source that directory",
+      "rootfs_etc_environment": "PATH only,106bytes",
+      "group_file": {
+        "path": "firmware-inspection/system-handoff-audit/boot6-session-config/etc--group",
+        "bytes": 1468,
+        "sha256": "be69db14bf54fd29623db5baa2c97abc49a3f6600f5a2dcabaad0a2998c9c32d"
+      },
+      "phablet_android_graphics_gid": 1003,
+      "lightdm_in_android_groups_in_base_rootfs": false,
+      "runtime_groups_and_environment": "not collected; base rootfs group membership does not prove live supplementary groups",
+      "device_rule_source": "adaptation70-exynos7904.rules sets binder/hwbinder/vndbinder,mali0,ion to0666; live device modes not collected"
+    },
+    "libhybris_source": {
+      "commit": "0cedf905768992328552c7d06b0ceb542bf91c67",
+      "files": [
+        {
+          "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--gralloc--gralloc.c",
+          "bytes": 16697,
+          "sha256": "4a6e76c820859579506a1119c5dbb9e8dc8bdc0a675062c05021c39e5a7adde4"
+        },
+        {
+          "path": "firmware-inspection/system-handoff-audit/libhybris-source/hybris--ui--ui.c",
+          "bytes": 3939,
+          "sha256": "4f05ca7574204c0eb0e22b588469d7ad007e279c196b94552ee6d4f2ef60760f"
+        }
+      ],
+      "parent_verified_behavior": "hybris_gralloc_initialize uses libui_compat when graphic_buffer_allocator_allocate is available; a missing libui shim is not the current diagnosis"
+    }
   },
   "new_photo_received": false,
-  "new_runtime_logs_received": false,
-  "new_installation_readback_received": false,
   "graphical_shell_confirmed": false,
   "setup_or_home_screen_confirmed": false,
   "touch_input_confirmed": false,
-  "sustained_boot_without_panic_confirmed": false,
-  "last_physical_readback_evidence": {
-    "boot_version": 5,
-    "boot_sha256": "0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b"
-  },
-  "interpretation": "A new reported visual milestone. A boot splash alone does not establish usable Ubuntu Touch graphics, touch, continued USB stability or absence of later panic.",
-  "next_action": "Allow the current boot up to three minutes. Capture the setup/home screen if reached. If stuck or restarting, return to TWRP and run LEGGI-AVVIO-UBUNTU-6.cmd; retain the installation report. Do not repeat the installation.",
-  "repository_visibility": "Keep private until confirmed usable Ubuntu Touch graphical boot."
+  "next_action": "Read the retained USC/greeter/.xsession-errors graphics logs with a BOOT6-pinned read-only TWRP collector. No new kernel or driver change is justified before the Vendor loader/transport error is identified.",
+  "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot"
 }

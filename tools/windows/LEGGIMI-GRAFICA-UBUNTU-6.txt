@@ -1,0 +1,29 @@
+Samsung Galaxy S10+ - log grafici del test Ubuntu BOOT 6
+
+Il lettore raccoglie i log conservati di LightDM, del compositore, del greeter
+e della sessione phablet. Serve a capire perche dopo la schermata Ubuntu Touch
+non compare la sessione. Non installa un nuovo BOOT.
+
+1. Estrai TUTTO questo ZIP nella cartella originale di installazione Ubuntu,
+   unendo le cartelle scripts e sostituendo solo i file corrispondenti.
+   Servono gli strumenti gia presenti in tools\python e platform-tools.
+2. Lascia il telefono nella schermata principale TWRP con USB collegato.
+   Non modificare Mount, non formattare e non ripetere l installazione.
+3. Avvia LEGGI-GRAFICA-UBUNTU-6.cmd e attendi il rapporto.
+4. Invia ubuntu-graphics-6-report.zip, oppure il nome numerato stampato.
+   Se il controllo si ferma, invia comunque il rapporto. Non cambia il BOOT.
+
+Prima dei log il lettore verifica gli strumenti, TWRP root, modello,
+RECOVERY preparata, BOOT 6 esatto e Data gia accessibile come ext4 raw.
+Non monta partizioni, non modifica file del telefono e non lo riavvia.
+Non esegue i programmi di SYSTEM e non apre i dati delle applicazioni.
+Legge solo gli ultimi 512 KiB per ciascun file grafico in elenco fisso;
+scarta link simbolici, FIFO e percorsi non canonici. Elenca solo metadati
+di LightDM e del journal persistente, al massimo 64 voci a profondita 2.
+Il journal binario non viene copiato. Lomiri attuale usa il journal utente;
+i vecchi log Upstart sono opzionali, come i file .old.
+
+Il rapporto puo contenere nomi e messaggi della sessione grafica; non va
+pubblicato automaticamente. I log possono includere avvii precedenti e la
+loro assenza non prova che un servizio non sia partito. Lettura completata
+significa raccolta conclusa, non avvio grafico riuscito.

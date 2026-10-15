@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "purpose": "Read retained graphics logs after BOOT6 reaches LSC/spinner but Lomiri aborts for gralloc-mapper",
+  "package": {
+    "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-Windows.zip",
+    "bytes": 11555,
+    "sha256": "c1ff649d13a62e4251bb49b621160866f0052ffeab0088a510e484a1177a0795",
+    "zip_crc_paths_manifest_and_exact_sources_verified": true,
+    "members": 5,
+    "manifest_members": 4,
+    "tests": 16,
+    "actual_arm64_shell_test_methods": 8,
+    "native_windows_executed": false,
+    "phone_accessed_in_tests": false
+  },
+  "requires_existing_prepared_windows_folder": true,
+  "writes_phone_partitions": false,
+  "writes_phone_files": false,
+  "mounts_phone_filesystems": false,
+  "reboots_phone": false,
+  "executes_system_programs": false,
+  "executes_recovery_busybox": true,
+  "expected_boot_bytes": 57344000,
+  "expected_boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+  "queries": "Fixed USC/LightDM/greeter logs and .old, phablet .xsession-errors and old, optional legacy Lomiri Upstart logs; bounded metadata for LightDM and persistent journal.",
+  "per_log_tail_limit_bytes": 524288,
+  "inventory_entries_per_directory": 64,
+  "inventory_maxdepth": 2,
+  "journal_binary_copied": false,
+  "guards": [
+    "Pinned local tools and ADB version",
+    "Root prepared TWRP, exact model/device/SoC/bootloader",
+    "Pinned prepared RECOVERY prefix and exact current BOOT6 prefix",
+    "Raw userdata ext4 already mounted at /data",
+    "Canonical directory chain and regular file; symlink/FIFO rejected"
+  ],
+  "test_summary": {
+    "success": true,
+    "tests_run": 16,
+    "failures": 0,
+    "errors": 0,
+    "actual_arm64_busybox_fixtures": true,
+    "native_windows_cmd_or_python_pe_tested": false,
+    "raw_mount_boundary": "fixture only; no handset, mount or writes"
+  },
+  "validation_limits": [
+    "Mount/device responses are simulated in tests; no handset accessed.",
+    "The exact ARM64 BusyBox shell is exercised under QEMU.",
+    "Native Windows CMD and Python PE execution not tested in this run.",
+    "Missing/old retained logs do not establish current service state.",
+    "Collection success does not establish a graphical boot."
+  ],
+  "launcher": "LEGGI-GRAFICA-UBUNTU-6.cmd",
+  "output_report": "ubuntu-graphics-6-report.zip (numbered if necessary)"
+}

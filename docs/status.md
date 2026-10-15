@@ -4,21 +4,15 @@ Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 
 
 ## Current result
 
-**The user reports that the Ubuntu Touch boot screen has appeared during the BOOT 6 test. The usable graphical shell is still unconfirmed.** This is a direct text report; no new photo, runtime logs or installation/readback report has been received. The [BOOT 6 handset record](evidence/ubuntu-boot-6-handset-2026-10-15.json) distinguishes the delivered image identity from the new visual observation. A splash alone does not prove that the previous USB panic is absent for the rest of the boot.
+**BOOT 6 is physically installed and reaches the reported Ubuntu Touch boot screen; the usable graphical session still fails.** The installer writes and verifies 57,344,000 bytes, SHA-256 `2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad`. The apply checkpoint is complete, and the later read-only collector independently reports the same BOOT hash. The [BOOT 6 handset record](evidence/ubuntu-boot-6-handset-2026-10-15.json) retains all five uploaded input identities and the runtime references.
 
-The following BOOT 5 findings remain the latest evidence backed by logs and physical readback.
+In normal run 1, systemd remains alive through **120.10 seconds**; the observer ends at its time limit. Android reports `sys.boot_completed=1`, HWC 2.2 is running and all six post-overlay RAM bindings complete. The root system compositor and spinner execute. The previous USB `strcmp(NULL,...)` panic does not recur within the retained evidence window. This does not establish indefinite stability.
 
-**BOOT 5 starts Ubuntu systemd and the Android hardware container, then reboots on a kernel USB fault. Ubuntu Touch has not reached a confirmed graphical boot.** The exact 57,341,952-byte write/readback matches SHA-256 `0d66508e0ed7a415910bd731ab63fe1ff3308ce3dbbbb08490346a18b728a21b`; the apply checkpoint records `write_started` and `success`. The read-only collector finds two normal-boot attempts with the BOOT 5 kernel `4.14.280-gb9b70b29c94c-dirty`.
+The new blocker is the **Lomiri user session**. It repeatedly aborts with `gralloc-mapper is missing` at 94.907411, 95.670759 and 96.397123 seconds. LightDM authenticates phablet, sees its session exit with code 1, then starts a greeter which also stops. Android's `libui.so` has loaded; the failing Vendor mapper implementation, dependency or transport has not yet been identified. Missing package, permissions and linker/environment explanations remain hypotheses.
 
-The first attempt records systemd 255.4 starting at 3.119406 seconds; its PID 1 executable is confirmed at 4.11 seconds. The second starts systemd at 6.321031 seconds. Android/Halium and the actual vendor HWC 2.2 service execute. VENDOR is mounted read-only from its expected raw partition. The selected cgroup hybrid hierarchy and legacy CPU/cpuset/memory controllers are visible at runtime. These reports do not support the earlier hypothesis of a lost VENDOR partition.
+A panel power-down is recorded at 85.606686 seconds, while PID 1 remains active later. This can account for a black screen; the user's later whole-device power-off is not established by run 1's retained window. The last-kmsg panic belongs to run 3 and follows Power/Volume Down held for six seconds: Samsung's intended hard-reset hook calls `BUG()` before reset. Run 2 and run 3 are charger-mode attempts with early snapshots; run 4 is also captured only very early. These do not justify another kernel patch.
 
-Both attempts then hit the same USB fault: `usb_moded` calls `symlinkat`, reaching Samsung `config_usb_cfg_link()` and `strcmp` with a NULL configuration string. Panics occur at 12.324995 and 15.783443 seconds, before graphical startup. The exact BOOT 5 ELF maps LR `config_usb_cfg_link+0x174` to `drivers/usb/gadget/configfs.c:579`; the string can legitimately remain NULL after creation of a configfs language directory and before its configuration attribute is written. The kernel's own attribute read path already accounts for this state.
-
-The new observer captures systemd, its jobs/journal and Android properties; its trace survives the old Halium redirection. No retained old-root FDs or causal observer fault is shown. A minor multi-argument BusyBox `readlink` usage error affects part of the descriptor report; the later directory listing still supplies the descriptor evidence.
-
-Separately, upstream overlay application skips missing destinations for the device YAML, force-HWC2 setting and LightDM wait file, plus nested Android RC adjustments. Vendor reports `beyond2`, which needs an alias in the canonical `beyond2lte` profile. Runtime tasks also show Samsung `install-recovery.sh`/`applypatch`; the pre-boot recovery checks do not establish the recovery hash after that attempt. The handset returned to TWRP, but a post-runtime prefix readback is still a separate check. The next BOOT package's existing recovery preflight performs it before writing.
-
-The [BOOT 5 handset record](evidence/ubuntu-boot-5-handset-2026-10-15.json) retains the upload hashes, line references and validation limits. BOOT 4's [earlier handoff result](evidence/ubuntu-boot-4-handset-2026-10-15.json) and the immutable [BOOT 5 build record](evidence/ubuntu-boot-5-build-2026-10-15.json) remain historical evidence. Latest image confirmed by physical readback: **BOOT 5**. The new BOOT 6 visual report has not yet been matched to a new readback report. Repository publication remains gated on a confirmed graphical boot.
+Preflight 29/30 verify RECOVERY/VBMETA before writing BOOT 6, not after the subsequent runtime. The runtime RAM recovery mask completes, but post-runtime recovery/VBMETA hashes remain separate evidence. BOOT 6 is now the latest BOOT confirmed by physical readback. A setup/home screen and touch operation are unconfirmed; the repository remains private.
 
 ## What has been verified
 
@@ -31,12 +25,12 @@ The [BOOT 5 handset record](evidence/ubuntu-boot-5-handset-2026-10-15.json) reta
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
 | Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | That built-in diagnostic image was verified on the handset before BOOT 3. |
-| Ubuntu BOOT 5 installed image | Exact 57,341,952-byte write/readback and successful apply checkpoint | Latest BOOT identity backed by physical readback evidence. |
-| BOOT 6 visual milestone | User reports that the Ubuntu Touch boot screen appeared; no photo/logs yet | Splash reported; usable shell and exact BOOT 6 handset readback remain unconfirmed. |
-| Ubuntu userspace and Android container | BOOT 5 PID 1 executable, journal/jobs, Android init and HWC 2.2 properties | Actual userspace execution confirmed; graphical shell is not confirmed. |
+| Ubuntu BOOT 6 installed image | Exact 57,344,000-byte write/readback, complete checkpoint and matching later collector hash | Latest BOOT identity is confirmed. |
+| BOOT 6 graphics | Reported Ubuntu splash; system compositor/spinner running; Lomiri mapper aborts | Usable shell and touch remain unconfirmed. |
+| Ubuntu userspace and Android container | BOOT 6 systemd alive through 120.10 s, Android boot complete, HWC 2.2 running | Actual userspace and RAM-profile execution confirmed. |
 | Normal kernel and diagnostic PID 1 | Versioned init/kernel markers with the matching compiled kernel | The forced built-in-initramfs route executes on this phone. |
 | Runtime storage probes | Data mounted; SYSTEM Android image and VENDOR directories readable | No missing SYSTEM/VENDOR filesystem was demonstrated; this is not a full content comparison. |
-| Runtime USB | PID 1 configfs success and kernel `USB_STATE=CONFIGURED` | USB gadget configuration works under the normal kernel; no shell was provided. |
+| Diagnostic 2 runtime USB | PID 1 configfs success and kernel `USB_STATE=CONFIGURED` | USB gadget configuration works under the normal kernel; no shell was provided. |
 | Vendor filesystem | Read-only filesystem check completed cleanly | No filesystem corruption was demonstrated; a full stock-content comparison was not performed. |
 
 See the [evidence index](evidence/README.md) for the reports supporting these statements.
@@ -58,15 +52,13 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Continue observing the current **BOOT 6** test; the user has now reported its Ubuntu Touch boot screen. Do not repeat installation. Allow up to three minutes for this boot. Capture the setup/home screen if it appears; if the phone stays on the splash or reboots, return to TWRP and run `LEGGI-AVVIO-UBUNTU-6.cmd`, retaining its ZIP and the installation report.
+Use `LEGGI-GRAFICA-UBUNTU-6.cmd` from the prepared graphics-collector ZIP after returning to the main TWRP screen. Keep the installed BOOT 6. The reader checks pinned tools, prepared recovery, exact BOOT 6 and already-mounted raw userdata before reading the fixed USC, greeter, LightDM and phablet session log paths. It writes only its report on the PC: no phone file, partition, mount or reboot change is requested.
 
-The prepared candidate has the following scope. Its kernel contains the USB configuration-string NULL guard. It preserves the working cgroup selection and original Ubuntu wrapper, supplies the small device/HWC destination directories in RAM, retains their existing files and adds the `beyond2` alias. After upstream overlay mounting and before its requiring Android container, its hook applies the pinned Android RC files and masks Samsung's recovery-restoration script in RAM. Preparation failure stops before the container can execute.
+The required next evidence is the loader/transport error preceding `gralloc-mapper is missing`, plus session/compositor context. The reader limits each log tail to 512 KiB, rejects symlinks/FIFOs and noncanonical parents, and lists only bounded persistent-journal metadata. It does not copy journal binaries or inspect application data. Missing logs or old retained logs must not be mistaken for current execution results.
 
-The current image accepted by the installer is exact BOOT 5 (`0d66508e...`, 57,341,952 bytes). The included rollback remains exact BOOT 4 (`f9264d38...`, 57,337,856 bytes), rather than the BOOT 5 image that now loops. Both roles are checked separately in the package and apply/restore fixtures. No SYSTEM/VENDOR write, partition change or Format Data is requested.
+The [graphics collector record](evidence/ubuntu-graphics-collector-2026-10-15.json) records its exact package and 16 passing tests, including eight methods using the exact ARM64 BusyBox under QEMU. Device/mount boundaries are simulated; native Windows CMD/PE execution is not claimed. If the current handset attempt reaches setup/home, capture that screen and test touch instead of interrupting a successful first boot.
 
-The USB helper regression cases pass on host and ARM64: the original code reaches `strcmp(NULL,...)`; the corrected helper handles eight list/string cases while preserving every non-NULL decision. All 33 ARM64 RAM-profile integration/rollback fixtures pass, including successful preparation after the five optional log slots are exhausted. The actual compiled kernel disassembly confirms that NULL skips `strcmp`. BOOT 6 is 57,344,000 bytes, SHA-256 `2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad`, with 327,680 bytes of partition margin. Image/archive checks, 8 observer cases, 26 HWC cases and the collector checks pass.
-
-The Windows ZIP passes exact-member/manifest verification and 25 portable PowerShell 7/Linux control-flow cases. That run simulates USB/raw writes and does not establish native Windows 5.1/CMD/PE execution or FileShare denial. Hosted run 38793867953 received no runner and executed no steps; its cause is unconfirmed. The [BOOT 6 build record](evidence/ubuntu-boot-6-build-2026-10-15.json) retains the exact image/package/source/toolchain identities, compiled fix and validation limits. The handset has now reportedly reached the Ubuntu Touch boot screen during this test; the next action is to observe completion and capture the screen/report. New installation/readback and runtime evidence are pending. A usable graphical boot is not claimed.
+Keep [BOOT 6's build record](evidence/ubuntu-boot-6-build-2026-10-15.json) and its source/image checks unchanged. No new kernel or Vendor replacement is justified by the current reports. Publication still requires a confirmed usable Ubuntu Touch graphical boot.
 
 ## Milestones after a first boot
 
@@ -75,7 +67,7 @@ The Windows ZIP passes exact-member/manifest verification and 25 portable PowerS
 | Confirm normal kernel and diagnostic PID 1 execution | Confirmed by diagnostic 2 on 15 October |
 | Run the original Ubuntu ramdisk init and mount the intended SYSTEM | Confirmed by BOOT 3 and BOOT 4 on 15 October |
 | Complete original initramfs cleanup and hand off to systemd | Confirmed by BOOT 5 on 15 October |
-| Start Ubuntu userspace and the Halium Android container | Confirmed by BOOT 5 on 15 October; interrupted by USB kernel panic |
+| Start Ubuntu userspace and the Halium Android container | Confirmed by BOOT 6; current blocker is the Lomiri mapper/session failure |
 | Reach the graphical shell with working display and touch | Pending |
 | Validate charging, suspend, Wi-Fi, Bluetooth, modem/calls/SMS, audio, camera and sensors | Untested |
 | Define repeatable installation, updates and recovery for other users | Pending |

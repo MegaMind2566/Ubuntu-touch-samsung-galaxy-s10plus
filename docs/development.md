@@ -111,3 +111,15 @@ The source gate exercises the exact ARM64 BusyBox under QEMU, including trace tr
 The generated Windows suite has 25 apply/restore cases, including rejecting BOOT 4 as an apply baseline, requiring BOOT 5, preserving earlier checkpoints and restoring BOOT 4 only from BOOT 6. Native PowerShell 5.1/CMD and portable PowerShell 7/Linux checks must be recorded separately; the portable run cannot establish CMD/PE startup or Windows file-sharing denial. Shared installer/verifier templates remain unchanged. The BOOT 5 [build record](evidence/ubuntu-boot-5-build-2026-10-15.json) documents the previous local build and the hosted run that received no runner; its cause is unconfirmed.
 
 Firmware validation preserves tested gzip bytes without host recompression. Superseded BOOT 3/4/5 standalone tools are archived with original Git blob identities; shared inputs remain active. The [BOOT 6 build/package record](evidence/ubuntu-boot-6-build-2026-10-15.json) records the completed local build, actual compiled NULL branch, 33 RAM-profile cases, 26 HWC cases and 25 portable PowerShell control-flow cases. The optional five-slot logging limit does not prevent RAM preparation or a later boot. Exact image/member/manifest checks pass; native Windows CI received no runner and executed no steps. A normal boot with working graphics remains the handset acceptance test.
+
+
+## Retained graphics logs after BOOT 6
+
+The physical BOOT 6 record confirms its exact readback and two-minute normal run, followed by repeated Lomiri mapper aborts. `collect-ubuntu-graphics.py` uses the existing pinned portable tools and prepared TWRP; it validates recovery/BOOT identity and raw userdata before fixed, bounded log reads. It does not execute SYSTEM programs, mount filesystems or change phone files. It uses recovery BusyBox for metadata, canonical-path checks and log tails.
+
+```sh
+python3 tests/test_ubuntu_graphics.py --qemu /path/to/qemu-aarch64-static --cpio /path/to/initramfs.cpio
+python3 scripts/package-ubuntu-graphics.py
+```
+
+The package merges into the existing Windows installation folder. Its native launcher must be reviewed separately from the Python and ARM64 shell fixtures; this run does not claim native Windows execution. Preserve the existing BOOT 6 collector and shared helpers while these packages depend on them.

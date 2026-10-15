@@ -8,6 +8,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | --- | --- |
 | `INSTALLA-AVVIO-UBUNTU-6.cmd` | Installs BOOT 6 USB and RAM-profile corrections only from exact physical BOOT 5; writes only BOOT. |
 | `LEGGI-AVVIO-UBUNTU-6.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-6-log-report.zip`. |
+| `LEGGI-GRAFICA-UBUNTU-6.cmd` | Reads only fixed retained graphics/session log tails after pinning TWRP, RECOVERY, BOOT 6 and userdata; produces `ubuntu-graphics-6-report.zip`. |
 | `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 6. |
 | `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
 | `INSTALLA-TEST-AVVIO-2.cmd` | Installs the built-in-initramfs diagnostic from the exact verified diagnostic 1 BOOT; targets only BOOT. |
@@ -17,6 +18,8 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | `RIPRISTINA-BOOT-2.cmd` | Restores verified BOOT 2 from the diagnostic state. BOOT 2 is an experimental image, not a confirmed working Ubuntu boot. |
 
 BOOT 5 confirms systemd and Android/HWC execution but reboots on a USB configfs NULL dereference. BOOT 6 corrects that driver and applies the missing profiles in RAM. Its installer distinguishes the current BOOT 5 apply baseline from the BOOT 4 rollback image. Completed BOOT 3/4/5 standalone inputs are archived with provenance; do not repeat their completed installations.
+
+BOOT 6 is now installed with matching later readback. Its current blocker is the Lomiri mapper/session failure; use the graphics reader for the next evidence and retain BOOT 6.
 
 ## Maintained support
 

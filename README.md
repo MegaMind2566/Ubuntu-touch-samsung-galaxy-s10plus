@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: the user reports that the Ubuntu Touch boot screen has appeared during the BOOT 6 test. A usable graphical shell is not yet confirmed.** No new photo, runtime logs or BOOT 6 installation/readback report has been received. The latest log-backed result remains BOOT 5: systemd and Android/HWC execute, then a USB configfs NULL fault causes a reboot. BOOT 6 contains the compiled USB fix and RAM device profiles.
+**Current stage: BOOT 6 reaches the Ubuntu Touch boot screen, but the Lomiri graphical session aborts.** The installed image matches exact physical readback. Its first normal run keeps systemd alive beyond two minutes with Android, HWC 2.2 and the system compositor running. Lomiri repeatedly reports `gralloc-mapper is missing`; the specific Vendor loading failure is still being identified.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -36,8 +36,8 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
 | Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
 | BOOT 5 compatibility image and prepared test package | Applied and read back; subsequent USB panic identified |
-| BOOT 6 USB correction and RAM profiles | Offline validation passed; Ubuntu Touch boot screen reported by the user |
-| Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 5 runtime logs |
+| BOOT 6 USB correction and RAM profiles | Exact write/readback; RAM bindings and Android/HWC confirmed; no old USB panic in the retained two-minute run |
+| Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 6 runtime logs |
 | Reach the graphical shell | Unconfirmed |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -45,7 +45,9 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 ## Current boot investigation
 
-The latest [BOOT 6 handset update](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) records the user's report that the Ubuntu Touch boot screen appeared. This is a splash-screen milestone; setup/home, touch operation, sustained stability and the exact new handset image readback remain unconfirmed.
+The latest [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) confirms the exact installation and a matching later BOOT readback. The RAM profile hook completes, Android reports boot complete and HWC 2.2 runs. The root compositor/spinner starts; Lomiri then repeatedly aborts with `gralloc-mapper is missing`. The first run remains alive through 120.10 seconds. A panel power-down is logged; a later whole-device power-off is not established within that window.
+
+The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The next step is the [read-only graphics collector](docs/evidence/ubuntu-graphics-collector-2026-10-15.json), to retrieve USC/greeter/session stderr and identify the Vendor mapper loading error. No new BOOT, driver replacement or Format Data is requested.
 
 The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
 
