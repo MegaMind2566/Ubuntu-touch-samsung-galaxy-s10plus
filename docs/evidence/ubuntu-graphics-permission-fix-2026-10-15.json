@@ -3,9 +3,9 @@
   "date": "2026-10-15",
   "experiment": "graphics-permission-correction-1",
   "purpose": "Restore the two demonstrated missing graphics access modes before LightDM on the existing BOOT 6.",
-  "physical_correction_result_pending": true,
-  "graphical_boot_confirmed": false,
-  "repository_visibility": "private_pending_confirmed_graphical_boot",
+  "physical_correction_result_pending": false,
+  "graphical_boot_confirmed": true,
+  "repository_visibility": "private_publication_criterion_met_authorized_change_pending",
   "baseline": {
     "device": "Samsung Galaxy S10+ SM-G975F/DS beyond2lte Exynos9820",
     "firmware": "G975FXXSGHWC1",
@@ -54,7 +54,8 @@
     "decisive_failure": "Nonroot hwbinder R_OK|W_OK access returns EACCES; defaultServiceManager is null; no mapper supported and SIGABRT. Root loads mapper2.0-impl/gralloc.exynos9820 and opens ion.",
     "underlying_overlay_warning": "BOOT 5 at 4.015338: //usr/lib/udev/rules.d/70-exynos7904.rules does not exist; overlay cannot be applied.",
     "inference": "Missing destination prevents the adaptation access rules being installed; actual node modes and root/nonroot comparison support the targeted correction.",
-    "limits": "Original source rules request ion system ownership; this correction retains observed root ownership and restores access mode only. Full GUI execution may reveal later blockers."
+    "limits": "Original source rules request ion system ownership; this correction retains observed root ownership and restores access mode only. These causal logs predate the later user-confirmed graphical boot.",
+    "phase": "historical_pre_correction_probe"
   },
   "correction": {
     "persistent_data_base": "/data/ubuntu-touch-graphics-permissions-1",
@@ -202,7 +203,7 @@
     "TWRP shell uses real ARM64 binary/linker/libraries but controlled mounts and metadata; negative-owner case substitutes stat UID fields.",
     "Host systemd verification uses stub LightDM/LXC dependencies.",
     "Native Windows CMD and Python PE not executed here.",
-    "Correction has not run on the handset; usable GUI and touch remain unconfirmed."
+    "The user now confirms graphical boot, basic touch and Wi-Fi; no post-correction application/runtime report or fresh image readback accompanies that confirmation."
   ],
   "package": {
     "success": true,
@@ -236,5 +237,27 @@
     "Only after success select TWRP Reboot > System and decline its app installation.",
     "Wait four minutes and check for the Ubuntu initial screen and touch. Keep the correction installed.",
     "Return to TWRP and run LEGGI-CORREZIONE-GRAFICA-1.cmd for result/session logs before any undo."
-  ]
+  ],
+  "graphical_boot_confirmation_basis": "user_report_after_correction; no post-correction machine report received",
+  "handset_result": {
+    "record": "ubuntu-first-graphical-boot-2026-10-15.json",
+    "first_boot_confirmation_at": "2026-10-15T23:23:02+02:00",
+    "first_boot_confirmation_utc": "2026-10-15T21:23:02Z",
+    "evidence_basis": "User confirmation in this session after delivery of graphics permission correction 1.",
+    "user_messages": [
+      "ora si è avviato",
+      "touch e wifi funzionano"
+    ],
+    "working_graphical_boot_user_confirmed": true,
+    "touch_basic_user_confirmed": true,
+    "wifi_basic_user_confirmed": true,
+    "setup_or_home_screen": "unspecified",
+    "new_photo_received": false,
+    "new_correction_runtime_report_received": false,
+    "new_image_readback_after_success": false,
+    "identity_limit": "Outcome is associated with the previously pinned BOOT6/SYSTEM baseline and correction through session history; no fresh physical image or runtime-mode readback accompanies the success report.",
+    "touch_wifi_confirmation_at": "2026-10-15T23:23:55+02:00",
+    "touch_wifi_confirmation_utc": "2026-10-15T21:23:55Z",
+    "reported_timezone": "Europe/Rome"
+  }
 }

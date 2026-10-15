@@ -1,61 +1,56 @@
 # Ubuntu Touch for Samsung Galaxy S10+
 
-An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
+An experimental **Ubuntu Touch 24.04 / Halium 12** port for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The project has reached its first user-confirmed graphical boot. The goal now is to stabilize that boot, validate the remaining hardware and establish a repeatable installation path.
 
-**Current stage: BOOT 6 reaches the Ubuntu Touch boot screen, but the Lomiri graphical session aborts.** The installed image matches exact physical readback. Its first normal run keeps systemd alive beyond two minutes with Android, HWC 2.2 and the system compositor running. The failing mapper path is now identified: root can load it, while phablet/lightdm are denied access to hwbinder because its mode is 0600. A targeted permission correction is ready for validation.
+**Current result: Ubuntu Touch boots, and the test user reports working touch and Wi-Fi.** This follows graphics permission correction 1 on the existing BOOT 6. The [first graphical boot record](docs/evidence/ubuntu-first-graphical-boot-2026-10-15.json) documents the user confirmation that meets the publication milestone. A screenshot and a fresh correction/runtime log report are still pending; the earlier readback and runtime evidence described below predates this successful session.
 
-Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
+Status updated **15 October 2026**. This is a development port. Daily-use reliability, complete hardware support and an update channel remain unvalidated.
 
-Publication is planned after the first confirmed Ubuntu Touch graphical boot on the test handset. The published status will identify the tested images and list hardware features that remain untested.
-
-## Scope
+## Tested baseline
 
 | Item | Target |
 | --- | --- |
 | Phone | Galaxy S10+ Exynos, SM-G975F/DS |
 | Codename / SoC | `beyond2lte` / Exynos 9820 |
-| Test firmware | G975FXXSGHWC1, Android 12 / One UI 4.1, ITV/OXM |
-| Adaptation | Community Samsung Halium 12 sources with local kernel/configuration fixes |
+| Firmware | G975FXXSGHWC1, Android 12 / One UI 4.1, ITV/OXM |
 | Ubuntu userspace | Ubuntu Touch 24.04 arm64 |
+| Current configuration | BOOT 6 with graphics permission correction 1 on userdata |
+| Adaptation | Community Samsung Halium 12 sources with local kernel and configuration fixes |
 | Storage | Measured A-only Samsung partition layout; SYSTEM and BOOT installation |
 
-Snapdragon variants and other Galaxy S10 models are outside the tested scope.
+Snapdragon variants and other Galaxy S10 models are outside the tested scope. The [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) identifies the earlier measured image readback.
 
-## Progress
+## Hardware status
 
-| Milestone | Result |
+| Function | Current evidence |
 | --- | --- |
-| Identify the handset, firmware and actual partition layout | Confirmed on the test handset |
-| Build and inspect the Halium adaptation and Ubuntu SYSTEM | Completed offline and in CI |
-| Prepare and boot TWRP; verify recovery/VBMETA and root ADB | Confirmed on the test handset |
-| Install SYSTEM/BOOT and verify the written image prefixes | Confirmed on the test handset |
-| Correct the SAR ramdisk offset and late `/init` handoff | Implemented and tested; compiled handoff fix verified |
-| Diagnostic 2 kernel and PID 1 | Confirmed on the phone with the exact BOOT hash |
-| Read Data, SYSTEM and VENDOR under the normal kernel | Confirmed by diagnostic 2 |
-| Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
-| Original Ubuntu init, intended SYSTEM and embedded Android mounts | Confirmed by BOOT 3 and BOOT 4 on the handset |
-| Original initramfs cleanup and final userspace-handoff checkpoint | Confirmed by BOOT 4; systemd execution unconfirmed |
-| BOOT 5 compatibility image and prepared test package | Applied and read back; subsequent USB panic identified |
-| BOOT 6 USB correction and RAM profiles | Exact write/readback; RAM bindings and Android/HWC confirmed; no old USB panic in the retained two-minute run |
-| Ubuntu systemd, Android container and HWC 2.2 | Confirmed by BOOT 6 runtime logs |
-| Reach the graphical shell | Unconfirmed |
-| Validate modem, networking, audio, camera, sensors and suspend | Untested |
+| Graphical Ubuntu Touch session | Started, confirmed by the test user after correction 1 |
+| Touchscreen | Working, confirmed by the test user in that session |
+| Wi-Fi | Working, confirmed by the test user in that session |
+| Repeated reboot, long-running stability and thermals | Pending validation |
+| Charging, battery reporting and suspend/resume | Pending validation |
+| Modem, calls, SMS and mobile data | Untested |
+| Audio and microphone | Untested |
+| Camera | Untested |
+| Bluetooth, GPS and sensors | Untested |
 
-The detailed [current status](docs/status.md) distinguishes source checks, host tests, physical readback and actual runtime observations. Its conclusions link to the [evidence index](docs/evidence/README.md).
+Previous normal-boot logs independently establish Ubuntu systemd execution, Android boot completion, HWC 2.2 and the Mali/OpenGL display path.
 
-## Current boot investigation
+## Boot fixes and evidence
 
-The latest [BOOT 6 handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) confirms the exact installation and a matching later BOOT readback. The RAM profile hook completes, Android reports boot complete and HWC 2.2 runs. The root compositor/spinner starts; Lomiri then repeatedly aborts with `gralloc-mapper is missing`. The first run remains alive through 120.10 seconds. A panel power-down is logged; a later whole-device power-off is not established within that window.
+BOOT 6 combines corrections to the Samsung system-as-root init handoff, a USB configfs NULL guard and guarded RAM device/Android profiles. It preserves the verified image layout and reaches Ubuntu userspace without rewriting SYSTEM or VENDOR for those profile changes. The [BOOT 6 build record](docs/evidence/ubuntu-boot-6-build-2026-10-15.json) and [handset record](docs/evidence/ubuntu-boot-6-handset-2026-10-15.json) separate source tests, compiled checks, physical readback and runtime execution.
 
-The only retained panic is a six-second Power/Volume Down reset hook in a different attempt. It does not establish a new spontaneous kernel fault. The complete graphics collection confirms that the root compositor initializes Mali-G76 / OpenGL ES 3.2 and the 1440x3040 display. The [runtime graphics comparison](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) now reproduces the cause: root loads Mapper 2.0 successfully, while phablet and lightdm receive `EACCES` on `/dev/hwbinder` (root:root, mode 0600) and abort. `/dev/ion` is also restricted and is opened by the working root mapper.
+The remaining graphical failure was an access problem: root loaded Mapper 2.0, while phablet and lightdm received `EACCES` on `/dev/hwbinder`, which was root-owned with mode 0600. `/dev/ion` was also restricted. The [runtime comparison](docs/evidence/ubuntu-graphics-runtime-probe-2026-10-15.json) records that diagnosis. [Graphics permission correction 1](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) supplies the intended access for those two devices through dedicated udev/systemd configuration on userdata, before LightDM starts. The user reports the successful graphical boot after that correction.
 
-The intended udev overlay was skipped because its destination file did not exist. The next test is a [targeted correction](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) restoring the intended access modes for hwbinder/ion before LightDM, using userdata configuration on the existing BOOT 6. Driver replacement or a new firmware flash is not indicated. A usable shell and touch are still unconfirmed.
+The [current status](docs/status.md) and [evidence index](docs/evidence/README.md) retain the detailed findings and validation limits.
 
-The [BOOT 5 handset record](docs/evidence/ubuntu-boot-5-handset-2026-10-15.json) confirms its exact write/readback and two actual Ubuntu systemd starts. The Android container mounts VENDOR read-only and reports the HWC 2.2 service running. Both attempts then panic while `usb_moded` creates a configfs link: Samsung's `is_symboliclink_change_mode()` passes a configuration string to `strcmp` before that string has been assigned. The precise fault was mapped to the compiled BOOT 5 ELF and pinned kernel source.
+## Next work
 
-A separate integration defect prevents the device YAML, HWC2 setting and LightDM wait configuration from being applied: the overlay destination files are missing. The nested Android RC adjustments are also skipped. A stock `install-recovery.sh` attempt is present in the runtime tasks; BOOT 6 includes a RAM mask for that script before starting the Android container. The revised evidence also includes a matching prepared recovery readback after runtime; no post-runtime VBMETA hash is available.
+1. Record the successful session with a screenshot, fresh correction logs and the tested image/configuration identities.
+2. Check repeat boots, display/touch/Wi-Fi stability, charging, suspend/resume and thermals.
+3. Bring up the remaining hardware and define a repeatable installation, recovery and update process for other users.
 
-BOOT 6 retains the working handoff/cgroup selection and adds the minimal USB NULL guard plus bounded RAM profile bindings. Its installer requires the exact physical BOOT 5 as the current image while retaining BOOT 4 as rollback. No new SYSTEM/VENDOR flash or Format Data is requested. The [BOOT 6 build record](docs/evidence/ubuntu-boot-6-build-2026-10-15.json) records the compiled USB NULL branch, 33 ARM64 RAM-profile cases and 25 portable PowerShell control-flow cases. Native Windows CI received no runner; a graphical boot is not claimed. See [current status](docs/status.md#next-experiment) for the next test and [evidence](docs/evidence/README.md) for earlier build and handset records.
+Keep the graphics correction installed on the working test handset. The current Windows packages are guarded development tools for their documented image states; a clean-install procedure for other users is still being validated.
 
 ## Repository map
 
@@ -89,7 +84,7 @@ The new offline analysis tools complement binary inspection:
 - [DTC / libfdt](https://github.com/dgibson/dtc) decodes and composes DTB/DTBO device trees.
 - The reviewed Exynos 9820 QEMU fork has incomplete peripheral/UFS support and is not used as a full handset boot simulator.
 
-Contributions should state which validation level supports a result and include image identities for hardware observations. The immediate objective is a confirmed first boot; hardware support and an update channel are later milestones.
+Contributions should state which validation level supports a result and include image identities for hardware observations. The next objectives are stable reboot/display behavior, validation of the remaining hardware and a repeatable installation path. An update channel has not yet been established.
 
 ## Upstream and attribution
 

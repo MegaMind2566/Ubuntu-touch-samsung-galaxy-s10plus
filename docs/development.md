@@ -2,12 +2,14 @@
 
 This project builds an experimental Ubuntu Touch adaptation for `beyond2lte`. Local scripts and CI build artifacts; they do not automatically flash a handset.
 
+The test user now confirms a graphical Ubuntu Touch boot with working touch and Wi-Fi after graphics permission correction 1 on BOOT 6. A screenshot and fresh correction/runtime report remain pending. Development has moved from first boot to stability, remaining-hardware validation and a repeatable installation path; the older diagnostic procedures below remain state-specific references.
+
 ## Source and binary inputs
 
 - [Source pins](../config/upstream.lock.json): Samsung Halium 12 adaptation, matching kernel and generic adaptation build tools.
 - [Kernel configuration](../config/ubuntu-touch.config) and [kernel patches](../patches/kernel): AppArmor support, two SAR ramdisk fixes and the Samsung USB configuration string guard.
 - [SYSTEM assembly inputs](evidence/assembly-inputs-2026-10-12.json): Ubuntu Touch 24.04 arm64 rootfs build 125 and Halium 12 GSI build 1310, with recorded digests.
-- [Installation image pins](../config/install-images.lock.json): the original BOOT/SYSTEM candidate, used by the preparation and verification code. They are not the identity of the currently installed diagnostic BOOT.
+- [Installation image pins](../config/install-images.lock.json): the original BOOT/SYSTEM candidate, used by the preparation and verification code. The current test configuration is BOOT 6 plus graphics permission correction 1; its earlier measured image identities are recorded in the dated evidence.
 
 The source commits and major image hashes are pinned. Some upstream build-tool and prebuilt dependencies still need a complete lock before the entire build can be called reproducible. Successful builds do not establish a supported Ubuntu Touch update channel.
 
@@ -24,7 +26,7 @@ bash scripts/build-adaptation.sh
 
 The [SYSTEM assembly workflow](../.github/workflows/assemble-system.yml) combines the pinned rootfs, Halium GSI and adaptation into the measured filesystem layout. Use its input records when reproducing the candidate instead of replacing binary URLs with the latest available download.
 
-## Current diagnostic
+## Retained early-boot diagnostic
 
 [early-boot-diagnostic.yml](../.github/workflows/early-boot-diagnostic.yml) builds diagnostic 2 after the first test produced no saved PID 1 evidence. It embeds a minimal raw CPIO derived from the pinned diagnostic 1 BusyBox/display payloads. A separate [configuration fragment](../config/early-boot-diagnostic.config) enables the built-in initramfs, and a [diagnostic-only patch](../patches/diagnostic/0001-honor-force-for-builtin-initramfs.patch) makes `CONFIG_INITRAMFS_FORCE` take precedence over `skip_initramfs`.
 
@@ -88,7 +90,7 @@ Do not copy firmware images, portable runtimes, build output or extracted kernel
 
 For each hardware experiment, add its compact dated evidence and update [Project status](status.md) with the result and next action. Keep the README focused on the project goal and verified progress. Archive superseded standalone tools only after checking their active imports, packaging paths and workflows; update the archive manifest and replacement links together. Shared components stay in the maintained paths while active packages depend on them.
 
-The [publication criterion](status.md#publication-criterion) is a confirmed Ubuntu Touch graphical boot on the test handset. Record that runtime result before changing repository visibility.
+The [publication criterion](status.md#publication-criterion) is a confirmed Ubuntu Touch graphical boot on the test handset. The user's boot, touch and Wi-Fi reports meet that first-boot milestone. Record the report separately from earlier runtime/image measurements and add the screenshot and fresh correction logs when available. Repository visibility must be verified independently; documentation of the milestone does not establish that publication has occurred.
 
 ## Ubuntu BOOT 6 through the observed built-in path
 
@@ -110,7 +112,7 @@ The source gate exercises the exact ARM64 BusyBox under QEMU, including trace tr
 
 The generated Windows suite has 25 apply/restore cases, including rejecting BOOT 4 as an apply baseline, requiring BOOT 5, preserving earlier checkpoints and restoring BOOT 4 only from BOOT 6. Native PowerShell 5.1/CMD and portable PowerShell 7/Linux checks must be recorded separately; the portable run cannot establish CMD/PE startup or Windows file-sharing denial. Shared installer/verifier templates remain unchanged. The BOOT 5 [build record](evidence/ubuntu-boot-5-build-2026-10-15.json) documents the previous local build and the hosted run that received no runner; its cause is unconfirmed.
 
-Firmware validation preserves tested gzip bytes without host recompression. Superseded BOOT 3/4/5 standalone tools are archived with original Git blob identities; shared inputs remain active. The [BOOT 6 build/package record](evidence/ubuntu-boot-6-build-2026-10-15.json) records the completed local build, actual compiled NULL branch, 33 RAM-profile cases, 26 HWC cases and 25 portable PowerShell control-flow cases. The optional five-slot logging limit does not prevent RAM preparation or a later boot. Exact image/member/manifest checks pass; native Windows CI received no runner and executed no steps. A normal boot with working graphics remains the handset acceptance test.
+Firmware validation preserves tested gzip bytes without host recompression. Superseded BOOT 3/4/5 standalone tools are archived with original Git blob identities; shared inputs remain active. The [BOOT 6 build/package record](evidence/ubuntu-boot-6-build-2026-10-15.json) records the completed local build, actual compiled NULL branch, 33 RAM-profile cases, 26 HWC cases and 25 portable PowerShell control-flow cases. The optional five-slot logging limit does not prevent RAM preparation or a later boot. Exact image/member/manifest checks pass; native Windows CI received no runner and executed no steps. Working graphics are now user-confirmed after the separate permission correction; this build record predates that report.
 
 
 ## Retained graphics logs after BOOT 6
@@ -141,13 +143,13 @@ The unit is `Type=simple`, so collecting the evidence does not hold the graphica
 
 ## Targeted graphics permission correction on BOOT 6
 
-`tools/graphics-permissions/` provides the next correction, distinct from the immutable probe. The handset evidence establishes a device access failure rather than a missing vendor mapper ABI. The intended adaptation udev rules were skipped because their overlay destination did not exist. Persist a dedicated rule through the existing `/etc/udev/rules.d` writable mapping instead of changing SYSTEM or flashing another image.
+`tools/graphics-permissions/` provides the correction after which the user reports graphical boot, working touch and Wi-Fi, distinct from the immutable diagnostic probe. The earlier handset evidence establishes a device access failure rather than a missing vendor mapper ABI. The intended adaptation udev rules were skipped because their overlay destination did not exist. A dedicated rule persists through the existing `/etc/udev/rules.d` writable mapping without changing SYSTEM or flashing another image.
 
 `manage-graphics-permissions.py` verifies pinned tools, root TWRP, model/SoC/bootloader, prepared RECOVERY, exact BOOT 6 and already mounted raw ext4 userdata before any operation. It stores four hash-pinned payloads and fixed udev/systemd configuration on userdata. The LightDM dependency is published last; repeat application is idempotent. Conflicts stop the operation, and failed creation rolls back only its own new files. Undo validates all present known files before removing the dependency first and preserves logs/unknown files. Undo takes effect after reboot; it does not chmod recovery devices.
 
 On normal Ubuntu boot, the 45-second service runs after LXC configuration and udev triggering, before LightDM. It pins both root-owned character-device inodes with O_PATH, compares their major/minor identities with `/sys/class/misc`, accepts only the observed 0600 or intended 0666 modes, and completes both preflights before changing either. It changes mode only, retaining root ownership. The service verifies read/write access as phablet/lightdm, reverses its own changes on errors or SIGTERM/SIGINT and blocks LightDM on failure. No vndbinder/binder/Mali or SYSTEM permissions change. The udev rule retains those two modes across matching events.
 
-An optional controlled comparison reuses only the hash-pinned historical mapper probe if it is still installed. Absence or diagnostic failure does not block the correction. There is no LXC attach or Android boot-completed polling in this path. Four private bounded logs and bounded existing compositor/greeter/LightDM excerpts support the next handset result.
+An optional controlled comparison reuses only the hash-pinned historical mapper probe if it is still installed. Absence or diagnostic failure does not block the correction. There is no LXC attach or Android boot-completed polling in this path. Four private bounded logs and bounded existing compositor/greeter/LightDM excerpts can now document the reported successful session.
 
 ```sh
 python3 tests/test_graphics_permissions_runtime.py --report out/graphics-permissions-runtime-tests.json
@@ -155,4 +157,4 @@ python3 tests/test_graphics_permissions_installer.py --qemu /path/to/qemu-aarch6
 python3 scripts/package-graphics-permissions.py
 ```
 
-Runtime device/sysfs/UID boundaries are simulated in host tests, including real signals delivered to dedicated fixture children. Installer shell cases execute the exact pinned TWRP BusyBox/linker/libraries under QEMU with controlled mounts/device metadata. Native Windows CMD/Python PE and a GUI on the handset remain untested. The [correction record](evidence/ubuntu-graphics-permission-fix-2026-10-15.json) records final payload identities, tests and delivery. Keep the correction installed for the GUI test; collect logs before any undo.
+Runtime device/sysfs/UID boundaries are simulated in host tests, including real signals delivered to dedicated fixture children. Installer shell cases execute the exact pinned TWRP BusyBox/linker/libraries under QEMU with controlled mounts/device metadata. Native Windows CMD/Python PE is not exercised by these fixtures. The GUI, touch and Wi-Fi now have the user's confirmation; a screenshot and fresh correction/runtime report have not yet been supplied. The [correction record](evidence/ubuntu-graphics-permission-fix-2026-10-15.json) records final payload identities, tests, delivery and the reported outcome. Keep the correction installed on the working handset; collect logs before any undo.

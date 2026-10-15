@@ -1,7 +1,7 @@
 {
-  "schema": 6,
+  "schema": 7,
   "date": "2026-10-15",
-  "experiment": "Ubuntu BOOT 6 physical readback and graphics-session failure",
+  "experiment": "Ubuntu BOOT 6 physical readback, historical graphics diagnosis and first user-confirmed graphical boot",
   "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
   "user_observations": [
     {
@@ -12,6 +12,19 @@
       "reported_at": "2026-10-15T21:57:11+02:00",
       "text": "ad un certo punto si è spento, nel frattempo che ci lavori su provo a lasciarlo in lavoro",
       "interpretation": "User-described power-off; later whole-device power loss is not established by the retained two-minute run1 evidence."
+    },
+    {
+      "reported_at": "2026-10-15T23:23:02+02:00",
+      "reported_at_utc": "2026-10-15T21:23:02Z",
+      "text": "ora si è avviato",
+      "phase": "after_graphics_permission_correction_1"
+    },
+    {
+      "reported_at": "2026-10-15T23:23:55+02:00",
+      "sequence": "Subsequent user message after graphical boot confirmation",
+      "text": "touch e wifi funzionano",
+      "phase": "after_graphics_permission_correction_1",
+      "reported_at_utc": "2026-10-15T21:23:55Z"
     }
   ],
   "inputs": [
@@ -445,11 +458,11 @@
     }
   },
   "new_photo_received": false,
-  "graphical_shell_confirmed": false,
+  "graphical_shell_confirmed": true,
   "setup_or_home_screen_confirmed": false,
-  "touch_input_confirmed": false,
-  "next_action": "Apply narrowly scoped persistent udev modes for hwbinder/ion, with a verified pre-LightDM runtime check, on unchanged BOOT6. Validate the resulting graphical boot on the handset.",
-  "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot",
+  "touch_input_confirmed": true,
+  "next_action": "Keep the working BOOT6 and graphics permission correction. Record the visible screen and collect post-correction/session evidence when available; validate remaining hardware independently.",
+  "repository_visibility": "private; graphical boot criterion met and publication authorized, visibility operation pending",
   "graphics_collector_followup": {
     "source": "ubuntu-graphics-6-report.zip/ubuntu-graphics-report.json",
     "collector_version": 1,
@@ -784,5 +797,29 @@
     ],
     "excluded": "vndbinder is also0600, but is not required by the observed constructor and remains unchanged in this correction.",
     "limitation": "The successful root constructor is not a pixel-buffer allocation or graphical-shell boot. The permission correction still requires handset validation."
-  }
+  },
+  "graphical_confirmation_basis": "user_report_after_correction; exact setup/home screen unspecified",
+  "wifi_basic_operation_confirmed": true,
+  "first_graphical_boot_followup": {
+    "record": "ubuntu-first-graphical-boot-2026-10-15.json",
+    "first_boot_confirmation_at": "2026-10-15T23:23:02+02:00",
+    "first_boot_confirmation_utc": "2026-10-15T21:23:02Z",
+    "evidence_basis": "User confirmation in this session after delivery of graphics permission correction 1.",
+    "user_messages": [
+      "ora si è avviato",
+      "touch e wifi funzionano"
+    ],
+    "working_graphical_boot_user_confirmed": true,
+    "touch_basic_user_confirmed": true,
+    "wifi_basic_user_confirmed": true,
+    "setup_or_home_screen": "unspecified",
+    "new_photo_received": false,
+    "new_correction_runtime_report_received": false,
+    "new_image_readback_after_success": false,
+    "identity_limit": "Outcome is associated with the previously pinned BOOT6/SYSTEM baseline and correction through session history; no fresh physical image or runtime-mode readback accompanies the success report.",
+    "touch_wifi_confirmation_at": "2026-10-15T23:23:55+02:00",
+    "touch_wifi_confirmation_utc": "2026-10-15T21:23:55Z",
+    "reported_timezone": "Europe/Rome"
+  },
+  "historical_runtime_scope": "The runtime, run1_evidence, graphics_failure, retained_hard_reset, offline_graphics_audit, collector and graphics_runtime_probe_1 sections describe pre-correction attempts. Preserve them as causal history; current user-confirmed success is recorded in first_graphical_boot_followup."
 }

@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "experiment": "First user-confirmed working Ubuntu Touch graphical boot",
+  "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
+  "ubuntu_touch_target": "24.04-2.x",
+  "halium": "12",
+  "stock_firmware": "G975FXXSGHWC1",
+  "confirmation": {
+    "reported_at": "2026-10-15T23:23:55+02:00",
+    "reported_at_utc": "2026-10-15T21:23:55Z",
+    "clock_scope": "Conversation confirmation time, not a measured handset boot timestamp.",
+    "first_user_message": "ora si è avviato",
+    "subsequent_user_message": "touch e wifi funzionano",
+    "subsequent_message_exact_timestamp_available": true,
+    "evidence_basis": "Direct user reports; no new photograph or post-correction machine report received.",
+    "reported_timezone": "Europe/Rome",
+    "milestone_time_scope": "Time of the follow-up confirming touch and basic Wi-Fi; the first boot message was earlier.",
+    "first_user_message_reported_at": "2026-10-15T23:23:02+02:00",
+    "first_user_message_reported_at_utc": "2026-10-15T21:23:02Z",
+    "subsequent_user_message_reported_at": "2026-10-15T23:23:55+02:00",
+    "subsequent_user_message_reported_at_utc": "2026-10-15T21:23:55Z"
+  },
+  "result": {
+    "working_graphical_boot": true,
+    "confirmation_type": "user_report",
+    "touch_basic_operation": true,
+    "wifi_basic_operation": true,
+    "setup_or_home_screen": "unspecified",
+    "wifi_internet_throughput_reconnect_or_suspend_tested": false,
+    "extended_touch_or_multitouch_tested": false,
+    "stability_duration_measured": false
+  },
+  "associated_prior_baseline": {
+    "boot": {
+      "version": 6,
+      "bytes": 57344000,
+      "sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+      "prior_physical_record": "ubuntu-boot-6-handset-2026-10-15.json",
+      "new_readback_after_success": false
+    },
+    "system": {
+      "bytes": 5368709120,
+      "sha256": "d23c80be74e3313e1a18272b7d27003a56a1ebc8593d5302738abe657a6e27c3",
+      "pin_source": "config/install-images.lock.json",
+      "prior_physical_verification_record": "first-boot-readback-2026-10-13.json",
+      "new_readback_after_success": false
+    },
+    "graphics_correction": {
+      "record": "ubuntu-graphics-permission-fix-2026-10-15.json",
+      "experiment": "graphics-permission-correction-1",
+      "package": "UbuntuTouch-S10plus-correzione-grafica-1-Windows.zip",
+      "package_bytes": 25833,
+      "package_sha256": "f7329e445f7ed4a0a477571c9558c2f967fd8edfd70e75a853788213e3052e0d",
+      "scope": "Persistent userdata udev and pre-LightDM checks; runtime mode0666 on hwbinder and ion only.",
+      "raw_image_rewrite_requested": false,
+      "new_application_or_runtime_report_received": false
+    },
+    "attribution_limit": "Outcome is associated with the previously pinned BOOT6/SYSTEM baseline and correction through session history; no fresh physical image or runtime-mode readback accompanies the success report."
+  },
+  "earlier_causal_evidence": {
+    "graphics_probe_record": "ubuntu-graphics-runtime-probe-2026-10-15.json",
+    "finding": "Before the correction, nonroot hwbinder access returned EACCES and mapper initialization aborted; root succeeded. Hwbinder and ion were root:root0600.",
+    "new_post_correction_device_mode_readback_received": false
+  },
+  "untested": [
+    "charging",
+    "suspend and resume",
+    "Bluetooth",
+    "modem/calls/SMS",
+    "audio",
+    "camera",
+    "sensors",
+    "normal Ubuntu USB features",
+    "extended Wi-Fi performance/reconnect/suspend",
+    "extended touch/multitouch",
+    "long-term stability"
+  ],
+  "publication": {
+    "user_agreed_graphical_boot_criterion_met": true,
+    "basis": "User-confirmed working graphical interface, touch and basic Wi-Fi.",
+    "repository_visibility": "private",
+    "authorized_visibility_change": "pending_tool_operation",
+    "public_release_or_supported_device_claim": false
+  },
+  "next_evidence": "Record the visible screen and obtain correction/session logs when available; keep the working configuration.",
+  "target_version_pin_source": "config/install-images.lock.json: ubuntu_touch_target=24.04-2.x, halium=12"
+}

@@ -2,15 +2,16 @@
 
 Reports retain their original names and contents so image identities and earlier observations remain traceable. The authoritative interpretation of the latest state is [Project status](../status.md).
 
-## Current boot investigation
+## Current milestone and supporting experiments
 
 | Report | Finding |
 | --- | --- |
-| [Ubuntu BOOT 6 handset result](ubuntu-boot-6-handset-2026-10-15.json) | Exact installation and later readback; systemd alive through 120 s, RAM profiles/Android/HWC running. Lomiri aborts for gralloc-mapper; no usable GUI confirmed. |
-| [BOOT 6 graphics permission correction](ubuntu-graphics-permission-fix-2026-10-15.json) | Targeted hwbinder/ion access modes, persistent userdata rules and a pre-LightDM check; runtime and exact-TWRP fixtures pass. Physical correction/GUI result pending. |
-| [BOOT 6 runtime graphics probe](ubuntu-graphics-runtime-probe-2026-10-15.json) | All 11 handset logs recovered: root loads Mapper 2.0; phablet/lightdm fail hwbinder access (0600) and abort. Ion is also restricted. |
+| [First working graphical boot](ubuntu-first-graphical-boot-2026-10-15.json) | On 15 October, the user reports boot at 23:23:02 Europe/Rome and confirms touch/basic Wi-Fi at 23:23:55 after correction 1. Exact setup/home screen unspecified; no new photo or post-correction readback/report. |
+| [Ubuntu BOOT 6 handset result](ubuntu-boot-6-handset-2026-10-15.json) | Prior exact installation/readback and userspace/Android/HWC evidence, historical mapper diagnosis, and the later user-confirmed graphical result on that baseline. |
+| [BOOT 6 graphics permission correction](ubuntu-graphics-permission-fix-2026-10-15.json) | Targeted hwbinder/ion access modes and pre-LightDM checks; user now confirms graphical boot, touch and basic Wi-Fi. Machine-readable post-correction results remain pending. |
+| [BOOT 6 runtime graphics probe](ubuntu-graphics-runtime-probe-2026-10-15.json) | Historical pre-correction cause: all 11 logs recovered; root loads Mapper 2.0, while phablet/lightdm receive hwbinder EACCES (0600) and abort. Ion is also restricted. |
 | [BOOT 6 graphics collector](ubuntu-graphics-collector-2026-10-15.json) | Version 2 returns four log files and confirms the greeter mapper failure; USC is discarded after CRLF expansion. Version 3 separates remote and transport limits, adds a bounded USC prefix and passes 24 tests. |
-| [Ubuntu BOOT 6 build/package](ubuntu-boot-6-build-2026-10-15.json) | Compiled USB NULL guard and RAM profile integration; 33 ARM64 profile and 25 portable PowerShell cases passed. Exact BOOT 5 apply baseline / BOOT 4 rollback; subsequent physical result above, usable GUI pending. |
+| [Ubuntu BOOT 6 build/package](ubuntu-boot-6-build-2026-10-15.json) | Compiled USB NULL guard and RAM profile integration; 33 ARM64 profile and 25 portable PowerShell cases passed. Exact BOOT 5 apply baseline / BOOT 4 rollback. Historical build validation; later physical and graphical results are recorded above. |
 | [Ubuntu BOOT 5 handset execution](ubuntu-boot-5-handset-2026-10-15.json) | Exact install/readback; two systemd/Android/HWC starts; repeated USB configfs NULL panic. Graphical boot unconfirmed; RAM profile targets missing. |
 | [Ubuntu BOOT 5 build/package](ubuntu-boot-5-build-2026-10-15.json) | Local compiled-image/ARM64 and 24 portable PowerShell cases passed; exact BOOT 4 rollback. New native Windows CI could not start. Subsequent handset execution and USB panic are recorded separately above. |
 | [Userspace compatibility audit](userspace-compatibility-2026-10-15.json) | Exact SYSTEM/Android identities; ARM64 init/systemd dependency checks; cgroup v1-controller mismatch and HWC readiness gate identified. No handset userspace boot claim. |

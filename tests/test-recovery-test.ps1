@@ -216,9 +216,9 @@ public class S10FakeFlashConsole {
     $nativeResult = Invoke-RecoveryTestWrite $stub $nativeArguments 'r.img' 'v.img'
     Assert-RecoveryTest ($nativeResult.ExitCode -eq 1 -and $nativeResult.Stdout -match 'Initializing protocol' -and
         $nativeResult.Stderr -match 'Unexpected handshake response') 'real native collector preserves both streams and exit code'
-    $privateText = "ERROR C:\Users\PRIVATE\recovery-test.img serialNumber=PRIVATE-USB-MARKER DID: 2018768D49468011"
+    $privateText = "ERROR C:\Users\PRIVATE\recovery-test.img serialNumber=PRIVATE-USB-MARKER DID: DEADBEEFCAFEBABE"
     $clean = Protect-RecoveryTestText $privateText @('C:\Users\PRIVATE\recovery-test.img','PRIVATE-USB-MARKER')
-    Assert-RecoveryTest ($clean -notmatch 'PRIVATE|2018768D49468011') 'paths, serial and DID redacted'
+    Assert-RecoveryTest ($clean -notmatch 'PRIVATE|DEADBEEFCAFEBABE') 'paths, serial and DID redacted'
     $large = Protect-RecoveryTestText ('x' * 50000) @()
     Assert-RecoveryTest ($large.Length -lt 16500 -and $large -match '\[truncated\]') 'bounded diagnostic text'
     # Exercise the real CMD and Windows PowerShell -File entry point. Missing
