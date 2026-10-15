@@ -89,3 +89,11 @@ Do not copy firmware images, portable runtimes, build output or extracted kernel
 For each hardware experiment, add its compact dated evidence and update [Project status](status.md) with the result and next action. Keep the README focused on the project goal and verified progress. Archive superseded standalone tools only after checking their active imports, packaging paths and workflows; update the archive manifest and replacement links together. Shared components stay in the maintained paths while active packages depend on them.
 
 The [publication criterion](status.md#publication-criterion) is a confirmed Ubuntu Touch graphical boot on the test handset. Record that runtime result before changing repository visibility.
+
+## Ubuntu BOOT 3 through the observed built-in path
+
+`build-ubuntu-boot-handoff.sh` obtains the exact diagnostic 2 rollback from run 38735252560 and the original Ubuntu ramdisk from the pinned BOOT 2 input. It builds the same kernel source and normal four patches with the tested force guard, now using gzip compression for the complete Ubuntu initramfs. Its configuration comparison permits only the initramfs source/compression changes from diagnostic 2. Both embedded and external CPIO must match the instrumented payload exactly and fit the measured BOOT partition.
+
+`ubuntu_boot_handoff.py` preserves all 347 original entries except three observed scripts and adds one bounded stage helper. The original rootfs/container mount logic remains; the automatic userdata repair/resize call block is skipped during this measured first-boot attempt. Logs are limited to five owned runs and 2 MiB of kernel text per run. No framebuffer test helper is added.
+
+The dedicated `ubuntu-boot-handoff.yml` workflow checks the real compressed kernel payload, the actual ARM64 BusyBox parser and log-directory guards, source force behavior, corrupted inputs and the read-only collector. The Windows job uses the established 24 apply/restore cases and real CMD startup with the actual images. Phone operations in CI are simulated. Hardware Ubuntu boot remains a separate milestone. The original diagnostic builders and shared templates remain dependencies and are not archived.

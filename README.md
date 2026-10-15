@@ -2,7 +2,7 @@
 
 An experimental **Ubuntu Touch 24.04 / Halium 12** bring-up project for the **Samsung Galaxy S10+ Exynos SM-G975F/DS (`beyond2lte`)**. The goal is to reach a working Ubuntu Touch boot on the Android 12 firmware/vendor baseline, then validate the device hardware and establish a repeatable installation path.
 
-**Current stage: first-boot investigation. Ubuntu Touch has not yet booted successfully on the test handset.** The adaptation and SYSTEM image are built, recovery works, and image writes have been verified by readback. Normal boot remains at the Samsung logo. The first diagnostic report confirms the installed image but contains no PID 1 marker. A second test with its diagnostic initramfs inside the kernel has passed Linux and Windows host checks and is ready for the handset.
+**Current stage: Ubuntu initramfs handoff. Ubuntu Touch has not yet booted successfully on the test handset.** Diagnostic 2 now confirms execution of the Halium kernel and its diagnostic PID 1 on the phone. Data, SYSTEM and VENDOR are readable, and USB ACM configuration works. The next BOOT runs the original Ubuntu initramfs through that verified built-in route, with saved stages to locate any remaining userspace failure.
 
 Status updated **15 October 2026**. This repository documents an experimental port, not a supported release for daily use.
 
@@ -30,10 +30,10 @@ Snapdragon variants and other Galaxy S10 models are outside the tested scope.
 | Prepare and boot TWRP; verify recovery/VBMETA and root ADB | Confirmed on the test handset |
 | Install SYSTEM/BOOT and verify the written image prefixes | Confirmed on the test handset |
 | Correct the SAR ramdisk offset and late `/init` handoff | Implemented and tested; compiled handoff fix verified |
-| Install the controlled diagnostic BOOT | Write and exact readback confirmed |
-| Collect the first diagnostic result | BOOT identity confirmed; no saved PID 1 marker or normal-kernel trace |
-| Build a diagnostic initramfs inside the kernel | Built and host-tested; awaiting the handset attempt |
-| Confirm normal kernel / diagnostic PID 1 execution | Still unconfirmed |
+| Diagnostic 2 kernel and PID 1 | Confirmed on the phone with the exact BOOT hash |
+| Read Data, SYSTEM and VENDOR under the normal kernel | Confirmed by diagnostic 2 |
+| Configure USB ACM under the normal kernel | Configuration and host enumeration recorded |
+| Run the original Ubuntu initramfs via the built-in route | BOOT 3 in preparation; handset result pending |
 | Reach Ubuntu userspace and the graphical shell | Not achieved |
 | Validate modem, networking, audio, camera, sensors and suspend | Untested |
 
@@ -41,15 +41,13 @@ The detailed [current status](docs/status.md) distinguishes source checks, host 
 
 ## Current boot investigation
 
-The kernel uses Samsung's late system-as-root ramdisk loading path. Two defects in that path were corrected, but BOOT 2 still remained at the logo. The installed diagnostic image keeps the exact BOOT 2 kernel and uses a small temporary init to report how far normal boot gets; it does not start Ubuntu.
+The phone now executes the Halium 4.14.280 kernel and the built-in diagnostic initramfs. The [15 October handset report](docs/evidence/boot-diagnostic-2-handset-2026-10-15.json) matches the tested diagnostic 2 BOOT and contains the PID 1 marker, readable storage and USB configuration. This confirms the earlier kernel-to-initramfs milestone; it does not start Ubuntu.
 
-Offline analysis has now recovered **113,088 kernel symbols** from BOOT 1 and BOOT 2 and confirmed the compiled init-handoff correction. Pinned DTC also decodes the stock tree and applies the TWRP-selected overlay. These results narrow the investigation; they do not demonstrate normal execution on the phone.
+The diagnostic framebuffer helper could not use the reported fb0 layout. A retained panic tail includes the same diagnostic kernel banner, but omits the initiating message. Neither observation is a complete diagnosis of the remaining Ubuntu boot failure.
 
-The report collected on 15 October matches diagnostic BOOT 1 and shows `/data` mounted in TWRP, but the diagnostic data logs are absent. Its `last_kmsg` contains S-Boot entering recovery and clearing debug buffers after a pin reset; it is not a trace of the blocked normal kernel. These observations do not identify the exact failing stage.
+BOOT 3 keeps the tested forced built-in-initramfs path and replaces the temporary diagnostic program with the complete original Ubuntu initramfs. Three scripts gain stage observations; the existing rootfs and Android-container mount logic remains. The one-off attempt skips the upstream automatic userdata repair and resize, preserves SYSTEM/VENDOR and collects bounded logs. It is still awaiting host validation and the handset test.
 
-The next experiment embeds a minimal diagnostic initramfs in the kernel and forces that built-in payload to be used, so PID 1 can run before mounting SYSTEM. The build verified that peripheral configuration and the external ramdisk remain unchanged. The generated Windows package passed 24 guarded apply/restore cases and its native CMD checks. See the [diagnostic 2 build record](docs/evidence/early-boot-diagnostic-build-2026-10-15.json) and [handset procedure](docs/status.md#next-experiment). These host results do not confirm handset execution.
-
-See [the diagnostic procedure and remaining milestones](docs/status.md#next-experiment).
+Earlier [symbol and device-tree inspection](docs/evidence/offline-tools-2026-10-14.json) and the two SAR fixes remain documented. The late external ramdisk route has not been proved to work on the phone. See [the current procedure and remaining milestones](docs/status.md#next-experiment).
 
 ## Repository map
 
@@ -57,10 +55,11 @@ See [the diagnostic procedure and remaining milestones](docs/status.md#next-expe
 | --- | --- |
 | [config](config) | Source, configuration and installation image pins |
 | [patches/kernel](patches/kernel) | AppArmor and Samsung SAR kernel fixes |
-| [patches/diagnostic](patches/diagnostic) | Conditional built-in-initramfs change used only by the second diagnostic |
+| [patches/diagnostic](patches/diagnostic) | Forced built-in-initramfs change shared by diagnostic 2 and Ubuntu BOOT 3 |
 | [scripts](scripts/README.md) | Maintained build, inspection, packaging and shared support code |
 | [scripts/templates](scripts/templates) | Shared verified BOOT installer/image-verifier templates |
-| [tools/boot-diagnostic](tools/boot-diagnostic) | Temporary init and static ARM64 display helper |
+| [tools/boot-diagnostic](tools/boot-diagnostic) | Original diagnostic input and static ARM64 display helper |
+| [tools/boot-observer](tools/boot-observer) | Bounded Ubuntu initramfs stage capture |
 | [tools/windows](tools/windows/README.md) | Launcher inputs for prepared Windows packages |
 | [tests](tests) | Image, source, collector and Windows guard validation |
 | [docs](docs/README.md) | Current status and development documentation |

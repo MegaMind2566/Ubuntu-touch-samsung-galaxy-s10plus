@@ -1,0 +1,27 @@
+Samsung Galaxy S10+ SM-G975F/DS - Ubuntu BOOT 3
+
+Il test 2 ha confermato il kernel, il PID 1 diagnostico e la lettura di
+SYSTEM/VENDOR. BOOT 3 usa lo stesso percorso con l initramfs Ubuntu completo.
+Il primo avvio Ubuntu resta da verificare sul telefono.
+
+1. Copia tutto il contenuto dello ZIP nella cartella originale di installazione
+   Ubuntu, unendo le cartelle e sostituendo i file corrispondenti.
+2. Lascia TWRP aperta, USB collegato e SYSTEM/VENDOR non montate.
+3. Avvia INSTALLA-AVVIO-UBUNTU-3.cmd. Accetta solo il BOOT del test 2 esatto.
+   Aspetta la conferma di scrittura e rilettura riuscite.
+4. In TWRP scegli Reboot > System. Se propone l app TWRP: Do Not Install.
+5. Attendi fino a 3 minuti e fotografa la schermata.
+6. Se resta bloccato, torna in TWRP e avvia LEGGI-AVVIO-UBUNTU-3.cmd.
+   Invia ubuntu-boot-3-log-report.zip e la foto. I rapporti precedenti restano.
+
+L installazione scrive solo BOOT. Non ripete Format Data e non scrive SYSTEM,
+VENDOR, RECOVERY, VBMETA o la tabella delle partizioni.
+Il normale avvio Ubuntu prepara i suoi dati persistenti; salva anche fino a
+cinque tentativi di log in /data/ubuntu-touch-boot-3. Non esegue il controllo
+automatico e2fsck -y o il ridimensionamento automatico presenti nel vecchio init.
+Il lettore dei log non effettua mount, scritture o riavvii.
+
+Il pacchetto contiene RIPRISTINA-TEST-AVVIO-2.cmd per ripristinare il BOOT
+diagnostico precedente, se richiesto dopo il controllo del rapporto.
+Non ripristina Android o un Ubuntu funzionante. Non ripetere l installazione
+dopo un errore di scrittura: invia il rapporto e resta in TWRP.

@@ -1,0 +1,38 @@
+# Observations for Ubuntu BOOT 3. Sourced by the original initramfs PID 1.
+# No extra filesystem mounts, raw writes, fsck, resize or format operations.
+UT_BOOT_LOG_NAME=''
+ut_boot_snapshot() {
+    local base='' source='' candidate='' number='' target=''
+    for candidate in /tmpmnt /root/userdata; do
+        source=$(/bin/busybox awk -v p="$candidate" '$2==p && $3=="ext4" {print $1; exit}' /proc/mounts)
+        [ -n "$source" ] || continue
+        [ "$(/bin/busybox readlink -f "$source")" = /dev/sda31 ] || continue
+        base="$candidate/ubuntu-touch-boot-3"
+        [ ! -L "$base" ] || continue
+        if [ ! -e "$base" ]; then /bin/busybox mkdir -m 0700 "$base" || continue; fi
+        [ -d "$base" ] || continue
+        if [ -z "$UT_BOOT_LOG_NAME" ]; then
+            for number in 1 2 3 4 5; do
+                if /bin/busybox mkdir -m 0700 "$base/run-$number" 2>/dev/null; then
+                    UT_BOOT_LOG_NAME="run-$number"
+                    break
+                fi
+            done
+        fi
+        [ -n "$UT_BOOT_LOG_NAME" ] || return 0
+        target="$base/$UT_BOOT_LOG_NAME"
+        [ -d "$target" ] && [ ! -L "$target" ] || return 0
+        /bin/busybox dmesg | /bin/busybox tail -c 2097152 >"$target/kernel.log"
+        /bin/busybox head -c 65536 /proc/mounts >"$target/mounts.txt"
+        printf 'UT_BOOT_3: PID 1 STARTED\nUT_BOOT_3: stage=%s\n' "$1" >"$target/stage.txt"
+        /bin/busybox sync
+        return 0
+    done
+    return 0
+}
+
+ut_boot_stage() {
+    printf 'UT_BOOT_3: stage=%s\n' "$1" >/dev/kmsg
+    ut_boot_snapshot "$1"
+    return 0
+}

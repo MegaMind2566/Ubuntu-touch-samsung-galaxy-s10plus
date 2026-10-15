@@ -1,0 +1,96 @@
+name: S10+ Ubuntu initramfs handoff
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config/ubuntu-boot-handoff.config'
+      - 'scripts/ubuntu_boot_handoff.py'
+      - 'scripts/build-ubuntu-boot-handoff.sh'
+      - 'scripts/package-ubuntu-boot-handoff.py'
+      - 'scripts/collect-ubuntu-handoff.py.in'
+      - 'tools/boot-observer/**'
+      - 'tools/windows/*AVVIO-UBUNTU-3*'
+      - 'tools/windows/RIPRISTINA-TEST-AVVIO-2.cmd'
+      - 'tests/test_ubuntu_boot_handoff.py'
+      - '.github/workflows/ubuntu-boot-handoff.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  images:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install kernel build dependencies and ARM64 test runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bc bison build-essential ca-certificates clang cpio curl fakeroot flex git kmod libelf-dev libssl-dev libtinfo5 lz4 python2 python3 qemu-user unzip wget xz-utils
+      - name: Build and inspect the instrumented Ubuntu initramfs in the kernel
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: bash scripts/build-ubuntu-boot-handoff.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-ubuntu-boot-handoff-images
+          path: out/ubuntu-boot-handoff-images/
+          if-no-files-found: error
+      - name: Save build diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-ubuntu-handoff-build-log
+          include-hidden-files: true
+          path: |
+            out/ubuntu-handoff-build.log
+            build/ubuntu-handoff/workdir/downloads/KERNEL_OBJ/.config
+          if-no-files-found: warn
+  windows:
+    needs: images
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Obtain the tested images and established portable tools
+        shell: powershell
+        env:
+          UT_ARTIFACT_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/ubuntu_boot_handoff.py images
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/early_boot_diagnostic.py inputs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/prepare_boot_update.py inputs --out out
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-ubuntu-install.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/package-ubuntu-boot-handoff.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Merge into the established tools at a path with spaces
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $root=[IO.Path]::GetFullPath('out/BOOT Ubuntu 3 with spaces')
+          [IO.Compression.ZipFile]::ExtractToDirectory([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-installa-Ubuntu-Windows.zip'),$root)
+          $zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath('out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip'))
+          try {
+            foreach ($entry in $zip.Entries) {
+              $destination=Join-Path $root $entry.FullName
+              [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($destination)) | Out-Null
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry,$destination,$true)
+            }
+          } finally { $zip.Dispose() }
+      - name: Test PowerShell 5.1 launchers, actual images and BOOT-only apply/restore guards
+        shell: powershell
+        run: .\out\test-ubuntu-handoff.generated.ps1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-ubuntu-boot-handoff-windows
+          path: |
+            out/UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip
+            out/ubuntu-handoff-artifact-reference.json
+          if-no-files-found: error

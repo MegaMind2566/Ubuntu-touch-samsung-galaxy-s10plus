@@ -6,9 +6,11 @@ Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 
 
 The Halium 12 adaptation and Ubuntu Touch 24.04 SYSTEM image have been built and inspected. The test handset accepts the prepared TWRP recovery and the experimental images can be written and read back with matching hashes. **Ubuntu Touch has not reached a confirmed working boot.** Normal BOOT versions 0, 1 and 2 remained at the Samsung Galaxy S10+ logo.
 
-A temporary diagnostic BOOT 1 is installed. Its kernel is byte-identical to BOOT 2; its ramdisk replaces Ubuntu's init with a small diagnostic program. The report received on 15 October reconfirms its exact BOOT hash and shows `/data` mounted in TWRP, but no diagnostic data logs were found. Its `last_kmsg` is S-Boot entering recovery after a pin reset, with explicit debug-buffer clearing. It does not contain an identifiable normal-kernel trace. Kernel/PID 1 execution remains unconfirmed.
+**Diagnostic 2 has now executed on the handset.** The second uploaded collection matches BOOT SHA-256 `7d65acf13c1180b4ba77dfdd96a703546bc5b7083fb2e85714151203b740076d` and records `UT_DIAG_2: PID 1 STARTED` in both the init and kernel logs. Its kernel is `4.14.280-gb9b70b29c94c-dirty`, compiled on 15 October. Data mounted read-write; SYSTEM and VENDOR mounted for read-only probes. The expected Android rootfs image is present, and configfs ACM reached `USB_STATE=CONFIGURED`.
 
-Diagnostic 2 has been built to place a minimal initramfs inside the kernel and use it before the late SYSTEM-dependent ramdisk path. Its Linux image checks and native Windows apply/restore tests passed. The 55,638,016-byte BOOT fits the measured 57,671,680-byte partition, and its kernel configuration differs from BOOT 2 only in six initramfs-related symbols. This is a controlled observation experiment; it does not start Ubuntu. The latest confirmed physical BOOT remains diagnostic 1 until the next handset test.
+The first collection stopped at `no devices found`; the later collection succeeded. The framebuffer helper reported an unsupported or unavailable layout. Pstore contains a panic tail with the same diagnostic kernel build banner but no initiating message. The unbounded last-kmsg request exceeded its output cap; a separate bounded start read is present. These limits do not invalidate the captured PID 1 execution, but the panic cause and complete graphics support are still unknown.
+
+The latest physical BOOT is diagnostic 2. **The test never executes the original Ubuntu init, so it is not a successful Ubuntu boot.** BOOT 3 is being prepared to embed the full original Ubuntu initramfs, with stage capture, through this verified route.
 
 ## What has been verified
 
@@ -20,8 +22,10 @@ Diagnostic 2 has been built to place a minimal initramfs inside the kernel and u
 | Recovery preparation | Modified RECOVERY and VBMETA match pinned hashes | The installed recovery removes TWRP's automatic `nuker` modifications. |
 | SYSTEM and original BOOT | Physical image-prefix readback matches the installation pins | Those payloads were written correctly; this does not prove successful execution. |
 | BOOT 1 and BOOT 2 updates | BOOT-only writes and readback verified | Both SAR fixes reached the BOOT partition. |
-| Diagnostic BOOT | Exact 53,475,328-byte prefix readback matches its SHA-256 | The temporary diagnostic payload is installed. |
-| Diagnostic 1 log collection | BOOT matches; Data is mounted; no PID 1 marker; recovery S-Boot buffer only | The kernel's actual normal-boot stage is still unknown. |
+| Diagnostic 2 installed image | Exact 55,638,016-byte prefix readback matches its SHA-256 | The tested built-in diagnostic image is on the handset. |
+| Normal kernel and diagnostic PID 1 | Versioned init/kernel markers with the matching compiled kernel | The forced built-in-initramfs route executes on this phone. |
+| Runtime storage probes | Data mounted; SYSTEM Android image and VENDOR directories readable | No missing SYSTEM/VENDOR filesystem was demonstrated; this is not a full content comparison. |
+| Runtime USB | PID 1 configfs success and kernel `USB_STATE=CONFIGURED` | USB gadget configuration works under the normal kernel; no shell was provided. |
 | Vendor filesystem | Read-only filesystem check completed cleanly | No filesystem corruption was demonstrated; a full stock-content comparison was not performed. |
 
 See the [evidence index](evidence/README.md) for the reports supporting these statements.
@@ -43,36 +47,24 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Test the validated diagnostic 2 package once on the handset:
+Prepare and host-test **Ubuntu BOOT 3** before delivering the next handset package. Its complete original Ubuntu initramfs is compressed into the kernel and also retained as the external ramdisk. It shares diagnostic 2's force guard and peripheral settings. The original rootfs/container logic is kept, with staged kernel-log snapshots to Data. The previous automatic `e2fsck -y` and userdata resize call block is skipped for this already-formatted, readable filesystem.
 
-1. Copy the contents of **`UbuntuTouch-S10plus-test-AVVIO-2-Windows.zip`** into the original prepared installation folder, merging directories and replacing matching files.
-2. With TWRP open and USB connected, keep SYSTEM/VENDOR unmounted and Data available. Run **`INSTALLA-TEST-AVVIO-2.cmd`**. The installer accepts only the exact diagnostic 1 BOOT reconfirmed in the latest report. Continue only after its write/readback success message.
-3. Select TWRP **Reboot > System** manually, wait 60 seconds and photograph the screen. The expected diagnostic screen says **`UBUNTU TOUCH TEST 2`**; record the Samsung logo too if it remains there.
-4. Return to TWRP and run **`LEGGI-TEST-AVVIO-2.cmd`**. Inspect **`ubuntu-boot-diagnostic-2-log-report.zip`** together with the observed screen and new BOOT identity. **`RIPRISTINA-TEST-AVVIO-1.cmd`** restores the exact previous diagnostic BOOT if required.
+The package will accept only the exact diagnostic 2 BOOT above, write only `/dev/block/sda14`, read it back, and include the exact diagnostic 2 rollback. No SYSTEM/VENDOR rewrite, repartitioning or Format Data is required. The collector uses bounded last-kmsg reads and captures up to five recorded initramfs attempts without mounting or writing anything on the phone.
 
-The [build record](evidence/early-boot-diagnostic-build-2026-10-15.json) pins the image and ZIP, verifies the embedded CPIO and unchanged peripheral configuration, and records actual ARM64 helper execution, four source force-guard cases, six collector fixtures and 24 native Windows apply/restore cases. `CONFIG_INITRAMFS_FORCE` plus a diagnostic-only guard change makes the built-in rootfs available even if `skip_initramfs` is supplied.
+After the Linux and native Windows checks pass, the handset sequence is:
 
-The installer targets only BOOT. The collector is read-only. SYSTEM/VENDOR and the existing userdata format are preserved; the running diagnostic creates its own bounded data logs.
+1. Merge **`UbuntuTouch-S10plus-avvio-Ubuntu-3-Windows.zip`** into the original prepared installation folder.
+2. With TWRP open and USB connected, run **`INSTALLA-AVVIO-UBUNTU-3.cmd`** and require write/readback success.
+3. Choose **Reboot > System** manually. Decline the optional TWRP app. Wait up to three minutes and photograph the screen.
+4. If blocked, return to TWRP and run **`LEGGI-AVVIO-UBUNTU-3.cmd`**. Inspect **`ubuntu-boot-3-log-report.zip`**, its image identity, stage records, available userspace logs and the observed screen together.
 
-### How the next report selects the next experiment
-
-Start with `diagnostic_boot_matches` and the recorded screen. Pair runtime observations with the image identity checked by the collector.
-
-| Observation | Conclusion and next action |
-| --- | --- |
-| Installed BOOT hash differs from the diagnostic pin | Establish the actual installed image before attributing logs to this diagnostic or preparing another update. |
-| The selected version's PID 1 marker is present (`UT_DIAG_2` for test 2) | The controlled ramdisk executed. Inspect its kernel, storage and display results to decide where to instrument the original Ubuntu init. |
-| No data marker, but previous-boot buffers contain an identifiable normal-kernel failure | Use the earliest failure and its surrounding trace to select a focused kernel or device-tree experiment. |
-| Data logs are missing and recovery's mount list shows `/data` unavailable | Saved-data evidence is unavailable in that collection; inspect the remaining buffers without treating this as a failed PID 1 execution. |
-| No diagnostic marker or identifiable previous-boot trace | The failing stage remains unknown. Define an earlier observation point before preparing another BOOT image. |
-
-The diagnostic preserves an existing log directory, so retained markers prove a recorded diagnostic execution, not necessarily the most recent attempt. The observed screen and experiment history remain part of interpreting the report.
+A `userspace-handoff` stage proves only that the initramfs prepared its handoff. It does not prove that systemd, the Android container or the graphical shell ran. Saved attempts are preserved, so retained markers are not automatically evidence of the latest reboot. **`RIPRISTINA-TEST-AVVIO-2.cmd`** restores the previous diagnostic BOOT if needed; it does not restore stock Android or a working Ubuntu image.
 
 ## Milestones after a first boot
 
 | Milestone | Status |
 | --- | --- |
-| Confirm normal kernel and diagnostic PID 1 execution | Pending |
+| Confirm normal kernel and diagnostic PID 1 execution | Confirmed by diagnostic 2 on 15 October |
 | Run the original Ubuntu ramdisk init and mount the intended SYSTEM | Pending |
 | Start Ubuntu userspace and the Halium Android container | Pending |
 | Reach the graphical shell with working display and touch | Pending |

@@ -1,0 +1,114 @@
+"""Collect BOOT 3 stages and retained userspace logs after return to TWRP."""
+import argparse
+from datetime import datetime, timezone
+import importlib.util
+import json
+from pathlib import Path
+import re
+import subprocess
+import zipfile
+
+spec=importlib.util.spec_from_file_location('first_boot_helpers',Path(__file__).with_name('collect-first-boot.py'))
+legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
+BOOT_BYTES=__BOOT_UPDATE_BYTES__
+BOOT_SHA256='__BOOT_UPDATE_SHA256__'
+LOGDIR='/data/ubuntu-touch-boot-3'
+MEMBERS={'stage':('stage.txt',65536),'kernel':('kernel.log',2097152),'mounts':('mounts.txt',65536)}
+USER_LOGS={'syslog':'syslog','lightdm':'lightdm/lightdm.log','lomiri':'lomiri/lomiri.log',
+           'android':'lxc/android.log','boot':'boot.log'}
+
+
+def command_for(name):
+    match=re.fullmatch(r'run-([1-5])-(stage|kernel|mounts)',name)
+    if match:
+        directory=LOGDIR+'/run-'+match[1];filename,limit=MEMBERS[match[2]];path=directory+'/'+filename
+        return ['-d','shell',"test ! -L '"+LOGDIR+"' && test -d '"+LOGDIR+"' && test ! -L '"+directory+"' && test -d '"+directory+"' && test ! -L '"+path+"' && test -f '"+path+"' && /sbin/busybox head -c "+str(limit)+" '"+path+"'"]
+    if name in USER_LOGS:
+        path='/data/system-data/var/log/'+USER_LOGS[name]
+        return ['-d','shell',"test -f '"+path+"' && test ! -L '"+path+"' && /sbin/busybox tail -c 524288 '"+path+"'"]
+    if name=='boot-hash':
+        return ['-d','shell','/sbin/busybox head -c '+str(BOOT_BYTES)+' /dev/block/sda14 | /sbin/busybox sha256sum']
+    if name=='last-kmsg-tail':
+        return ['-d','shell','test -f /proc/last_kmsg && /sbin/busybox tail -c 1048576 /proc/last_kmsg']
+    if name in ('state','uid','properties','last-kmsg-start','recovery-kernel','mounts','pstore-list') or name.startswith('pstore:'):
+        return legacy.command_for(name)
+    raise ValueError('handoff_query_not_allowed')
+
+
+def run_query(exe,name):
+    try:
+        r=subprocess.run([str(exe),*command_for(name)],capture_output=True,timeout=45,
+                         creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+        if len(r.stdout)>2097152+4096 or len(r.stderr)>65536:
+            return {'exit_code':None,'timed_out':False,'stdout':'','stderr':'output_limit'}
+        return {'exit_code':r.returncode,'timed_out':False,'stdout':r.stdout.decode('utf-8','replace'),
+                'stderr':r.stderr.decode('utf-8','replace')}
+    except subprocess.TimeoutExpired:
+        return {'exit_code':None,'timed_out':True,'stdout':'','stderr':'read_timeout'}
+
+
+def collect(root,runner=run_query,verifier=legacy.check_tools):
+    root=Path(root).resolve();files={};report={'schema':1,'boot_version':3,
+        'date_utc':datetime.now(timezone.utc).isoformat(),'adb_usb_only':True,'partition_writes':False,
+        'mount_changes_requested':False,'data_format_requested':False,'reboot_requested':False,
+        'ubuntu_touch_boot_verified':False,'success':False,'error':None,'steps':[],'attempts':[]}
+    def read(name):
+        command_for(name);v=runner(root/'platform-tools/adb.exe',name)
+        report['steps'].append({'operation':name,'exit_code':v['exit_code'],'timed_out':v['timed_out'],
+            'stderr':legacy.redact(v['stderr'][:4096],root)})
+        if v['exit_code']==0 and not v['timed_out']:return legacy.redact(v['stdout'],root)
+        return None
+    reason='local_tools_unavailable'
+    try:
+        verifier(root);reason='twrp_usb_unavailable'
+        if (read('state') or '').strip() not in ('device','recovery'):raise ValueError(reason)
+        reason='recovery_not_root'
+        if (read('uid') or '').strip()!='0':raise ValueError(reason)
+        reason='recovery_device_unconfirmed'
+        props=dict(line.split('|',1) for line in (read('properties') or '').splitlines() if '|' in line)
+        if (props.get('ro.product.device') not in ('beyond2','beyond2lte') or props.get('ro.hardware')!='exynos9820'
+                or props.get('ro.twrp.version') not in ('3.7.0_9','3.7.0_9-2') or
+                'G975FXXSGHWC1' not in (props.get('ro.bootloader'),props.get('ro.boot.bootloader'))):
+            raise ValueError(reason)
+        report['recovery_confirmed']=True
+        for attempt in range(1,6):
+            prefix='run-'+str(attempt);stage=read(prefix+'-stage')
+            if stage is None:continue
+            files[prefix+'-stage.txt']=stage
+            kernel=''
+            for suffix in ('kernel','mounts'):
+                value=read(prefix+'-'+suffix)
+                if value is not None:files[prefix+'-'+suffix+'.txt']=value
+                if suffix=='kernel':kernel=value or ''
+            match=re.search(r'UT_BOOT_3: stage=([a-z-]+)',stage)
+            version=re.search(r'Linux version (\S+)',kernel)
+            report['attempts'].append({'run':attempt,'pid1_marker_found':'UT_BOOT_3: PID 1 STARTED' in stage,
+                'last_recorded_stage':match[1] if match else None,'kernel_version':version[1] if version else None})
+        for name in ('last-kmsg-start','last-kmsg-tail','recovery-kernel','mounts',*USER_LOGS):
+            value=read(name)
+            if value is not None:files[name+'.txt']=value
+        names=read('pstore-list') or ''
+        for name in sorted(set(n for n in names.splitlines() if legacy.PSTORE_NAME.fullmatch(n)))[:16]:
+            value=read('pstore:'+name)
+            if value is not None:files['previous-boot-pstore-'+name+'.txt']=value
+        value=(read('boot-hash') or '').strip()
+        report['boot_readback_sha256']=value.split()[0] if re.fullmatch(r'[a-f0-9]{64}\s+-?',value) else None
+        report['boot_matches']=report['boot_readback_sha256']==BOOT_SHA256
+        report['success']=True
+        report['interpretation']='Saved stages prove recorded initramfs execution only. Kernel/readback identities and the observed screen must be considered together. A userspace-handoff marker does not prove a graphical Ubuntu boot.'
+    except (OSError,ValueError) as e:
+        report['error']=str(e) if isinstance(e,ValueError) and re.fullmatch('[a-z_]+',str(e)) else reason
+    path=root/'ubuntu-boot-3-log-report.zip';i=1
+    while path.exists():path=root/('ubuntu-boot-3-log-report-'+str(i)+'.zip');i+=1
+    with zipfile.ZipFile(path,'x',zipfile.ZIP_DEFLATED) as z:
+        for name,value in files.items():z.writestr(name,value)
+        z.writestr('ubuntu-boot-log-report.json',json.dumps(report,indent=2))
+    print('Lettura fermata: '+report['error'] if report['error'] else 'Lettura completata. Avvio grafico da confermare dalla schermata.')
+    print('Invia questo rapporto: '+str(path),flush=True)
+    return report,path
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,required=True)
+    report,_=collect(p.parse_args().root)
+    raise SystemExit(0 if report['success'] else 1)

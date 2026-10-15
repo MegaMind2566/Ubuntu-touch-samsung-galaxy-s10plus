@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "recorded_date": "2026-10-15",
+  "experiment": "builtin_initramfs_diagnostic_2",
+  "hardware": "SM-G975F Exynos 9820 beyond2lte",
+  "uploads": [
+    {
+      "name": "ubuntu-boot-diagnostic-2-log-report.zip",
+      "bytes": 452,
+      "sha256": "c8626c8d6ef61ef3003c57b2014de7e7d92fc8720a535a00b44593ef794e74a3",
+      "report": {
+        "schema": 1,
+        "diagnostic_version": 2,
+        "date_utc": "2026-10-15T11:13:55.402643+00:00",
+        "adb_usb_only": true,
+        "partition_writes": false,
+        "mount_changes_requested": false,
+        "data_format_requested": false,
+        "reboot_requested": false,
+        "ubuntu_touch_boot_verified": false,
+        "success": false,
+        "error": "twrp_usb_unavailable",
+        "steps": [
+          {
+            "operation": "state",
+            "exit_code": 1,
+            "timed_out": false,
+            "stderr": "error: no devices found\r\n"
+          }
+        ],
+        "diagnostic_pid1_marker_found": false,
+        "diagnostic_kernel_version": null
+      },
+      "members": [
+        {
+          "name": "diagnostic-log-report.json",
+          "bytes": 570,
+          "sha256": "354d96046ece3d52f35a1517b07ae3b443c00e2a0c7afe09b0818c17439f4864"
+        }
+      ]
+    },
+    {
+      "name": "ubuntu-boot-diagnostic-2-log-report-1.zip",
+      "bytes": 117866,
+      "sha256": "a93efac38918c2a2f72224fce1c472ed16243a8d0111251b6f218d6208758c53",
+      "report": {
+        "schema": 1,
+        "diagnostic_version": 2,
+        "date_utc": "2026-10-15T11:17:01.669940+00:00",
+        "adb_usb_only": true,
+        "partition_writes": false,
+        "mount_changes_requested": false,
+        "data_format_requested": false,
+        "reboot_requested": false,
+        "ubuntu_touch_boot_verified": false,
+        "success": true,
+        "error": null,
+        "steps": [
+          {
+            "operation": "state",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "uid",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "properties",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "diagnostic-init",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "diagnostic-kernel",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "diagnostic-display",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "last-kmsg",
+            "exit_code": null,
+            "timed_out": false,
+            "stderr": "output_limit"
+          },
+          {
+            "operation": "last-kmsg-start",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "recovery-kernel",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "mounts",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "pstore-list",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "pstore:dmesg-ramoops-0",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          },
+          {
+            "operation": "diagnostic-boot-hash",
+            "exit_code": 0,
+            "timed_out": false,
+            "stderr": ""
+          }
+        ],
+        "diagnostic_pid1_marker_found": true,
+        "diagnostic_kernel_version": "4.14.280-gb9b70b29c94c-dirty",
+        "recovery_confirmed": true,
+        "diagnostic_boot_readback_sha256": "7d65acf13c1180b4ba77dfdd96a703546bc5b7083fb2e85714151203b740076d",
+        "diagnostic_boot_matches": true,
+        "interpretation": "A diagnostic PID 1 marker confirms this controlled ramdisk executed. Its absence does not by itself identify the failing kernel stage. This test does not start Ubuntu userspace."
+      },
+      "members": [
+        {
+          "name": "diagnostic-init.txt",
+          "bytes": 3180,
+          "sha256": "617aa79281bb2ba5747e5810718069a53975d3977cfc0307d8a27d944f805b21"
+        },
+        {
+          "name": "diagnostic-kernel.txt",
+          "bytes": 591925,
+          "sha256": "36e07d303d0cbf5005d1cebe5ef7f3569102bcea5fdfca78234da439dfe81530"
+        },
+        {
+          "name": "diagnostic-display.txt",
+          "bytes": 39,
+          "sha256": "d07f2c4bb31ff615c88cb482918ee9531df9a1a77a6903d93f985d7c8f2e7342"
+        },
+        {
+          "name": "last-kmsg-start.txt",
+          "bytes": 66204,
+          "sha256": "b3ac64393f2da804de9e06fdeaa7caaa2dad3b6e03af1e096aca751facb90ab0"
+        },
+        {
+          "name": "recovery-kernel.txt",
+          "bytes": 98,
+          "sha256": "ae013119f388848db1a2e5b70435f60f868aa66092000235c1e8d108334450e5"
+        },
+        {
+          "name": "mounts.txt",
+          "bytes": 1074,
+          "sha256": "e35673f45d7d7be5c345ec989bdfd07eb2aa491cc10324afc2919cc34574023e"
+        },
+        {
+          "name": "previous-boot-pstore-dmesg-ramoops-0.txt",
+          "bytes": 27430,
+          "sha256": "ba49c98370ad10e5cde4ef5b13c3c1866f0c524711028bd3ba9744f548dd40a7"
+        },
+        {
+          "name": "diagnostic-log-report.json",
+          "bytes": 2332,
+          "sha256": "39cb676c16f37439e6af9cbe42d419f9faff802082d7e168ad6570a114d4ff52"
+        }
+      ]
+    }
+  ],
+  "observations": {
+    "first_collection": "No USB device; stopped at state query without writes.",
+    "second_collection": "Root TWRP/device checks passed; physical diagnostic 2 BOOT hash matches.",
+    "pid1": "UT_DIAG_2: PID 1 STARTED",
+    "kernel": "4.14.280-gb9b70b29c94c-dirty #1 SMP PREEMPT Thu Oct 15 12:48:48 UTC 2026",
+    "runtime_storage": "DATA=LOG READY SYSTEM=READABLE VENDOR=READABLE",
+    "system_android_image_bytes": 464084992,
+    "usb": "Configfs ACM configured by PID 1; kernel log also records USB_STATE=CONFIGURED. No remote shell was started.",
+    "display": "fb0 layout unsupported or unavailable",
+    "pstore": "Panic#2 Part1 is a tail fragment with the matching diagnostic 2 kernel banner and a panic-handler upload cause 0x66 at 24.479s. The initiating panic message is not included; the cause is not established by this fragment.",
+    "last_kmsg": "The unbounded read exceeded the collector output cap. The separate bounded start read succeeded."
+  },
+  "conclusions": {
+    "normal_kernel_pid1_execution_confirmed": true,
+    "diagnostic_2_installed_readback_confirmed": true,
+    "system_vendor_readable": true,
+    "vendor_complete_stock_content_comparison": false,
+    "original_ubuntu_init_executed": false,
+    "ubuntu_touch_graphical_boot_verified": false,
+    "display_hardware_supported": null,
+    "old_diagnostic_1_failure_fully_explained": false
+  },
+  "next_experiment": "BOOT 3 embeds the complete original Ubuntu initramfs with stage capture through the now-confirmed forced built-in route. Preserve peripheral configuration and SYSTEM/VENDOR images; write only BOOT. Disable the upstream automatic userdata fsck/resize during this measured first-boot attempt. Keep repository private until a confirmed Ubuntu graphical boot."
+}
