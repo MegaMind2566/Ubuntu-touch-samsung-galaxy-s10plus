@@ -12,7 +12,7 @@ The new blocker is the **Lomiri user session**. It repeatedly aborts with `grall
 
 A panel power-down is recorded at 85.606686 seconds, while PID 1 remains active later. This can account for a black screen; the user's later whole-device power-off is not established by run 1's retained window. The last-kmsg panic belongs to run 3 and follows Power/Volume Down held for six seconds: Samsung's intended hard-reset hook calls `BUG()` before reset. Run 2 and run 3 are charger-mode attempts with early snapshots; run 4 is also captured only very early. These do not justify another kernel patch.
 
-Preflight 29/30 verify RECOVERY/VBMETA before writing BOOT 6, not after the subsequent runtime. The runtime RAM recovery mask completes, but post-runtime recovery/VBMETA hashes remain separate evidence. BOOT 6 is now the latest BOOT confirmed by physical readback. A setup/home screen and touch operation are unconfirmed; the repository remains private.
+Preflight 29/30 verify RECOVERY/VBMETA before writing BOOT 6, not after the subsequent runtime. The later graphics report independently verifies the pinned prepared RECOVERY after runtime. A post-runtime VBMETA hash remains unavailable. BOOT 6 is now the latest BOOT confirmed by physical readback. A setup/home screen and touch operation are unconfirmed; the repository remains private.
 
 ## What has been verified
 
@@ -52,11 +52,13 @@ The reviewed Exynos 9820 QEMU fork uses stub peripheral responses and has incomp
 
 ## Next experiment
 
-Use `LEGGI-GRAFICA-UBUNTU-6.cmd` from the prepared graphics-collector ZIP after returning to the main TWRP screen. Keep the installed BOOT 6. The reader checks pinned tools, prepared recovery, exact BOOT 6 and already-mounted raw userdata before reading the fixed USC, greeter, LightDM and phablet session log paths. It writes only its report on the PC: no phone file, partition, mount or reboot change is requested.
+The first graphics collector returned zero logs: its `stat -c` call is unsupported by the active TWRP BusyBox 1.22.1. Its `success=true` flag was misleading. Image and raw userdata checks passed, so this is a reader defect rather than evidence that logs are absent. The previous ARM64 tests used the normal BOOT BusyBox, not the TWRP configuration.
+
+Use collector **version 2** from the revised graphics ZIP, with the same `LEGGI-GRAFICA-UBUNTU-6.cmd` launcher in the main TWRP screen. No additional Ubuntu boot is needed before reading retained logs. Keep the installed BOOT 6. The reader checks pinned tools, prepared recovery, exact BOOT 6 and already-mounted raw userdata before reading the fixed USC, greeter, LightDM and phablet session log paths. It writes only its report on the PC: no phone file, partition, mount or reboot change is requested.
 
 The required next evidence is the loader/transport error preceding `gralloc-mapper is missing`, plus session/compositor context. The reader limits each log tail to 512 KiB, rejects symlinks/FIFOs and noncanonical parents, and lists only bounded persistent-journal metadata. It does not copy journal binaries or inspect application data. Missing logs or old retained logs must not be mistaken for current execution results.
 
-The [graphics collector record](evidence/ubuntu-graphics-collector-2026-10-15.json) records its exact package and 16 passing tests, including eight methods using the exact ARM64 BusyBox under QEMU. Device/mount boundaries are simulated; native Windows CMD/PE execution is not claimed. If the current handset attempt reaches setup/home, capture that screen and test touch instead of interrupting a successful first boot.
+The [graphics collector record](evidence/ubuntu-graphics-collector-2026-10-15.json) retains the failed handset collection, revised package and validation limits. All 20 revised tests pass, including 10 methods using the BusyBox, linker and libraries extracted from the hash-pinned original TWRP recovery under QEMU. Mount/device boundaries remain simulated; native Windows CMD/PE execution is not claimed. If the current handset attempt reaches setup/home, capture that screen and test touch instead of interrupting a successful first boot.
 
 Keep [BOOT 6's build record](evidence/ubuntu-boot-6-build-2026-10-15.json) and its source/image checks unchanged. No new kernel or Vendor replacement is justified by the current reports. Publication still requires a confirmed usable Ubuntu Touch graphical boot.
 

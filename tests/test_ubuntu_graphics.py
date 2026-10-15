@@ -1,7 +1,8 @@
 """Check BOOT 6 graphics identity gates and bounded, canonical read-only paths.
 
-Optional --qemu/--cpio executes the exact extracted ARM64 BusyBox, with only
-the fixture mount table and raw-device readlink substituted. No handset used.
+Optional --qemu with --recovery-image executes TWRP BusyBox and its exact
+Android linker/libraries. --cpio instead tests normal-BOOT BusyBox compatibility.
+Only the fixture mount table and raw-device readlink are substituted.
 """
 import argparse
 import hashlib
@@ -21,6 +22,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 QEMU = None
 CPIO = None
+RECOVERY_IMAGE = None
 RESULTS = []
 
 
@@ -53,7 +55,13 @@ def fixture(name, scenario):
     if scenario == 'wrong-model' and name == 'properties':
         value = value.replace('Galaxy S10+', 'Galaxy S10')
     if scenario == 'missing-optional' and name not in c.IDENTITY_QUERIES:
-        value, code = '', 35
+        value, code = '', 44
+    if scenario == 'missing-old' and (name.endswith('-old') or name.startswith('lomiri-')):
+        value, code = '', 44
+    if scenario == 'metadata-failed' and name == 'usc':
+        value, code = '', 37
+    if scenario == 'unsafe-parent' and name == 'usc':
+        value, code = '', 34
     return {'exit_code': code, 'timed_out': False, 'stdout': value, 'stderr': '',
             'raw_stdout_bytes': len(value.encode())}
 
@@ -96,9 +104,31 @@ class Collector(unittest.TestCase):
 
     def test_optional_missing_logs_are_explicit(self):
         report, _, members = self.collect_case('missing-optional')
-        self.assertTrue(report['success'])
+        self.assertFalse(report['success'])
+        self.assertEqual(report['error'], 'graphics_logs_unavailable')
+        self.assertEqual(report['collected_log_count'], 0)
+        self.assertEqual(report['collection_errors'], [])
+        self.assertTrue(all(value['status'] == 'missing' for value in report['logs'].values()))
         self.assertFalse(any(value['collected'] for value in report['logs'].values()))
         self.assertEqual(set(members), {'ubuntu-graphics-report.json'})
+
+    def test_missing_old_and_upstart_do_not_hide_available_logs(self):
+        report, _, members = self.collect_case('missing-old')
+        self.assertTrue(report['success'])
+        self.assertEqual(report['collected_log_count'], 4)
+        self.assertIn('usc.txt', members)
+        self.assertEqual(report['logs']['usc-old']['status'], 'missing')
+
+    def test_real_read_errors_are_incomplete_and_preserve_other_logs(self):
+        for scenario in ('metadata-failed', 'unsafe-parent'):
+            with self.subTest(scenario=scenario):
+                report, _, members = self.collect_case(scenario)
+                self.assertFalse(report['success'])
+                self.assertEqual(report['error'], 'graphics_collection_incomplete')
+                self.assertEqual(report['collection_errors'], ['usc'])
+                self.assertEqual(report['logs']['usc']['status'], 'error')
+                self.assertEqual(report['collected_log_count'], 9)
+                self.assertIn('xsession.txt', members)
 
     def test_local_tools_failure_never_uses_usb(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -173,7 +203,29 @@ class Shell(unittest.TestCase):
     def setUpClass(cls):
         cls.workspace = tempfile.TemporaryDirectory(prefix='ut-graphics-shell-')
         cls.base = Path(cls.workspace.name)
-        if QEMU:
+        if QEMU and RECOVERY_IMAGE:
+            sys.path.insert(0, str(ROOT / 'scripts'))
+            import prepare_recovery as recovery
+            image = RECOVERY_IMAGE.read_bytes()
+            if hashlib.sha256(image).hexdigest() != recovery.IMAGE_SHA256:
+                raise AssertionError('unexpected original recovery image')
+            header = recovery.boot_header(image)
+            files = recovery.newc_files(recovery.decode_ramdisk(image[header['ramdisk_offset']:
+                header['ramdisk_offset'] + header['ramdisk_bytes']]))
+            sysroot = cls.base / 'twrp-sysroot'
+            for name, value in files.items():
+                if name in ('sbin/linker64', 'sbin/busybox') or name.startswith('sbin/') and name.endswith('.so'):
+                    destination = sysroot / name
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(value)
+                    destination.chmod(0o700)
+            cls.binary = sysroot / 'sbin/busybox'
+            if hashlib.sha256(cls.binary.read_bytes()).hexdigest() != '5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87':
+                raise AssertionError('unexpected recovery BusyBox')
+            cls.shell = [str(QEMU), '-L', str(sysroot), '-E', 'LD_LIBRARY_PATH=' + str(sysroot / 'sbin'),
+                         str(cls.binary), 'sh']
+            backend = shlex.join(cls.shell[:-1])
+        elif QEMU:
             sys.path.insert(0, str(ROOT / 'scripts'))
             from prepare_boot_diagnostic import entries
             items = entries(CPIO.read_bytes())
@@ -211,7 +263,7 @@ class Shell(unittest.TestCase):
         self.mounts = self.folder / 'mounts'
         self.mounts.write_text('/dev/block/sda31 ' + str(self.data) + ' ext4 rw,relatime 0 0\n')
 
-    def run_shell(self, name='usc', timeout=20):
+    def run_shell(self, name='usc', timeout=60):
         script = c.script_for(name).replace('BB=/sbin/busybox', 'BB=' + str(self.bridge))
         script = script.replace('/data', str(self.data)).replace('/proc/mounts', str(self.mounts))
         started = __import__('time').monotonic()
@@ -227,9 +279,27 @@ class Shell(unittest.TestCase):
         result = self.run_shell()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, self.log.read_bytes()[-c.LOG_BYTES:])
-        self.assertIn(b'file=regular file|', result.stderr)
-        self.assertIn(b'|600000|', result.stderr)
-        self.assertNotIn(b'parent=', result.stdout)
+        self.assertIn(b'UT_GRAPHICS_6: file_metadata', result.stderr)
+        self.assertIn(b' 600000 ', result.stderr)
+        self.assertNotIn(b'parent_metadata', result.stdout)
+
+    def test_actual_recovery_reproduces_unsupported_custom_stat(self):
+        if not RECOVERY_IMAGE:
+            self.skipTest('exact recovery fixture not selected')
+        result = subprocess.run([*self.shell[:-1], 'stat', '-c', '%s', str(self.data)],
+                                capture_output=True, timeout=5)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b'invalid option', result.stderr)
+        self.assertIn(b'v1.22.1', result.stderr)
+
+    def test_missing_file_and_parent_are_distinct_from_unsafe(self):
+        result = self.run_shell()
+        self.assertEqual(result.returncode, 44)
+        self.assertIn(b'missing_file', result.stderr)
+        result = self.run_shell('lomiri-upstart')
+        self.assertEqual(result.returncode, 44)
+        self.assertIn(b'missing_parent=', result.stderr)
+        self.assertEqual(result.stdout, b'')
 
     def test_final_symlink_is_never_read(self):
         secret = self.folder / 'secret'
@@ -309,17 +379,22 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--qemu', type=Path)
     parser.add_argument('--cpio', type=Path)
+    parser.add_argument('--recovery-image', type=Path)
     parser.add_argument('--report', type=Path)
     args, remaining = parser.parse_known_args()
-    if bool(args.qemu) != bool(args.cpio):
-        parser.error('--qemu and --cpio are required together')
-    QEMU, CPIO = args.qemu, args.cpio
+    if bool(args.qemu) != bool(args.cpio or args.recovery_image) or args.cpio and args.recovery_image:
+        parser.error('--qemu requires exactly one of --cpio or --recovery-image')
+    QEMU, CPIO, RECOVERY_IMAGE = args.qemu, args.cpio, args.recovery_image
     result = unittest.main(argv=[sys.argv[0], *remaining], exit=False)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps({'success': result.result.wasSuccessful(),
             'tests_run': result.result.testsRun, 'failures': len(result.result.failures),
             'errors': len(result.result.errors), 'actual_arm64_busybox_fixtures': bool(QEMU),
+            'exact_recovery_busybox_tested': bool(RECOVERY_IMAGE),
+            'normal_boot_busybox_compatibility_only': bool(CPIO),
+            'recovery_image_sha256': hashlib.sha256(RECOVERY_IMAGE.read_bytes()).hexdigest() if RECOVERY_IMAGE else None,
+            'recovery_busybox_sha256': '5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87' if RECOVERY_IMAGE else None,
             'native_windows_cmd_or_python_pe_tested': False,
             'raw_mount_boundary': 'fixture only; no handset, mount or writes',
             'cases': RESULTS}, indent=2) + '\n')

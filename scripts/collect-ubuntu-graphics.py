@@ -47,6 +47,9 @@ mark() { printf 'UT_GRAPHICS_6: %s\n' "$*" >&2; }
 directory_chain() {
     directory=$1
     while :; do
+        if [ ! -e "$directory" ] && [ ! -L "$directory" ]; then
+            mark "missing_parent=$directory"; return 3
+        fi
         [ -d "$directory" ] && [ ! -L "$directory" ] || { mark "unsafe_parent=$directory"; return 1; }
         canonical=$("$BB" readlink -f "$directory") || return 1
         [ "$canonical" = "$directory" ] || { mark "noncanonical_parent=$directory"; return 1; }
@@ -70,24 +73,36 @@ guard_data() {
 guard_data || exit 33
 '''
 
+# The actual TWRP BusyBox advertises stat -t, but was built without stat -c.
+# Keep metadata opaque; its terse format can vary with BusyBox compile options.
+SHELL_PARENT = r'''
+directory_chain "${path%/*}"
+parent_status=$?
+[ "$parent_status" = 0 ] || { [ "$parent_status" != 3 ] || exit 44; exit 34; }
+mark parent_metadata
+"$BB" stat -t "${path%/*}" >&2 || { mark metadata_unavailable; exit 37; }
+'''
+
 
 def script_for(name):
     if name == 'data-state':
         return SHELL_COMMON + "printf 'UT_GRAPHICS_6: data_ready=raw_ext4\n'\n"
     if name in LOG_PATHS:
         path = LOG_PATHS[name]
-        return SHELL_COMMON + "path='" + path + "'\n" + r'''
-directory_chain "${path%/*}" || exit 34
-"$BB" stat -c 'parent=%F|%u|%g|%a|%s|%Y' "${path%/*}" >&2 || exit 34
+        return SHELL_COMMON + "path='" + path + "'\n" + SHELL_PARENT + r'''
+[ -e "$path" ] || [ -L "$path" ] || { mark missing_file; exit 44; }
 [ ! -L "$path" ] && [ -f "$path" ] || { mark missing_or_unsafe_file; exit 35; }
 canonical=$("$BB" readlink -f "$path") || exit 35
 [ "$canonical" = "$path" ] || { mark noncanonical_file; exit 35; }
-"$BB" stat -c 'file=%F|%u|%g|%a|%s|%Y' "$path" >&2 || exit 35
+mark file_metadata
+"$BB" stat -t "$path" >&2 || { mark metadata_unavailable; exit 37; }
 ''' + '"$BB" tail -c ' + str(LOG_BYTES) + ' "$path"\n'
     if name in INVENTORY_PATHS:
         path = INVENTORY_PATHS[name]
         return SHELL_COMMON + "inventory_root='" + path + "'\n" + r'''
-directory_chain "$inventory_root" || exit 34
+directory_chain "$inventory_root"
+parent_status=$?
+[ "$parent_status" = 0 ] || { [ "$parent_status" != 3 ] || exit 44; exit 34; }
 mark inventory_maxdepth=2
 mark inventory_entry_cap=64
 # find never follows links; head bounds both enumeration and metadata output.
@@ -101,7 +116,7 @@ while IFS= read -r path; do
     directory_chain "${path%/*}" || continue
     canonical=$("$BB" readlink -f "$path") || continue
     [ "$canonical" = "$path" ] || continue
-    "$BB" stat -c '%F|%u|%g|%a|%s|%Y|%n' "$path" || exit 36
+    "$BB" stat -t "$path" || { mark metadata_unavailable; exit 37; }
 done
 '''
     raise ValueError('graphics_query_not_allowed')
@@ -137,15 +152,16 @@ def run_query(executable, name):
 def collect(root, runner=run_query, verifier=legacy.check_tools):
     root = Path(root).resolve()
     files = {}
-    report = {'schema': 1, 'collector_version': 1, 'boot_version': 6,
+    report = {'schema': 1, 'collector_version': 2, 'boot_version': 6,
               'date_utc': datetime.now(timezone.utc).isoformat(), 'target_model': 'SM-G975F',
               'success': False, 'error': None, 'adb_usb_only': True,
               'partition_writes': False, 'phone_files_written': False, 'mount_changes_requested': False,
               'data_format_requested': False, 'reboot_requested': False, 'system_code_executed': False,
               'ubuntu_touch_graphical_boot_verified': False, 'steps': [], 'image_checks': {},
               'log_tail_limit_bytes': LOG_BYTES, 'inventory_entry_cap_per_directory': INVENTORY_ENTRIES,
-              'inventory_maxdepth': 2, 'logs': {},
-              'note': 'Success means guarded collection completed, not a graphical boot. Missing logs do not '
+              'inventory_maxdepth': 2, 'logs': {}, 'inventories': {}, 'collected_log_count': 0,
+              'collection_errors': [], 'metadata_format': 'busybox_stat_terse',
+              'note': 'Success means at least one fixed log was read without collection errors, not a graphical boot. Missing logs do not '
                       'prove a service was absent. Lomiri normally uses the user journal; only persistent '
                       'journal metadata is listed here. Current BOOT identity does not date retained logs.'}
     reason = 'local_tools_unavailable'
@@ -203,13 +219,29 @@ def collect(root, runner=run_query, verifier=legacy.check_tools):
         print('Identita verificate. Lettura limitata dei soli log grafici conservati...', flush=True)
         for name, path in LOG_PATHS.items():
             value = read(name)
-            report['logs'][name] = {'phone_path': path, 'collected': value is not None}
+            step = report['steps'][-1]
+            status = 'collected' if value is not None else (
+                'missing' if step['exit_code'] == 44 and not step['timed_out'] else 'error')
+            report['logs'][name] = {'phone_path': path, 'collected': value is not None, 'status': status}
             if value is not None:
                 files[name + '.txt'] = value
+                report['collected_log_count'] += 1
+            elif status == 'error':
+                report['collection_errors'].append(name)
         for name in INVENTORY_PATHS:
             value = read(name)
+            step = report['steps'][-1]
+            status = 'listed' if value is not None else (
+                'missing' if step['exit_code'] == 44 and not step['timed_out'] else 'error')
+            report['inventories'][name] = {'phone_path': INVENTORY_PATHS[name], 'status': status}
             if value is not None:
                 files[name + '.txt'] = value
+            elif status == 'error':
+                report['collection_errors'].append(name)
+        if report['collection_errors']:
+            raise ValueError('graphics_collection_incomplete')
+        if not report['collected_log_count']:
+            raise ValueError('graphics_logs_unavailable')
         report['success'] = True
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         report['error'] = str(error) if isinstance(error, ValueError) and re.fullmatch('[a-z_]+', str(error)) else reason

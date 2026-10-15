@@ -8,7 +8,7 @@ These files are inputs to the packaging scripts. The scripts place them at the r
 | --- | --- |
 | `INSTALLA-AVVIO-UBUNTU-6.cmd` | Installs BOOT 6 USB and RAM-profile corrections only from exact physical BOOT 5; writes only BOOT. |
 | `LEGGI-AVVIO-UBUNTU-6.cmd` | Reads stages, trace, post-root PID 1/journal/Android state and retained logs; produces `ubuntu-boot-6-log-report.zip`. |
-| `LEGGI-GRAFICA-UBUNTU-6.cmd` | Reads only fixed retained graphics/session log tails after pinning TWRP, RECOVERY, BOOT 6 and userdata; produces `ubuntu-graphics-6-report.zip`. |
+| `LEGGI-GRAFICA-UBUNTU-6.cmd` | Collector version 2 reads fixed retained graphics/session log tails with TWRP-compatible terse metadata after pinning RECOVERY, BOOT 6 and userdata; produces `ubuntu-graphics-6-report.zip`. |
 | `RIPRISTINA-AVVIO-UBUNTU-4.cmd` | Restores exact physical BOOT 4 from BOOT 6. |
 | `LEGGI-TEST-AVVIO.cmd` | Reads the diagnostic logs, pstore/last-kmsg, recovery metadata and BOOT identity; produces `ubuntu-boot-diagnostic-log-report.zip`. |
 | `INSTALLA-TEST-AVVIO-2.cmd` | Installs the built-in-initramfs diagnostic from the exact verified diagnostic 1 BOOT; targets only BOOT. |

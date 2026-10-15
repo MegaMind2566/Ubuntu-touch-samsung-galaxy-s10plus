@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "date": "2026-10-15",
   "experiment": "Ubuntu BOOT 6 physical readback and graphics-session failure",
   "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
@@ -45,6 +45,13 @@
       "filename": "ubuntu-boot-update-6-report.zip",
       "bytes": 935,
       "sha256": "0604bff80da09d29b98b33b5e24d103ac6365f4083269e998ee822bf94727cbb",
+      "zip_crc_checked": true,
+      "zip_members": 1
+    },
+    {
+      "filename": "ubuntu-graphics-6-report.zip",
+      "bytes": 1592,
+      "sha256": "95040f1394412966fc3023e90002f97a738dd9edaf47f5c9eb84698e5f47edf9",
       "zip_crc_checked": true,
       "zip_members": 1
     }
@@ -154,7 +161,7 @@
     "write_started": true,
     "success": true
   },
-  "recovery_vbmeta_limit": "Preflight29/30 verified the pinned recovery/VBMETA before BOOT6 was written; no post-runtime hashes of these two partitions are in this set.",
+  "recovery_vbmeta_limit": "Preflight29/30 verified RECOVERY/VBMETA before BOOT6. The later graphics collector verifies prepared RECOVERY after runtime. No post-runtime VBMETA hash is supplied.",
   "runtime": {
     "run1": {
       "profile_hook": "checking,staged,complete; all6 bind/readback operations passed",
@@ -421,6 +428,25 @@
   "graphical_shell_confirmed": false,
   "setup_or_home_screen_confirmed": false,
   "touch_input_confirmed": false,
-  "next_action": "Read the retained USC/greeter/.xsession-errors graphics logs with a BOOT6-pinned read-only TWRP collector. No new kernel or driver change is justified before the Vendor loader/transport error is identified.",
-  "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot"
+  "next_action": "Repeat the graphics log read with collector version2, compatible with TWRP BusyBox without stat -c. Keep BOOT6 installed; no additional Ubuntu boot is needed before reading retained logs.",
+  "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot",
+  "graphics_collector_followup": {
+    "source": "ubuntu-graphics-6-report.zip/ubuntu-graphics-report.json",
+    "collector_version": 1,
+    "reported_success": true,
+    "actual_graphics_logs_collected": 0,
+    "boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
+    "recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "boot_and_prepared_recovery_match": true,
+    "recovery_readback_is_post_runtime": true,
+    "vbmeta_readback_present": false,
+    "userdata_raw_ext4_check_passed": true,
+    "failure": "TWRP BusyBox 1.22.1 stat has no -c option; log readers exit34 and inventories exit36 before returning any logs.",
+    "legacy_upstart_parent": "Directory missing or rejected; this optional path does not demonstrate an additional boot failure.",
+    "collector_result_bug": "Version1 reports success even though all optional graphics reads failed.",
+    "test_boundary_correction": "Previous ARM64 fixtures used the normal BOOT BusyBox, not the active TWRP binary/configuration.",
+    "timestamp_limit": "PC-generated date_utc is retained in the source report, not used to date the prior Ubuntu attempts.",
+    "next_action": "Use revised graphics collector version2 in the same TWRP session; no new Ubuntu boot or phone write is required.",
+    "revised_collector_validation": "Version2 passes20 tests;10 ARM64 shell methods use original pinned TWRP BusyBox/linker/libraries under QEMU. Native Windows and device mount boundaries remain untested/simulated."
+  }
 }

@@ -1,19 +1,7 @@
 {
-  "schema": 1,
+  "schema": 2,
   "date": "2026-10-15",
   "purpose": "Read retained graphics logs after BOOT6 reaches LSC/spinner but Lomiri aborts for gralloc-mapper",
-  "package": {
-    "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-Windows.zip",
-    "bytes": 11555,
-    "sha256": "c1ff649d13a62e4251bb49b621160866f0052ffeab0088a510e484a1177a0795",
-    "zip_crc_paths_manifest_and_exact_sources_verified": true,
-    "members": 5,
-    "manifest_members": 4,
-    "tests": 16,
-    "actual_arm64_shell_test_methods": 8,
-    "native_windows_executed": false,
-    "phone_accessed_in_tests": false
-  },
   "requires_existing_prepared_windows_folder": true,
   "writes_phone_partitions": false,
   "writes_phone_files": false,
@@ -35,22 +23,90 @@
     "Raw userdata ext4 already mounted at /data",
     "Canonical directory chain and regular file; symlink/FIFO rejected"
   ],
-  "test_summary": {
+  "validation_limits": [
+    "Mount tables and raw-device readlink responses are simulated; no handset accessed.",
+    "Version2 tests execute BusyBox/linker/libraries from the hash-pinned original TWRP recovery under QEMU, not the phone kernel.",
+    "Initial version1 used the normal BOOT BusyBox, missing the TWRP stat compile-option difference.",
+    "Native Windows CMD and Python PE execution was not tested.",
+    "Missing or retained old logs do not establish current service state; collection success is not a graphical boot."
+  ],
+  "launcher": "LEGGI-GRAFICA-UBUNTU-6.cmd",
+  "output_report": "ubuntu-graphics-6-report.zip (numbered if necessary)",
+  "original_package": {
+    "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-Windows.zip",
+    "bytes": 11555,
+    "sha256": "c1ff649d13a62e4251bb49b621160866f0052ffeab0088a510e484a1177a0795",
+    "zip_crc_paths_manifest_and_exact_sources_verified": true,
+    "members": 5,
+    "manifest_members": 4,
+    "tests": 16,
+    "actual_arm64_shell_test_methods": 8,
+    "native_windows_executed": false,
+    "phone_accessed_in_tests": false
+  },
+  "original_test_summary": {
     "success": true,
     "tests_run": 16,
     "failures": 0,
     "errors": 0,
     "actual_arm64_busybox_fixtures": true,
     "native_windows_cmd_or_python_pe_tested": false,
-    "raw_mount_boundary": "fixture only; no handset, mount or writes"
+    "raw_mount_boundary": "fixture only; no handset, mount or writes",
+    "binary_identity_limit": "Normal BOOT ARM64 BusyBox was exercised, not the active TWRP BusyBox binary/configuration."
   },
-  "validation_limits": [
-    "Mount/device responses are simulated in tests; no handset accessed.",
-    "The exact ARM64 BusyBox shell is exercised under QEMU.",
-    "Native Windows CMD and Python PE execution not tested in this run.",
-    "Missing/old retained logs do not establish current service state.",
-    "Collection success does not establish a graphical boot."
-  ],
-  "launcher": "LEGGI-GRAFICA-UBUNTU-6.cmd",
-  "output_report": "ubuntu-graphics-6-report.zip (numbered if necessary)"
+  "handset_result": {
+    "input_filename": "ubuntu-graphics-6-report.zip",
+    "input_bytes": 1592,
+    "input_sha256": "95040f1394412966fc3023e90002f97a738dd9edaf47f5c9eb84698e5f47edf9",
+    "zip_crc_checked": true,
+    "zip_members": 1,
+    "collector_version": 1,
+    "reported_success": true,
+    "actual_logs_returned": 0,
+    "boot_and_recovery_readback_match": true,
+    "raw_userdata_check_passed": true,
+    "twrp_busybox_version": "1.22.1 (2021-03-19 10:37 +0200)",
+    "error": "stat: invalid option -- c",
+    "log_queries_exit_code": 34,
+    "inventory_queries_exit_code": 36,
+    "classification": "Collector compatibility defect; no proof of absent graphics logs or new handset failure.",
+    "optional_legacy_upstart": "Parent unavailable/rejected; no file copied.",
+    "post_runtime_recovery_sha256": "caecf1ef6c36392739377cfbe7d0c9ce37b255858e6dfd1a5cde2cad7a508b0e",
+    "post_runtime_boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad"
+  },
+  "correction": {
+    "collector_version": 2,
+    "metadata": "Use BusyBox stat -t, explicitly advertised by the actual recovery usage.",
+    "result": "Distinguish optional absence from unsafe path, read/metadata failure and zero collected logs.",
+    "scope": "Same fixed bounded log paths; phone remains unchanged in TWRP. No extra Ubuntu attempt is required.",
+    "tested_reproduction": "Exact recovery stat -c returns unsupported-option error; stat -t and guarded log/inventory reads pass."
+  },
+  "package": {
+    "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-v2-Windows.zip",
+    "bytes": 12062,
+    "sha256": "4e0867b2d4963095861dc37c03b9b32c9224c2f9347df9a06c8c50e35fa76c61",
+    "members": 5,
+    "manifest_members": 4,
+    "zip_crc_paths_manifest_and_exact_sources_verified": true,
+    "collector_version": 2,
+    "tests": 20,
+    "actual_twrp_arm64_shell_test_methods": 10,
+    "native_windows_executed": false,
+    "phone_accessed_in_tests": false
+  },
+  "test_summary": {
+    "success": true,
+    "tests_run": 20,
+    "failures": 0,
+    "errors": 0,
+    "actual_arm64_busybox_fixtures": true,
+    "exact_recovery_busybox_tested": true,
+    "normal_boot_busybox_compatibility_only": false,
+    "recovery_image_sha256": "c61eafa9146d4b148648d1ab6a0d9d2d4a2456ef6b95ce17df9a4f413b2cb07d",
+    "recovery_busybox_sha256": "5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87",
+    "native_windows_cmd_or_python_pe_tested": false,
+    "raw_mount_boundary": "fixture only; no handset, mount or writes",
+    "actual_twrp_arm64_shell_test_methods": 10,
+    "initial_inventory_fixture_timeout": "The first exact-recovery QEMU run passed assertions but one inventory fixture exceeded20s; fixture timeout raised to60s for emulator overhead. Real ADB query limit remains45s. Complete rerun passed20/20."
+  }
 }

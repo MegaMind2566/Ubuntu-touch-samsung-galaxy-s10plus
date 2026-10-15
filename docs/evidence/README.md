@@ -7,7 +7,7 @@ Reports retain their original names and contents so image identities and earlier
 | Report | Finding |
 | --- | --- |
 | [Ubuntu BOOT 6 handset result](ubuntu-boot-6-handset-2026-10-15.json) | Exact installation and later readback; systemd alive through 120 s, RAM profiles/Android/HWC running. Lomiri aborts for gralloc-mapper; no usable GUI confirmed. |
-| [BOOT 6 graphics collector](ubuntu-graphics-collector-2026-10-15.json) | Bounded read-only TWRP collector for the missing USC/greeter/session logs; 16 tests passed. |
+| [BOOT 6 graphics collector](ubuntu-graphics-collector-2026-10-15.json) | First handset read confirms BOOT/recovery but returns no logs due to unsupported `stat -c`; version 2 passes 20 tests including the exact TWRP BusyBox under QEMU. |
 | [Ubuntu BOOT 6 build/package](ubuntu-boot-6-build-2026-10-15.json) | Compiled USB NULL guard and RAM profile integration; 33 ARM64 profile and 25 portable PowerShell cases passed. Exact BOOT 5 apply baseline / BOOT 4 rollback; subsequent physical result above, usable GUI pending. |
 | [Ubuntu BOOT 5 handset execution](ubuntu-boot-5-handset-2026-10-15.json) | Exact install/readback; two systemd/Android/HWC starts; repeated USB configfs NULL panic. Graphical boot unconfirmed; RAM profile targets missing. |
 | [Ubuntu BOOT 5 build/package](ubuntu-boot-5-build-2026-10-15.json) | Local compiled-image/ARM64 and 24 portable PowerShell cases passed; exact BOOT 4 rollback. New native Windows CI could not start. Subsequent handset execution and USB panic are recorded separately above. |

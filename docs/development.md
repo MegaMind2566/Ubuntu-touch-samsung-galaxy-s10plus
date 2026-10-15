@@ -115,10 +115,10 @@ Firmware validation preserves tested gzip bytes without host recompression. Supe
 
 ## Retained graphics logs after BOOT 6
 
-The physical BOOT 6 record confirms its exact readback and two-minute normal run, followed by repeated Lomiri mapper aborts. `collect-ubuntu-graphics.py` uses the existing pinned portable tools and prepared TWRP; it validates recovery/BOOT identity and raw userdata before fixed, bounded log reads. It does not execute SYSTEM programs, mount filesystems or change phone files. It uses recovery BusyBox for metadata, canonical-path checks and log tails.
+The physical BOOT 6 record confirms its exact readback and two-minute normal run, followed by repeated Lomiri mapper aborts. `collect-ubuntu-graphics.py` uses the existing pinned portable tools and prepared TWRP; it validates recovery/BOOT identity and raw userdata before fixed, bounded log reads. It does not execute SYSTEM programs, mount filesystems or change phone files. It uses recovery BusyBox for metadata, canonical-path checks and log tails. The first handset result exposed a configuration mismatch: TWRP BusyBox 1.22.1 does not support `stat -c`, unlike the normal BOOT BusyBox used in the initial QEMU tests. Collector version 2 uses the advertised terse stat mode and treats failed collection separately from optional missing files. The revised suite executes the exact BusyBox, linker and libraries extracted from the hash-pinned original TWRP recovery under QEMU, reproduces the unsupported option and verifies the corrected reads. Mount/device boundaries remain fixtures; the phone kernel is not emulated.
 
 ```sh
-python3 tests/test_ubuntu_graphics.py --qemu /path/to/qemu-aarch64-static --cpio /path/to/initramfs.cpio
+python3 tests/test_ubuntu_graphics.py --qemu /path/to/qemu-aarch64-static --recovery-image /path/to/twrp-3.7.0_9-2-beyond2lte.img
 python3 scripts/package-ubuntu-graphics.py
 ```
 

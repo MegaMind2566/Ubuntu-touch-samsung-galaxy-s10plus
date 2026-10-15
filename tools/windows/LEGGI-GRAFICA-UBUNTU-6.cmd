@@ -1,6 +1,6 @@
 @echo off
 setlocal
-echo Samsung S10+ - lettura dei log grafici Ubuntu BOOT 6
+echo Samsung S10+ - lettura dei log grafici Ubuntu BOOT 6, lettore v2
 echo Lascia la schermata principale TWRP aperta e USB collegato.
 echo Nessuna scrittura, cancellazione, mount o riavvio.
 echo.

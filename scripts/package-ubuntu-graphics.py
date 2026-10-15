@@ -38,5 +38,5 @@ def package(output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path,
-                        default=ROOT / 'out/UbuntuTouch-S10plus-log-grafica-Ubuntu-6-Windows.zip')
+                        default=ROOT / 'out/UbuntuTouch-S10plus-log-grafica-Ubuntu-6-v2-Windows.zip')
     package(parser.parse_args().output)

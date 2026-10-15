@@ -1,4 +1,7 @@
-Samsung Galaxy S10+ - log grafici del test Ubuntu BOOT 6
+Samsung Galaxy S10+ - log grafici del test Ubuntu BOOT 6, lettore v2
+
+Questa versione corregge il comando metadati non supportato da TWRP che
+impediva al lettore v1 di aprire i log. Il sistema sul telefono resta uguale.
 
 Il lettore raccoglie i log conservati di LightDM, del compositore, del greeter
 e della sessione phablet. Serve a capire perche dopo la schermata Ubuntu Touch
@@ -26,4 +29,6 @@ i vecchi log Upstart sono opzionali, come i file .old.
 Il rapporto puo contenere nomi e messaggi della sessione grafica; non va
 pubblicato automaticamente. I log possono includere avvii precedenti e la
 loro assenza non prova che un servizio non sia partito. Lettura completata
-significa raccolta conclusa, non avvio grafico riuscito.
+richiede almeno un log letto e nessun errore di raccolta. File opzionali
+assenti sono distinti da percorsi non sicuri o errori degli strumenti.
+Il rapporto non conferma da solo un avvio grafico riuscito.
