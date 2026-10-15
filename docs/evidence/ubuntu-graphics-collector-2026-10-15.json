@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "date": "2026-10-15",
   "purpose": "Read retained graphics logs after BOOT6 reaches LSC/spinner but Lomiri aborts for gralloc-mapper",
   "requires_existing_prepared_windows_folder": true,
@@ -11,7 +11,7 @@
   "executes_recovery_busybox": true,
   "expected_boot_bytes": 57344000,
   "expected_boot_sha256": "2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad",
-  "queries": "Fixed USC/LightDM/greeter logs and .old, phablet .xsession-errors and old, optional legacy Lomiri Upstart logs; bounded metadata for LightDM and persistent journal.",
+  "queries": "11 fixed log queries: existing tails plus first64KiB of the same USC file; bounded LightDM/persistent-journal metadata inventories remain unchanged.",
   "per_log_tail_limit_bytes": 524288,
   "inventory_entries_per_directory": 64,
   "inventory_maxdepth": 2,
@@ -25,7 +25,7 @@
   ],
   "validation_limits": [
     "Mount tables and raw-device readlink responses are simulated; no handset accessed.",
-    "Version2 tests execute BusyBox/linker/libraries from the hash-pinned original TWRP recovery under QEMU, not the phone kernel.",
+    "Version3 tests execute BusyBox/linker/libraries from the hash-pinned original TWRP recovery under QEMU, not the phone kernel.",
     "Initial version1 used the normal BOOT BusyBox, missing the TWRP stat compile-option difference.",
     "Native Windows CMD and Python PE execution was not tested.",
     "Missing or retained old logs do not establish current service state; collection success is not a graphical boot."
@@ -81,7 +81,7 @@
     "scope": "Same fixed bounded log paths; phone remains unchanged in TWRP. No extra Ubuntu attempt is required.",
     "tested_reproduction": "Exact recovery stat -c returns unsupported-option error; stat -t and guarded log/inventory reads pass."
   },
-  "package": {
+  "version2_package": {
     "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-v2-Windows.zip",
     "bytes": 12062,
     "sha256": "4e0867b2d4963095861dc37c03b9b32c9224c2f9347df9a06c8c50e35fa76c61",
@@ -94,7 +94,7 @@
     "native_windows_executed": false,
     "phone_accessed_in_tests": false
   },
-  "test_summary": {
+  "version2_test_summary": {
     "success": true,
     "tests_run": 20,
     "failures": 0,
@@ -108,5 +108,112 @@
     "raw_mount_boundary": "fixture only; no handset, mount or writes",
     "actual_twrp_arm64_shell_test_methods": 10,
     "initial_inventory_fixture_timeout": "The first exact-recovery QEMU run passed assertions but one inventory fixture exceeded20s; fixture timeout raised to60s for emulator overhead. Real ADB query limit remains45s. Complete rerun passed20/20."
-  }
+  },
+  "version2_handset_result": {
+    "input_filename": "ubuntu-graphics-6-report-1.zip",
+    "input_bytes": 10908,
+    "input_sha256": "069e623cc631a05afec6098c4ac565ce889c265c204c4bcbdf601cf81ed7506c",
+    "zip_crc_checked": true,
+    "zip_members": 7,
+    "collector_version": 2,
+    "success": false,
+    "error": "graphics_collection_incomplete",
+    "collected_log_count": 4,
+    "collected_members": [
+      "greeter.txt",
+      "lightdm.txt",
+      "xsession.txt",
+      "xsession-old.txt"
+    ],
+    "current_xsession_empty": true,
+    "inventory_members": [
+      "lightdm-inventory.txt",
+      "journal-inventory.txt"
+    ],
+    "boot_and_recovery_readback_match": true,
+    "usc_remote_file_bytes": 2021134,
+    "usc_phone_tail_limit_bytes": 524288,
+    "usc_captured_transport_bytes": 528115,
+    "usc_was_discarded": true,
+    "CRLF_expansion_evidence": {
+      "greeter": {
+        "transport_bytes": 4547,
+        "CRLF_pairs": 78,
+        "remote_file_bytes_from_stat": 4469,
+        "extra_transport_bytes": 78
+      },
+      "lightdm": {
+        "transport_bytes": 119917,
+        "CRLF_pairs": 1725,
+        "remote_file_bytes_from_stat": 118192,
+        "extra_transport_bytes": 1725
+      }
+    },
+    "greeter_mapper_assertions": 19,
+    "specific_loader_error_available": false,
+    "fscrypt_message_is_probe": true,
+    "fscrypt_source_reason": "ubuntu-touch-session has no errexit; initializes unencrypted target and conditionally selects encrypted target after fscrypt probe. Negative encryption probe does not stop it.",
+    "session_target_dependency": "unencrypted target Requires+After lomiri-full-greeter Type=notify; mapper abort prevents readiness.",
+    "device_writes_or_mount_changes_requested": false,
+    "interpretation": "Partial collection confirms the existing mapper failure. The USC omission is a collector transport-limit bug; it is not a new phone fault.",
+    "fscrypt_source_proof": [
+      {
+        "rootfs_path": "/usr/bin/ubuntu-touch-session",
+        "sha256": "1842b608523ad27a7843fcc758fe422f57b0a1f2c6bcb2669172722a864736da"
+      },
+      {
+        "rootfs_path": "/usr/share/ubuntu-touch-session/run-systemd-session",
+        "sha256": "eef5ef9d9b52e3743ae7586479a0156faad4bae7df834a8fc3ca8cac903ad79d"
+      },
+      {
+        "rootfs_path": "/usr/lib/systemd/user/ubuntu-touch-session-unencrypted.target",
+        "sha256": "98ee0d91cea73132f22eab9626f6681d116ecebfecaf9609aa231b124879868e"
+      },
+      {
+        "rootfs_path": "/usr/lib/systemd/user/lomiri-full-greeter.service",
+        "sha256": "1dc536c31c421d97483bf98e526dcdc629c7c9b8961be10a805c5c4a04a947c9"
+      }
+    ],
+    "final_lightdm_stop": "Last retained LightDM cycle receives SIGTERM from PID1 and exits cleanly. Cause of the stop is not identified by these files."
+  },
+  "correction_v3": {
+    "collector_version": 3,
+    "remote_read_scope": "Retain512KiB tails; add first64KiB of the same USC log for initial loader configuration.",
+    "transport_bound": "Allow at most2 transported bytes per remotely requested byte to account for LF to CRLF. Preserve received text without destructive newline normalization.",
+    "adb_mode": "Retain working shell transport; do not require -T, which can reject legacy adbd without shell_v2.",
+    "primary_source": "https://android.googlesource.com/platform/packages/modules/adb/+/refs/tags/android-12.0.0_r13/client/commandline.cpp#766",
+    "scope": "No new BOOT, mount, reboot or phone file write.",
+    "validation": "24/24 tests pass. Exact TWRP BusyBox fixtures verify prefix and tail separately; host transport fixtures accept512KiB expanded to1MiB CRLF, preserveCRLF, and reject raw/decoded overflow.",
+    "transport_cause_limit": "The extra CR per LF is observed in received bytes. The exact origin (PTY or Windows text mode) has not been isolated; native Windows v3 execution is untested."
+  },
+  "package": {
+    "filename": "UbuntuTouch-S10plus-log-grafica-Ubuntu-6-v3-Windows.zip",
+    "bytes": 12603,
+    "sha256": "90348d514eb0c84aa847ecb4a76421ab88c6521ada3447aec4f3ee1b2c98565f",
+    "members": 5,
+    "manifest_members": 4,
+    "zip_crc_paths_manifest_and_exact_sources_verified": true,
+    "collector_version": 3,
+    "tests": 24,
+    "actual_twrp_arm64_shell_test_methods": 11,
+    "native_windows_executed": false,
+    "phone_accessed_in_tests": false
+  },
+  "test_summary": {
+    "success": true,
+    "tests_run": 24,
+    "failures": 0,
+    "errors": 0,
+    "actual_arm64_busybox_fixtures": true,
+    "exact_recovery_busybox_tested": true,
+    "normal_boot_busybox_compatibility_only": false,
+    "recovery_image_sha256": "c61eafa9146d4b148648d1ab6a0d9d2d4a2456ef6b95ce17df9a4f413b2cb07d",
+    "recovery_busybox_sha256": "5d053450c750048158e62b191997c0f58453a4648800dc1c9543724ba0663b87",
+    "native_windows_cmd_or_python_pe_tested": false,
+    "raw_mount_boundary": "fixture only; no handset, mount or writes",
+    "actual_twrp_arm64_shell_test_methods": 11,
+    "duration_seconds": 48.382
+  },
+  "usc_prefix_limit_bytes": 65536,
+  "transport_expansion_allowance": 2
 }

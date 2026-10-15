@@ -1,5 +1,5 @@
 {
-  "schema": 3,
+  "schema": 4,
   "date": "2026-10-15",
   "experiment": "Ubuntu BOOT 6 physical readback and graphics-session failure",
   "device": "Samsung Galaxy S10+ Exynos SM-G975F/DS (beyond2lte)",
@@ -54,6 +54,13 @@
       "sha256": "95040f1394412966fc3023e90002f97a738dd9edaf47f5c9eb84698e5f47edf9",
       "zip_crc_checked": true,
       "zip_members": 1
+    },
+    {
+      "filename": "ubuntu-graphics-6-report-1.zip",
+      "bytes": 10908,
+      "sha256": "069e623cc631a05afec6098c4ac565ce889c265c204c4bcbdf601cf81ed7506c",
+      "zip_crc_checked": true,
+      "zip_members": 7
     }
   ],
   "image_identity": {
@@ -428,7 +435,7 @@
   "graphical_shell_confirmed": false,
   "setup_or_home_screen_confirmed": false,
   "touch_input_confirmed": false,
-  "next_action": "Repeat the graphics log read with collector version2, compatible with TWRP BusyBox without stat -c. Keep BOOT6 installed; no additional Ubuntu boot is needed before reading retained logs.",
+  "next_action": "Read USC prefix64KiB and tail512KiB with collector version3, allowing bounded CRLF transport expansion. Keep BOOT6 and TWRP; no new Ubuntu boot is needed.",
   "repository_visibility": "private pending confirmed usable Ubuntu Touch graphical boot",
   "graphics_collector_followup": {
     "source": "ubuntu-graphics-6-report.zip/ubuntu-graphics-report.json",
@@ -448,5 +455,78 @@
     "timestamp_limit": "PC-generated date_utc is retained in the source report, not used to date the prior Ubuntu attempts.",
     "next_action": "Use revised graphics collector version2 in the same TWRP session; no new Ubuntu boot or phone write is required.",
     "revised_collector_validation": "Version2 passes20 tests;10 ARM64 shell methods use original pinned TWRP BusyBox/linker/libraries under QEMU. Native Windows and device mount boundaries remain untested/simulated."
+  },
+  "graphics_collector_v2_followup": {
+    "input_filename": "ubuntu-graphics-6-report-1.zip",
+    "input_bytes": 10908,
+    "input_sha256": "069e623cc631a05afec6098c4ac565ce889c265c204c4bcbdf601cf81ed7506c",
+    "zip_crc_checked": true,
+    "zip_members": 7,
+    "collector_version": 2,
+    "success": false,
+    "error": "graphics_collection_incomplete",
+    "collected_log_count": 4,
+    "collected_members": [
+      "greeter.txt",
+      "lightdm.txt",
+      "xsession.txt",
+      "xsession-old.txt"
+    ],
+    "current_xsession_empty": true,
+    "inventory_members": [
+      "lightdm-inventory.txt",
+      "journal-inventory.txt"
+    ],
+    "boot_and_recovery_readback_match": true,
+    "usc_remote_file_bytes": 2021134,
+    "usc_phone_tail_limit_bytes": 524288,
+    "usc_captured_transport_bytes": 528115,
+    "usc_was_discarded": true,
+    "CRLF_expansion_evidence": {
+      "greeter": {
+        "transport_bytes": 4547,
+        "CRLF_pairs": 78,
+        "remote_file_bytes_from_stat": 4469,
+        "extra_transport_bytes": 78
+      },
+      "lightdm": {
+        "transport_bytes": 119917,
+        "CRLF_pairs": 1725,
+        "remote_file_bytes_from_stat": 118192,
+        "extra_transport_bytes": 1725
+      }
+    },
+    "greeter_mapper_assertions": 19,
+    "specific_loader_error_available": false,
+    "fscrypt_message_is_probe": true,
+    "fscrypt_source_reason": "ubuntu-touch-session has no errexit; initializes unencrypted target and conditionally selects encrypted target after fscrypt probe. Negative encryption probe does not stop it.",
+    "session_target_dependency": "unencrypted target Requires+After lomiri-full-greeter Type=notify; mapper abort prevents readiness.",
+    "device_writes_or_mount_changes_requested": false,
+    "interpretation": "Partial collection confirms the existing mapper failure. The USC omission is a collector transport-limit bug; it is not a new phone fault.",
+    "fscrypt_source_proof": [
+      {
+        "rootfs_path": "/usr/bin/ubuntu-touch-session",
+        "sha256": "1842b608523ad27a7843fcc758fe422f57b0a1f2c6bcb2669172722a864736da"
+      },
+      {
+        "rootfs_path": "/usr/share/ubuntu-touch-session/run-systemd-session",
+        "sha256": "eef5ef9d9b52e3743ae7586479a0156faad4bae7df834a8fc3ca8cac903ad79d"
+      },
+      {
+        "rootfs_path": "/usr/lib/systemd/user/ubuntu-touch-session-unencrypted.target",
+        "sha256": "98ee0d91cea73132f22eab9626f6681d116ecebfecaf9609aa231b124879868e"
+      },
+      {
+        "rootfs_path": "/usr/lib/systemd/user/lomiri-full-greeter.service",
+        "sha256": "1dc536c31c421d97483bf98e526dcdc629c7c9b8961be10a805c5c4a04a947c9"
+      }
+    ],
+    "final_lightdm_stop": "Last retained LightDM cycle receives SIGTERM from PID1 and exits cleanly. Cause of the stop is not identified by these files."
+  },
+  "graphics_collector_v3_validation": {
+    "tests": 24,
+    "exact_twrp_arm64_shell_methods": 11,
+    "native_windows_tested": false,
+    "phone_accessed_in_tests": false
   }
 }

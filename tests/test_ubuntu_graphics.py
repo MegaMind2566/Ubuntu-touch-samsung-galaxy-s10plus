@@ -85,6 +85,7 @@ class Collector(unittest.TestCase):
     def test_identity_precedes_every_private_read(self):
         report, calls, members = self.collect_case('success')
         self.assertTrue(report['success'])
+        self.assertEqual(report['collector_version'], 3)
         self.assertEqual(calls[:7], list(c.IDENTITY_QUERIES))
         self.assertEqual(calls[7:], [*c.LOG_PATHS, *c.INVENTORY_PATHS])
         for key in ('partition_writes', 'phone_files_written', 'mount_changes_requested',
@@ -115,7 +116,7 @@ class Collector(unittest.TestCase):
     def test_missing_old_and_upstart_do_not_hide_available_logs(self):
         report, _, members = self.collect_case('missing-old')
         self.assertTrue(report['success'])
-        self.assertEqual(report['collected_log_count'], 4)
+        self.assertEqual(report['collected_log_count'], 5)
         self.assertIn('usc.txt', members)
         self.assertEqual(report['logs']['usc-old']['status'], 'missing')
 
@@ -127,7 +128,7 @@ class Collector(unittest.TestCase):
                 self.assertEqual(report['error'], 'graphics_collection_incomplete')
                 self.assertEqual(report['collection_errors'], ['usc'])
                 self.assertEqual(report['logs']['usc']['status'], 'error')
-                self.assertEqual(report['collected_log_count'], 9)
+                self.assertEqual(report['collected_log_count'], 10)
                 self.assertIn('xsession.txt', members)
 
     def test_local_tools_failure_never_uses_usb(self):
@@ -155,7 +156,7 @@ class Collector(unittest.TestCase):
         self.assertEqual(kwargs['timeout'], 45)
 
     def test_output_limit_and_timeout_discard_content(self):
-        for stdout, stderr in ((b'x' * (c.LOG_BYTES + 1), b''), (b'x', b'x' * 16385)):
+        for stdout, stderr in ((b'x' * (c.transport_stdout_limit('usc') + 1), b''), (b'x', b'x' * 16385)):
             with patch.object(c.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout, stderr)):
                 result = c.run_query(Path('adb.exe'), 'usc')
                 self.assertEqual(result['stderr'], 'output_limit')
@@ -165,6 +166,56 @@ class Collector(unittest.TestCase):
             result = c.run_query(Path('adb.exe'), 'usc')
             self.assertTrue(result['timed_out'])
             self.assertEqual(result['stdout'], '')
+
+    def test_crlf_expansion_preserves_bounded_remote_log(self):
+        # Reproduce both a typical USC-size expansion and the worst case: all
+        # 512 KiB of remote data are LF, producing exactly 1 MiB in transport.
+        remote = (b'graphics message\r\nnext message\n' * 20000)[-c.LOG_BYTES:]
+        for remote in (remote, b'\n' * c.LOG_BYTES):
+            transported = remote.replace(b'\n', b'\r\n')
+            with self.subTest(wire_bytes=len(transported)):
+                with patch.object(c.subprocess, 'run', return_value=
+                                  subprocess.CompletedProcess([], 0, transported, b'')):
+                    result = c.run_query(Path('adb.exe'), 'usc')
+                self.assertEqual(result['exit_code'], 0)
+                self.assertEqual(result['raw_stdout_bytes'], len(transported))
+                self.assertEqual(result['stdout'].encode(), transported)
+                # Existing CRLF is not destructively collapsed to LF.
+                if b'\r\n' in remote:
+                    self.assertIn(b'\r\r\n', result['stdout'].encode())
+
+    def test_head_has_independent_remote_and_transport_limits(self):
+        self.assertEqual(c.remote_log_limit('usc-head'), 65536)
+        self.assertEqual(c.remote_log_limit('usc'), 524288)
+        self.assertIn('"$BB" head -c 65536 "$path"', c.script_for('usc-head'))
+        self.assertIn('"$BB" tail -c 524288 "$path"', c.script_for('usc'))
+        for size, expected in ((131072, 0), (131073, None)):
+            with self.subTest(wire_bytes=size):
+                with patch.object(c.subprocess, 'run', return_value=
+                                  subprocess.CompletedProcess([], 0, b'\n' * size, b'')):
+                    result = c.run_query(Path('adb.exe'), 'usc-head')
+                self.assertEqual(result['exit_code'], expected)
+
+    def test_injected_runner_cannot_bypass_wire_or_decoded_limit(self):
+        for mode in ('expanded', 'wire-overflow', 'decoded-overflow'):
+            def runner(exe, name):
+                result = fixture(name, 'success')
+                if name == 'usc':
+                    size = c.transport_stdout_limit(name)
+                    result['raw_stdout_bytes'] = size + (1 if mode == 'wire-overflow' else 0)
+                    result['stdout'] = '\r\n' * c.LOG_BYTES if mode != 'decoded-overflow' else '\ufffd' * (size + 1)
+                return result
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
+                report, path = c.collect(Path(directory), runner=runner, verifier=lambda root: None)
+                self.assertEqual(report['success'], mode == 'expanded')
+                with zipfile.ZipFile(path) as archive:
+                    if mode == 'expanded':
+                        self.assertEqual(len(archive.read('usc.txt')), c.LOG_BYTES * 2)
+                        self.assertEqual(report['logs']['usc']['remote_limit_bytes'], 524288)
+                        self.assertEqual(report['logs']['usc']['transport_limit_bytes'], 1048576)
+                    else:
+                        self.assertNotIn('usc.txt', archive.namelist())
+                        self.assertIn('usc', report['collection_errors'])
 
     def test_existing_report_is_preserved(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -282,6 +333,17 @@ class Shell(unittest.TestCase):
         self.assertIn(b'UT_GRAPHICS_6: file_metadata', result.stderr)
         self.assertIn(b' 600000 ', result.stderr)
         self.assertNotIn(b'parent_metadata', result.stdout)
+
+    def test_usc_head_and_tail_read_distinct_fixed_regions(self):
+        self.log.write_bytes(b'prefix\n' * 20000 + b'later\n' * 100000)
+        result = self.run_shell('usc-head')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(result.stdout), c.USC_HEAD_BYTES)
+        self.assertEqual(result.stdout, self.log.read_bytes()[:c.USC_HEAD_BYTES])
+        tail = self.run_shell('usc')
+        self.assertEqual(tail.returncode, 0, tail.stderr)
+        self.assertEqual(tail.stdout, self.log.read_bytes()[-c.LOG_BYTES:])
+        self.assertNotEqual(result.stdout, tail.stdout[:c.USC_HEAD_BYTES])
 
     def test_actual_recovery_reproduces_unsupported_custom_stat(self):
         if not RECOVERY_IMAGE:

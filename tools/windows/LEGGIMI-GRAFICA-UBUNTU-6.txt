@@ -1,7 +1,8 @@
-Samsung Galaxy S10+ - log grafici del test Ubuntu BOOT 6, lettore v2
+Samsung Galaxy S10+ - log grafici del test Ubuntu BOOT 6, lettore v3
 
-Questa versione corregge il comando metadati non supportato da TWRP che
-impediva al lettore v1 di aprire i log. Il sistema sul telefono resta uguale.
+Questa versione conserva i log anche quando ADB trasforma LF in CRLF:
+il limite remoto rimane uguale, il limite di trasporto considera i CR aggiunti.
+Conserva la correzione stat -t per TWRP. Il sistema sul telefono resta uguale.
 
 Il lettore raccoglie i log conservati di LightDM, del compositore, del greeter
 e della sessione phablet. Serve a capire perche dopo la schermata Ubuntu Touch
@@ -20,11 +21,15 @@ Prima dei log il lettore verifica gli strumenti, TWRP root, modello,
 RECOVERY preparata, BOOT 6 esatto e Data gia accessibile come ext4 raw.
 Non monta partizioni, non modifica file del telefono e non lo riavvia.
 Non esegue i programmi di SYSTEM e non apre i dati delle applicazioni.
-Legge solo gli ultimi 512 KiB per ciascun file grafico in elenco fisso;
+Legge solo gli ultimi 512 KiB per ciascun file grafico in elenco fisso,
+piu i primi 64 KiB del solo log del compositore USC;
 scarta link simbolici, FIFO e percorsi non canonici. Elenca solo metadati
 di LightDM e del journal persistente, al massimo 64 voci a profondita 2.
 Il journal binario non viene copiato. Lomiri attuale usa il journal utente;
 i vecchi log Upstart sono opzionali, come i file .old.
+I dati ricevuti possono essere fino al doppio dei byte letti sul telefono
+per la conversione LF/CRLF; il rapporto registra entrambi i limiti e conserva
+i terminatori ricevuti. Non forza -T, incompatibile con alcuni adbd vecchi.
 
 Il rapporto puo contenere nomi e messaggi della sessione grafica; non va
 pubblicato automaticamente. I log possono includere avvii precedenti e la

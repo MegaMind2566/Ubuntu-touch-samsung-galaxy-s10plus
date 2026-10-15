@@ -20,8 +20,10 @@ SPEC.loader.exec_module(legacy)
 BOOT_BYTES = 57344000
 BOOT_SHA256 = '2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad'
 LOG_BYTES = 524288
+USC_HEAD_BYTES = 65536
 INVENTORY_ENTRIES = 64
 LOG_PATHS = {
+    'usc-head': '/data/system-data/var/log/lightdm/unity-system-compositor.log',
     'usc': '/data/system-data/var/log/lightdm/unity-system-compositor.log',
     'usc-old': '/data/system-data/var/log/lightdm/unity-system-compositor.log.old',
     'greeter': '/data/system-data/var/log/lightdm/seat0-greeter.log',
@@ -96,7 +98,7 @@ canonical=$("$BB" readlink -f "$path") || exit 35
 [ "$canonical" = "$path" ] || { mark noncanonical_file; exit 35; }
 mark file_metadata
 "$BB" stat -t "$path" >&2 || { mark metadata_unavailable; exit 37; }
-''' + '"$BB" tail -c ' + str(LOG_BYTES) + ' "$path"\n'
+''' + '"$BB" ' + ('head' if name == 'usc-head' else 'tail') + ' -c ' + str(remote_log_limit(name)) + ' "$path"\n'
     if name in INVENTORY_PATHS:
         path = INVENTORY_PATHS[name]
         return SHELL_COMMON + "inventory_root='" + path + "'\n" + r'''
@@ -122,6 +124,18 @@ done
     raise ValueError('graphics_query_not_allowed')
 
 
+def remote_log_limit(name):
+    if name not in LOG_PATHS:
+        raise ValueError('graphics_query_not_allowed')
+    return USC_HEAD_BYTES if name == 'usc-head' else LOG_BYTES
+
+
+def transport_stdout_limit(name):
+    # ADB's text/PTY transport may insert one CR for every remote LF.
+    # The fixed phone head/tail command still reads at most remote_log_limit.
+    return remote_log_limit(name) * 2 if name in LOG_PATHS else 65536
+
+
 def command_for(name):
     if name == 'boot-hash':
         return ['-d', 'shell', '/sbin/busybox head -c ' + str(BOOT_BYTES)
@@ -139,7 +153,7 @@ def run_query(executable, name):
         result = subprocess.run([str(executable), *arguments], input=payload, capture_output=True,
                                 timeout=90 if name.endswith('-hash') else 45,
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        if len(result.stdout) > (LOG_BYTES if name in LOG_PATHS else 65536) or len(result.stderr) > 16384:
+        if len(result.stdout) > transport_stdout_limit(name) or len(result.stderr) > 16384:
             return {'exit_code': None, 'timed_out': False, 'stdout': '', 'stderr': 'output_limit',
                     'raw_stdout_bytes': len(result.stdout)}
         return {'exit_code': result.returncode, 'timed_out': False,
@@ -152,18 +166,22 @@ def run_query(executable, name):
 def collect(root, runner=run_query, verifier=legacy.check_tools):
     root = Path(root).resolve()
     files = {}
-    report = {'schema': 1, 'collector_version': 2, 'boot_version': 6,
+    report = {'schema': 1, 'collector_version': 3, 'boot_version': 6,
               'date_utc': datetime.now(timezone.utc).isoformat(), 'target_model': 'SM-G975F',
               'success': False, 'error': None, 'adb_usb_only': True,
               'partition_writes': False, 'phone_files_written': False, 'mount_changes_requested': False,
               'data_format_requested': False, 'reboot_requested': False, 'system_code_executed': False,
               'ubuntu_touch_graphical_boot_verified': False, 'steps': [], 'image_checks': {},
-              'log_tail_limit_bytes': LOG_BYTES, 'inventory_entry_cap_per_directory': INVENTORY_ENTRIES,
+              'log_tail_limit_bytes': LOG_BYTES, 'usc_head_limit_bytes': USC_HEAD_BYTES,
+              'adb_text_transport_expansion_allowance': 2, 'transport_line_endings_preserved': True,
+              'inventory_entry_cap_per_directory': INVENTORY_ENTRIES,
               'inventory_maxdepth': 2, 'logs': {}, 'inventories': {}, 'collected_log_count': 0,
               'collection_errors': [], 'metadata_format': 'busybox_stat_terse',
               'note': 'Success means at least one fixed log was read without collection errors, not a graphical boot. Missing logs do not '
                       'prove a service was absent. Lomiri normally uses the user journal; only persistent '
-                      'journal metadata is listed here. Current BOOT identity does not date retained logs.'}
+                      'journal metadata is listed here. Current BOOT identity does not date retained logs. '
+                      'Remote head/tail limits apply before ADB may expand LF to CRLF; received line endings '
+                      'are preserved and transported bytes may be up to twice the remote byte limit.'}
     reason = 'local_tools_unavailable'
 
     def read(name, required=False):
@@ -171,12 +189,15 @@ def collect(root, runner=run_query, verifier=legacy.check_tools):
         value = runner(root / 'platform-tools/adb.exe', name)
         okay = value['exit_code'] == 0 and not value['timed_out']
         # Keep the same limits with injected/test runners as with real ADB.
-        if len(value['stdout'].encode('utf-8')) > (LOG_BYTES * 3 if name in LOG_PATHS else 196608):
+        limit = transport_stdout_limit(name)
+        if (value.get('raw_stdout_bytes', 0) > limit or len(value['stdout'].encode('utf-8')) > limit * 3
+                or len(value['stderr'].encode('utf-8')) > 16384 * 3):
             value = dict(value, exit_code=None, stdout='', stderr='output_limit')
             okay = False
         report['steps'].append({'operation': name, 'exit_code': value['exit_code'],
                                 'timed_out': value['timed_out'],
                                 'raw_stdout_bytes': value.get('raw_stdout_bytes'),
+                                'transport_stdout_limit_bytes': limit,
                                 'stderr': legacy.redact(value['stderr'][:16384], root)})
         if not okay:
             if required:
@@ -222,7 +243,10 @@ def collect(root, runner=run_query, verifier=legacy.check_tools):
             step = report['steps'][-1]
             status = 'collected' if value is not None else (
                 'missing' if step['exit_code'] == 44 and not step['timed_out'] else 'error')
-            report['logs'][name] = {'phone_path': path, 'collected': value is not None, 'status': status}
+            report['logs'][name] = {'phone_path': path, 'collected': value is not None, 'status': status,
+                                    'selection': 'head' if name == 'usc-head' else 'tail',
+                                    'remote_limit_bytes': remote_log_limit(name),
+                                    'transport_limit_bytes': transport_stdout_limit(name)}
             if value is not None:
                 files[name + '.txt'] = value
                 report['collected_log_count'] += 1

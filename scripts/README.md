@@ -10,7 +10,7 @@ The flat script directory preserves explicit sibling imports and the tested Wind
 | Controlled diagnostic | `prepare_boot_diagnostic.py`, `package-boot-diagnostic.py`, `collect-boot-diagnostic.py` |
 | Built-in initramfs diagnostic 2 | `early_boot_diagnostic.py`, `build-early-boot-diagnostic.sh`, `package-early-boot-diagnostic.py` |
 | Ubuntu BOOT 6 USB correction and RAM profiles | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py`, `collect-ubuntu-handoff.py.in` |
-| BOOT 6 retained graphics logs | `collect-ubuntu-graphics.py` version 2, `package-ubuntu-graphics.py`; TWRP-compatible metadata, read-only, no new BOOT |
+| BOOT 6 retained graphics logs | `collect-ubuntu-graphics.py` version 3, `package-ubuntu-graphics.py`; TWRP metadata, bounded CRLF transport and USC prefix, read-only, no new BOOT |
 | Shared immutable artifact transport | `github_artifacts.py`, `fetch_boot_diagnostic_inputs.py` |
 | Recovery/TWRP support | `prepare_recovery.py`, `check-recovery.ps1`, `prepare_ubuntu_install.py`, `install-ubuntu-twrp.ps1` |
 | Windows package creation | Maintained `package-*.py` scripts and the launchers in `tools/windows/` |
