@@ -41,7 +41,7 @@ The current boot configuration includes Samsung init-handoff and USB fixes, devi
 
 ## First experimental release
 
-I am preparing **v0.1.0-alpha.1** around the configuration that reached the first graphical boot. The final package contents and installation notes will be linked here once the release is published.
+I have published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/v0.1.0-alpha.1), based on the configuration that reached the first graphical boot. The release includes the SYSTEM image, the Windows boot/tools archive, checksums and installation notes. My working handset remains on BOOT 6 with graphics permission correction 1.
 
 ## Installation and builds
 

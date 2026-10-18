@@ -1,6 +1,10 @@
 # Project status
 
-Updated: **15 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
+Updated: **19 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
+
+## Active direction
+
+Development has returned to Ubuntu Touch at the user's request. The separate [Sailfish project](https://github.com/MegaMind2566/SailfishOs-S10-Beyond2lte) is paused because a suitable complete-build host is unavailable. Sailfish was never installed on the handset; the working Ubuntu baseline is retained. This direction change adds no new hardware result to the 15 October observations below.
 
 ## Current result
 

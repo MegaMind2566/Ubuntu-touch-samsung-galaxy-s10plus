@@ -1,7 +1,8 @@
 """Exercise guarded graphics correction installation/removal using the exact TWRP BusyBox.
 
-Only fixture userdata, the mount table and the sda31 readlink response differ
-from production. No handset or Windows executable is used by these tests.
+Fixture userdata, its ownership namespace, the mount table and the sda31
+readlink response differ from production. No handset or Windows executable
+is used by these tests.
 """
 import argparse
 import hashlib
@@ -34,6 +35,7 @@ def module(name, path):
 m = module('graphics_permissions_manager_tests', 'scripts/manage-graphics-permissions.py')
 p = module('graphics_permissions_package_tests', 'scripts/package-graphics-permissions.py')
 fixture_module = module('graphics_busybox_fixture', 'tests/test_ubuntu_graphics.py')
+ownership_fixture = module('graphics_permissions_ownership_fixture', 'tests/shell_fixture.py')
 
 
 def payload():
@@ -225,6 +227,8 @@ class Shell(unittest.TestCase):
         self.mounts.write_text('/dev/block/sda31 ' + str(self.data) + ' ext4 rw,relatime 0 0\n')
         self.trace = self.folder / 'trace'
         self.failure = ''
+        self.stat_backend = self.backend
+        self.fixture_owner = (os.getuid(), os.getgid())
 
     def run_shell(self, operation, timeout=120):
         bridge = self.folder / 'bb'
@@ -232,6 +236,7 @@ class Shell(unittest.TestCase):
             'printf "%s|%s\\n" "$1" "$2" >>' + shlex.quote(str(self.trace)) + '\n'
             'if [ "$1" = readlink ] && [ "$3" = /dev/block/sda31 ]; then echo /dev/sda31; exit 0; fi\n'
             + self.failure + '\n'
+            + ownership_fixture.root_owned_stat_bridge(self.stat_backend, self.data, self.fixture_owner)
             + ('exec ' + self.backend + ' "$@"\n' if QEMU else 'exec "$@"\n'))
         bridge.chmod(0o700)
         script = m.script_for(operation, payload() if operation == 'apply' else None)
@@ -259,6 +264,25 @@ class Shell(unittest.TestCase):
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), m.PAYLOAD_SHA256[name])
         trace = self.trace.read_text().splitlines()
         self.assertEqual(trace[-1], 'ln|' + str(self.base / 'assets' / m.DROPIN_NAME))
+
+    def test_nonroot_runner_ownership_is_modelled_without_relaxing_owner_or_mode_guards(self):
+        self.fixture_owner = (1001, 1001)
+        self.stat_backend = ownership_fixture.stat_reader_with_owner(
+            self.folder / 'runner-stat', self.backend, *self.fixture_owner)
+        self.applied()
+        self.stat_backend = ownership_fixture.stat_reader_with_owner(
+            self.folder / 'runner-stat', self.backend, 32011, 32011)
+        result = self.run_shell('remove')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b'nonroot_metadata', result.stderr)
+        self.assertTrue(self.dropin.is_file())
+        self.stat_backend = ownership_fixture.stat_reader_with_owner(
+            self.folder / 'runner-stat', self.backend, *self.fixture_owner)
+        self.dropin_parent.chmod(0o777)
+        result = self.run_shell('remove')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b'writable_', result.stderr)
+        self.assertTrue(self.dropin.is_file())
 
     def test_repeat_does_not_overwrite_logs_or_existing_config(self):
         self.applied()
@@ -380,8 +404,8 @@ class Shell(unittest.TestCase):
         log.unlink()
         log.write_text('private sentinel')
         # This host filesystem does not support assigning Android UIDs.
-        # Substitute only the stat ownership fields for this negative case;
-        # all positive metadata cases use the exact TWRP stat implementation.
+        # This override precedes the fixture ownership translation, so a foreign
+        # owner still reaches the unchanged production rejection path.
         self.failure = 'if [ "$1" = stat ] && [ "$3" = ' + shlex.quote(str(log)) + ' ]; then ' + \
             'metadata=$(' + self.backend + ' "$@"); set -- $metadata; ' + \
             'printf "%s %s %s %s 32011 32011\\n" "$1" "$2" "$3" "$4"; exit 0; fi'
