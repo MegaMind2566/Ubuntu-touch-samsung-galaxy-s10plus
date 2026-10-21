@@ -1,6 +1,6 @@
 # Project status
 
-Updated: **19 October 2026**. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
+Updated: **21 October 2026** (roadmap only; hardware evidence unchanged). Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
 
 ## Active direction
 
@@ -50,6 +50,21 @@ Retain the working BOOT 6 and permission correction. Record the visible setup/ho
 
 Then validate Wi-Fi reconnect/suspend, charging and power management, followed by the remaining hardware functions. Track each result independently. Repair the adaptation's missing overlay destination in the reproducible SYSTEM assembly before presenting the userdata correction as a general installation method; the working handset does not need an immediate rebuild for that development task.
 
+## Planned interface work
+
+Added to the backlog on **21 October 2026**: a deep visual and interaction redesign of Lomiri to closely match a chosen iOS reference.
+
+**Status: planned, not started. Priority: after stabilization of the base port.** Existing stability, power-management and essential hardware work takes precedence. Implementation depends on validated repeated boots, sustained graphical/touch/Wi-Fi operation, charging and suspend/resume, and a repeatable installation/recovery path. This roadmap addition records no new handset result.
+
+- [ ] Choose the exact iOS visual reference and target screens, with layouts adapted to the S10+ display and camera cutout.
+- [ ] Build a functional Home screen with pages, folders and dock, followed by a Control Center connected to real system services.
+- [ ] Adapt the lock screen, notifications, app switcher and gestures while preserving the existing authentication and session mechanisms.
+- [ ] Align the keyboard, shared toolkit components, Settings and selected core apps; track third-party app styling separately.
+- [ ] Measure animation and blur performance, input behaviour and suspend/resume on the handset; provide reduced effects where needed.
+- [ ] Package versioned, reproducible changes with an update-compatibility check and a tested rollback to the standard interface.
+
+The first visual milestone is Home, dock and Control Center working on the handset. Appearance work does not establish hardware support or iOS application compatibility.
+
 ## Milestones
 
 | Milestone | Status |
@@ -61,6 +76,7 @@ Then validate Wi-Fi reconnect/suspend, charging and power management, followed b
 | Basic Wi-Fi operation | Confirmed by the user; extended testing pending. |
 | Remaining hardware and long-term reliability | Untested. |
 | Repeatable installation, updates and recovery for others | In development. |
+| iOS-style Lomiri interface | Planned after base-port stabilization; implementation not started. |
 
 ## Publication
 

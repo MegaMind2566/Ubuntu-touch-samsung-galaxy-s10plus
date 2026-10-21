@@ -57,6 +57,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 2. Validate charging, battery reporting, suspend/resume and thermals.
 3. Test and bring up the remaining hardware functions listed above.
 4. Integrate the working configuration into a repeatable clean installation, with recovery instructions and an update strategy.
+5. Develop an iOS-style Lomiri interface after port stabilization, starting with Home, dock and Control Center; see [planned interface work](docs/status.md#planned-interface-work).
 
 I track each hardware result separately and will update the support table as testing progresses.
 
