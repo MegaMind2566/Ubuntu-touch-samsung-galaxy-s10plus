@@ -21,7 +21,8 @@ This is an early development port. Daily-use reliability and a supported update 
 | Cellular modem and SIM | Slot-2 SIM registered on LTE; calls, SMS and mobile data not yet verified |
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
-| Microphones, wired headset, call audio, cameras, Bluetooth and NFC | Functional tests still pending |
+| Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
+| Secondary microphones, wired headset, call audio, cameras, Bluetooth and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
 
 The Wi-Fi, audio and USB runtime corrections were tested on the working handset; **integration into a reproducible image and universal installation remains a separate task**. No raw private device diagnostics or voice recordings are published in this repository.
@@ -56,7 +57,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 
 ## Roadmap
 
-1. Verify microphone capture, wired headset and call audio without disturbing the working speaker/PulseAudio configuration.
+1. Built-in microphone capture verified; next test wired headset routing and call audio without disturbing the working speaker/PulseAudio configuration.
 2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
 3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
 4. Complete cameras, GNSS fix, Bluetooth, NFC, fingerprint and other hardware tests.
