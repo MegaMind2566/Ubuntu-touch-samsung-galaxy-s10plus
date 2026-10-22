@@ -22,7 +22,7 @@ This is an early development port. Daily-use reliability and a supported update 
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm headset | **Not working in current automatic-routing test**: insertion did not switch PulseAudio away from speaker; kernel jack-detection test pending |
+| Wired 3.5 mm headset | Kernel extcon reports physical insertion and microphone-contact state changes; PulseAudio does not switch away from the speaker, and headphone playback is unverified |
 | Secondary microphones, earpiece/call audio, cameras, Bluetooth and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
 
