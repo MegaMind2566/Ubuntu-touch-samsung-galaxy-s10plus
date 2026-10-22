@@ -1,38 +1,44 @@
 # Project status
 
-Updated: **21 October 2026** (roadmap only; hardware evidence unchanged). Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**.
+Updated: **22 October 2026**, following handset audio, Wi-Fi, USB, modem and sensor checks. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**, Ubuntu Touch 24.04 / Halium 12.
 
-## Active direction
+## Active direction and validated baseline
 
-Development has returned to Ubuntu Touch at the user's request. The separate [Sailfish project](https://github.com/MegaMind2566/SailfishOs-S10-Beyond2lte) is paused because a suitable complete-build host is unavailable. Sailfish was never installed on the handset; the working Ubuntu baseline is retained. This direction change adds no new hardware result to the 15 October observations below.
+Development remains focused on Ubuntu Touch. The separate Sailfish project is paused; it has not been installed on this handset. **BOOT 6 with graphics-permission correction 1 remains the running baseline**; these new tests do not constitute a new SYSTEM or BOOT image release. The port boots to a graphical session with working touch and basic Wi-Fi, but daily-driver reliability is not established.
 
-## Current result
+### Verified on the handset
 
-**Ubuntu Touch 24.04 now reaches a working graphical interface on the test handset. The user confirms that touch and basic Wi-Fi work.** At 23:23:02 Europe/Rome (+02:00) on 15 October, the user reported “ora si è avviato”; at 23:23:55 they confirmed “touch e wifi funzionano”. These are message times, not measured handset boot times. This result follows the targeted graphics permission correction on the existing BOOT 6 installation.
-
-The [first graphical boot record](evidence/ubuntu-first-graphical-boot-2026-10-15.json) separates this user-confirmed result from earlier machine-readable evidence. The exact setup/home screen has not been specified. No new photo, correction runtime report or image readback has been received after this success; the working configuration is associated with the previously verified baseline through the session history.
-
-The latest independently read BOOT remains **version 6**, 57,344,000 bytes, SHA-256 `2671343e619d99ba8e1809aba73209afb67bdc50e982451f09662765aa6cb4ad`. The correction adds userdata configuration for **0666 access on hwbinder and ion**, with identity checks before LightDM; it does not rebuild or rewrite BOOT, SYSTEM or VENDOR. Keep it installed with this working baseline. The [BOOT 6 handset record](evidence/ubuntu-boot-6-handset-2026-10-15.json) preserves the earlier write/readback and subsequent success report.
-
-The user's publication criterion has been met. The repository is public; visibility was verified through GitHub on 15 October 2026. This first working boot does not establish daily-use reliability or support for untested hardware.
-
-## Verified progress
-
-| Area | Evidence | Status |
+| Area | Evidence and result | Boundary |
 | --- | --- | --- |
-| Graphical boot | User confirmation after graphics correction 1 | Working interface reported; exact setup/home screen unspecified. |
-| Touch | User follow-up | Basic operation confirmed; detailed input testing pending. |
-| Wi-Fi | User follow-up | Basic operation confirmed; throughput, reconnect and suspend behaviour untested. |
-| BOOT 6 identity | Exact installation/readback and matching later collector hash | 57,344,000 bytes; pinned hash above. No new readback after the successful boot. |
-| Ubuntu userspace and Android container | Earlier BOOT 6 runtime logs | systemd alive through 120.10 s, Android boot complete and HWC 2.2 running. |
-| Graphics permission cause | Controlled root/phablet/lightdm handset probe | Root initializes Mapper 2.0; nonroot access to root:root 0600 hwbinder fails with EACCES. Ion was also 0600. |
-| Firmware and SYSTEM baseline | Device inventory and prior physical image-prefix verification | SM-G975F, Exynos 9820, stock Android/vendor 12, G975FXXSGHWC1; Ubuntu Touch 24.04-2.x / Halium 12. |
-| Recovery and partition layout | TWRP, measured PIT and recovery checks | Prepared TWRP opens with root ADB; image targets and bounds are known. |
-| Storage | Earlier normal/recovery read-only inspections | SYSTEM/Android/VENDOR readable; no erased Vendor or filesystem corruption demonstrated. |
+| Graphical boot and touchscreen | User-confirmed normal Ubuntu Touch graphical session and touch interaction. | Long-term stability still needs measurement. |
+| Display rotation, accelerometer, gyroscope and orientation | Actual changing sensor samples; UI autorotation confirmed. | No accuracy certification. |
+| Ambient light sensor and barometer | Fresh light/pressure samples decoded from SensorFW socket streams. | Automatic screen brightness still not working/confirmed; absolute calibration not measured. |
+| Magnetometer and compass basic measurements | Changing samples; calibration level progressed 0 to 1. | Absolute north and physical repeatability not established. |
+| Wi-Fi radio connectivity | Real internet connection via `wlan1`; both 2.4 and 5 GHz networks detected. | Duplicated UI and intermittent connection problems described below. |
+| PulseAudio and physical speaker | Audio-6 v2 restored the normal Ubuntu Touch PulseAudio service; user heard audio and reported clean playback through `sink.primary-out`. | Microphones and remaining output paths untested. |
+| PulseAudio post-reboot selection | After a later reboot, `pulseaudio.service` was active and the dedicated user unit selected `sink.primary-out`, with success reported. | Fresh listening after that particular reboot was not separately documented. |
+| USB MTP basic use | User confirmed memory access from another Android handset over USB-C; targeted USB boot configurator executed on earlier reboot. | Two-way file transfer and other hosts/USB modes not fully verified. |
+| LTE modem/SIM detection | oFono exposed two modem objects; one valid SIM in slot 2 was registered to LTE on a handset test. | No verified call, SMS or mobile packet transfer. |
 
-Charging, suspend, Bluetooth, modem/calls/SMS, audio, camera and sensors remain untested. The diagnostic USB configuration result does not establish normal Ubuntu USB feature support.
+### Known anomalies and incomplete tests
 
-See the [evidence index](evidence/README.md) for the original reports, image identities and validation limits.
+| Area | Current observation | Next check |
+| --- | --- | --- |
+| Wi-Fi duplication | Driver `wl` exposes `wlan0` and `wlan1`, both managed by NetworkManager on the same `phy0` and both scanning 2.4/5 GHz. Two settings lists and two status icons appear while both are managed. Making idle `wlan0` unmanaged yielded one list with internet still working via `wlan1`. | A guarded configuration file under `/etc/NetworkManager/conf.d/` was installed during testing, then once rolled back; the user reports correcting that mistaken rollback, but **post-reboot persistence is not yet evidenced**. Separately check reconnect, hotspot and Wi-Fi Direct. |
+| Wi-Fi connection errors | NetworkManager attempted some connections with no available secrets (`no-secrets`). | This proves those authentication failures, not the cause of all intermittency. |
+| Temporary graphical artifacts | User observes brief colored lines during browser surface resize, especially when the on-screen keyboard disappears. | Graphics compositor/buffer investigation; **video decoding itself has not been tested**. |
+| GNSS/GPS | Service active; during a 120-second run up to 3 satellites were signaled, none used for a fix; no new position update. | Outdoor satellite fix and positioning test. |
+| Proximity | SensorFW denied the proximity session: ID not registered. | Check SensorFW/HAL registration and actual near/far behavior. |
+| Audio routing | HAL reported `Failed to create ... audio patch (38)` for output and input. | Microphone capture, headset/jack detection, earpiece, hands-free and call audio. Successful speaker playback does not prove the remaining paths. |
+| Fingerprint, Hall, heart-rate sensor | Respective kernel/daemon interfaces detected. | No successful physical operation demonstrated. |
+| Battery and charging | Kernel exposes power/battery readings. | Verify actual charge progression, wireless charging, suspend and consumption. |
+| Camera, Bluetooth, NFC, SMS, mobile data and other hardware | No conclusive functional test yet. | Targeted tests only; avoid labelling these features broken without evidence. |
+
+## Next work
+
+**First: isolated, read-only audio input tests**: inspect real PulseAudio sources, then optionally record ~5 seconds from `source.primary-in` and replay through the known-good `sink.primary-out` on explicit consent. Keep PCM in RAM, never commit recordings. Check wired headset routing separately, without restarting PulseAudio or forcing profiles. Follow with voice calls, SMS and mobile data, then battery/suspend and graphics/Wi-Fi reliability. Preserve working audio-6 v2 and BOOT 6 baseline.
+
+Only sanitized observations belong in the public repository: no raw handset logs, SSIDs/BSSIDs, device MACs, SIM details or voice recordings. Local mocked tests of a diagnostic script are **not** physical device validation.
 
 ## Resolved boot blockers and historical findings
 
@@ -73,8 +79,8 @@ The first visual milestone is Home, dock and Control Center working on the hands
 | Original Ubuntu initramfs and intended SYSTEM mount | Confirmed by BOOT 3/4. |
 | Handoff to systemd and Android container | Confirmed by BOOT 5/6. |
 | Working graphical boot and touch | Confirmed by the user after correction 1 on 15 October. |
-| Basic Wi-Fi operation | Confirmed by the user; extended testing pending. |
-| Remaining hardware and long-term reliability | Untested. |
+| Wi-Fi interface issue | Reproduced duplicated lists; a runtime unmanaged-`wlan0` test showed one list and retained Internet on `wlan1`; persistence/reconnection pending. |
+| Further hardware | Speaker/PulseAudio, sensors and LTE registration partially validated; microphones, calls, SMS, GPS fix, camera, Bluetooth and stability remain open. |
 | Repeatable installation, updates and recovery for others | In development. |
 | iOS-style Lomiri interface | Planned after base-port stabilization; implementation not started. |
 
