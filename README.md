@@ -22,8 +22,8 @@ This is an early development port. Daily-use reliability and a supported update 
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm headset | Kernel extcon reports physical insertion and microphone-contact state changes; PulseAudio does not switch away from the speaker, and headphone playback is unverified |
-| Bluetooth headset playback | User reports successful functional test on the phone; microphone and call profile not separately confirmed |
+| Wired 3.5 mm audio | **TRS headphones without microphone work**. TRRS headset with microphone is detected by the kernel but PulseAudio does not route to it; compatibility fix needed |
+| Bluetooth headset | Playback works in user test; streaming anomalies remain. Mic route and call profile not independently verified |
 | Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
 
@@ -59,7 +59,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 
 ## Roadmap
 
-1. Built-in microphone capture verified; wired headset automatic routing failed a handset test; next isolate kernel jack detection before continuing with call audio without disturbing the working speaker/PulseAudio configuration.
+1. Built-in microphone capture verified; TRS headphones work; TRRS headset with microphone fails auto-routing, next test PulseAudio-Droid port mapping before continuing with call audio without disturbing the working speaker/PulseAudio configuration.
 2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
 3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
 4. Complete cameras, GNSS fix, Bluetooth microphone/call profiles and other modes, NFC, fingerprint and other hardware tests.
