@@ -23,7 +23,8 @@ This is an early development port. Daily-use reliability and a supported update 
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
 | Wired 3.5 mm headset | Kernel extcon reports physical insertion and microphone-contact state changes; PulseAudio does not switch away from the speaker, and headphone playback is unverified |
-| Secondary microphones, earpiece/call audio, cameras, Bluetooth and NFC | Functional tests still pending |
+| Bluetooth headset playback | User reports successful functional test on the phone; microphone and call profile not separately confirmed |
+| Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
 
 The Wi-Fi, audio and USB runtime corrections were tested on the working handset; **integration into a reproducible image and universal installation remains a separate task**. No raw private device diagnostics or voice recordings are published in this repository.
@@ -61,7 +62,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 1. Built-in microphone capture verified; wired headset automatic routing failed a handset test; next isolate kernel jack detection before continuing with call audio without disturbing the working speaker/PulseAudio configuration.
 2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
 3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
-4. Complete cameras, GNSS fix, Bluetooth, NFC, fingerprint and other hardware tests.
+4. Complete cameras, GNSS fix, Bluetooth microphone/call profiles and other modes, NFC, fingerprint and other hardware tests.
 5. Integrate confirmed fixes into a reproducible clean installation with recovery/update instructions, then pursue an iOS-style Lomiri interface; see [planned interface work](docs/status.md#planned-interface-work).
 
 I track each hardware result separately and will update the support table as testing progresses.
