@@ -13,7 +13,7 @@ This is an early development port. Daily-use reliability and a supported update 
 | Function | Status |
 | --- | --- |
 | Ubuntu Touch graphical session and touchscreen | Working in basic handset tests |
-| Wi-Fi (2.4/5 GHz) | Internet works; duplicated network lists/icons traced to two managed interfaces. Excluding idle `wlan0` leaves one list and `wlan1` connected. Post-reboot persistence and reliability still pending |
+| Wi-Fi (2.4/5 GHz) | Internet works; duplicated network lists/icons traced to two managed interfaces. Excluding idle `wlan0` leaves one list and `wlan1` connected. Persistent single-list behavior confirmed by the tester after reboot; long-term connection reliability and Wi-Fi Direct still pending |
 | Display, autorotation and inertial sensors | Working in basic tests; transient colored lines observed when browser resizes after on-screen keyboard dismissal |
 | Ambient light, barometer and magnetometer | Fresh measurements observed; automatic brightness and compass accuracy still pending |
 | Speaker and PulseAudio | Physical playback works with `sink.primary-out` and avoids crackling; service and stable sink selection verified after reboot |
