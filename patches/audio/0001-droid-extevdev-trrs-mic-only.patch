@@ -1,0 +1,12 @@
+diff --git a/src/droid/droid-extevdev.c b/src/droid/droid-extevdev.c
+--- a/src/droid/droid-extevdev.c
++++ b/src/droid/droid-extevdev.c
+@@ -90,3 +90,5 @@ static void notify_ports(pa_droid_extevdev *u) {
+-    pa_available_t has_headset =
+-        ((u->sw_headphone_insert || u->sw_lineout_insert)
+-        && u->sw_microphone_insert) ? PA_AVAILABLE_YES : PA_AVAILABLE_NO;
++    /* Android's wired headset convention reports SW_MICROPHONE_INSERT
++     * for a four-pole headset even when SW_HEADPHONE_INSERT is not set.
++     * Treat that bit as a headset type, not as an extra headphone flag. */
++    pa_available_t has_headset =
++        u->sw_microphone_insert ? PA_AVAILABLE_YES : PA_AVAILABLE_NO;
