@@ -1,12 +1,19 @@
 diff --git a/src/droid/droid-extevdev.c b/src/droid/droid-extevdev.c
 --- a/src/droid/droid-extevdev.c
 +++ b/src/droid/droid-extevdev.c
-@@ -90,3 +90,5 @@ static void notify_ports(pa_droid_extevdev *u) {
--    pa_available_t has_headset =
+@@ -87,11 +87,13 @@ static void notify_ports(pa_droid_extevdev *u) {
+             pa_device_port_set_available(p, has_headphone);
+     }
+ 
++    /* On some Android headsets SW_MICROPHONE_INSERT alone indicates TRRS:
++     * SW_HEADPHONE_INSERT stays 0 while SW_JACK_PHYSICAL_INSERT is 1.
++     * Preserve the separate headphone-only path above. */
+     pa_available_t has_headset =
 -        ((u->sw_headphone_insert || u->sw_lineout_insert)
 -        && u->sw_microphone_insert) ? PA_AVAILABLE_YES : PA_AVAILABLE_NO;
-+    /* Android's wired headset convention reports SW_MICROPHONE_INSERT
-+     * for a four-pole headset even when SW_HEADPHONE_INSERT is not set.
-+     * Treat that bit as a headset type, not as an extra headphone flag. */
-+    pa_available_t has_headset =
 +        u->sw_microphone_insert ? PA_AVAILABLE_YES : PA_AVAILABLE_NO;
+ 
+     for (i = 0; i < PA_ELEMENTSOF(headset_ports); i++) {
+         pa_device_port *p = pa_hashmap_get(u->card->ports, headset_ports[i]);
+         if (p)
+             pa_device_port_set_available(p, has_headset);
