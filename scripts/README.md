@@ -8,6 +8,7 @@ Current entry points build the adaptation, assemble SYSTEM, package BOOT 6 and s
 | SYSTEM assembly and validation | `assemble_system.py`, `validate_system.py`, `validate-artifacts.py` |
 | Current BOOT | `ubuntu_boot_handoff.py`, `build-ubuntu-boot-handoff.sh`, `package-ubuntu-boot-handoff.py` |
 | Graphics permission correction | `manage-graphics-permissions.py`, `package-graphics-permissions.py` |
+| Experimental wired TRRS routing | `ut-s10-trrs-integrato.py` — guarded user-level legacy-routing and auto-switch candidate; **hardware acceptance and reboot persistence pending**. Offline regression: `tests/test_trrs_integrato.py` (50 cases) |
 | Current retained boot/graphics logs | `collect-ubuntu-handoff.py.in`, `collect-ubuntu-graphics.py`, `package-ubuntu-graphics.py` |
 | Optional controlled mapper probe | `manage-graphics-probe.py`, `package-graphics-probe.py` |
 | Recovery and installation support | `prepare_recovery.py`, `verify_recovery_test.py`, `prepare_ubuntu_install.py`, `install-ubuntu-twrp.ps1`, `check-recovery.ps1` |
