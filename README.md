@@ -59,7 +59,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 
 ## Roadmap
 
-1. TRRS headphone playback is physically verified with a temporary legacy-routing override. A guarded userspace auto-switch/legacy integration candidate now passes 40 offline tests but **has not yet been installed or validated on the handset**; next run its TRRS/TRS/speaker acceptance and rollback checks before marking automatic routing supported. Wired microphone and Bluetooth regressions remain separate checks.
+1. TRRS headphone playback is physically verified with a temporary legacy-routing override. A guarded userspace auto-switch/legacy integration candidate now passes 41 offline tests but **has not yet been installed or validated on the handset**; next run its TRRS/TRS/speaker acceptance and rollback checks before marking automatic routing supported. Wired microphone and Bluetooth regressions remain separate checks.
 2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
 3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
 4. Complete cameras, GNSS fix, Bluetooth microphone/call profiles and other modes, NFC, fingerprint and other hardware tests.
