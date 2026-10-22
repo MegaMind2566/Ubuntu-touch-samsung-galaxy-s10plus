@@ -2,26 +2,29 @@
 
 I am porting **Ubuntu Touch 24.04 / Halium 12** to the **Samsung Galaxy S10+ Exynos (`beyond2lte`)**. My goal is to make it boot reliably, support the phone's hardware and provide a repeatable installation on the Android 12 firmware baseline.
 
-**Ubuntu Touch now boots on my S10+, with working touch and Wi-Fi.** I reached the first graphical boot on **15 October 2026**, using BOOT 6 with graphics permission correction 1. I am now testing stability and the remaining hardware.
+**Ubuntu Touch now boots on my S10+, with working touch, basic Wi-Fi and speaker playback.** I reached the first graphical boot on **15 October 2026**, using BOOT 6 with graphics permission correction 1. I am now testing stability and the remaining hardware.
 
 This is an early development port. Daily-use reliability and a supported update channel have not been established.
 
 ## Hardware support
 
+**Status from physical tests through 22 October 2026.** A detected driver or a running daemon is not equivalent to a verified peripheral. The [project status](docs/status.md) tracks observations and limitations.
+
 | Function | Status |
 | --- | --- |
-| Graphical Ubuntu Touch session | Booted on my test phone |
-| Touchscreen | Basic operation tested |
-| Wi-Fi | Basic operation tested |
-| Repeated boots and long-running stability | Pending validation |
-| Charging, battery reporting and suspend/resume | Pending validation |
-| Modem, calls, SMS and mobile data | Not yet tested |
-| Audio and microphone | Not yet tested |
-| Cameras | Not yet tested |
-| Bluetooth, GPS and sensors | Not yet tested |
-| Normal Ubuntu USB features | Not yet tested |
+| Ubuntu Touch graphical session and touchscreen | Working in basic handset tests |
+| Wi-Fi (2.4/5 GHz) | Internet works; duplicated network lists/icons traced to two managed interfaces. Excluding idle `wlan0` leaves one list and `wlan1` connected. Post-reboot persistence and reliability still pending |
+| Display, autorotation and inertial sensors | Working in basic tests; transient colored lines observed when browser resizes after on-screen keyboard dismissal |
+| Ambient light, barometer and magnetometer | Fresh measurements observed; automatic brightness and compass accuracy still pending |
+| Speaker and PulseAudio | Physical playback works with `sink.primary-out` and avoids crackling; service and stable sink selection verified after reboot |
+| USB MTP | Access from another Android handset confirmed; other hosts, two-way transfers and USB modes not fully validated |
+| Cellular modem and SIM | Slot-2 SIM registered on LTE; calls, SMS and mobile data not yet verified |
+| GNSS | Service responds, but no position fix within a 120-second test |
+| Proximity sensor | Session unavailable / unregistered in SensorFW |
+| Microphones, wired headset, call audio, cameras, Bluetooth and NFC | Functional tests still pending |
+| Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
 
-These are basic checks on my **SM-G975F/DS**, not a complete compatibility test. The [first graphical boot record](docs/evidence/ubuntu-first-graphical-boot-2026-10-15.json) separates my observations from the earlier image readbacks and runtime logs. Those logs verify Ubuntu userspace, the Android container, HWC 2.2 and the Mali/OpenGL display path; extended touch and Wi-Fi testing is still pending.
+The Wi-Fi, audio and USB runtime corrections were tested on the working handset; **integration into a reproducible image and universal installation remains a separate task**. No raw private device diagnostics or voice recordings are published in this repository.
 
 ## Tested baseline
 
@@ -53,11 +56,11 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 
 ## Roadmap
 
-1. Confirm repeat boots and sustained display, touch and Wi-Fi operation.
-2. Validate charging, battery reporting, suspend/resume and thermals.
-3. Test and bring up the remaining hardware functions listed above.
-4. Integrate the working configuration into a repeatable clean installation, with recovery instructions and an update strategy.
-5. Develop an iOS-style Lomiri interface after port stabilization, starting with Home, dock and Control Center; see [planned interface work](docs/status.md#planned-interface-work).
+1. Verify microphone capture, wired headset and call audio without disturbing the working speaker/PulseAudio configuration.
+2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
+3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
+4. Complete cameras, GNSS fix, Bluetooth, NFC, fingerprint and other hardware tests.
+5. Integrate confirmed fixes into a reproducible clean installation with recovery/update instructions, then pursue an iOS-style Lomiri interface; see [planned interface work](docs/status.md#planned-interface-work).
 
 I track each hardware result separately and will update the support table as testing progresses.
 
