@@ -33,7 +33,8 @@ Development remains focused on Ubuntu Touch. The separate Sailfish project is pa
 | Wired 3.5 mm jack / audio routing | **Handset test (22 October):** inserting the wired headset changed `/sys/class/extcon/extcon1/state` from `MECHANICAL=0 MICROPHONE=0 HEADPHONE=0` to `MECHANICAL=1 MICROPHONE=1 HEADPHONE=0`; removal returned all values to zero. However PulseAudio retained `output-speaker` / `input-builtin_mic`, and headphone-only playback was not confirmed. | Kernel detects insertion and the microphone-related cable state. Unclear whether `HEADPHONE=0` is expected for this accessory or a kernel switch mismatch. Inspect PulseAudio card ports and driver input events; do not infer jack hardware failure. |
 | Fingerprint, Hall, heart-rate sensor | Respective kernel/daemon interfaces detected. | No successful physical operation demonstrated. |
 | Battery and charging | Kernel exposes power/battery readings. | Verify actual charge progression, wireless charging, suspend and consumption. |
-| Camera, Bluetooth, NFC, SMS, mobile data and other hardware | No conclusive functional test yet. | Targeted tests only; avoid labelling these features broken without evidence. |
+| Bluetooth headset | On 22 October the tester reports a successful real-world Bluetooth headset test, including audio playback. | Bluetooth headset microphone use, call audio profile (HFP/HSP), BLE, file transfer and reconnection remain individually unverified. |
+| Camera, NFC, SMS, mobile data and other hardware | No conclusive functional test yet. | Targeted tests only; avoid labelling these features broken without evidence. |
 
 ## Next work
 
@@ -81,7 +82,7 @@ The first visual milestone is Home, dock and Control Center working on the hands
 | Handoff to systemd and Android container | Confirmed by BOOT 5/6. |
 | Working graphical boot and touch | Confirmed by the user after correction 1 on 15 October. |
 | Wi-Fi interface issue | Reproduced duplicated lists; a runtime unmanaged-`wlan0` test showed one list and retained Internet on `wlan1`; persistence/reconnection pending. |
-| Further hardware | Speaker/PulseAudio, sensors and LTE registration partially validated; microphones, calls, SMS, GPS fix, camera, Bluetooth and stability remain open. |
+| Further hardware | Speaker, built-in mic and Bluetooth headset playback tested; sensors and LTE registration partly validated. Calls, SMS, GPS fix, camera, further Bluetooth modes and stability remain open. |
 | Repeatable installation, updates and recovery for others | In development. |
 | iOS-style Lomiri interface | Planned after base-port stabilization; implementation not started. |
 
