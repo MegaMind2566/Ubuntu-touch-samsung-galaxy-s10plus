@@ -8,7 +8,7 @@ This is an early development port. Daily-use reliability and a supported update 
 
 ## Hardware support
 
-**Status from physical tests through 22 October 2026.** A detected driver or a running daemon is not equivalent to a verified peripheral. The [project status](docs/status.md) tracks observations and limitations.
+**Status from physical tests through 23 October 2026.** A detected driver or a running daemon is not equivalent to a verified peripheral. The [project status](docs/status.md) tracks observations and limitations.
 
 | Function | Status |
 | --- | --- |
@@ -22,7 +22,7 @@ This is an early development port. Daily-use reliability and a supported update 
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm audio | **TRS headphones without microphone work**. TRRS headset with microphone is detected by the kernel but PulseAudio does not route to it; compatibility fix needed |
+| Wired 3.5 mm audio | **TRS headphones play normally. TRRS headset playback works in a physical test when legacy audio routing is enabled temporarily and the headset port is selected manually**. Automatic TRRS switching and cable microphone not yet working/verified; experimental configuration was reverted after test |
 | Bluetooth headset | Playback works in user test; streaming anomalies remain. Mic route and call profile not independently verified |
 | Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
@@ -59,7 +59,7 @@ For building the adaptation, assembling SYSTEM and reproducing the validation ch
 
 ## Roadmap
 
-1. Built-in microphone capture verified; TRS headphones work; TRRS headset with microphone fails auto-routing, next test PulseAudio-Droid port mapping before continuing with call audio without disturbing the working speaker/PulseAudio configuration.
+1. TRRS headphone playback confirmed using a temporary, reversible legacy-routing option. Next validate a persistent but reversible legacy setting plus automatic TRRS switch detection; verify wired mic and check speaker/TRS/Bluetooth regressions before integration.
 2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
 3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
 4. Complete cameras, GNSS fix, Bluetooth microphone/call profiles and other modes, NFC, fingerprint and other hardware tests.
