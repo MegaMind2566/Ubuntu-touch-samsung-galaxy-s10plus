@@ -16,6 +16,7 @@ Development remains focused on Ubuntu Touch. The separate Sailfish project is pa
 | Magnetometer and compass basic measurements | Changing samples; calibration level progressed 0 to 1. | Absolute north and physical repeatability not established. |
 | Wi-Fi radio connectivity | Real internet connection via `wlan1`; both 2.4 and 5 GHz networks detected. | Duplicated UI and intermittent connection problems described below. |
 | PulseAudio and physical speaker | Audio-6 v2 restored the normal Ubuntu Touch PulseAudio service; user heard audio and reported clean playback through `sink.primary-out`. | Microphones and remaining output paths untested. |
+| Built-in microphone and playback | 22 October: `source.primary-in` with `input-builtin_mic` recorded ~4.82 s of actual voice, `parec` reported success, ~52.15% peak and 0% clipping, and the user confirmed clear replay on `sink.primary-out`. | Does not establish secondary microphones, headset mic or call capture. No voice recording stored. |
 | PulseAudio post-reboot selection | After a later reboot, `pulseaudio.service` was active and the dedicated user unit selected `sink.primary-out`, with success reported. | Fresh listening after that particular reboot was not separately documented. |
 | USB MTP basic use | User confirmed memory access from another Android handset over USB-C; targeted USB boot configurator executed on earlier reboot. | Two-way file transfer and other hosts/USB modes not fully verified. |
 | LTE modem/SIM detection | oFono exposed two modem objects; one valid SIM in slot 2 was registered to LTE on a handset test. | No verified call, SMS or mobile packet transfer. |
@@ -29,14 +30,14 @@ Development remains focused on Ubuntu Touch. The separate Sailfish project is pa
 | Temporary graphical artifacts | User observes brief colored lines during browser surface resize, especially when the on-screen keyboard disappears. | Graphics compositor/buffer investigation; **video decoding itself has not been tested**. |
 | GNSS/GPS | Service active; during a 120-second run up to 3 satellites were signaled, none used for a fix; no new position update. | Outdoor satellite fix and positioning test. |
 | Proximity | SensorFW denied the proximity session: ID not registered. | Check SensorFW/HAL registration and actual near/far behavior. |
-| Audio routing | HAL reported `Failed to create ... audio patch (38)` for output and input. | Microphone capture, headset/jack detection, earpiece, hands-free and call audio. Successful speaker playback does not prove the remaining paths. |
+| Audio routing | HAL reported `Failed to create ... audio patch (38)` for output and input, **but a real five-second built-in mic recording and playback succeeded**. | Wired headset/jack detection, earpiece, hands-free and call audio are untested. HAL errors must be correlated with functional failures rather than presumed fatal. |
 | Fingerprint, Hall, heart-rate sensor | Respective kernel/daemon interfaces detected. | No successful physical operation demonstrated. |
 | Battery and charging | Kernel exposes power/battery readings. | Verify actual charge progression, wireless charging, suspend and consumption. |
 | Camera, Bluetooth, NFC, SMS, mobile data and other hardware | No conclusive functional test yet. | Targeted tests only; avoid labelling these features broken without evidence. |
 
 ## Next work
 
-**First: isolated, read-only audio input tests**: inspect real PulseAudio sources, then optionally record ~5 seconds from `source.primary-in` and replay through the known-good `sink.primary-out` on explicit consent. Keep PCM in RAM, never commit recordings. Check wired headset routing separately, without restarting PulseAudio or forcing profiles. Follow with voice calls, SMS and mobile data, then battery/suspend and graphics/Wi-Fi reliability. Preserve working audio-6 v2 and BOOT 6 baseline.
+**Next: wired 3.5 mm headset detection and playback routing**, using only read-only PulseAudio state checks and manual listening. The built-in microphone has passed the functional test; do not repeat it without a specific regression. Follow with earpiece/call audio, SMS and mobile data, then battery/suspend and graphics/Wi-Fi reliability. Preserve current audio and Wi-Fi fixes; do not force audio profiles without separate safeguards. Preserve working audio-6 v2 and BOOT 6 baseline.
 
 Only sanitized observations belong in the public repository: no raw handset logs, SSIDs/BSSIDs, device MACs, SIM details or voice recordings. Local mocked tests of a diagnostic script are **not** physical device validation.
 
