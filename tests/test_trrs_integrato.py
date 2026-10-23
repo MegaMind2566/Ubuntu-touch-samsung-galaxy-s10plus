@@ -491,5 +491,130 @@ class SimulatedPhone(unittest.TestCase):
             mod.monitor()
 
 
+
+class V4MonitorOwnershipTests(unittest.TestCase):
+    """Regression for v3 failure: unplug was ignored when default sink changed."""
+
+    def test_owned_headset_unplug_restores_primary_when_default_is_bluetooth(self):
+        self.assertEqual(mod.monitor_routing('none', mod.HEADSET,
+                                             'bluez_output.headphones', True,
+                                             headset_owned=True), mod.SPEAKER)
+
+    def test_owned_headset_unplug_restores_primary_when_default_is_fast(self):
+        self.assertEqual(mod.monitor_routing('none', mod.HEADSET,
+                                             'sink.fast', True,
+                                             headset_owned=True), mod.SPEAKER)
+
+    def test_unowned_headset_not_overridden_when_default_is_bluetooth(self):
+        self.assertIsNone(mod.monitor_routing('none', mod.HEADSET,
+                                              'bluez_output.headphones', True,
+                                              headset_owned=False))
+
+    def test_owned_route_never_changes_nonprimary_sink(self):
+        self.assertIsNone(mod.monitor_routing('trrs', mod.SPEAKER,
+                                              'bluez_output.headphones', True,
+                                              headset_owned=True))
+
+    def test_owned_route_no_changes_without_legacy(self):
+        self.assertIsNone(mod.monitor_routing('none', mod.HEADSET,
+                                              'sink.fast', False,
+                                              headset_owned=True))
+
+    def test_wired_trs_no_route_even_when_headset_was_owned(self):
+        self.assertIsNone(mod.monitor_routing('trs', mod.HEADSET,
+                                              mod.SINK, True,
+                                              headset_owned=True))
+
+    def test_unknown_state_is_ignored(self):
+        self.assertIsNone(mod.monitor_routing('unknown', mod.HEADSET,
+                                              mod.SINK, True,
+                                              headset_owned=True))
+
+    def test_unplug_to_speaker_is_noop_when_already_speaker(self):
+        self.assertIsNone(mod.monitor_routing('none', mod.SPEAKER,
+                                              'sink.fast', True,
+                                              headset_owned=True))
+
+    def test_timeout_diagnostic_mentions_monitor_and_default_sink(self):
+        class Clock:
+            t=0
+            def monotonic(self):
+                self.t += 0.6
+                return self.t
+            def sleep(self, seconds): pass
+        with mock.patch.object(mod, 'time', Clock()), \
+             mock.patch.object(mod, 'jack_state', return_value='none'), \
+             mock.patch.object(mod, 'sink_port', return_value=mod.HEADSET), \
+             mock.patch.object(mod, 'pulse', return_value='sink.fast'), \
+             mock.patch.object(mod, 'props', return_value={'ActiveState':'active','MainPID':'1234'}):
+            with self.assertRaises(mod.GuardError) as ctx:
+                mod.expect_route('none', mod.SPEAKER, timeout=0.5)
+        self.assertIn('default=sink.fast',str(ctx.exception))
+        self.assertIn('monitor=active',str(ctx.exception))
+        self.assertIn('monitor_pid=1234',str(ctx.exception))
+
+    def test_changed_audio_default_fails_before_persistence_consent(self):
+        responses=['', '', 'c', '', '', 's', '', 's']
+        with mock.patch.object(mod,'prompt',side_effect=responses) as prompts, \
+             mock.patch.object(mod,'expect_route'), \
+             mock.patch.object(mod,'play_tone'), \
+             mock.patch.object(mod,'paused_streams',return_value=0), \
+             mock.patch.object(mod,'pulse',side_effect=lambda arg: ('sink.fast' if arg=='get-default-sink' else mod.SOURCE)), \
+             mock.patch.object(mod,'emit'):
+            with self.assertRaisesRegex(mod.GuardError,'Default audio cambiati'):
+                mod.physical_acceptance()
+            self.assertEqual(prompts.call_count,8)
+
+    def test_monitor_real_loop_restores_on_unplug_even_if_bluetooth_default(self):
+        class TrialFinished(BaseException):
+            pass
+        class Clock:
+            def __init__(self): self.seconds = 0
+            def monotonic(self): return self.seconds
+            def sleep(self, seconds):
+                self.seconds += seconds
+                if self.seconds >= 13:
+                    raise TrialFinished()
+        clock=Clock()
+        frames=['none']*2 + ['trrs']*4 + ['none']*8
+        state={'port':mod.SPEAKER,'default':mod.SINK,'routes':[]}
+        def jack():
+            return frames[min(int(clock.seconds),len(frames)-1)]
+        def pulse(*args):
+            if args == ('get-default-sink',):
+                # After headset routing, an unrelated device becomes default.
+                return 'bluez_output.stereo' if state['port']==mod.HEADSET else state['default']
+            if args[0] == 'set-sink-port':
+                assert args[1] == mod.SINK
+                state['port']=args[2]
+                state['routes'].append(args[2])
+                return ''
+            raise AssertionError('Unexpected pactl command: '+str(args))
+        with mock.patch.object(mod,'time',clock), \
+             mock.patch.object(mod,'assert_user'), \
+             mock.patch.object(mod,'owned_regular',return_value=True), \
+             mock.patch.object(mod,'source_sha',return_value='mock-sha'), \
+             mock.patch.object(mod,'trial_present',return_value=True), \
+             mock.patch.object(mod,'jack_state',side_effect=jack), \
+             mock.patch.object(mod,'pa_pid',return_value=2005), \
+             mock.patch.object(mod,'module_args',return_value=mod.BASE_ARGS+' '+mod.LEGACY), \
+             mock.patch.object(mod,'sink_port',side_effect=lambda:state['port']), \
+             mock.patch.object(mod,'pulse',side_effect=pulse), \
+             mock.patch.object(mod,'emit') as emit:
+            with self.assertRaises(TrialFinished):
+                mod.monitor()
+        self.assertEqual(state['routes'],[mod.HEADSET,mod.SPEAKER])
+        self.assertEqual(state['port'],mod.SPEAKER)
+        events=[(call.args[0],call.kwargs) for call in emit.call_args_list]
+        speaker=[data for event,data in events
+                 if event=='commutazione' and data.get('target')==mod.SPEAKER]
+        self.assertEqual(len(speaker),1)
+        self.assertEqual(speaker[0]['default_sink'],'bluez_output.stereo')
+        self.assertFalse(speaker[0]['headset_owned'])
+        self.assertTrue(any(event=='jack_stabile' and data.get('jack')=='none'
+                            and data.get('default_sink')=='bluez_output.stereo'
+                            for event,data in events))
+
+
 if __name__=='__main__':
     unittest.main(verbosity=2)
