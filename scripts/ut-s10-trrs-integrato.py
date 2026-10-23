@@ -29,7 +29,7 @@ import subprocess
 import sys
 import time
 
-VERSION = '2026-10-23.trrs-integrated-3'
+VERSION = '2026-10-23.trrs-integrated-4'
 UID = 32011
 HOME = Path('/home/phablet')
 RUNTIME = Path('/run/user/32011')
@@ -490,6 +490,16 @@ def expect_route(expected_state, expected_port, timeout=16):
         except GuardError as ex:
             error=str(ex)
         time.sleep(0.5)
+    # Capture the live decision inputs when a physical acceptance fails.
+    # In v3 the default-sink guard could silently suppress speaker restoration.
+    try:
+        default = pulse('get-default-sink')
+        monitor_info = props(UNIT_NAME, ['ActiveState', 'MainPID'])
+        error += (', default=' + default[:40] + ', monitor=' +
+                  monitor_info.get('ActiveState', '?')[:16] +
+                  ', monitor_pid=' + monitor_info.get('MainPID', '?')[:10])
+    except (GuardError, OSError, ValueError) as ex:
+        error += ', diagnostica=' + str(ex)[:48]
     raise GuardError('Routing automatico non confermato: '+error)
 
 
@@ -524,18 +534,37 @@ def physical_acceptance():
     emit('ascolto_speaker', speaker=answer in ('s','si'))
     if answer not in ('s', 'si'):
         raise GuardError('Riproduzione speaker non confermata')
+    # Never persist a trial if its audio defaults drifted away from the
+    # already verified, crackle-free primary sink and built-in source.
+    default_after = pulse('get-default-sink')
+    source_after = pulse('get-default-source')
+    if default_after != SINK or source_after != SOURCE:
+        raise GuardError('Default audio cambiati durante prova: uscita=' +
+                         default_after[:50] + ', ingresso=' + source_after[:50])
+    emit('default_audio_conservati', sink=default_after, source=source_after)
     if prompt('Prova TRRS/TRS/speaker superata: mantenere il fix al prossimo riavvio? [s/N]', 90) not in ('s','si'):
         raise GuardError('Installazione permanente non autorizzata: ripristino')
 
 
-def monitor_routing(kind, current_port, default_sink, is_legacy):
-    """Pure decision function; never change other sinks, TRS or an absent headset."""
-    if default_sink != SINK or not is_legacy:
+def monitor_routing(kind, current_port, default_sink, is_legacy,
+                    headset_owned=False):
+    """Select only the S10+ primary sink's port, never other sinks.
+
+    A TRRS route selected by *this* monitor must be undone at unplug even
+    if the system default sink changes meanwhile (e.g. Bluetooth/sink.fast).
+    Returning primary-out to speaker does NOT change the default sink.
+    An unowned route is only touched while primary-out is still default.
+    """
+    if not is_legacy:
+        return None
+    if kind == 'none' and current_port == HEADSET:
+        if headset_owned or default_sink == SINK:
+            return SPEAKER
+        return None
+    if default_sink != SINK:
         return None
     if kind == 'trrs' and current_port != HEADSET:
         return HEADSET
-    if kind == 'none' and current_port == HEADSET:
-        return SPEAKER
     return None
 
 
@@ -551,6 +580,11 @@ def monitor():
     last_raw, consecutive, previous = None, 0, None
     last_problem, logged_at = None, 0.0
     last_inspected_at = 0.0
+    # Ownership is acquired only when this monitor selects the headset or
+    # adopts an existing headset selection with primary-out as the default.
+    # Never let a later default-sink change strand that owned port at unplug.
+    headset_owned = False
+    last_announced = None
     # Cheap sysfs read once a second. Contact changes trigger an immediate
     # PulseAudio check after two identical samples (~1 s debounce).
     # At stable state the server is queried at most once per 12 s, keeping
@@ -561,8 +595,10 @@ def monitor():
             if kind == last_raw:
                 consecutive = min(3, consecutive + 1)
             else:
+                before = last_raw if last_raw is not None else 'inizio'
                 last_raw, consecutive = kind, 1
                 previous = None
+                emit('jack_cambiamento', precedente=before, attuale=kind)
             if consecutive < 2 or kind == 'unknown':
                 time.sleep(1.0)
                 continue
@@ -574,20 +610,38 @@ def monitor():
             pid = pa_pid()
             if kind == 'trs':
                 # Original TRS detection and automatic routing remain untouched.
+                if kind != last_announced:
+                    emit('jack_stabile', jack=kind, route='gestita_da_pulseaudio',
+                         pulse_pid=pid, headset_owned=headset_owned)
+                    last_announced = kind
                 previous = (kind, pid)
             else:
                 args = module_args()
                 if LEGACY not in args.split():
                     raise GuardError('Opzione legacy inattiva; monitor in attesa')
                 default = pulse('get-default-sink')
-                port = sink_port() if default == SINK else None
-                route = monitor_routing(kind, port, default, True)
+                # Read primary-out's actual port even if Bluetooth or another
+                # output became default: v3 discarded it and skipped unplug.
+                port = sink_port()
+                if kind == 'trrs' and port == HEADSET and default == SINK:
+                    headset_owned = True
+                route = monitor_routing(kind, port, default, True,
+                                        headset_owned=headset_owned)
+                if kind != last_announced:
+                    emit('jack_stabile', jack=kind, default_sink=default,
+                         primary_port=port, route=route or 'nessuna',
+                         headset_owned=headset_owned, pulse_pid=pid)
+                    last_announced = kind
                 if route:
                     pulse('set-sink-port', SINK, route)
                     if sink_port() != route:
                         raise GuardError('pactl porta non selezionata: ' + route)
-                    emit('commutazione', jack=kind, target=route, pulse_pid=pid)
-                # Never replace the user's Bluetooth/A2DP default sink.
+                    headset_owned = route == HEADSET
+                    emit('commutazione', jack=kind, target=route, pulse_pid=pid,
+                         default_sink=default, headset_owned=headset_owned)
+                elif kind == 'none' and port != HEADSET:
+                    headset_owned = False
+                # Never switch the default sink or change a Bluetooth device.
                 previous = (kind, pid)
             last_problem = None
         except (GuardError, OSError, ValueError) as ex:
