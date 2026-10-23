@@ -22,7 +22,7 @@ This is an early development port. Daily-use reliability and a supported update 
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm audio | **TRS headphones play; TRRS playback confirmed with legacy routing**. Experimental legacy routing and the v4 auto-switch monitor are installed and active after a reboot, with a successful automatic TRRS insertion-switch command in the handset log. Automatic restoration on unplug, in-app labeling and wired headset microphone remain unverified |
+| Wired 3.5 mm audio | **TRS playback confirmed; TRRS playback confirmed using legacy routing.** The v4 auto-switch monitor and legacy option persist after reboot. Physical insertion and removal were verified to select `output-wired_headset` and restore `output-speaker` automatically. Audio quality after removal, Lomiri UI labeling, and wired headset microphone remain open; the default sink also changed to `sink.fast` during removal |
 | Bluetooth headset | Playback works in user test; streaming anomalies remain. Mic route and call profile not independently verified |
 | Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
