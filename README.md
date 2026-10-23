@@ -22,7 +22,7 @@ This is an early development port. Daily-use reliability and a supported update 
 | GNSS | Service responds, but no position fix within a 120-second test |
 | Proximity sensor | Session unavailable / unregistered in SensorFW |
 | Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm audio | **TRS headphones play normally. TRRS headset playback works in a physical test when legacy audio routing is enabled temporarily and the headset port is selected manually**. Automatic TRRS switching and cable microphone not yet working/verified; experimental configuration was reverted after test |
+| Wired 3.5 mm audio | **TRS headphones play; TRRS playback confirmed with legacy routing**. Experimental legacy routing and the v4 auto-switch monitor are installed and active after a reboot, with a successful automatic TRRS insertion-switch command in the handset log. Automatic restoration on unplug, in-app labeling and wired headset microphone remain unverified |
 | Bluetooth headset | Playback works in user test; streaming anomalies remain. Mic route and call profile not independently verified |
 | Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
 | Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
