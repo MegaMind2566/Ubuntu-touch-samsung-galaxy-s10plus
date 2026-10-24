@@ -6,6 +6,9 @@ Reports retain their original names and contents so image identities and earlier
 
 | Report | Finding |
 | --- | --- |
+| [24 October Lomiri RC7/uOS27 v015 observations](lomiri-uos27-v015-handset-2026-10-24.md) | Tester confirmed Bluetooth on/off control; brightness slider started at zero, lateral Home remained and Control Center layout was incomplete. Prototype only; development suspended. |
+| [24 October unplugged energy baseline](energy-unplugged-baseline-2026-10-24.md) | Battery/discharge, temperature and active energy services observed through a bounded read-only collector. Charging, suspend and endurance not proven. |
+| [23 October wired TRRS route](audio-trrs-legacy-route-2026-10-23.md) | Physical headset playback through legacy routing; subsequent experimental auto-switch work remains device/configuration-specific. |
 | [First working graphical boot](ubuntu-first-graphical-boot-2026-10-15.json) | On 15 October, the user reports boot at 23:23:02 Europe/Rome and confirms touch/basic Wi-Fi at 23:23:55 after correction 1. Exact setup/home screen unspecified; no new photo or post-correction readback/report. |
 | [Ubuntu BOOT 6 handset result](ubuntu-boot-6-handset-2026-10-15.json) | Prior exact installation/readback and userspace/Android/HWC evidence, historical mapper diagnosis, and the later user-confirmed graphical result on that baseline. |
 | [BOOT 6 graphics permission correction](ubuntu-graphics-permission-fix-2026-10-15.json) | Targeted hwbinder/ion access modes and pre-LightDM checks; user now confirms graphical boot, touch and basic Wi-Fi. Machine-readable post-correction results remain pending. |
