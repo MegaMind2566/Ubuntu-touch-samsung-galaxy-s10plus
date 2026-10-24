@@ -2,11 +2,11 @@
 
 > **Project status: SUSPENDED — 24 October 2026.** Development, image integration and physical testing are on hold. Earlier test instructions on this page are retained as a technical backlog, not an active schedule or a promise of support. See the [README](../README.md) for the frozen hardware matrix.
 
-Updated: **24 October 2026**, including the latest user-reported experimental Lomiri interface behavior and the read-only energy baseline. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**, Ubuntu Touch 24.04 / Halium 12.
+Updated: **24 October 2026**, including the read-only energy baseline. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**, Ubuntu Touch 24.04 / Halium 12.
 
 ## Validated baseline at suspension
 
-At suspension, this repository documents the Ubuntu Touch port; the separate Sailfish project was never installed on this handset. **BOOT 6 with graphics-permission correction 1 remains the last verified running baseline**; the later runtime/UI tests do not constitute a new SYSTEM or BOOT image release. The port boots to a graphical session with working touch and basic Wi-Fi, but daily-driver reliability is not established.
+At suspension, this repository documents the Ubuntu Touch port; the separate Sailfish project was never installed on this handset. **BOOT 6 with graphics-permission correction 1 remains the last verified running baseline**; the later runtime tests do not constitute a new SYSTEM or BOOT image release. The port boots to a graphical session with working touch and basic Wi-Fi, but daily-driver reliability is not established.
 
 ### Verified on the handset
 
@@ -93,23 +93,6 @@ Retain the working BOOT 6 and permission correction. Record the visible setup/ho
 
 Then validate Wi-Fi reconnect/suspend, charging and power management, followed by the remaining hardware functions. Track each result independently. Repair the adaptation's missing overlay destination in the reproducible SYSTEM assembly before presenting the userdata correction as a general installation method; the working handset does not need an immediate rebuild for that development task.
 
-## Planned interface work
-
-**24 October 2026 experimental handset observation:** RC7/uOS27 v015 could toggle the Bluetooth radio on and off, but the brightness slider consistently initialized at zero, the standard lateral Lomiri Home/app navigation remained, and the Control Center occupied only the upper display area. The tester rejected the appearance. This is an **unfinished UI prototype**, not a release-integrated overhaul; see [dated UI evidence](evidence/lomiri-uos27-v015-handset-2026-10-24.md). All further work is suspended.
-
-Added to the backlog on **21 October 2026**: a deep visual and interaction redesign of Lomiri to closely match a chosen iOS reference.
-
-**Status: experimental prototype not accepted; implementation incomplete and now suspended. Priority on resumption: after stabilization of the base port.** Existing stability, power-management and essential hardware work takes precedence. Implementation depends on validated repeated boots, sustained graphical/touch/Wi-Fi operation, charging and suspend/resume, and a repeatable installation/recovery path. This roadmap addition records no new handset result.
-
-- [ ] Choose the exact iOS visual reference and target screens, with layouts adapted to the S10+ display and camera cutout.
-- [ ] Build a functional Home screen with pages, folders and dock, followed by a Control Center connected to real system services.
-- [ ] Adapt the lock screen, notifications, app switcher and gestures while preserving the existing authentication and session mechanisms.
-- [ ] Align the keyboard, shared toolkit components, Settings and selected core apps; track third-party app styling separately.
-- [ ] Measure animation and blur performance, input behaviour and suspend/resume on the handset; provide reduced effects where needed.
-- [ ] Package versioned, reproducible changes with an update-compatibility check and a tested rollback to the standard interface.
-
-The first visual milestone is Home, dock and Control Center working on the handset. Appearance work does not establish hardware support or iOS application compatibility.
-
 ## Milestones
 
 | Milestone | Status |
@@ -121,7 +104,6 @@ The first visual milestone is Home, dock and Control Center working on the hands
 | Wi-Fi interface issue | Duplicated lists reproduced; persistent unmanaged-`wlan0` workaround reported successful after reboot with `wlan1` Internet retained. Long-term reconnection pending. |
 | Further hardware | Speaker, built-in mic and Bluetooth headset playback tested; sensors and LTE registration partly validated. Calls, SMS, GPS fix, camera, further Bluetooth modes and stability remain open. |
 | Repeatable installation, updates and recovery for others | In development. |
-| iOS-style Lomiri interface | RC7/uOS27 v015 tested in a limited handset session; Bluetooth toggle responsive, brightness slider state and layout incomplete. Not release ready; suspended. |
 
 ## Publication
 

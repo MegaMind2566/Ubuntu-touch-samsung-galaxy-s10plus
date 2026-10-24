@@ -39,12 +39,12 @@ The matrix below separates **physical, user-confirmed tests** from driver detect
 | Built-in microphone | **Working (basic)** | Approximately 4.82 seconds of voice recorded and audibly replayed; the test reported no clipping. Other microphone paths are unverified. |
 | 3.5 mm headphones (TRS) | **Working (basic)** | Wired headphone playback confirmed. |
 | 3.5 mm headset output (TRRS) | **Partial** | Physical playback confirmed with legacy droid-audio routing. Experimental v4 routing switched to the headset on insertion and back to the speaker on removal, including a reboot check. Lomiri can still label the headset as “Speaker”; headset-microphone capture and long-term stability are unverified. |
-| Bluetooth radio control | **Partial** | In the experimental **RC7/uOS27 v015** interface, the Bluetooth control was confirmed to turn the radio on and off. This does not validate all Bluetooth profiles or release-image integration. |
+| Bluetooth radio | **Partial** | Basic radio activation and deactivation were observed on the handset; complete profile support and long-term reliability remain unverified. |
 | Bluetooth headset playback | **Partial** | Audio heard in a user test; streaming anomalies remain. A voice-input interaction did not prove that the Bluetooth microphone was the active source. HFP/HSP calls, BLE, pairing persistence and transfers remain unverified. |
 | Cellular modem and SIM | **Partial** | oFono exposed two modem objects; a SIM in slot 2 registered on LTE. Calls, SMS, mobile data and actual dual-SIM operation have **not** been verified. |
 | USB-C MTP | **Partial** | Storage access from another Android handset confirmed. Computer-host compatibility, bidirectional transfers, ADB during normal Ubuntu boot, tethering and other USB modes remain unverified. |
 | Ambient light sensor | **Partial** | Changing sensor readings detected. Automatic brightness control is not established. |
-| Manual brightness / experimental UI slider | **Partial / UI issue** | In RC7/uOS27 v015 the brightness slider repeatedly initializes at zero instead of reflecting the current level. Correct state synchronization and brightness-control behavior need investigation. |
+| Brightness and backlight | **Partial** | Kernel backlight values are available; automatic brightness and user-facing control accuracy are not established. |
 | Barometer and magnetometer | **Working (basic readings)** | Live pressure and magnetic samples obtained; compass accuracy and calibration remain unverified. |
 | GPS / GNSS | **No fix demonstrated** | GNSS service responded but the 120-second test produced no location fix. Outdoor acquisition and navigation are not validated; this is not proof that the GNSS hardware is defective. |
 | Proximity sensor | **Blocked in current stack** | SensorFW rejected the proximity session as unregistered. Physical near/far behavior could not be validated. |
@@ -59,15 +59,9 @@ The matrix below separates **physical, user-confirmed tests** from driver detect
 
 The [detailed project status](docs/status.md) and [dated evidence](docs/evidence/README.md) record the difference between successful offline tests, actual handset behavior and unresolved issues. Runtime fixes for Wi-Fi, audio and USB were exercised on the development phone; **they have not all been incorporated into one cleanly reproducible, public installation image**. No private audio recordings or raw personal device diagnostics are published here.
 
-## Experimental Lomiri interface work
-
-I also explored an iOS-inspired interface for Lomiri. The **24 October 2026 RC7/uOS27 v015** handset trial established that the Bluetooth toggle could change radio state in both directions. However, the brightness slider continued to start at zero, the standard lateral Lomiri Home/app navigation remained visible and the Control Center occupied only the upper part of the display. The result was **not** the intended full-screen visual redesign. These are tester-reported observations of an **experimental UI**, not functions guaranteed by the downloadable alpha firmware.
-
-The redesigned Home, Control Center, gestures, notifications and their deeper shell integration remain unfinished. The original Lomiri environment is still the development baseline; this work should not be described as a completed or release-ready interface. The dated [UI test note](docs/evidence/lomiri-uos27-v015-handset-2026-10-24.md) distinguishes those observations from reproducible integration.
-
 ## Available alpha release
 
-I published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/v0.1.0-alpha.1) on **15 October 2026**, including the SYSTEM image, Windows boot/tools package, checksums, manifest and installation notes. This release represents an **early graphical-boot milestone**, not the final collection of subsequent on-device audio, Wi-Fi and interface experiments.
+I published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/v0.1.0-alpha.1) on **15 October 2026**, including the SYSTEM image, Windows boot/tools package, checksums, manifest and installation notes. This release represents an **early graphical-boot milestone**, not the final collection of subsequent on-device audio and Wi-Fi experiments.
 
 **Do not treat this release as a stable daily-driver ROM or an automatic upgrade for another S10+.** It requires a compatible device/firmware state, careful image-identity checks and a reliable recovery path. I have not established a general clean-install procedure or supported OTA updates. Review the [alpha installation notes](docs/install-alpha.md) and [current status](docs/status.md) before touching partitions. I am not performing further installation validation while the project is suspended.
 
@@ -78,7 +72,6 @@ I published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-sa
 3. Finish GNSS acquisition, proximity registration, cameras, NFC, fingerprint, Bluetooth profiles and remaining peripheral tests.
 4. Address graphics artifacts, Wi-Fi reconnection, PulseAudio default-sink regressions and wired-headset microphone routing.
 5. Integrate validated runtime corrections into a reproducible image with tested installation, update and rollback procedures.
-6. Rework the experimental Lomiri interface only after the underlying port is stable, with full visual and functional handset acceptance.
 
 **All items above are backlog, not active commitments or a delivery schedule.**
 
