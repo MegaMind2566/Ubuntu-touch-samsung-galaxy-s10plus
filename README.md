@@ -1,88 +1,101 @@
-# Ubuntu Touch for Samsung Galaxy S10+
+# Ubuntu Touch for Samsung Galaxy S10+ (Exynos)
 
-I am porting **Ubuntu Touch 24.04 / Halium 12** to the **Samsung Galaxy S10+ Exynos (`beyond2lte`)**. My goal is to make it boot reliably, support the phone's hardware and provide a repeatable installation on the Android 12 firmware baseline.
+> **Project status: SUSPENDED — 24 October 2026**  
+> **Maturity: experimental alpha; not suitable for daily use.** No active development, supported update channel or resumption date is currently planned.
 
-**Ubuntu Touch now boots on my S10+, with working touch, basic Wi-Fi and speaker playback.** I reached the first graphical boot on **15 October 2026**, using BOOT 6 with graphics permission correction 1. I am now testing stability and the remaining hardware.
+This repository documents my effort to bring **Ubuntu Touch 24.04 / Halium 12** to the **Samsung Galaxy S10+ Exynos (`beyond2lte`)**, building on the earlier community port. The aim was to obtain a reliable graphical boot, restore the phone's hardware functions and eventually provide a reproducible installation on the final Samsung Android 12 firmware baseline.
 
-This is an early development port. Daily-use reliability and a supported update channel have not been established.
+I reached the **first confirmed graphical boot on 15 October 2026**, using **BOOT 6** with a separate graphics-permission correction. Touch input, Wi-Fi internet access and several other peripherals were subsequently tested on my own handset. The port remains incomplete: successful operation on this particular device does **not** imply a stable, generally installable ROM.
+
+I have paused work as of **24 October 2026**. The source code, alpha release, experiments and evidence remain public so that the work can be inspected or continued. This is a suspension, not a claim of project completion. I am not promising new builds, bug fixes or installation support while it is suspended.
+
+## Device and software baseline
+
+| Component | Tested configuration |
+| --- | --- |
+| Device | Samsung Galaxy S10+ **SM-G975F/DS**, Exynos variant |
+| Device codename / SoC | `beyond2lte` / Exynos 9820 |
+| Original firmware | Samsung **G975FXXSGHWC1**, Android 12 / One UI 4.1, ITV/OXM |
+| Ubuntu userspace | Ubuntu Touch **24.04-2.x**, arm64 |
+| Android adaptation | **Halium 12** |
+| Known working boot baseline | **BOOT 6** plus **graphics-permission correction 1** applied through userdata |
+| Partition scheme | Measured Samsung A-only layout; not a generic A/B or dynamic-partition device |
+| Latest included handset observations | **24 October 2026** |
+
+This device-specific work has **not** been validated on Snapdragon S10+ models, the S10/S10e/5G or other firmware and bootloader revisions. Source pins, image identities and test provenance are available in [upstream.lock.json](config/upstream.lock.json), the [evidence index](docs/evidence/README.md) and [development notes](docs/development.md).
 
 ## Hardware support
 
-**Status from physical tests through 23 October 2026.** A detected driver or a running daemon is not equivalent to a verified peripheral. The [project status](docs/status.md) tracks observations and limitations.
+The matrix below separates **physical, user-confirmed tests** from driver detection and unperformed tests. “Working” describes the tested function under the stated conditions, not every mode or long-term reliability. “Partial” means some behavior was demonstrated but significant limitations remain. “Blocked” means a specific software path failed; it does not establish defective hardware. “Not tested” must **not** be interpreted as “broken.”
 
-| Function | Status |
+| Component / function | Status | Verified result and limitations |
+| --- | --- | --- |
+| Graphical boot and Lomiri session | **Working (basic)** | Reaches the Ubuntu Touch graphical environment with BOOT 6 and the separate graphics fix. Repeated-boot and long-term stability are not certified. |
+| Touchscreen | **Working** | Physical touch interaction confirmed in the graphical session. |
+| AMOLED display | **Working (basic)** | Image output works. Brief colored-line artifacts occur when a browser surface resizes after the on-screen keyboard closes. Video decoding was not separately tested. |
+| Rotation, accelerometer, gyroscope, orientation | **Working (basic)** | Live sensor values and screen autorotation observed; precision and all orientation cases not certified. |
+| Wi-Fi 2.4/5 GHz | **Working (basic)** | Internet access confirmed through `wlan1`. Duplicate network lists caused by managed `wlan0`/`wlan1` were removed with a persistent runtime workaround, confirmed after reboot. Some connection failures occurred; extended stability, hotspot and Wi-Fi Direct remain untested. |
+| Loudspeaker | **Working (basic)** | Physical playback confirmed through the corrected PulseAudio `sink.primary-out` path without crackling in the acceptance test. Audio routing remains sensitive to default-sink selection. |
+| Built-in microphone | **Working (basic)** | Approximately 4.82 seconds of voice recorded and audibly replayed; the test reported no clipping. Other microphone paths are unverified. |
+| 3.5 mm headphones (TRS) | **Working (basic)** | Wired headphone playback confirmed. |
+| 3.5 mm headset output (TRRS) | **Partial** | Physical playback confirmed with legacy droid-audio routing. Experimental v4 routing switched to the headset on insertion and back to the speaker on removal, including a reboot check. Lomiri can still label the headset as “Speaker”; headset-microphone capture and long-term stability are unverified. |
+| Bluetooth radio control | **Partial** | In the experimental **RC7/uOS27 v015** interface, the Bluetooth control was confirmed to turn the radio on and off. This does not validate all Bluetooth profiles or release-image integration. |
+| Bluetooth headset playback | **Partial** | Audio heard in a user test; streaming anomalies remain. A voice-input interaction did not prove that the Bluetooth microphone was the active source. HFP/HSP calls, BLE, pairing persistence and transfers remain unverified. |
+| Cellular modem and SIM | **Partial** | oFono exposed two modem objects; a SIM in slot 2 registered on LTE. Calls, SMS, mobile data and actual dual-SIM operation have **not** been verified. |
+| USB-C MTP | **Partial** | Storage access from another Android handset confirmed. Computer-host compatibility, bidirectional transfers, ADB during normal Ubuntu boot, tethering and other USB modes remain unverified. |
+| Ambient light sensor | **Partial** | Changing sensor readings detected. Automatic brightness control is not established. |
+| Manual brightness / experimental UI slider | **Partial / UI issue** | In RC7/uOS27 v015 the brightness slider repeatedly initializes at zero instead of reflecting the current level. Correct state synchronization and brightness-control behavior need investigation. |
+| Barometer and magnetometer | **Working (basic readings)** | Live pressure and magnetic samples obtained; compass accuracy and calibration remain unverified. |
+| GPS / GNSS | **No fix demonstrated** | GNSS service responded but the 120-second test produced no location fix. Outdoor acquisition and navigation are not validated; this is not proof that the GNSS hardware is defective. |
+| Proximity sensor | **Blocked in current stack** | SensorFW rejected the proximity session as unregistered. Physical near/far behavior could not be validated. |
+| Battery reporting | **Partial** | An unplugged, read-only test reported 56%, `Discharging`, 3.712 V and 24.7 °C; the battery, UPower and `repowerd` were visible. Some vendor current/charge fields were inconsistent or had unknown units. |
+| Wired and wireless charging | **Not tested** | Detection and actual charging progression over time were not physically established. |
+| Screen-off, suspend/resume, endurance | **Not tested** | Available kernel sleep states and services do not prove successful sleep, wake or acceptable standby consumption. |
+| Earpiece, call audio, secondary microphones | **Not tested** | Speaker and built-in recording tests do not establish telephony audio routing. |
+| Cameras (rear/front), video recording, flash | **Not tested** | No conclusive capture or flash test on this Ubuntu Touch build. |
+| NFC | **Not tested** | No successful transaction or reader test. |
+| Fingerprint reader, Hall and heart-rate sensors | **Not tested** | Some interfaces were detected, but no successful physical use was demonstrated. |
+| Vibration / haptics, USB-OTG and remaining peripherals | **Not tested** | No reliable end-to-end acceptance result recorded. |
+
+The [detailed project status](docs/status.md) and [dated evidence](docs/evidence/README.md) record the difference between successful offline tests, actual handset behavior and unresolved issues. Runtime fixes for Wi-Fi, audio and USB were exercised on the development phone; **they have not all been incorporated into one cleanly reproducible, public installation image**. No private audio recordings or raw personal device diagnostics are published here.
+
+## Experimental Lomiri interface work
+
+I also explored an iOS-inspired interface for Lomiri. The **24 October 2026 RC7/uOS27 v015** handset trial established that the Bluetooth toggle could change radio state in both directions. However, the brightness slider continued to start at zero, the standard lateral Lomiri Home/app navigation remained visible and the Control Center occupied only the upper part of the display. The result was **not** the intended full-screen visual redesign. These are tester-reported observations of an **experimental UI**, not functions guaranteed by the downloadable alpha firmware.
+
+The redesigned Home, Control Center, gestures, notifications and their deeper shell integration remain unfinished. The original Lomiri environment is still the development baseline; this work should not be described as a completed or release-ready interface. The dated [UI test note](docs/evidence/lomiri-uos27-v015-handset-2026-10-24.md) distinguishes those observations from reproducible integration.
+
+## Available alpha release
+
+I published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/v0.1.0-alpha.1) on **15 October 2026**, including the SYSTEM image, Windows boot/tools package, checksums, manifest and installation notes. This release represents an **early graphical-boot milestone**, not the final collection of subsequent on-device audio, Wi-Fi and interface experiments.
+
+**Do not treat this release as a stable daily-driver ROM or an automatic upgrade for another S10+.** It requires a compatible device/firmware state, careful image-identity checks and a reliable recovery path. I have not established a general clean-install procedure or supported OTA updates. Review the [alpha installation notes](docs/install-alpha.md) and [current status](docs/status.md) before touching partitions. I am not performing further installation validation while the project is suspended.
+
+## Outstanding work if development resumes
+
+1. Measure real charging progression, suspend/resume, standby consumption and repeated-boot reliability without disturbing the confirmed BOOT 6 baseline.
+2. Verify phone calls, SMS, mobile data, dual-SIM behavior, earpiece and call-microphone routing.
+3. Finish GNSS acquisition, proximity registration, cameras, NFC, fingerprint, Bluetooth profiles and remaining peripheral tests.
+4. Address graphics artifacts, Wi-Fi reconnection, PulseAudio default-sink regressions and wired-headset microphone routing.
+5. Integrate validated runtime corrections into a reproducible image with tested installation, update and rollback procedures.
+6. Rework the experimental Lomiri interface only after the underlying port is stable, with full visual and functional handset acceptance.
+
+**All items above are backlog, not active commitments or a delivery schedule.**
+
+## Repository documentation
+
+| Resource | Purpose |
 | --- | --- |
-| Ubuntu Touch graphical session and touchscreen | Working in basic handset tests |
-| Wi-Fi (2.4/5 GHz) | Internet works; duplicated network lists/icons traced to two managed interfaces. Excluding idle `wlan0` leaves one list and `wlan1` connected. Persistent single-list behavior confirmed by the tester after reboot; long-term connection reliability and Wi-Fi Direct still pending |
-| Display, autorotation and inertial sensors | Working in basic tests; transient colored lines observed when browser resizes after on-screen keyboard dismissal |
-| Ambient light, barometer and magnetometer | Fresh measurements observed; automatic brightness and compass accuracy still pending |
-| Speaker and PulseAudio | Physical playback works with `sink.primary-out` and avoids crackling; service and stable sink selection verified after reboot |
-| USB MTP | Access from another Android handset confirmed; other hosts, two-way transfers and USB modes not fully validated |
-| Cellular modem and SIM | Slot-2 SIM registered on LTE; calls, SMS and mobile data not yet verified |
-| GNSS | Service responds, but no position fix within a 120-second test |
-| Proximity sensor | Session unavailable / unregistered in SensorFW |
-| Built-in microphone | Functional ~5 s recording and clear replay confirmed by tester; 0% clipping reported; no audio stored |
-| Wired 3.5 mm audio | **TRS playback confirmed; TRRS playback confirmed using legacy routing.** The v4 auto-switch monitor and legacy option persist after reboot. Physical insertion and removal were verified to select `output-wired_headset` and restore `output-speaker` automatically. Audio quality after removal, Lomiri UI labeling, and wired headset microphone remain open; the default sink also changed to `sink.fast` during removal |
-| Bluetooth headset | Playback works in user test; streaming anomalies remain. Mic route and call profile not independently verified |
-| Secondary microphones, earpiece/call audio, cameras and NFC | Functional tests still pending |
-| Charging, battery endurance, suspend/resume, fingerprint and extra sensors | Functional tests still pending |
+| [Project status](docs/status.md) | Evidence-backed hardware state, regressions, experiments and suspended work |
+| [Development guide](docs/development.md) | Pinned sources, BOOT/SYSTEM assembly and validation boundaries |
+| [Evidence index](docs/evidence/README.md) | Dated build records, image readbacks and physical device findings |
+| [Scripts](scripts/README.md) | Maintained source tooling and guarded diagnostics |
+| [Windows tools](tools/windows/README.md) | State-specific development packages and launchers |
 
-The Wi-Fi, audio and USB runtime corrections were tested on the working handset; **integration into a reproducible image and universal installation remains a separate task**. No raw private device diagnostics or voice recordings are published in this repository.
+The code is organized under `config/`, `patches/`, `scripts/`, `tests/` and `tools/`; superseded experiments remain in `archive/`. Contributions or independent testing should identify the exact model, firmware, image revision, operation performed and observed result. A detected driver or successful simulated test is not sufficient to mark a feature supported.
 
-## Tested baseline
+## Credits and licensing
 
-| Component | Configuration |
-| --- | --- |
-| Device | Samsung Galaxy S10+ SM-G975F/DS |
-| Codename / SoC | `beyond2lte` / Exynos 9820 |
-| Samsung firmware | G975FXXSGHWC1, Android 12 / One UI 4.1, ITV/OXM |
-| Ubuntu userspace | Ubuntu Touch 24.04-2.x, arm64 |
-| Android adaptation | Halium 12 |
-| Boot configuration | BOOT 6 with graphics permission correction 1 on userdata |
-| Storage | Measured A-only Samsung partition layout |
+This independent work builds on the [UBports community Samsung Exynos 9820 port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820), Halium, Ubuntu Touch, the associated kernel and adaptation tooling, and TeamWin recovery. Upstream projects retain their respective copyrights and licenses; see [THIRD_PARTY.md](THIRD_PARTY.md).
 
-I have not tested Snapdragon variants or other Galaxy S10 models. Source revisions are pinned in [upstream.lock.json](config/upstream.lock.json); measured image identities are recorded in the [evidence index](docs/evidence/README.md).
-
-The current boot configuration includes Samsung init-handoff and USB fixes, device profiles, and a targeted graphics permission correction. The latter supplies access to `hwbinder` and `ion` before the display manager starts. The [correction record](docs/evidence/ubuntu-graphics-permission-fix-2026-10-15.json) links the diagnosed access failure, implementation and validation.
-
-## First experimental release
-
-I have published [**v0.1.0-alpha.1**](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/tag/v0.1.0-alpha.1), based on the configuration that reached the first graphical boot. The release includes the SYSTEM image, the Windows boot/tools archive, checksums and installation notes. My working handset remains on BOOT 6 with graphics permission correction 1.
-
-## Installation and builds
-
-I currently use versioned development packages for specific image states. I am still validating a clean-install package and guide for other users.
-
-Existing Windows packages contain state-specific checks and require their complete prepared folder. The launcher source files in this repository are packaging inputs. Consult the [current project status](docs/status.md) before choosing a package or changing an existing test installation.
-
-For building the adaptation, assembling SYSTEM and reproducing the validation checks, start with [Development and validation](docs/development.md). Firmware, generated images and portable runtimes are kept outside the source tree; their identities are retained in the corresponding build records.
-
-## Roadmap
-
-1. TRRS headphone playback is physically verified with a temporary legacy-routing override. A guarded userspace auto-switch/legacy integration candidate now passes 41 offline tests but **has not yet been installed or validated on the handset**; next run its TRRS/TRS/speaker acceptance and rollback checks before marking automatic routing supported. Wired microphone and Bluetooth regressions remain separate checks.
-2. Test real calls, SMS, mobile data and Wi-Fi reliability, including the persisted single-network-list workaround after reboot.
-3. Validate charging, battery reporting, suspend/resume, thermals and the brief graphical artifacts during keyboard dismissal.
-4. Complete cameras, GNSS fix, Bluetooth microphone/call profiles and other modes, NFC, fingerprint and other hardware tests.
-5. Integrate confirmed fixes into a reproducible clean installation with recovery/update instructions, then pursue an iOS-style Lomiri interface; see [planned interface work](docs/status.md#planned-interface-work).
-
-I track each hardware result separately and will update the support table as testing progresses.
-
-## Documentation and contributions
-
-| Resource | Contents |
-| --- | --- |
-| [Project status](docs/status.md) | Current handset results, limitations and next work |
-| [Development guide](docs/development.md) | Source pins, builds, image assembly and validation |
-| [Evidence index](docs/evidence/README.md) | Dated build records, readback identities and hardware observations |
-| [Scripts](scripts/README.md) | Maintained build, inspection and packaging components |
-| [Windows packages](tools/windows/README.md) | Development launcher entry points and required states |
-
-Configuration lives in `config/`, adaptation patches in `patches/`, runtime support in `tools/`, and checks in `tests/`. Detailed experiment history is retained in `docs/` and the archive.
-
-If you test the port or contribute a change, include your device model, firmware, observed behavior and relevant logs or image identities. Keep build/test results separate from execution on real hardware, and include a reproducible test when updating hardware support.
-
-## Upstream and licensing
-
-I build on the [UBports community Samsung Exynos 9820 port](https://gitlab.com/ubports/porting/community-ports/android10/samsung-galaxy-s10/samsung-exynos9820), its matching Halium kernel, the Halium generic adaptation build tools, Ubuntu Touch and TeamWin recovery.
-
-Upstream components retain their respective copyright and license terms. See [THIRD_PARTY.md](THIRD_PARTY.md) for attribution, component licenses and source references. This independent development port carries no claim of official Samsung, TeamWin or UBports support.
+This is **not** an official Samsung, UBports or TeamWin release. The repository is preserved for technical reference in its **suspended** state.
