@@ -1,5 +1,7 @@
 # Ubuntu Touch for Samsung Galaxy S10+ (Exynos)
 
+> **Local development resumed — 1 November 2026.** Host-side integration and verification are underway; the current Android handset has a different bootloader from the historical Ubuntu baseline. No new image or installation is validated. [Resumption record](docs/evidence/resume-local-2026-11-01.md). The suspension note below is the previous project checkpoint.
+
 > **Project status: SUSPENDED — 24 October 2026**  
 > **Maturity: experimental alpha; not suitable for daily use.** No active development, supported update channel or resumption date is currently planned.
 

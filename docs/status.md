@@ -1,5 +1,7 @@
 # Project status
 
+> **Local development resumed — 1 November 2026.** Source integration and host verification have restarted. The phone currently runs Android 16 with bootloader `G975FXXUHHXJ1`, different from the historical `G975FXXSGHWC1` Ubuntu baseline; no Ubuntu reinstall or new hardware acceptance has occurred. See the [resumption evidence](evidence/resume-local-2026-11-01.md). The suspension statements below describe the preserved 24 October checkpoint.
+
 > **Project status: SUSPENDED — 24 October 2026.** Development, image integration and physical testing are on hold. Earlier test instructions on this page are retained as a technical backlog, not an active schedule or a promise of support. See the [README](../README.md) for the frozen hardware matrix.
 
 Updated: **24 October 2026**, including the read-only energy baseline. Target: **Samsung Galaxy S10+ SM-G975F/DS, Exynos 9820, `beyond2lte`**, Ubuntu Touch 24.04 / Halium 12.

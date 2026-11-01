@@ -10,6 +10,8 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
+GRAPHICS_RULE_PATH = "/usr/lib/udev/rules.d/99-ubuntu-touch-s10plus-graphics.rules"
+GRAPHICS_RULE_SHA256 = "2fa0e44d37bb3e71726b4099d1de124139bfcb8e17aab906cdaca1b8ee2a35da"
 
 
 def require(condition, message):
@@ -59,6 +61,13 @@ def elf_arm64(contents):
     return len(contents) >= 20 and contents[:6] == b"\x7fELF\x02\x01" and struct.unpack_from("<H", contents, 18)[0] == 183
 
 
+def validate_graphics_rules(image):
+    contents = image_read(image, GRAPHICS_RULE_PATH)
+    require(hashlib.sha256(contents).hexdigest() == GRAPHICS_RULE_SHA256,
+            "Assembled graphics rules differ from the evidenced canonical payload")
+    return {"path": GRAPHICS_RULE_PATH, "sha256": GRAPHICS_RULE_SHA256, "content_verified": True}
+
+
 def validate(out):
     lock = json.loads((ROOT / "docs/evidence/assembly-inputs-2026-10-12.json").read_text())
     profile = json.loads((ROOT / "docs/evidence/device-check-2026-10-12.json").read_text())
@@ -86,6 +95,7 @@ def validate(out):
     info = image_read(raw, "/opt/halium-overlay/etc/deviceinfo/devices/beyond2lte.yaml")
     require(b"beyond2lte" in info, "Missing S10+ overlay-store DeviceInfo")
     image_read(raw, "/opt/halium-overlay/lib/modules/.halium-override-dir")
+    graphics_rules = validate_graphics_rules(raw)
 
     # Check the embedded Halium filesystem independently; matching stock vendor
     # still requires a hardware test and is never inferred from this result.
@@ -111,6 +121,7 @@ def validate(out):
         "filesystem_free_bytes": free_bytes, "boot_bytes": boot.stat().st_size,
         "boot_partition_remaining_bytes": profile["partitions"]["boot"]["bytes"] - boot.stat().st_size,
         "filesystem_check_passed": True, "hardware_tested": False,
+        "rootfs_graphics_rules": graphics_rules,
         "vendor_bundled": False, "vendor_runtime_compatibility_verified": False,
         "install_ready": False, "official_device_update_channel": False,
         "limitations": ["No Ubuntu Touch boot on hardware", "Stock Samsung vendor runtime not verified",

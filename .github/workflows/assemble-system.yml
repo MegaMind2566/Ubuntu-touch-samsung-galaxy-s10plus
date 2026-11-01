@@ -1,57 +1,62 @@
-name: S10+ Ubuntu Touch 24.04 system candidate
+name: S10+ verified-release graphics candidate
 on:
   workflow_dispatch:
   push:
     paths:
       - 'scripts/assemble_system.py'
       - 'scripts/validate_system.py'
-      - 'scripts/collect-first-boot.py'
-      - 'docs/evidence/assembly-inputs-2026-10-12.json'
-      - 'docs/evidence/device-check-2026-10-12.json'
+      - 'scripts/graphics_assembly.py'
+      - 'scripts/build-resume-system.py'
+      - 'tests/test_graphics_assembly.py'
+      - 'tests/test_resume_system.py'
+      - 'tools/graphics-permissions/99-ubuntu-touch-s10plus-graphics.rules'
+      - 'config/releases/v0.1.0-alpha.1.json'
+      - '.gitattributes'
       - '.github/workflows/assemble-system.yml'
 permissions:
   contents: read
-  actions: read
 concurrency:
   group: system-candidate-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  assemble:
+  derive:
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Install image assembly dependencies
+      - name: Install image validation dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends e2fsprogs fakeroot git img2simg python3 wget xz-utils zstd
-      - name: Retrieve the verified first Halium 12 adaptation
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          github-token: ${{ github.token }}
-          run-id: 38301613434
-          name: beyond2lte-halium12-1
-          path: build/inputs/adaptation
-      - name: Validate inventory and image rejection cases
+          sudo apt-get install -y --no-install-recommends build-essential curl e2fsprogs git python3 xz-utils zstd
+      - name: Verify source and rejection cases on Linux
         run: python3 -m unittest discover -s tests -v
-      - name: Assemble and validate the non-flashing system candidate
+      - name: Download the immutable public release inputs
         run: |
-          mkdir -p out
+          mkdir -p build/inputs out
+          curl --fail --location --retry 3 --output build/inputs/SYSTEM.img.zst \
+            https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/download/v0.1.0-alpha.1/SYSTEM.img.zst
+          curl --fail --location --retry 3 --output build/inputs/boot-tools.zip \
+            https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/releases/download/v0.1.0-alpha.1/UbuntuTouch-S10plus-v0.1.0-alpha.1-boot-and-tools-Windows.zip
+      - name: Derive and validate a non-flashing SYSTEM candidate with exact BOOT 6
+        run: |
           set -o pipefail
-          python3 scripts/assemble_system.py --adaptation build/inputs/adaptation 2>&1 | tee out/system-assembly.log
-      - name: Save image and validation diagnostics
+          python3 scripts/build-resume-system.py \
+            --system-zstd build/inputs/SYSTEM.img.zst \
+            --boot-tools build/inputs/boot-tools.zip \
+            --output out/resume-system-candidate 2>&1 | tee out/resume-system-build.log
+      - name: Save candidate and validation diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: beyond2lte-ubuntu24-system-${{ github.run_number }}
+          name: beyond2lte-resume-graphics-candidate-${{ github.run_number }}
           compression-level: 0
           retention-days: 14
           if-no-files-found: error
           path: |
-            out/system-assembly.log
-            out/system-candidate/*.json
-            out/system-candidate/SHA256SUMS
-            out/system-candidate/boot.img
-            out/system-candidate/rootfs.img.zst
+            out/resume-system-build.log
+            out/resume-system-candidate/*.json
+            out/resume-system-candidate/SHA256SUMS
+            out/resume-system-candidate/BOOT6.img
+            out/resume-system-candidate/SYSTEM-graphics-candidate.img.zst

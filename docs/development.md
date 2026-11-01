@@ -131,6 +131,25 @@ The unit is `Type=simple`, so collecting the evidence does not hold the graphica
 
 ## Targeted graphics permission correction on BOOT 6
 
+New SYSTEM candidates assembled by `assemble_system.py` include the exact
+`99-ubuntu-touch-s10plus-graphics.rules` payload directly under
+`/usr/lib/udev/rules.d` before the rootfs archive is repacked. Its canonical LF
+SHA-256 is `2fa0e44d37bb3e71726b4099d1de124139bfcb8e17aab906cdaca1b8ee2a35da`;
+the assembly manifest records the payload and helper identities, and
+`validate_system.py` requires the same bytes in the resulting filesystem.
+The preparation hook rejects changed upstream extraction/repacking context,
+symlink/junction destinations, traversal and conflicting files. It stops
+preparation if installing the rules fails.
+
+This integrates only the evidenced hwbinder/ion modes and leaves ownership and
+the broader `70-exynos7904.rules` adaptation overlay unchanged. It avoids relying
+on that missing overlay destination; it does not claim to repair every skipped
+adaptation overlay. The offline shell/tar fixtures in
+`tests/test_graphics_assembly.py` verify the assembly change without an image
+build or handset access. No rebuilt SYSTEM containing this integration has been
+tested on the phone. Preserve the installed correction and working BOOT baseline
+until a separately authorized, measured installation trial.
+
 `tools/graphics-permissions/` provides the correction after which the user reports graphical boot, working touch and Wi-Fi, distinct from the immutable diagnostic probe. The earlier handset evidence establishes a device access failure rather than a missing vendor mapper ABI. The intended adaptation udev rules were skipped because their overlay destination did not exist. A dedicated rule persists through the existing `/etc/udev/rules.d` writable mapping without changing SYSTEM or flashing another image.
 
 `manage-graphics-permissions.py` verifies pinned tools, root TWRP, model/SoC/bootloader, prepared RECOVERY, exact BOOT 6 and already mounted raw ext4 userdata before any operation. It stores four hash-pinned payloads and fixed udev/systemd configuration on userdata. The LightDM dependency is published last; repeat application is idempotent. Conflicts stop the operation, and failed creation rolls back only its own new files. Undo validates all present known files before removing the dependency first and preserves logs/unknown files. Undo takes effect after reboot; it does not chmod recovery devices.

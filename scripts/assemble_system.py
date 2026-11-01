@@ -12,6 +12,7 @@ import urllib.request
 
 from fetch_sources import ROOT, checkout, git, read_lock
 from prepare_build import archive
+from graphics_assembly import RULE_FILENAME, RULE_PATH, RULE_SHA256, canonical_rules, patch_preparation
 
 
 def sha256(path):
@@ -79,11 +80,11 @@ def main():
     # that enable passwordless SSH, USB tethering and unauthenticated ADB.
     preparation = work / "build/prepare-fake-ota.sh"
     text = preparation.read_text()
-    start = '# Enable SSH and USB tethering, and disable secure ADBD'
-    end = 'print_header "Repacking rootfs..."'
-    require(text.count(start) == text.count(end) == 1, "Upstream preparation layout changed")
-    first, last = text.index(start), text.index(end)
-    preparation.write_text(text[:first] + '# Keep the rootfs original remote-access defaults.\n\n' + text[last:])
+    preparation.write_text(patch_preparation(text))
+    rules_source = ROOT / "tools/graphics-permissions" / RULE_FILENAME
+    (work / "build" / RULE_FILENAME).write_bytes(canonical_rules(rules_source))
+    graphics_helper = work / "build/graphics_assembly.py"
+    shutil.copy2(ROOT / "scripts/graphics_assembly.py", graphics_helper)
 
     ota = work / "ota"
     ota.mkdir()
@@ -91,9 +92,16 @@ def main():
         download(lock[item], ota / lock[item]["name"])
     manifest = {
         "inputs": lock, "handset_profile_sha256": sha256(ROOT / "docs/evidence/device-check-2026-10-12.json"),
-        "tools_commit": git(tools, "rev-parse", "HEAD"),
+        "tools_commit": git(tools, "rev-parse", "HEAD", capture=True).strip(),
         "preparation_script_sha256": sha256(preparation),
         "upstream_development_access_defaults_injected": False,
+        "rootfs_graphics_rules": {
+            "source": "tools/graphics-permissions/" + RULE_FILENAME,
+            "path": RULE_PATH, "sha256": RULE_SHA256,
+            "helper_sha256": sha256(graphics_helper),
+            "scope": ["hwbinder", "ion"], "ownership_changes": False,
+            "broad_adaptation_rules_enabled": False,
+        },
         "hardware_tested": False, "install_ready": False,
     }
     (output / "assembly-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
