@@ -46,17 +46,46 @@ jobs:
             --system-zstd build/inputs/SYSTEM.img.zst \
             --boot-tools build/inputs/boot-tools.zip \
             --output out/resume-system-candidate 2>&1 | tee out/resume-system-build.log
-      - name: Save candidate and validation diagnostics
+      - name: Split the verified export for connector download
+        run: |
+          cd out/resume-system-candidate
+          split -b 384M SYSTEM-graphics-candidate.img.zst SYSTEM.img.zst.part-
+          test ! -e SYSTEM.img.zst.part-ad
+          sha256sum SYSTEM.img.zst.part-* > CHUNK_SHA256SUMS
+      - name: Save build diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: beyond2lte-resume-graphics-candidate-${{ github.run_number }}
-          compression-level: 0
+          name: beyond2lte-resume-diagnostics-${{ github.run_number }}
           retention-days: 14
-          if-no-files-found: error
           path: |
             out/resume-system-build.log
             out/resume-system-candidate/*.json
             out/resume-system-candidate/SHA256SUMS
+            out/resume-system-candidate/CHUNK_SHA256SUMS
+      - name: Save candidate part 1 and BOOT 6
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-resume-part-1-${{ github.run_number }}
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          path: |
             out/resume-system-candidate/BOOT6.img
-            out/resume-system-candidate/SYSTEM-graphics-candidate.img.zst
+            out/resume-system-candidate/SYSTEM.img.zst.part-aa
+      - name: Save candidate part 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-resume-part-2-${{ github.run_number }}
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          path: out/resume-system-candidate/SYSTEM.img.zst.part-ab
+      - name: Save candidate part 3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beyond2lte-resume-part-3-${{ github.run_number }}
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
+          path: out/resume-system-candidate/SYSTEM.img.zst.part-ac
