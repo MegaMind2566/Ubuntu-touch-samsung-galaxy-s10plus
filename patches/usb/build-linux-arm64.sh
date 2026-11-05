@@ -8,7 +8,7 @@ export LC_ALL=C.UTF-8
 }
 PACKAGING=6391ffe9e12162de349fe595fdf8d92b5cbf443f
 UPSTREAM=b8016a7210eba240788f262e1e4214576aa6fdd8
-VERSION=1:14.0.0+r45-0ubports1+s10reconnect.20261105
+PACKAGE_VERSION=1:14.0.0+r45-0ubports1+s10reconnect.20261105
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 OUTPUT_ROOT=${1:?Usage: build-linux-arm64.sh /absolute/output/directory}
 JOBS=${JOBS:-2}
@@ -21,6 +21,7 @@ done
 [[ $(dpkg --print-architecture) = arm64 ]] || fail "Use native arm64 userspace."
 . /etc/os-release
 [[ ${ID:-} = ubuntu && ${VERSION_ID:-} = 24.04 ]] || fail "Use Ubuntu 24.04 arm64."
+dpkg --validate-version "$PACKAGE_VERSION" || fail "Invalid candidate package version."
 [[ -z ${DEB_BUILD_OPTIONS:-} && -z ${DEB_BUILD_PROFILES:-} ]] || fail "Unset skipped-test build options/profiles."
 [[ -n ${DEBFULLNAME:-} && -n ${DEBEMAIL:-} ]] || fail "Set DEBFULLNAME and DEBEMAIL for package provenance."
 case "$DEBFULLNAME$DEBEMAIL" in *$'\n'*|*$'\r'*) fail "Invalid maintainer identity.";; esac
@@ -53,7 +54,7 @@ cp "$SCRIPT_DIR/0001-adbd-functionfs-reconnect.patch" debian/patches/s10-functio
 printf '\ns10-functionfs-reconnect.patch\n' >> debian/patches/series
 quilt push
 python3 "$SCRIPT_DIR/verify-adbd-reconnect.py" --source . --expect candidate --cxx clang++ --output "$JOB_DIR/candidate-tests"
-S10_ADBD_VERSION="$VERSION" python3 - <<'PYTHON'
+S10_ADBD_VERSION="$PACKAGE_VERSION" python3 - <<'PYTHON'
 from datetime import datetime, timezone
 import os
 from pathlib import Path

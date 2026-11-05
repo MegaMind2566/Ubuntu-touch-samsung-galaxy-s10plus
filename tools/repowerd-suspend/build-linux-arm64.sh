@@ -4,7 +4,7 @@ set -euo pipefail
 export LC_ALL=C.UTF-8
 BASE=36575160752bdd0a983bee1b53e041ccc4ceaa60
 PATCH_SHA256=a811a6547382f9f757678694f9582c1dc9988ef18f3743cd7680e9bb9b9c41c5
-VERSION=2025.09+s10hidl.20261105
+PACKAGE_VERSION=2025.09+s10hidl.20261105
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PATCH="$SCRIPT_DIR/0001-upstream-system-suspend-hidl.patch"
 OUTPUT_ROOT=${1:?Usage: build-linux-arm64.sh /absolute/output/directory}
@@ -20,6 +20,7 @@ done
 [[ $(dpkg-vendor --query vendor) = Ubuntu ]] || fail "Use Ubuntu so upstream enables hybris."
 . /etc/os-release
 [[ ${ID:-} = ubuntu && ${VERSION_ID:-} = 24.04 ]] || fail "Use Ubuntu 24.04 arm64."
+dpkg --validate-version "$PACKAGE_VERSION" || fail "Invalid candidate package version."
 [[ -z ${DEB_BUILD_OPTIONS:-} && -z ${DEB_BUILD_PROFILES:-} ]] || fail "Unset skipped-test build options/profiles."
 [[ -n ${DEBFULLNAME:-} && -n ${DEBEMAIL:-} ]] || fail "Set DEBFULLNAME and DEBEMAIL for package provenance."
 case "$DEBFULLNAME$DEBEMAIL" in *$'\n'*|*$'\r'*) fail "Invalid maintainer identity.";; esac
@@ -29,7 +30,7 @@ mkdir -p -- "$OUTPUT_ROOT"
 JOB_DIR=$(mktemp -d "$OUTPUT_ROOT/repowerd-hidl.XXXXXXXX")
 exec > >(tee "$JOB_DIR/build.log") 2>&1
 trap 'status=$?; printf "exit_status=%s\n" "$status" > "$JOB_DIR/build-status.txt"; exit "$status"' EXIT
-printf 'Candidate source=%s patch=%s version=%s\n' "$BASE" "$PATCH_SHA256" "$VERSION"
+printf 'Candidate source=%s patch=%s version=%s\n' "$BASE" "$PATCH_SHA256" "$PACKAGE_VERSION"
 printf 'Build directory: %s\n' "$JOB_DIR"
 dpkg-query -W > "$JOB_DIR/builder-package-versions.txt"
 pkg-config --modversion libgbinder libandroid-properties deviceinfo gio-2.0 gio-unix-2.0 > "$JOB_DIR/pkg-config-versions.txt"
@@ -42,7 +43,7 @@ git apply --check "$PATCH"
 git apply "$PATCH"
 git diff --check
 dpkg-checkbuilddeps
-S10_HIDL_VERSION="$VERSION" python3 - <<'PY'
+S10_HIDL_VERSION="$PACKAGE_VERSION" python3 - <<'PY'
 from datetime import datetime, timezone
 import os
 from pathlib import Path

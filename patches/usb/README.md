@@ -47,9 +47,12 @@ return path. Stop still wakes eventfd waits, interrupts blocking kernel submits
 with the existing SIGUSR1 mechanism, and joins the thread. There is no signal-zero
 liveness polling. An uninterruptible kernel wait is not repaired by this change.
 
-The open thread retains ep0 and its `bound` state across transport lifetimes.
+The open thread retains ep0 and its `bound`/`enabled` state across transport lifetimes.
 Each previous monitor is joined before another monitor accesses that state.
-`DISABLE` preserves binding, while an actual `UNBIND` clears it. Existing ep0
+`DISABLE` preserves binding and clears enablement; an actual `UNBIND` clears both.
+A transport failure while the cable remains connected resumes the enabled worker
+without waiting for another kernel `ENABLE`. Pending lifecycle events are read
+before that resume, so a queued `DISABLE` is honored before submitting reads. Existing ep0
 is retained when bulk endpoints reopen; descriptors are not rewritten. A service
 stop still closes the process's descriptors normally.
 
@@ -81,6 +84,8 @@ Each executable runs in a bounded child process.
 | Interruptible blocked submit boundary | Not run | Completes |
 | Three reconnects, subsequent ENABLE without new BIND | Not run | Completes |
 | Explicit UNBIND followed by fresh BIND/ENABLE | Not run | Completes |
+| Stop transport while still enabled, without a new ENABLE | Not run | Resumes worker |
+| Queued DISABLE before resuming enabled transport | Not run | Consumes DISABLE without starting worker |
 | Reopen bulk endpoints with existing ep0 | Assertion failure | Same valid fd, one descriptor write sequence |
 
 Baseline failure is required: merely compiling the candidate cannot pass this

@@ -8,8 +8,8 @@
     "daemon/usb_ffs.cpp": "0ed5a2f2105c489e0042b0a129b74bd9abfc6c86380154bad2793757ce781ede"
   },
   "source_after_sha256": {
-    "daemon/usb.cpp": "de04df740149cbcd0b84b14dc54773b7fb9dad8abe24e0046060fbad3fa4a9ea",
+    "daemon/usb.cpp": "1b41055b778cc39417bbc66ddf24f86de9086e59ed4b08de0e79e36bcd7b3606",
     "daemon/usb_ffs.cpp": "9f7c45b8fd0fd343ffa8d6e119d8a236f59d80c0a149f5c372cd680cd7a607ea"
   },
-  "patch_sha256": "971d93820c18524a1f45737cb156960087e01ac7eebf0e8142c520a48d2566f6"
+  "patch_sha256": "68369d20a8063d10bf14f806de30c7c6820a4a87b4c381c22d6ba7a018277cb7"
 }

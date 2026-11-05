@@ -26,3 +26,20 @@ Inspect the existing suspend-service process's descriptor symlink targets for ac
 Inspect targeted service startup errors and client provenance. An error opening either power-control file or a known successful enable invocation would be relevant; a process name, HIDL registration, accessible device-node mode, or mere `enableAutosuspend` string in a binary is insufficient. Confirming a client exists is separate from observing its call.
 
 No read-only AOSP Android 12 API directly answers the enabled flag when counters remain zero. If runtime evidence remains inconclusive, retain the prerequisite as unresolved and design a separate, explicitly reviewed activation experiment. Do not call the mutating AIDL `enableAutosuspend`/`forceSuspend`, change properties, or write sysfs as a diagnostic query.
+
+## Future activation bridge: design review, not implemented
+
+The handset's read-only service listing subsequently confirmed Android SDK 32 and descriptor `android.system.suspend.internal.ISuspendControlServiceInternal` on normal binder. Its `--suspend_controls` dump returned all-zero attempts/times; reading the suspend process's descriptor targets was denied to phablet. Neither observation resolves loop activation.
+
+A source-grounded extension would use the pinned AIDL definition, not a HIDL wake-lock transaction as a substitute. `enableAutosuspend()` is the first no-argument AIDL method and returns a boolean. Correct binding still requires Android's AIDL exception/status reply handling and a bounded transaction policy. Libgbinder 1.1.52's API-level presets use **service manager `aidl3` and RPC `aidl4` for API 31/32**; Android 13/API 33 reverts the RPC format to `aidl3`. `gbinder_servicemanager_new2` can select the protocols, but live configuration and reply handling must be tested rather than changing global binder configuration.
+
+Safety requirements for a future second patch:
+
+1. Verify an actual HIDL wake-lock object was acquired before any enable call. The unchanged upstream adapter's log-only acquisition failure is insufficient to establish that guard.
+2. Keep the guard held while issuing at most one checked activation. Release only at repowerd's legitimate final allow transition after all recorded inhibitions are removed; do not activate from an arbitrary timer or before holding the guard.
+3. Treat service discovery failure, malformed/exception reply, deadline expiry and permission failure as an explicit failed state. Keep the guard rather than claiming suspension works. A timed-out mutation may still have taken effect, so do not retry blindly.
+4. Handle `false` carefully: the reference implementation returns false when already enabled, and the wrapper can also return false when its service reference is unavailable. It is not a direct disabled-state query.
+5. Test first enable, already enabled, unavailable/dead service, all malformed/truncated status replies, lock-acquisition failure, multiple disallowance IDs, final allow, re-acquisition, and timeout without a second mutation in the free GitHub native ARM64 workflow.
+6. Define rollback before activation. The reference API exposes no `disableAutosuspend`: its atomic enabled flag is a one-way latch for that service process. Removing a repowerd drop-in or binary alone does not reset the loop. A tested reboot/recovery rollback is necessary; replacing a latched adapter with Libsuspend/Logind can otherwise remove Android wake-lock inhibition unexpectedly.
+
+No activation bridge or transaction was added to the first HIDL build. It remains an unchanged upstream adapter candidate, not a complete automatic-suspend solution for a container with an unproven loop.

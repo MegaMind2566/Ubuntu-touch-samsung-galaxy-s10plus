@@ -84,7 +84,7 @@ inline void adb_thread_setname(const char*) {}
 inline const char* to_string(usb_functionfs_event_type) { return "fixture event"; }
 constexpr int kInterruptionSignal=SIGUSR1;
 constexpr size_t kUsbReadQueueDepth=8;
-struct UsbFfsControl { unique_fd fd; bool bound=false; };
+struct UsbFfsControl { unique_fd fd; bool bound=false, enabled=false; };
 struct Fixture {
     std::shared_ptr<UsbFfsControl> control_;
     unique_fd control_fd_; // Used only by unmodified baseline method.
@@ -137,6 +137,28 @@ int main(int argc, char** argv) {
     std::string test=argv[1];
     int behavior=test=="early"?1:test=="interrupt"?2:0;
     int rounds=test=="retained"?3:1;
+    if(test=="stopped-enabled" || test=="pending-disable") {
+        { Fixture f(control,0); f.StartMonitor();
+          send_event(writer.get(),FUNCTIONFS_BIND);
+          send_event(writer.get(),FUNCTIONFS_ENABLE);
+          wait_for([&] { return f.submitted.load()==8; });
+          f.Stop(); wait_for([&] { return f.completed.load(); }); }
+        CHECK(control->enabled);
+        if(test=="pending-disable") {
+            send_event(writer.get(),FUNCTIONFS_DISABLE);
+            { Fixture f(control,0); f.StartMonitor();
+              wait_for([&] { return f.completed.load(); });
+              CHECK_EQ(f.submitted.load(),0); }
+            CHECK(!control->enabled);
+        }
+        { Fixture f(control,0); f.StartMonitor();
+          if(test=="pending-disable") send_event(writer.get(),FUNCTIONFS_ENABLE);
+          wait_for([&] { return f.submitted.load()==8; });
+          send_event(writer.get(),FUNCTIONFS_DISABLE);
+          wait_for([&] { return f.completed.load(); }); }
+        std::cout << test << ": completed\n";
+        return 0;
+    }
     for(int i=0;i<rounds;++i) {
         Fixture f(control,behavior); f.StartMonitor();
         if(i==0) send_event(writer.get(),FUNCTIONFS_BIND);
@@ -233,7 +255,7 @@ def main():
         cpp, binary = args.output / (name + ".cpp"), args.output / name
         cpp.write_text(text, encoding="utf-8")
         subprocess.run([args.cxx, "-std=c++20", "-pthread", "-O2", str(cpp), "-o", str(binary)], check=True, timeout=60)
-    cases = ["early", "idle", "interrupt", "retained", "unbind"] if args.expect == "candidate" else ["early"]
+    cases = ["early", "idle", "interrupt", "retained", "unbind", "stopped-enabled", "pending-disable"] if args.expect == "candidate" else ["early"]
     for name in cases + ["ffs"]:
         command = [str(args.output / ("ffs" if name == "ffs" else "protocol")),
                    str(args.output) if name == "ffs" else name]

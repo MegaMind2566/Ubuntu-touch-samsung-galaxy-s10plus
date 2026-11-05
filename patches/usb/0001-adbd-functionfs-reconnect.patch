@@ -15,7 +15,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
  #include <future>
  #include <memory>
  #include <mutex>
-@@ -142,13 +143,20 @@
+@@ -142,13 +143,21 @@
      aio_context_t context_ = 0;
  };
  
@@ -24,6 +24,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
 +struct UsbFfsControl {
 +    unique_fd fd;
 +    bool bound = false;
++    bool enabled = false;
 +};
 +
  struct UsbFfsConnection : public Connection {
@@ -38,7 +39,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
            read_fd_(std::move(read)),
            write_fd_(std::move(write)) {
          LOG(INFO) << "UsbFfsConnection constructed";
-@@ -173,7 +181,6 @@
+@@ -173,7 +182,6 @@
          // We need to explicitly close our file descriptors before we notify our destruction,
          // because the thread listening on the future will immediately try to reopen the endpoint.
          aio_context_.reset();
@@ -46,13 +47,14 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
          read_fd_.reset();
          write_fd_.reset();
  
-@@ -260,12 +267,12 @@
+@@ -260,22 +268,27 @@
              adb_thread_setname("UsbFfs-monitor");
              LOG(INFO) << "UsbFfs-monitor thread spawned";
  
 -            bool bound = false;
+-            bool enabled = false;
 +            bool& bound = control_->bound;
-             bool enabled = false;
++            bool& enabled = control_->enabled;
              bool running = true;
              while (running) {
                  adb_pollfd pfd[2] = {
@@ -61,7 +63,23 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
                    { .fd = monitor_event_fd_.get(), .events = POLLIN, .revents = 0 },
                  };
  
-@@ -286,7 +293,7 @@
+                 // If we don't see our first bind within a second, try again.
+-                int timeout_ms = bound ? -1 : 1000;
++                // Drain queued lifecycle events before resuming an enabled transport.
++                int timeout_ms = enabled && !worker_started_ ? 0 : (bound ? -1 : 1000);
+ 
+                 int rc = TEMP_FAILURE_RETRY(adb_poll(pfd, 2, timeout_ms));
+                 if (rc == -1) {
+                     PLOG(FATAL) << "poll on USB control fd failed";
+                 } else if (rc == 0) {
++                    if (enabled && !worker_started_ && !stopped_) {
++                        StartWorker();
++                        continue;
++                    }
+                     LOG(WARNING) << "timed out while waiting for FUNCTIONFS_BIND, trying again";
+                     break;
+                 }
+@@ -286,7 +299,7 @@
                  }
  
                  struct usb_functionfs_event event;
@@ -70,7 +88,15 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
                  if (rc == -1) {
                      PLOG(FATAL) << "failed to read functionfs event";
                  } else if (rc == 0) {
-@@ -370,7 +377,7 @@
+@@ -357,6 +370,7 @@
+                         }
+ 
+                         bound = false;
++                        enabled = false;
+                         running = false;
+                         break;
+ 
+@@ -370,7 +384,7 @@
  
                          if ((event.u.setup.bRequestType & USB_DIR_IN)) {
                              LOG(INFO) << "acking device-to-host control transfer";
@@ -79,7 +105,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
                              if (rc != 0) {
                                  PLOG(ERROR) << "failed to write empty packet to host";
                                  break;
-@@ -379,7 +386,7 @@
+@@ -379,7 +393,7 @@
                              std::string buf;
                              buf.resize(event.u.setup.wLength + 1);
  
@@ -88,7 +114,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
                              if (rc != event.u.setup.wLength) {
                                  LOG(ERROR)
                                          << "read " << rc
-@@ -402,7 +409,12 @@
+@@ -402,7 +416,12 @@
      void StartWorker() {
          CHECK(!worker_started_);
          worker_started_ = true;
@@ -101,7 +127,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
              adb_thread_setname("UsbFfs-worker");
              LOG(INFO) << "UsbFfs-worker thread spawned";
  
-@@ -435,8 +447,10 @@
+@@ -435,8 +454,10 @@
              return;
          }
  
@@ -113,7 +139,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
              int rc = pthread_kill(worker_thread_handle, kInterruptionSignal);
              if (rc != 0) {
                  LOG(ERROR) << "failed to send interruption signal to worker: " << strerror(rc);
-@@ -445,17 +459,10 @@
+@@ -445,17 +466,10 @@
  
              std::this_thread::sleep_for(100ms);
  
@@ -132,7 +158,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
      }
  
      void PrepareReadBlock(IoReadBlock* block, uint64_t id) {
-@@ -708,6 +715,7 @@
+@@ -708,6 +722,7 @@
      std::thread monitor_thread_;
  
      bool worker_started_;
@@ -140,7 +166,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
      std::thread worker_thread_;
  
      std::atomic<bool> stopped_;
-@@ -718,7 +726,7 @@
+@@ -718,7 +733,7 @@
      unique_fd monitor_event_fd_;
  
      ScopedAioContext aio_context_;
@@ -149,7 +175,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
      unique_fd read_fd_;
      unique_fd write_fd_;
  
-@@ -762,11 +770,11 @@
+@@ -762,11 +777,11 @@
      });
      #endif
  
@@ -163,7 +189,7 @@ Append after the existing Debian patch series. No auth, UDC or mode changes.
              std::this_thread::sleep_for(1s);
              continue;
          }
-@@ -784,7 +792,7 @@
+@@ -784,7 +799,7 @@
          std::promise<void> destruction_notifier;
          std::future<void> future = destruction_notifier.get_future();
          transport->SetConnection(std::make_unique<UsbFfsConnection>(
