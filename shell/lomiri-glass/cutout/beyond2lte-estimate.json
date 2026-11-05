@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "device": "Samsung Galaxy S10+ SM-G975F/DS (beyond2lte)",
+  "status": "optical-estimate-only; not-applied; not-handset-validated",
+  "physical_display_px": {
+    "width": 1440,
+    "height": 3040
+  },
+  "grid_unit_px": 27,
+  "collapsed_panel_height_px": 81,
+  "basis": {
+    "observations": [
+      "Handset probe of 2026-10-22 matched all nine pinned Lomiri files; active DeviceInfo reported Unknown prop for all cutout keys",
+      "Two frontal handset photographs with portrait screen and dual front-camera hole",
+      "The hole overlaps the current status indicators/clock at top right"
+    ],
+    "estimated_physical_hole_envelope_px": {
+      "x_min": 1110,
+      "x_max": 1390,
+      "y_min": 55,
+      "y_max": 185
+    },
+    "limitation": "Approximate projection of photographed screen bounds; not a calibrated sensor measurement. Do not auto-install this estimate."
+  },
+  "proposed_deviceinfo_values": {
+    "CollapsedPanelHeight": 81,
+    "DisplayCutoutsCollapsed": ["1080 0 360 210"],
+    "DisplayCutoutsCollapsedLight": ["1080 0 360 210"],
+    "DisplayCutoutsExpanded": ["1080 0 360 210"]
+  },
+  "confirmation_needed": [
+    "Inspect the complete active beyond2lte DeviceInfo YAML and merge only the new cutout keys, preserving every existing key",
+    "Use Lomiri's WithCutouts panel or the UBports notch helper to check varying indicators and both light/dark themes",
+    "Validate touch gestures, clocks/SIM icons, lock screen and rotation on device before declaring cutout geometry final",
+    "Verify that the original DeviceInfo/profile and Lomiri shell can be restored without flashing"
+  ]
+}

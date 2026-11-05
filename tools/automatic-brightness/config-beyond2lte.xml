@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2009, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- These resources are around just to allow their values to be customized
+     for different hardware and product builds.  Do not translate. -->
+<!-- Selected unchanged resources from LineageOS exynos9820-common 0917d5a3. -->
+<resources>
+    <bool name="config_automatic_brightness_available">true</bool>
+
+    <integer-array name="config_autoBrightnessLevels">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>50</item>
+        <item>100</item>
+        <item>200</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>2999</item>
+        <item>3000</item>
+        <item>3999</item>
+        <item>4000</item>
+        <item>4999</item>
+        <item>5000</item>
+        <item>9999</item>
+        <item>10000</item>
+        <item>19999</item>
+        <item>20000</item>
+        <item>29999</item>
+        <item>30000</item>
+        <item>39999</item>
+        <item>40000</item>
+        <item>49999</item>
+        <item>50000</item>
+        <item>59999</item>
+        <item>60000</item>
+        <item>79999</item>
+        <item>80000</item>
+        <item>99999</item>
+        <item>100000</item>
+    </integer-array>
+
+    <integer-array name="config_autoBrightnessLcdBacklightValues">
+        <item>22</item>
+        <item>25</item>
+        <item>28</item>
+        <item>33</item>
+        <item>35</item>
+        <item>37</item>
+        <item>49</item>
+        <item>64</item>
+        <item>64</item>
+        <item>65</item>
+        <item>67</item>
+        <item>72</item>
+        <item>98</item>
+        <item>145</item>
+        <item>145</item>
+        <item>163</item>
+        <item>163</item>
+        <item>172</item>
+        <item>172</item>
+        <item>181</item>
+        <item>181</item>
+        <item>191</item>
+        <item>191</item>
+        <item>200</item>
+        <item>200</item>
+        <item>209</item>
+        <item>209</item>
+        <item>218</item>
+        <item>218</item>
+        <item>227</item>
+        <item>227</item>
+        <item>236</item>
+        <item>236</item>
+        <item>245</item>
+        <item>245</item>
+        <item>255</item>
+    </integer-array>
+</resources>

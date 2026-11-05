@@ -1,0 +1,55 @@
+name: S10+ host-only runtime regressions
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/ut-s10-energia-diagnosi-v2.py'
+      - 'scripts/ut-s10-trrs-integrato.py'
+      - 'tests/test_energy_inventory.py'
+      - 'scripts/ut-s10-suspend-clock.py'
+      - 'tests/test_suspend_clock.py'
+      - 'tests/test_trrs_integrato.py'
+      - 'tools/usb-mode-restore/**'
+      - 'tests/test_usb_saved_mode.py'
+      - 'tools/runtime-fixes/**'
+      - 'tests/test_runtime_fix_sources.py'
+      - 'tools/automatic-brightness/**'
+      - 'tests/test_automatic_brightness_profile.py'
+      - '.github/workflows/runtime-tools.yml'
+  pull_request:
+    paths:
+      - 'scripts/ut-s10-energia-diagnosi-v2.py'
+      - 'scripts/ut-s10-trrs-integrato.py'
+      - 'tests/test_energy_inventory.py'
+      - 'scripts/ut-s10-suspend-clock.py'
+      - 'tests/test_suspend_clock.py'
+      - 'tests/test_trrs_integrato.py'
+      - 'tools/usb-mode-restore/**'
+      - 'tests/test_usb_saved_mode.py'
+      - 'tools/runtime-fixes/**'
+      - 'tests/test_runtime_fix_sources.py'
+      - 'tools/automatic-brightness/**'
+      - 'tests/test_automatic_brightness_profile.py'
+      - '.github/workflows/runtime-tools.yml'
+permissions:
+  contents: read
+jobs:
+  runtime-regressions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Test bounded read-only energy inventory with fixtures
+        run: python3 -m unittest discover -s tests -p test_energy_inventory.py -v
+      - name: Test clock-only suspend comparisons with synthetic snapshots
+        run: python3 -m unittest discover -s tests -p test_suspend_clock.py -v
+      - name: Test guarded TRRS routing with simulated handset state
+        run: python3 -m unittest discover -s tests -p test_trrs_integrato.py -v
+      - name: Test saved USB mode restoration with a stub system bus
+        run: python3 -m unittest discover -s tests -p test_usb_saved_mode.py -v
+      - name: Verify recovered runtime source identities without executing them
+        run: python3 -m unittest discover -s tests -p test_runtime_fix_sources.py -v
+      - name: Test pinned brightness profile installation and exact rollback with fixtures
+        run: python3 -m unittest discover -s tests -p test_automatic_brightness_profile.py -v

@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "recovered_on": "2026-11-05",
+  "origin": "Read-only file recovery from mounted Ubuntu Touch data and SYSTEM via TWRP; recovery mapping translated to normal OS paths.",
+  "scope": "Source/configuration preservation only; no service execution, installation, SYSTEM assembly or new hardware test.",
+  "files": [
+    {
+      "repository_path": "tools/runtime-fixes/usb/boot-configurator.py",
+      "normal_os_path": "/userdata/ubuntu-touch-usb-config-1/boot-configurator.py",
+      "bytes": 4861,
+      "sha256": "9623ad4cabef00b48804950e51f45d4f3111b9c1311eecb2e1158bb99042dede",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/usb/configurator.sh",
+      "normal_os_path": "/userdata/ubuntu-touch-usb-config-1/configurator.sh",
+      "bytes": 6618,
+      "sha256": "ba5a5084e60d1544491ed0065c6df6931549613bab34926c61da15448c36a640",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/usb/zz-s10plus-configfs-order.conf",
+      "normal_os_path": "/etc/systemd/system/usb-moded.service.d/zz-s10plus-configfs-order.conf",
+      "bytes": 181,
+      "sha256": "8da8f1d82de88e14378528ab746f04f9ccd33041f6e96ac827ef958bf41047cd",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/wifi/91-ut-s10-wlan0-unmanaged.conf",
+      "normal_os_path": "/etc/NetworkManager/conf.d/91-ut-s10-wlan0-unmanaged.conf",
+      "bytes": 219,
+      "sha256": "eea14cc02e2a11d1a6b43dfc59085c073ccfeafff8a2e106b8195a90901479d4",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/91-ut-s10-audio6.conf",
+      "normal_os_path": "/home/phablet/.config/systemd/user/pulseaudio.service.d/91-ut-s10-audio6.conf",
+      "bytes": 617,
+      "sha256": "eb5b101eca0a844f6a1766fab2ca604ffea4f8b21fe7bacb5469e04378fa0c14",
+      "installed_mode": "600",
+      "installed_uid": 32011,
+      "installed_gid": 32011
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/93-ut-s10-trrs-legacy.conf",
+      "normal_os_path": "/home/phablet/.config/systemd/user/pulseaudio.service.d/93-ut-s10-trrs-legacy.conf",
+      "bytes": 247,
+      "sha256": "bcd3f8e43aaedd2f9a92ef9fa6e3ef7b2b892cedcbb7167e078dd8a5db8a03bb",
+      "installed_mode": "600",
+      "installed_uid": 32011,
+      "installed_gid": 32011
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/ut-s10-primary-sink.service",
+      "normal_os_path": "/home/phablet/.config/systemd/user/ut-s10-primary-sink.service",
+      "bytes": 508,
+      "sha256": "3abae67d4dfdd37c1ec6cda2830ee50e4611ff6dcb3eb1ed9dc1c14bfcff0bd7",
+      "installed_mode": "644",
+      "installed_uid": 32011,
+      "installed_gid": 32011
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/ut-s10-trrs-autoswitch.service",
+      "normal_os_path": "/home/phablet/.config/systemd/user/ut-s10-trrs-autoswitch.service",
+      "bytes": 493,
+      "sha256": "2cd281a6a9ceda9bd871b497e0833206c8b79e8097ae200007a1552dcc1645d7",
+      "installed_mode": "600",
+      "installed_uid": 32011,
+      "installed_gid": 32011
+    },
+    {
+      "repository_path": "scripts/ut-s10-trrs-integrato.py",
+      "normal_os_path": "/home/phablet/.local/libexec/ut-s10-trrs-integrato.py",
+      "bytes": 35546,
+      "sha256": "637932fa2f69a5022f5cfb5191a64957877fdd3ebf00fbf8b24c37c7bc4bf38e",
+      "installed_mode": "600",
+      "installed_uid": 32011,
+      "installed_gid": 32011,
+      "comparison": "LF-normalized existing maintained source; no duplicate snapshot"
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/audio_guard.py",
+      "normal_os_path": "/home/phablet/.local/share/ut-s10-audio6/audio_guard.py",
+      "bytes": 14600,
+      "sha256": "a641919d73e362b317ac29a4f1dc69657d6dd00026130bfa916ba7bc74700ab2",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/audio6/ld.config.txt",
+      "normal_os_path": "/home/phablet/.local/share/ut-s10-audio6/ld.config.txt",
+      "bytes": 113039,
+      "sha256": "263536ad3c05a13b9bfb9f711e3558c2a21d36ff081493be55c994bafeaba27c",
+      "installed_mode": "644",
+      "installed_uid": 0,
+      "installed_gid": 0
+    },
+    {
+      "repository_path": "tools/runtime-fixes/usb/ubports-usb-moded-configurator.original",
+      "normal_os_path": "/usr/libexec/ubports-usb-moded-configurator",
+      "bytes": 6294,
+      "sha256": "76059b53af8a12796e3c2908ad8934fa7ca32d65c678d6a97a47a1fce588006a",
+      "installed_mode": "755",
+      "installed_uid": 0,
+      "installed_gid": 0
+    }
+  ]
+}

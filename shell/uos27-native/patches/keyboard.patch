@@ -1,0 +1,51 @@
+--- a/qml/Keyboard.qml
++++ b/qml/Keyboard.qml
+@@ -63,7 +63,7 @@
+     onWidthChanged: fullScreenItem.reportKeyboardVisibleRect();
+     onHeightChanged: fullScreenItem.reportKeyboardVisibleRect();
+     
+-    Component.onCompleted: Theme.load(maliit_input_method.theme)
++    Component.onCompleted: Theme.load(["SuruDark", "SuruBlack", "JustBlack", "JustGrey", "BorderedBlack", "BorderedGrey"].indexOf(maliit_input_method.theme) !== -1 ? "uOS27-Dark" : "uOS27")
+ 
+     Item {
+         id: canvas
+@@ -327,7 +327,7 @@
+                 }
+                 keypad.delayedAutoCaps = false;
+             }
+-            onThemeChanged: Theme.load(target.theme)
++            onThemeChanged: Theme.load(["SuruDark", "SuruBlack", "JustBlack", "JustGrey", "BorderedBlack", "BorderedGrey"].indexOf(target.theme) !== -1 ? "uOS27-Dark" : "uOS27")
+         }
+         
+         FloatingActions {
+--- a/qml/keys/CharKey.qml
++++ b/qml/keys/CharKey.qml
+@@ -140,7 +140,7 @@
+                 width: borderEnabled ? units.gu(0.1) : 0
+                 color: borderColor
+             }
+-            radius: units.dp(4)
++            radius: units.dp(9)
+ 
+             /// label of the key
+             //  the label is also the value subitted to the app
+@@ -150,7 +150,7 @@
+                 text: (panel.activeKeypadState === "NORMAL") ? label : shifted;
+                 font.family: UI.fontFamily
+                 font.pixelSize: fontSize
+-                font.weight: Font.Light
++                font.weight: Font.Normal
+                 color: fullScreenItem.theme.fontColor
+                 anchors.right: parent.right
+                 anchors.left: parent.left
+--- a/qml/keys/key_constants.js
++++ b/qml/keys/key_constants.js
+@@ -66,7 +66,7 @@
+ var bottom_margin = 1; // gu
+ var tabletRowMargin = 1; // gu
+ var phoneRowMarginLandscape = 4; // dp
+-var phoneRowMarginPortrait = 7; // dp
++var phoneRowMarginPortrait = 9; // dp
+ 
+ var urlLayoutLeftSpacerSize = 5; // gu
+ var emailLayoutUrlKeyPadding = 1.5; // gu

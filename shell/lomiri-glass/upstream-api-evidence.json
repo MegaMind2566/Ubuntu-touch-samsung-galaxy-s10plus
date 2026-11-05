@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "checked_on": "2026-10-22",
+  "scope": "Source API inspection. These revisions are not a claim about the packages installed on the test handset.",
+  "target": "Ubuntu Touch 24.04, Qt 5.15, QMenuModel 1.0, Lomiri.Components 1.3",
+  "sources": [
+    {
+      "repository": "https://gitlab.com/ubports/development/core/lomiri",
+      "ref": "ubports/24.04-2.x",
+      "commit": "0bd07c68b7ab8dee5720516c7549dff8992995c6",
+      "files": [
+        "qml/Shell.qml",
+        "qml/Panel/Indicators/IndicatorMenuItemFactory.qml",
+        "qml/Panel/Indicators/MessageMenuItemFactory.qml",
+        "qml/Panel/PanelMenuPage.qml",
+        "qml/Panel/WithCutouts/LomiriPanel/Panel.qml",
+        "qml/Panel/WithoutCutouts/LomiriPanel/Panel.qml"
+      ]
+    },
+    {
+      "repository": "https://github.com/AyatanaIndicators/qmenumodel",
+      "commit": "63afe536cf1ab7c01ef319de53bdab70e9f41f8f",
+      "files": [
+        "libqmenumodel/src/qstateaction.h",
+        "libqmenumodel/src/ayatanamenuaction.h",
+        "libqmenumodel/src/ayatanamenuaction.cpp",
+        "libqmenumodel/src/ayatanamenumodel.cpp"
+      ],
+      "finding": "QStateAction has valid/state but no enabled. AyatanaMenuAction has valid/enabled/state and activate/changeState; service disappearance unregisters the native action muxer."
+    },
+    {
+      "repository": "https://gitlab.com/ubports/development/core/lomiri-system-settings",
+      "commit": "a1bf5454caeb452fb331f95dd2fd9d4496e1739f",
+      "files": [
+        "plugins/brightness/PageComponent.qml",
+        "plugins/sound/PageComponent.qml",
+        "plugins/wifi/PageComponent.qml",
+        "plugins/bluetooth/PageComponent.qml"
+      ],
+      "finding": "UT brightness uses the power indicator action brightness in [0,1]. The stock settings page blocks manual slider input while com.lomiri.touch.system auto-brightness is enabled."
+    },
+    {
+      "repository": "https://gitlab.com/ubports/development/core/lomiri-indicator-network",
+      "commit": "fda9337904f0e4b118022c44811edfbe02ff63bf",
+      "files": [
+        "src/indicator/factory.cpp",
+        "src/indicator/menuitems/switch-item.cpp",
+        "src/indicator/menu-builder.cpp"
+      ],
+      "finding": "wifi.enable, airplane.enabled and mobiledata.enabled toggle through parameterless activate. Their enabled state is owned by the service."
+    },
+    {
+      "repository": "https://github.com/AyatanaIndicators/ayatana-indicator-bluetooth",
+      "commit": "1bcf21c0f8adfe2dccf627d2c18ebd6f4b018026",
+      "files": [
+        "src/profile.vala",
+        "src/phone.vala"
+      ],
+      "finding": "bluetooth-enabled takes a Boolean activate parameter; bluetooth-supported identifies hardware support."
+    },
+    {
+      "repository": "https://github.com/AyatanaIndicators/ayatana-indicator-sound",
+      "commit": "083efc9c06ba68efc140b1c988e99346893eec7e",
+      "files": [
+        "src/service.vala",
+        "src/volume-warning.vala",
+        "src/volume-warning-pulse.vala"
+      ],
+      "finding": "volume change-state accepts a normalized double and uses native volume clamping. The service observes headphone multimedia volume, opens its native warning and lowers volume at the threshold; only the native confirmation approves/restores high volume. volume-sync changes when warning state changes. silent-mode activates with Boolean."
+    },
+    {
+      "repository": "https://github.com/AyatanaIndicators/ayatana-indicator-display",
+      "commit": "3352dc37b9980af29a66f6e36d51f422a88be025",
+      "files": [
+        "src/service.cpp",
+        "src/exporter.cpp"
+      ],
+      "finding": "rotation-lock is a Boolean stateful action bound to the display indicator GSettings key. The phone menu activates it with a Boolean parameter."
+    },
+    {
+      "repository": "https://gitlab.com/ubports/development/core/lomiri-settings-components",
+      "commit": "1504ce061105432528e0da626d16a046cd7850b9",
+      "files": [
+        "plugins/Lomiri/Settings/Menus/qml5/BaseMenu.qml",
+        "plugins/Lomiri/Settings/Menus/qml5/SimpleMessageMenu.qml",
+        "plugins/Lomiri/Settings/Menus/qml5/TextMessageMenu.qml",
+        "plugins/Lomiri/Settings/Components/qml5/MessageHeader.qml"
+      ],
+      "finding": "Native persistent-message widgets retain swipe-dismiss and inline reply; BaseMenu exposes backColor/color, foregroundColor and menuStyle."
+    }
+  ],
+  "host_requirements": [
+    "Load the native component only in an unlocked non-greeter phone session.",
+    "Set actionsAllowed only while the panel is fully open and no native modal notification blocks input.",
+    "Do not synthesize persistent notification history from Lomiri.Notifications ephemeral popup model.",
+    "Respect indicator valid/enabled state, and cancel local volume gesture state when volume-sync changes.",
+    "Installed package versions and QML file hashes still require device-side verification."
+  ],
+  "native_validation": {
+    "test": "tests/test_native_backend.py",
+    "result": "11 scenarios passed with actual Qt 5 QMenuModel native plugin and GSimpleActionGroup services on a private DBus",
+    "limits": [
+      "Indicator services simulated; no handset runtime result",
+      "Only GSettings QML binding mocked",
+      "High-volume policy implementation source-inspected; warning/sync messages simulated"
+    ],
+    "host": "Ubuntu 24.04 amd64; isolated PyQt5 runtime (Qt 5.15.19)",
+    "native_packages": [
+      {
+        "url": "https://archive.ubuntu.com/ubuntu/pool/universe/q/qmenumodel/libqmenumodel1_0.9.2-1build4_amd64.deb",
+        "sha256": "08fd72e536c6ae77f82b92eeaf4dae22c07b5f8322bf89dab1be26c91cc2ed93"
+      },
+      {
+        "url": "https://archive.ubuntu.com/ubuntu/pool/universe/q/qmenumodel/qml-module-qmenumodel1_0.9.2-1build4_amd64.deb",
+        "sha256": "a38eabcd53481e228a823f5ab96d406d275db22a2b06c96bc3128083da17bcb8"
+      }
+    ],
+    "reproduction": [
+      "Use an isolated Python environment with PyQt5 and a host that provides libgio-2.0.so.0, libgobject-2.0.so.0 and dbus-run-session.",
+      "Download the exact native_packages URLs above, verify their SHA-256, and extract both with dpkg-deb -x <file.deb> <temporary-runtime>. No system package install is needed.",
+      "Set LOMIRI_TEST_QML_IMPORT_PATH=<temporary-runtime>/usr/lib/x86_64-linux-gnu/qt5/qml.",
+      "Prepend <temporary-runtime>/usr/lib/x86_64-linux-gnu and the PyQt5/Qt5/lib directory to LD_LIBRARY_PATH, then run python tests/test_native_backend.py. The test itself creates a private DBus session.",
+      "A sandbox must permit the private local Unix socket. No network or device access is performed during the test."
+    ],
+    "bug_found_and_fixed": "Raw JS clamp endpoints 0 and 1 became int32 GVariants, rejected by native double-state actions. The request is now passed through a typed qreal property; the real native test verifies both endpoints and fractional values."
+  }
+}

@@ -1,0 +1,20 @@
+# OFF-DEVICE CANDIDATE ONLY. Never replace the active DeviceInfo file directly.
+# The exact live-file merge must be staged by scripts/lomiri_glass_cutout.py.
+beyond2lte:
+  Names:
+    - beyond2
+  Vendor: Samsung
+  PrettyName: Galaxy S10+
+  DeviceType: phone
+  GridUnit: 27
+  SupportedOrientations:
+    - Portrait
+    - Landscape
+    - InvertedLandscape
+  CollapsedPanelHeight: 81
+  DisplayCutoutsCollapsed:
+    - 1080 0 360 210
+  DisplayCutoutsCollapsedLight:
+    - 1080 0 360 210
+  DisplayCutoutsExpanded:
+    - 1080 0 360 210

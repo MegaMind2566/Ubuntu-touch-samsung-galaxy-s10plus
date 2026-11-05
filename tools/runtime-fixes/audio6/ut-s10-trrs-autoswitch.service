@@ -1,0 +1,17 @@
+# Samsung S10+ TRRS switch controller: phablet user, read-only jack state.
+[Unit]
+Description=Samsung S10+ TRRS headset automatic output routing (experimental)
+Wants=pulseaudio.service
+After=pulseaudio.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/phablet/.local/libexec/ut-s10-trrs-integrato.py --monitor
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+Environment=LC_ALL=C
+Environment=PULSE_SERVER=unix:/run/user/32011/pulse/native
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=Restore the saved USB mode after the S10 BOOT 6 rescue latch
+Requires=usb-moded.service
+After=usb-moded.service usb-rescue-mode-off.service force-adb.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 -I /userdata/ut-s10-usb-mode-restore/restore-saved-mode.py
+TimeoutStartSec=25
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=graphical.target

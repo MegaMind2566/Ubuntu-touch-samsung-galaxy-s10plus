@@ -1,0 +1,50 @@
+name: uOS27 native QML preview
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/s10-runtime-20261105']
+    paths:
+      - 'shell/**'
+      - 'scripts/lomiri_glass.py'
+      - 'scripts/lomiri_glass_cutout.py'
+      - '.github/workflows/uos27-preview.yml'
+permissions:
+  contents: read
+jobs:
+  qml-preview:
+    if: github.repository == 'MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus' && github.ref == 'refs/heads/feature/s10-runtime-20261105' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      QT_QPA_PLATFORM: offscreen
+      QT_QUICK_BACKEND: software
+      QSG_RENDER_LOOP: basic
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install free distro Qt 5 preview dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-pyqt5 python3-pyqt5.qtquick python3-pyqt5.qttest qml-module-qtquick2 fonts-dejavu-core
+      - name: Exercise native controls without phone services
+        run: /usr/bin/python3 shell/lomiri-glass/tests/test_qml_surface.py --report out/lomiri-glass/surface-tests.json
+      - name: Check capability and automatic-brightness gates with inert services
+        run: /usr/bin/python3 shell/lomiri-glass/tests/test_backend_capabilities_host.py --report out/lomiri-glass/capabilities-tests.json
+      - name: Exercise native Home catalog, search and dock
+        run: |
+          mkdir -p out/home-fixture/qml/Panel
+          cp -R shell/lomiri-glass/qml/Glass out/home-fixture/qml/Panel/Glass
+          /usr/bin/python3 shell/lomiri-glass/tests/test_home_host.py --source out/home-fixture --report out/lomiri-glass/home-tests.json
+      - name: Render full-size native shell surfaces
+        run: |
+          /usr/bin/python3 shell/lomiri-glass/preview/render.py --output out/lomiri-glass/controls
+          /usr/bin/python3 shell/lomiri-glass/preview/render_shell.py --output out/lomiri-glass/shell
+      - name: Retain Qt renders and scoped test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: uos27-native-preview-${{ github.run_number }}
+          path: out/lomiri-glass/
+          retention-days: 14
+          if-no-files-found: error

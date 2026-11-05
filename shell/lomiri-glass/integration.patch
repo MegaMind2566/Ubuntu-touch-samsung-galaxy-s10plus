@@ -1,0 +1,2855 @@
+--- a/qml/ApplicationMenus/MenuPopup.qml
++++ b/qml/ApplicationMenus/MenuPopup.qml
+@@ -21,11 +21,17 @@
+ import "../Components"
+ import "../Components/PanelState"
+ import "."
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ LomiriShape {
+     id: root
+     objectName: "menu"
+-    backgroundColor: theme.palette.normal.overlay
++    backgroundColor: UOS.modalBackground
++    radius: "medium"
++    scale: visible ? 1.0 : 0.976
++    Behavior on scale {
++        NumberAnimation { duration: UOS.enterMs; easing.type: Easing.OutCubic }
++    }
+ 
+     signal childActivated()
+ 
+--- a/qml/Components/PinLockscreen.qml
++++ b/qml/Components/PinLockscreen.qml
+@@ -18,6 +18,7 @@
+ import Lomiri.Components 1.3
+ import Lomiri.Components.ListItems 1.3
+ import "../Components"
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ FocusScope {
+     id: root
+@@ -29,7 +30,8 @@
+     property int minPinLength: -1
+     property int maxPinLength: -1
+     property bool showCancelButton: true
+-    property color foregroundColor: "#000000"
++    property bool roundGlassKeys: false
++    property color foregroundColor: UOS.ink
+ 
+     readonly property string passphrase: pinentryField.text
+ 
+@@ -82,7 +84,7 @@
+             Label {
+                 id: infoField
+                 objectName: "infoTextLabel"
+-                fontSize: "large"
++                fontSize: "x-large"
+                 color: root.foregroundColor
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 text: root.infoText
+@@ -106,7 +108,7 @@
+                     Repeater {
+                         model: pinentryField.text.length
+                         delegate: Rectangle {
+-                            color: root.foregroundColor
++                            color: UOS.ink
+                             width: Math.min(units.gu(2), (pinContainer.width - pinContainer.height*2 ) / (root.maxPinLength >= 0 ? root.maxPinLength : 16))
+                             height: width
+                             radius: width / 2
+@@ -190,6 +192,7 @@
+                 PinPadButton {
+                     objectName: "pinPadButton" + text
+                     text: index + 1
++                    roundGlassKeys: root.roundGlassKeys
+                     height: numbersGrid.buttonHeight
+                     width: numbersGrid.buttonWidth
+                     foregroundColor: root.foregroundColor
+@@ -208,6 +211,7 @@
+             }
+             PinPadButton {
+                 text: "0"
++                roundGlassKeys: root.roundGlassKeys
+                 height: numbersGrid.buttonHeight
+                 width: numbersGrid.buttonWidth
+                 foregroundColor: root.foregroundColor
+@@ -226,6 +230,7 @@
+             PinPadButton {
+                 id: closeButton
+                 iconName: "close"
++                roundGlassKeys: root.roundGlassKeys
+                 height: units.gu(5) // visual spec has this row a little closer in
+                 width: numbersGrid.buttonWidth
+                 foregroundColor: root.foregroundColor
+@@ -239,6 +244,7 @@
+             PinPadButton {
+                 id: confirmButton
+                 iconName: "tick"
++                roundGlassKeys: root.roundGlassKeys
+                 objectName: "confirmButton"
+                 height: units.gu(5)
+                 width: numbersGrid.buttonWidth
+--- a/qml/Components/PinPadButton.qml
++++ b/qml/Components/PinPadButton.qml
+@@ -16,6 +16,7 @@
+ 
+ import QtQuick 2.15
+ import Lomiri.Components 1.3
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: root
+@@ -24,29 +25,68 @@
+     property alias text: label.text
+     property string iconName
+     property color foregroundColor: "#000000"
++    property bool roundGlassKeys: false
++    readonly property string telephoneLetters: {
++        var chars = {"2": "ABC", "3": "DEF", "4": "GHI", "5": "JKL",
++                     "6": "MNO", "7": "PQRS", "8": "TUV", "9": "WXYZ"};
++        return chars[text] || "";
++    }
++    Accessible.role: Accessible.Button
++    Accessible.name: iconName.length > 0 ? iconName : text
+ 
+     signal clicked();
+ 
+     LomiriShape {
++        objectName: "uos27PinPressSurface"
+         anchors.fill: parent
+         opacity: mouseArea.pressed ? 1 : 0
++        backgroundColor: "#8aa0b8ec"
+         Behavior on opacity {
+             LomiriNumberAnimation {}
+         }
+     }
+ 
++    Rectangle {
++        id: roundKey
++        objectName: "uos27CircularNumberKey"
++        visible: root.roundGlassKeys
++        anchors.centerIn: parent
++        width: Math.max(0, Math.min(root.width, root.height) - units.gu(0.35))
++        height: width
++        radius: width / 2
++        color: mouseArea.pressed ? "#bce2eafa" : "#688a9cb2"
++        border.color: "#83e5f1ff"
++        border.width: 1
++        Behavior on color { ColorAnimation { duration: 135 } }
++    }
++
+     Label {
+         id: label
+-        anchors.centerIn: parent
++        anchors.horizontalCenter: parent.horizontalCenter
++        anchors.verticalCenter: parent.verticalCenter
++        anchors.verticalCenterOffset: root.roundGlassKeys && root.telephoneLetters.length ? -units.gu(0.55) : 0
+         horizontalAlignment: Text.AlignHCenter
+         color: root.foregroundColor
+         fontSize: "x-large"
+-        font.weight: Font.DemiBold
++        font.weight: Font.Light
++        font.pixelSize: Math.min(units.gu(root.roundGlassKeys ? 4.4 : 3.7), root.height * 0.52)
+         visible: text.length > 0
+-        scale: root.pressed ? 0.9 : 1
++        scale: mouseArea.pressed ? 0.9 : 1
+         Behavior on scale {
+             LomiriNumberAnimation {}
+         }
++    }
++
++    Text {
++        visible: root.roundGlassKeys && root.telephoneLetters.length > 0
++        anchors.horizontalCenter: parent.horizontalCenter
++        anchors.verticalCenter: parent.verticalCenter
++        anchors.verticalCenterOffset: units.gu(1.8)
++        text: root.telephoneLetters
++        font.pixelSize: units.gu(1.1)
++        font.weight: Font.DemiBold
++        font.letterSpacing: units.gu(0.23)
++        color: root.foregroundColor
+     }
+ 
+     Icon {
+@@ -57,10 +97,22 @@
+         name: root.iconName
+         color: root.foregroundColor
+         visible: name.length > 0
+-        scale: root.pressed ? 0.9 : 1
++        scale: mouseArea.pressed ? 0.9 : 1
+         Behavior on scale {
+             LomiriNumberAnimation { duration: LomiriAnimation.SlowDuration }
+         }
++    }
++
++    Rectangle {
++        anchors.centerIn: parent
++        width: Math.min(root.width, root.height) - units.gu(0.8)
++        height: width
++        radius: width / 2
++        color: "transparent"
++        visible: !root.roundGlassKeys
++        border.width: 1
++        border.color: "#65b5c5e7"
++        z: -1
+     }
+ 
+     MouseArea {
+--- a/qml/Components/ShellDialog.qml
++++ b/qml/Components/ShellDialog.qml
+@@ -18,6 +18,7 @@
+ import Lomiri.Components 1.3
+ import Lomiri.Components.Popups 1.3
+ import Utils 0.1
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ /*
+     A Dialog configured for use as a proper in-scene Dialog
+@@ -60,6 +61,16 @@
+         width: parent.width
+         height: column.height
+         focus: true
++        Rectangle {
++            objectName: "uos27ModalMaterial"
++            anchors.fill: parent
++            anchors.margins: -units.gu(1.5)
++            radius: units.gu(UOS.largeRadiusGU)
++            color: UOS.modalBackground
++            border.color: UOS.border
++            border.width: 1
++            z: -1
++        }
+         Column {
+             id: column
+             width: parent.width
+--- a/qml/Greeter/Clock.qml
++++ b/qml/Greeter/Clock.qml
+@@ -18,6 +18,7 @@
+ import Lomiri.Components 1.3
+ import "../Panel/Indicators"
+ import Lomiri.Indicators 0.1 as Indicators
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: clock
+@@ -64,17 +65,19 @@
+     }
+ 
+     Column {
+-        spacing: units.gu(0.5)
++        objectName: "uos27LockClock"
++        spacing: units.gu(0.75)
+ 
+         Label {
+             id: timeLabel
+             objectName: "timeLabel"
+ 
+             anchors.horizontalCenter: parent.horizontalCenter
+-            font.pixelSize: units.gu(7.5)
+-            color: "white"
++            font.pixelSize: units.gu(9.3)
++            color: UOS.ink
+             text: Qt.formatTime(clock.currentDate)
+-            font.weight: Font.Light
++            font.weight: Font.DemiBold
++            font.letterSpacing: -1.8
+         }
+ 
+         Label {
+@@ -82,10 +85,10 @@
+             objectName: "dateLabel"
+ 
+             anchors.horizontalCenter: parent.horizontalCenter
+-            fontSize: "medium"
+-            color: "white"
++            fontSize: "large"
++            color: UOS.secondaryInk
+             text: Qt.formatDate(clock.currentDate, Qt.DefaultLocaleLongDate)
+-            font.weight: Font.Light
++            font.weight: Font.Medium
+         }
+     }
+ }
+--- a/qml/Greeter/ClockPinPrompt.qml
++++ b/qml/Greeter/ClockPinPrompt.qml
+@@ -17,6 +17,7 @@
+ import QtQuick 2.15
+ import Lomiri.Components 1.3
+ import AccountsService 0.1
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: root
+@@ -88,9 +89,9 @@
+     StyledItem {
+         id: d
+ 
+-        readonly property color normal: theme.palette.normal.raisedText
+-        readonly property color selected: theme.palette.normal.raisedSecondaryText
+-        readonly property color selectedCircle: Qt.rgba(selected.r, selected.g, selected.b, 0.2)
++        readonly property color normal: UOS.ink
++        readonly property color selected: UOS.ink
++        readonly property color selectedCircle: "#558eafff"
+         readonly property color disabled:theme.palette.disabled.raisedSecondaryText
+     }
+ 
+@@ -265,8 +266,10 @@
+                     id: selectionRect
+                     anchors.fill: parent
+                     radius: numberComp.radius
+-                    color: d.selected
+-                    opacity: 0.1
++                    color: UOS.tileBackground
++                    border.width: 1
++                    border.color: "#6eb0c2dd"
++                    opacity: 0.62
+                 }
+ 
+                 Text {
+--- a/qml/Greeter/CoverPage.qml
++++ b/qml/Greeter/CoverPage.qml
+@@ -24,6 +24,8 @@
+ 
+ import BatteryMonitor 1.0
+ import GSettings 1.0
++import "../Panel/Glass/GlassTheme.js" as UOS
++import "../Panel/Glass" as Glass
+ 
+ Showable {
+     id: root
+@@ -37,6 +39,9 @@
+     property real panelHeight
+     property var infographicModel
+     property bool draggable: true
++    // Only the front phone cover uses upward unlock. The authentication
++    // layer, multi-user selector and desktop/tablet interactions stay native.
++    property bool phoneVerticalUnlock: false
+ 
+     property bool showInfographic: false
+     property real infographicsLeftMargin: 0
+@@ -48,6 +53,7 @@
+ 
+     signal tease()
+     signal clicked()
++    signal unlockRequested()
+ 
+     function hideRight() {
+         d.forceRightOnNextHideAnimation = true;
+@@ -113,8 +119,21 @@
+         id: backgroundShade
+         objectName: "backgroundShade"
+         anchors.fill: parent
+-        color: "black"
++        color: "#111a30"
+         visible: false
++    }
++
++    // A subtle lower contrast ramp, with the user's real lock wallpaper left
++    // untouched. The ramp is inert: authentication and swipe handling belong
++    // to Lomiri's original CoverPage and GreeterView.
++    Rectangle {
++        objectName: "uos27LockContrastRamp"
++        anchors.fill: parent
++        gradient: Gradient {
++            GradientStop { position: 0.0; color: "#24131d35" }
++            GradientStop { position: 0.48; color: "#19121d35" }
++            GradientStop { position: 1.0; color: "#b210182d" }
++        }
+     }
+ 
+     Item {
+@@ -195,9 +214,9 @@
+         anchors.horizontalCenter: parent.horizontalCenter
+         anchors.bottom: parent.bottom
+         anchors.bottomMargin: units.gu(5)
+-        text: "《    " + (d.errorMessage ? d.errorMessage : i18n.tr("Unlock")) + "    》"
+-        color: "white"
+-        font.weight: Font.Light
++        text: d.errorMessage ? d.errorMessage : i18n.tr("Unlock")
++        color: UOS.ink
++        font.weight: Font.Medium
+         visible: !chargingHint.visible
+ 
+         readonly property var opacityAnimation: showLabelAnimation // for testing
+@@ -232,12 +251,24 @@
+         target: swipeHint
+     }
+ 
++    Rectangle {
++        objectName: "uos27UnlockGesturePill"
++        width: Math.min(units.gu(13), root.width * 0.36)
++        height: units.gu(0.54)
++        radius: height / 2
++        color: UOS.ink
++        anchors.horizontalCenter: parent.horizontalCenter
++        anchors.bottom: parent.bottom
++        anchors.bottomMargin: units.gu(1.8)
++        opacity: 0.85
++    }
++
+     DragHandle {
+         id: dragHandle
+         objectName: "coverPageDragHandle"
+         anchors.fill: parent
+         anchors.leftMargin: root.dragHandleLeftMargin
+-        enabled: root.draggable
++        enabled: root.draggable && !root.phoneVerticalUnlock
+         direction: Direction.Horizontal
+ 
+         onPressedChanged: {
+@@ -246,6 +277,21 @@
+                 showLabelAnimation.start();
+             }
+         }
++    }
++
++    Glass.GlassUnlockGesture {
++        objectName: "uos27PhoneCoverInput"
++        anchors {
++            left: parent.left
++            right: parent.right
++            top: parent.top
++            bottom: parent.bottom
++            leftMargin: root.dragHandleLeftMargin
++            topMargin: root.panelHeight
++        }
++        swipeDistance: units.gu(7)
++        enabled: root.phoneVerticalUnlock && root.draggable && root.shown
++        onUnlockRequested: root.unlockRequested()
+     }
+ 
+     // right side shadow
+--- a/qml/Greeter/GreeterView.qml
++++ b/qml/Greeter/GreeterView.qml
+@@ -53,6 +53,12 @@
+ 
+     property string usageMode
+ 
++    // For a single-user portrait PIN, keep the original wallpaper and
++    // LightDM prompt on the FRONT cover.  A slide to another lockscreen is
++    // intentionally reserved for passwords and multi-user selection.
++    property bool integratedPinVisible: false
++    readonly property bool phonePinAvailable: usageMode === "phone" && isPortrait
++                                              && locked && !multiUser && !alphanumeric
+     readonly property bool animating: coverPage.showAnimation.running || coverPage.hideAnimation.running
+     readonly property bool fullyShown: coverPage.showProgress === 1 || lockscreen.shown
+     readonly property bool required: coverPage.required || lockscreen.required
+@@ -67,6 +73,8 @@
+ 
+     function notifyAuthenticationFailed() {
+         loginList.showError();
++        if (integratedPinVisible)
++            loginList.tryToUnlock();
+     }
+ 
+     function forceShow() {
+@@ -74,6 +82,15 @@
+     }
+ 
+     function tryToUnlock(toTheRight) {
++        if (phonePinAvailable) {
++            // Do not hide the cover or invoke the lateral unlock animation.
++            // Reparent the ORIGINAL LoginList, including GreeterPrompt and
++            // the native LightDM response chain, onto the cover wallpaper.
++            lockscreen.showNow();
++            integratedPinVisible = true;
++            loginList.tryToUnlock();
++            return false;
++        }
+         var coverChanged = coverPage.shown;
+         if (toTheRight) {
+             coverPage.hideRight();
+@@ -91,6 +108,7 @@
+     }
+ 
+     function hide() {
++        integratedPinVisible = false;
+         if (coverPage.visible) {
+             lockscreen.hideNow();
+         } else {
+@@ -109,8 +127,21 @@
+ 
+     onLockedChanged: changeLockscreenState()
+     onMultiUserChanged: changeLockscreenState()
++    onAlphanumericChanged: {
++        // LightDM may legitimately fall back to a passphrase after repeated
++        // PIN failures. Do not trap the user behind a numeric-only surface.
++        if (integratedPinVisible && alphanumeric) {
++            integratedPinVisible = false;
++            coverPage.hide();
++            loginList.tryToUnlock();
++        }
++    }
+ 
+     function changeLockscreenState() {
++        if (!locked && integratedPinVisible) {
++            integratedPinVisible = false;
++            coverPage.hide();
++        }
+         if (locked || multiUser) {
+             lockscreen.maybeShow();
+         } else {
+@@ -164,7 +195,13 @@
+             id: loginList
+             objectName: "loginList"
+ 
+-            width: units.gu(40)
++            width: root.integratedPinVisible ? Math.min(root.width, units.gu(48)) : units.gu(40)
++            parent: root.integratedPinVisible ? coverPage : lockscreen
++            z: root.integratedPinVisible ? 15 : 0
++            anchors.horizontalCenter: root.integratedPinVisible ? parent.horizontalCenter : undefined
++            integratedPin: root.integratedPinVisible
++            isLandscape: root.isLandscape
++            usageMode: root.usageMode
+             anchors {
+                 top: parent.top
+                 bottom: parent.bottom
+@@ -174,13 +211,17 @@
+                                inputMethodRect.height) / 2
+             Behavior on boxVerticalOffset { LomiriNumberAnimation {} }
+ 
+-            enabled: !coverPage.shown && visible
++            enabled: (!coverPage.shown || root.integratedPinVisible) && visible
+             visible: !delayedLockscreen.visible
+ 
+             model: root.userModel
+             onResponded: root.responded(response)
+             onSelected: root.selected(index)
+             onSessionChooserButtonClicked: parent.state = "SessionsList"
++            onPinCancelRequested: {
++                root.integratedPinVisible = false;
++                lockscreen.hideNow();
++            }
+             onCurrentIndexChanged: setCurrentSession()
+ 
+             locked: root.locked
+@@ -350,13 +391,22 @@
+         hasCustomBackground: root.hasCustomBackground
+         backgroundShadeOpacity: 0.4
+         panelHeight: root.panelHeight
+-        draggable: !root.waiting
++        draggable: !root.waiting && !root.integratedPinVisible
+         onTease: root.tease()
+-        onClicked: hide()
++        onClicked: {
++            if (phoneVerticalUnlock)
++                root.tryToUnlock(false);
++            else
++                coverPage.hide();
++        }
++        onUnlockRequested: root.tryToUnlock(false)
+         backgroundSourceSize: root.backgroundSourceSize
+         infographicModel: root.infographicModel
+-
+-        showInfographic: !root.multiUser && root.usageMode != "desktop"
++        phoneVerticalUnlock: root.usageMode === "phone" && root.isPortrait
++
++        // uOS27 phone cover: time remains legible with no legacy infographic
++        // circles. Tablet/desktop still use the native optional infographic.
++        showInfographic: !root.multiUser && root.usageMode != "desktop" && root.usageMode != "phone"
+ 
+         onShowProgressChanged: {
+             if (showProgress === 0) {
+@@ -371,9 +421,27 @@
+         Clock {
+             id: clock
+             anchors.centerIn: parent
++            opacity: root.integratedPinVisible ? 0 : 1
++            Behavior on opacity { NumberAnimation { duration: 170 } }
+         }
+ 
+         states: [
++            State {
++                name: "uos27-portrait-lock"
++                when: root.isPortrait && root.usageMode === "phone"
++                AnchorChanges {
++                    target: clock
++                    anchors.verticalCenter: undefined
++                    anchors.top: coverPage.top
++                    anchors.horizontalCenter: coverPage.horizontalCenter
++                }
++                PropertyChanges {
++                    target: clock
++                    anchors.topMargin: root.panelHeight + units.gu(9)
++                    anchors.horizontalCenterOffset: 0
++                }
++                PropertyChanges { target: coverPage; infographicsLeftMargin: 0 }
++            },
+             State {
+                 name: "landscape-with-infographics"
+                 when: isLandscape && coverPage.showInfographic
+@@ -416,7 +484,7 @@
+             },
+             State {
+                 name: "without-infographics"
+-                when: !coverPage.showInfographic
++                when: !coverPage.showInfographic && !(root.isPortrait && root.usageMode === "phone")
+                 AnchorChanges {
+                     target: clock
+                     anchors.top: undefined
+--- a/qml/Greeter/LoginList.qml
++++ b/qml/Greeter/LoginList.qml
+@@ -34,6 +34,10 @@
+     property string _realName
+     property bool isLandscape
+     property string usageMode
++    // The numeric prompt may be shown directly on the portrait cover page.
++    // Keep the original LightDM prompt/model and response transport alive;
++    // only the former account carousel chrome is hidden in this mode.
++    property bool integratedPin: false
+ 
+     readonly property int numAboveBelow: 4
+     readonly property int cellHeight: units.gu(5)
+@@ -47,6 +51,7 @@
+     signal responded(string response)
+     signal selected(int index)
+     signal sessionChooserButtonClicked()
++    signal pinCancelRequested()
+ 
+     function tryToUnlock() {
+         promptList.forceActiveFocus();
+@@ -91,6 +96,7 @@
+     LoginAreaContainer {
+         id: highlightItem
+         objectName: "highlightItem"
++        opacity: root.integratedPin ? 0 : 1
+         anchors {
+             left: parent.left
+             leftMargin: units.gu(2)
+@@ -105,6 +111,8 @@
+     ListView {
+         id: userList
+         objectName: "userList"
++        opacity: root.integratedPin ? 0 : 1
++        enabled: !root.integratedPin
+ 
+         anchors.fill: parent
+         anchors.leftMargin: units.gu(2)
+@@ -114,7 +122,7 @@
+         preferredHighlightEnd: highlightItem.y + units.gu(1.5)
+         highlightRangeMode: ListView.StrictlyEnforceRange
+         highlightMoveDuration: root.moveDuration
+-        interactive: count > 1
++        interactive: count > 1 && !root.integratedPin
+ 
+         readonly property bool movingInternally: moveTimer.running || userList.moving
+ 
+@@ -254,6 +262,7 @@
+     PromptList {
+         id: promptList
+         objectName: "promptList"
++        z: root.integratedPin ? 10 : 0
+         anchors {
+             bottom: highlightItem.bottom
+             horizontalCenter: highlightItem.horizontalCenter
+@@ -279,8 +288,13 @@
+             root.responded(text);
+         }
+         onCanceled: {
+-            interactive = false;
+-            root.selected(currentIndex);
++            if (root.integratedPin) {
++                interactive = true;
++                root.pinCancelRequested();
++            } else {
++                interactive = false;
++                root.selected(currentIndex);
++            }
+         }
+ 
+         Connections {
+--- a/qml/Greeter/PromptList.qml
++++ b/qml/Greeter/PromptList.qml
+@@ -32,7 +32,13 @@
+     property bool hasKeyboard: false
+     property int maxHeight: units.gu(5)
+     // don't allow custom pincode prompt for multi user in phone context as it will hide the login list
+-    readonly property string pinCodeManager: LightDMService.users.count > 1  && root.usageMode === "phone" && root.isLandscape ? AccountsService.defaultPinCodePromptManager : AccountsService.pinCodePromptManager
++    // On phones, use a real in-shell number pad for PIN challenges. This
++    // bypasses a missing/hidden Maliit surface but does NOT change the
++    // LightDM authentication, prompt model or password/passphrase route.
++    readonly property string pinCodeManager: root.usageMode === "phone" && !root.isLandscape
++            ? "../Panel/Glass/GlassPinPrompt.qml"
++            : (LightDMService.users.count > 1 && root.usageMode === "phone" && root.isLandscape
++               ? AccountsService.defaultPinCodePromptManager : AccountsService.pinCodePromptManager)
+ 
+     property real defaultPromptWidth: units.gu(20)
+     property real maxPromptHeight: isLandscape ? root.width - units.gu(10) : maxHeight
+--- a/qml/Launcher/Drawer.qml
++++ b/qml/Launcher/Drawer.qml
+@@ -24,9 +24,13 @@
+ import GSettings  1.0
+ import AccountsService 0.1
+ import QtGraphicalEffects 1.0
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ FocusScope {
+     id: root
++    // Keep the native application model, search, keyboard focus and swipes.
++    // The native drawer is one consistent glass surface on Home and above apps.
++    clip: true
+ 
+     property int panelWidth: 0
+     readonly property bool moving: (appList && appList.moving) ? true : false
+@@ -153,7 +157,11 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        color: theme.palette.normal.background.hslLightness >= 0.5 ? "#CAFEFEFE" : "#BF000000"
++        objectName: "uos27AppLibrarySurface"
++        color: UOS.shellBackground
++        radius: units.gu(UOS.largeRadiusGU)
++        border.width: 1
++        border.color: UOS.border
+ 
+         MouseArea {
+             id: drawerHandle
+@@ -225,6 +233,14 @@
+                 id: searchFieldContainer
+                 height: units.gu(4)
+                 anchors { left: parent.left; top: parent.top; right: parent.right; margins: units.gu(1) }
++
++                Rectangle {
++                    anchors.fill: parent
++                    radius: units.gu(2)
++                    color: "#83586685"
++                    border.color: "#769aacc7"
++                    border.width: 1
++                }
+ 
+                 TextField {
+                     id: searchField
+@@ -321,6 +337,10 @@
+                             source: model.icon
+                         }
+                         sourceFillMode: LomiriShape.PreserveAspectCrop
++                        scale: drawerDelegate.pressed ? 0.948 : 1.0
++                        Behavior on scale {
++                            NumberAnimation { duration: UOS.pressMs; easing.type: Easing.OutCubic }
++                        }
+ 
+                         StyledItem {
+                             styleName: "FocusShape"
+@@ -335,6 +355,8 @@
+                     Label {
+                         id: label
+                         text: model.name
++                        color: UOS.ink
++                        font.weight: Font.Medium
+                         width: parent.width
+                         anchors.horizontalCenter: parent.horizontalCenter
+                         horizontalAlignment: Text.AlignHCenter
+--- a/qml/Launcher/LauncherDelegate.qml
++++ b/qml/Launcher/LauncherDelegate.qml
+@@ -16,6 +16,7 @@
+ 
+ import QtQuick 2.15
+ import Lomiri.Components 1.3
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: root
+@@ -157,7 +158,7 @@
+             }
+             width: Math.min(root.itemWidth, Math.max(units.gu(2), countLabel.implicitWidth + units.gu(1)))
+             height: units.gu(2)
+-            backgroundColor: theme.palette.normal.positive
++            backgroundColor: UOS.accent
+             visible: root.countVisible
+             aspect: LomiriShape.Flat
+ 
+@@ -218,9 +219,10 @@
+                 model: Math.min(3, root.surfaceCount)
+                 Rectangle {
+                     objectName: "runningHighlight" + index
+-                    width: units.gu(0.25)
+-                    height: units.gu(.5)
+-                    color: root.alerting ? theme.palette.normal.activity : theme.palette.normal.backgroundText
++                    width: units.gu(0.42)
++                    height: units.gu(0.42)
++                    radius: width / 2
++                    color: root.alerting ? UOS.accent : UOS.ink
+                     visible: root.itemRunning
+                 }
+             }
+@@ -232,9 +234,10 @@
+                 right: parent.right
+                 verticalCenter: parent.verticalCenter
+             }
+-            width: units.gu(0.25)
+-            height: units.gu(.5)
+-            color: theme.palette.normal.backgroundText
++            width: units.gu(0.42)
++            height: width
++            radius: width / 2
++            color: UOS.ink
+             visible: root.itemFocused
+         }
+ 
+--- a/qml/Launcher/LauncherPanel.qml
++++ b/qml/Launcher/LauncherPanel.qml
+@@ -22,11 +22,15 @@
+ import GSettings 1.0
+ import Utils 0.1
+ import "../Components"
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Rectangle {
+     id: root
+-
+-    color: theme.palette.normal.background.hslLightness >= 0.5 ? "#F2FEFEFE" : "#F2111111"
++    objectName: "uos27DockSurface"
++    color: UOS.shellBackground
++    radius: units.gu(UOS.largeRadiusGU)
++    border.width: 1
++    border.color: UOS.border
+ 
+     rotation: inverted ? 180 : 0
+ 
+@@ -90,6 +94,7 @@
+             objectName: "buttonShowDashHome"
+             width: parent.width
+             height: width * .9
++            radius: units.gu(2.5)
+             color: {
+                 // To exchange the default Lomiri home logo bgcolor by your distro's bgcolor, add a gsettings override:
+                 //
+@@ -102,7 +107,7 @@
+                     if (launcherSettings.homeButtonBackgroundColor != '')
+                         console.warn(`Invalid color name '${launcherSettings.homeButtonBackgroundColor}'`);
+ 
+-                    return LomiriColors.orange;
++                    return "#806f83b8";
+                 }
+             }
+             readonly property bool highlighted: root.highlightIndex == -1;
+--- a/qml/Notifications/Notification.qml
++++ b/qml/Notifications/Notification.qml
+@@ -23,6 +23,7 @@
+ import QMenuModel 1.0
+ import Utils 0.1
+ import "../Components"
++import "../Panel/Glass/GlassTheme.js" as UOS
+ 
+ StyledItem {
+     id: notification
+@@ -36,8 +37,25 @@
+     property var notificationId
+     property var type
+     property var hints
++    property bool glassStyle: false
++    // Ayatana Sound publishes a stable synchronous ID ("indicator-sound"),
++    // not a Boolean string. The older notification service spells this hint
++    // x-canonical-private-synchronous, the Lomiri backend also accepts the
++    // x-lomiri-private-synchronous form. Restrict the skin to that source;
++    // do not intercept warnings, calls or arbitrary confirmation popups.
++    readonly property string glassSyncId: hints === null || hints === undefined ? ""
++            : String(hints["x-lomiri-private-synchronous"]
++                || hints["x-canonical-private-synchronous"] || "")
++    readonly property bool glassVolume: glassStyle && !fullscreen
++            && type === Notification.Confirmation
++            && /^(?:indicator-sound|volume|sound)(?:$|[-_])/.test(glassSyncId)
+     property var notification
+-    property color color: theme.palette.normal.background
++    // Critical/fullscreen and decision notifications retain stock treatments.
++    property color color: glassStyle && !fullscreen
++                          && type !== Notification.SnapDecision
++                          && notification.notification
++                          && notification.notification.urgency !== Notification.Critical
++                          ? UOS.modalBackground : theme.palette.normal.background
+     property bool fullscreen: notification.notification && typeof notification.notification.fullscreen != "undefined" ?
+                                   notification.notification.fullscreen : false // fullscreen prop only exists in the mock
+     property int maxHeight
+@@ -113,7 +131,7 @@
+     }
+ 
+     Behavior on x {
+-        LomiriNumberAnimation { easing.type: Easing.OutBounce }
++        NumberAnimation { duration: UOS.enterMs; easing.type: Easing.OutCubic }
+     }
+ 
+     onHintsChanged: {
+@@ -154,7 +172,7 @@
+         id: shapedBack
+         objectName: "shapedBack"
+ 
+-        visible: !fullscreen
++        visible: !fullscreen && !notification.glassVolume
+         anchors {
+             fill: parent
+             leftMargin: notification.margins
+@@ -162,8 +180,23 @@
+             topMargin: index == 0 ? notification.margins : 0
+         }
+         backgroundColor: parent.color
+-        radius: "small"
++        radius: notification.glassStyle && !notification.fullscreen
++                && notification.type !== Notification.SnapDecision
++                && notification.notification
++                && notification.notification.urgency !== Notification.Critical
++                ? "medium" : "small"
+         aspect: LomiriShape.Flat
++    }
++
++    Rectangle {
++        id: glassVolumeBack
++        objectName: "glassVolumeBackdrop"
++        anchors.fill: shapedBack
++        radius: units.gu(2.8)
++        color: UOS.modalBackground
++        border.width: 1
++        border.color: UOS.border
++        visible: notification.glassVolume
+     }
+ 
+     Rectangle {
+@@ -182,7 +215,8 @@
+ 
+     Item {
+         id: contents
+-        anchors.fill: fullscreen ? nonShapedBack : shapedBack
++        anchors.fill: fullscreen ? nonShapedBack
++                     : notification.glassVolume ? glassVolumeBack : shapedBack
+ 
+         LomiriMenuModelPaths {
+             id: paths
+@@ -312,7 +346,7 @@
+                     visible: notification.hideContent
+                     fontSize: "medium"
+                     font.weight: Font.Light
+-                    color: theme.palette.normal.backgroundSecondaryText
++                    color: notification.glassStyle ? UOS.secondaryInk : theme.palette.normal.backgroundSecondaryText
+                     elide: Text.ElideRight
+                     textFormat: Text.PlainText
+                     text: i18n.tr("New message")
+@@ -334,8 +368,8 @@
+                             right: parent.right
+                         }
+                         fontSize: "medium"
+-                        font.weight: Font.Light
+-                        color: theme.palette.normal.backgroundSecondaryText
++                        font.weight: notification.glassStyle ? Font.DemiBold : Font.Light
++                        color: notification.glassStyle ? UOS.ink : theme.palette.normal.backgroundSecondaryText
+                         elide: Text.ElideRight
+                         textFormat: Text.PlainText
+                     }
+@@ -350,8 +384,8 @@
+                         }
+                         visible: body != ""
+                         fontSize: "small"
+-                        font.weight: Font.Light
+-                        color: theme.palette.normal.backgroundTertiaryText
++                        font.weight: notification.glassStyle ? Font.Normal : Font.Light
++                        color: notification.glassStyle ? UOS.secondaryInk : theme.palette.normal.backgroundTertiaryText
+                         wrapMode: Text.Wrap
+                         maximumLineCount: {
+                             if (type === Notification.SnapDecision) {
+@@ -400,6 +434,7 @@
+                 shaped: notification.hints["x-lomiri-non-shaped-icon"] !== "true"
+                 fileSource: icon.fileSource
+                 visible: fileSource !== "" && type === Notification.Confirmation
++                        && !notification.glassVolume
+                 anchors.horizontalCenter: parent.horizontalCenter
+             }
+ 
+@@ -409,6 +444,7 @@
+                 text: body
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 visible: type === Notification.Confirmation && body !== ""
++                        && !notification.glassVolume
+                 fontSize: "medium"
+                 font.weight: Font.Light
+                 color: theme.palette.normal.backgroundSecondaryText
+@@ -421,7 +457,7 @@
+             ProgressBar {
+                 id: valueIndicator
+                 objectName: "valueIndicator"
+-                visible: type === Notification.Confirmation
++                visible: type === Notification.Confirmation && !notification.glassVolume
+                 minimumValue: 0
+                 maximumValue: 100
+                 showProgressPercentage: false
+@@ -430,6 +466,64 @@
+                     right: parent.right
+                 }
+                 height: units.gu(1)
++            }
++
++            Item {
++                id: glassVolumeContent
++                objectName: "glassVolumeContent"
++                width: parent.width
++                height: visible ? units.gu(7.2) : 0
++                visible: notification.glassVolume
++
++                Icon {
++                    id: glassVolumeIcon
++                    anchors.left: parent.left
++                    anchors.top: parent.top
++                    width: units.gu(3.8)
++                    height: width
++                    name: valueIndicator.value <= 0 ? "audio-volume-muted" :
++                          valueIndicator.value <= 30 ? "audio-volume-low" :
++                          valueIndicator.value <= 70 ? "audio-volume-medium" : "audio-volume-high"
++                    color: "#f4efff"
++                }
++                Column {
++                    anchors.left: glassVolumeIcon.right
++                    anchors.leftMargin: units.gu(1.0)
++                    anchors.right: parent.right
++                    anchors.rightMargin: units.gu(0.5)
++                    anchors.top: parent.top
++                    spacing: units.gu(0.25)
++                    Text {
++                        text: summaryLabel.text
++                        textFormat: Text.PlainText
++                        color: "#ffffff"
++                        font.pixelSize: units.gu(1.9)
++                        font.weight: Font.DemiBold
++                    }
++                    Text {
++                        text: valueLabel.text
++                        textFormat: Text.PlainText
++                        color: "#d2cfe8"
++                        font.pixelSize: units.gu(1.55)
++                    }
++                }
++                Rectangle {
++                    anchors.left: parent.left
++                    anchors.right: parent.right
++                    anchors.bottom: parent.bottom
++                    height: units.gu(1.2)
++                    radius: height / 2
++                    color: "#5e6c638c"
++                    clip: true
++                    Rectangle {
++                        anchors.left: parent.left
++                        anchors.top: parent.top
++                        anchors.bottom: parent.bottom
++                        width: parent.width * Math.max(0, Math.min(100, valueIndicator.value)) / 100
++                        radius: parent.radius
++                        color: "#bb98f3"
++                    }
++                }
+             }
+ 
+             Column {
+--- a/qml/Notifications/Notifications.qml
++++ b/qml/Notifications/Notifications.qml
+@@ -31,6 +31,7 @@
+     property bool hasMouse
+     property url background: ""
+     property bool privacyMode: false
++    property bool glassStyle: false
+ 
+     readonly property bool useModal: snapDecisionProxyModel.count > 0
+ 
+@@ -44,12 +45,13 @@
+     }
+ 
+     property bool topmostIsFullscreen: false
+-    spacing: topmostIsFullscreen ? 0 : units.gu(1)
++    spacing: topmostIsFullscreen ? 0 : units.gu(glassStyle ? 1.35 : 1)
+ 
+     currentIndex: -1
+ 
+     delegate: Notification {
+         objectName: "notification" + index
++        glassStyle: notificationList.glassStyle
+         width: parent.width
+         type: model.type
+         hints: model.hints
+--- a/qml/Panel/Indicators/IndicatorItem.qml
++++ b/qml/Panel/Indicators/IndicatorItem.qml
+@@ -19,6 +19,7 @@
+ import Lomiri.Components 1.3
+ import Lomiri.Settings.Components 0.1
+ import QMenuModel 1.0
++import "../Glass" as Glass
+ 
+ IndicatorDelegate {
+     id: root
+@@ -31,8 +32,56 @@
+     property bool expanded: false
+     property bool finishedExpanding: false
+     property bool selected: false
+-    property real iconHeight: units.gu(2)
++    property real iconHeight: units.gu(glassStyle ? 1.65 : 2)
++    // Available on the unlocked phone session only. All state still originates
++    // from ActionRootState; the visual layer never creates synthetic statuses.
++    property bool glassStyle: false
++    readonly property bool hasUnread: glassStyle && /(?:^|-)indicator-messages$/.test(identifier)
++            && String(icons).indexOf("indicator-messages-new") !== -1
++    // A status icon must reflect live hardware/activity. This affects the
++    // collapsed bar only; the native indicator model and menus are untouched.
++    readonly property var glassVisibleIcons: {
++        if (!glassStyle || expanded) return icons || [];
++        var id = String(identifier).toLowerCase();
++        var result = [];
++        var candidates = icons || [];
++        for (var i = 0; i < candidates.length; ++i) {
++            var symbol = String(candidates[i]).toLowerCase();
++            if (/network/.test(id)) {
++                // Native Wi-Fi strengths use nm-signal-00/25/50/75/100;
++                // matching the generic word "network" previously let the
++                // unplugged Ethernet glyph through and hid active Wi-Fi.
++                if (/(wired|ethernet|network-vpn|nm-no-connection|network-secure)/.test(symbol)) continue;
++                if (!/(wifi|wireless|nm-signal-(?:00|25|50|75|100)|cellular|mobile|gsm)/.test(symbol)
++                        || /(disconnected|offline|disabled|no-sim|signal-none|error)/.test(symbol)) continue;
++            } else if (/bluetooth/.test(id)) {
++                if (!/bluetooth-(active|connected|enabled)/.test(symbol)) continue;
++            } else if (/location/.test(id)) {
++                if (!/(active|enabled|acquiring)/.test(symbol)) continue;
++            } else if (/sound/.test(id)) {
++                if (!/(muted|silent)/.test(symbol)) continue;
++            } else if (/messages/.test(id)) {
++                if (!/(messages-new|indicator-messages-new)/.test(symbol)) continue;
++            }
++            result.push(candidates[i]);
++            if (/network/.test(id) && result.length === 2) break;
++        }
++        return result;
++    }
++    readonly property bool glassCompactVisible: {
++        if (!glassStyle || expanded) return true;
++        var id = String(identifier).toLowerCase();
++        // The Glass panel draws a dedicated clock *before* the indicators.
++        // Do not leave Lomiri's model-positioned clock in front of the icons.
++        if (/datetime$/.test(id)) return false;
++        if (/power$/.test(id)) return true;
++        if (/(messages|network|bluetooth|location|sound)$/.test(id))
++            return glassVisibleIcons.length > 0;
++        return false;
++    }
++    signal notificationTapped()
+     readonly property color color: {
++        if (glassStyle && !expanded) return "#ffffff";
+         if (!expanded) return theme.palette.normal.backgroundText;
+         if (!selected) return theme.palette.disabled.backgroundText;
+         return theme.palette.normal.backgroundText;
+@@ -43,7 +92,7 @@
+         NumberAnimation { duration: LomiriAnimation.SnapDuration }
+     }
+ 
+-    implicitWidth: mainItems.width
++    implicitWidth: mainItems.width + (glassStyle && !expanded ? units.gu(0.2) : 0)
+ 
+     // Prevent ListView from removing us from the view while expanding.
+     // If we're the PanelBar's initial item, our removal will make it lose
+@@ -68,6 +117,13 @@
+         }
+     }
+ 
++    // A short tap on the real messages indicator is a notification shortcut.
++    // TapHandler is passive: it leaves the stock top-edge drag recognizer free.
++    TapHandler {
++        enabled: root.glassStyle && /(?:^|-)indicator-messages$/.test(root.identifier)
++        onTapped: root.notificationTapped()
++    }
++
+     Item {
+         id: mainItems
+         anchors.centerIn: parent
+@@ -83,13 +139,13 @@
+                 left: mainItems.left
+                 verticalCenter: parent.verticalCenter
+             }
+-            width: contentWidth > 0 ? contentWidth + units.gu(1) : 0
++            width: contentWidth > 0 ? contentWidth + units.gu(root.glassStyle ? 0.45 : 1) : 0
+             horizontalAlignment: Text.AlignHCenter
+ 
+             opacity: 1.0
+             font.family: "Ubuntu"
+             fontSize: "medium"
+-            font.weight: Font.Light
++            font.weight: root.glassStyle ? Font.DemiBold : Font.Light
+             color: root.color
+             Behavior on color { ColorAnimation { duration: LomiriAnimation.FastDuration; easing: LomiriAnimation.StandardEasing } }
+         }
+@@ -98,7 +154,7 @@
+             id: iconsItem
+             objectName: "icons"
+ 
+-            width: iconRow.width > 0 ? iconRow.width + units.gu(1) : 0
++            width: iconRow.width > 0 ? iconRow.width + units.gu(root.glassStyle ? 0.3 : 1) : 0
+             anchors {
+                 left: leftLabelItem.right
+                 verticalCenter: parent.verticalCenter
+@@ -107,28 +163,42 @@
+             Row {
+                 id: iconRow
+                 anchors.centerIn: iconsItem
+-                spacing: units.gu(1)
++                spacing: units.gu(root.glassStyle ? 0.3 : 1)
+ 
+                 Repeater {
+                     id: iconRepeater
+                     objectName: "iconRepeater"
+ 
+-                    model: d.useFallbackIcon ? [ "image://theme/settings" ] : root.icons
+-
+-                    Icon {
++                    model: d.useFallbackIcon ? [ "image://theme/settings" ]
++                           : root.glassStyle && !root.expanded ? root.glassVisibleIcons : root.icons
++
++                    Item {
+                         id: itemImage
+                         objectName: "icon"+index
+                         height: iconHeight
+-                        // FIXME Workaround for bug https://bugs.launchpad.net/lomiri/+source/lomiri-ui-toolkit/+bug/1421293
+-                        width: implicitWidth > 0 && implicitHeight > 0 ? (implicitWidth / implicitHeight * height) : implicitWidth;
+-                        source: modelData
+-                        color: root.color
+-                        Behavior on color { ColorAnimation { duration: LomiriAnimation.FastDuration; easing: LomiriAnimation.StandardEasing } }
+-
+-                        // Workaround indicators getting stretched/squished when (un)plugging external/virtual monitor
+-                        onHeightChanged: {
+-                            source = ""
+-                            source = modelData
++                        width: root.glassStyle && glassSymbol.supported ? height
++                            : nativeSymbol.implicitWidth > 0 && nativeSymbol.implicitHeight > 0
++                              ? nativeSymbol.implicitWidth / nativeSymbol.implicitHeight * height
++                              : height
++                        Glass.GlassStatusIcon {
++                            id: glassSymbol
++                            anchors.fill: parent
++                            iconSource: String(modelData)
++                            tint: root.color
++                            visible: root.glassStyle && supported
++                        }
++                        Icon {
++                            id: nativeSymbol
++                            anchors.fill: parent
++                            visible: !root.glassStyle || !glassSymbol.supported
++                            source: modelData
++                            color: root.color
++                            Behavior on color { ColorAnimation { duration: LomiriAnimation.FastDuration; easing: LomiriAnimation.StandardEasing } }
++                            // Preserve Lomiri's workaround for monitor changes.
++                            onHeightChanged: {
++                                source = ""
++                                source = modelData
++                            }
+                         }
+                     }
+                 }
+@@ -143,13 +213,13 @@
+                 left: iconsItem.right
+                 verticalCenter: parent.verticalCenter
+             }
+-            width: contentWidth > 0 ? contentWidth + units.gu(1) : 0
++            width: contentWidth > 0 ? contentWidth + units.gu(root.glassStyle ? 0.45 : 1) : 0
+             horizontalAlignment: Text.AlignHCenter
+ 
+             opacity: 1.0
+             font.family: "Ubuntu"
+             fontSize: "medium"
+-            font.weight: Font.Light
++            font.weight: root.glassStyle ? Font.DemiBold : Font.Light
+             color: root.color
+             Behavior on color { ColorAnimation { duration: LomiriAnimation.FastDuration; easing: LomiriAnimation.StandardEasing } }
+         }
+--- a/qml/Panel/Indicators/IndicatorMenuItemFactory.qml
++++ b/qml/Panel/Indicators/IndicatorMenuItemFactory.qml
+@@ -15,6 +15,7 @@
+  */
+ 
+ import QtQuick 2.15
++import QtQml 2.15
+ import QtQuick.Window 2.2
+ import Lomiri.Settings.Menus 0.1 as Menus
+ import Lomiri.Settings.Components 0.1
+@@ -29,6 +30,7 @@
+     id: menuFactory
+ 
+     property string indicator
++    property bool glassStyle: false
+     property var rootModel: null
+     property var menuModel: null
+ 
+@@ -919,6 +921,7 @@
+ 
+         MessageMenuItemFactory {
+             objectName: "messageItem"
++            glassStyle: menuFactory.glassStyle
+             menuModel: menuFactory.menuModel
+         }
+     }
+@@ -927,7 +930,16 @@
+         id: groupedMessage
+ 
+         Menus.GroupedMessageMenu {
++            id: groupedMessageItem
+             objectName: "groupedMessage"
++
++            Binding {
++                target: groupedMessageItem
++                property: "color"
++                when: menuFactory.glassStyle
++                value: "transparent"
++                restoreMode: Binding.RestoreBindingOrValue
++            }
+             property QtObject menuData: null
+             property var menuModel: menuFactory.menuModel
+             property int menuIndex: -1
+--- a/qml/Panel/Indicators/MessageMenuItemFactory.qml
++++ b/qml/Panel/Indicators/MessageMenuItemFactory.qml
+@@ -19,6 +19,7 @@
+  */
+ 
+ import QtQuick 2.15
++import QtQml 2.15
+ import Lomiri.Components 1.3
+ import Lomiri.Settings.Menus 0.1 as Menus
+ import QMenuModel 1.0 as QMenuModel
+@@ -32,6 +33,19 @@
+     property int menuIndex: -1
+ 
+     property bool selected: false
++    property bool glassStyle: false
++
++    // Style the native widget without changing selection, inline replies,
++    // confirmation or swipe-to-dismiss handling. Restore its original binding
++    // while expanded so the native editor keeps its normal selection feedback.
++    Binding {
++        target: messageFactoryItem.item
++        property: "color"
++        when: messageFactoryItem.glassStyle && messageFactoryItem.item !== null
++                && !messageFactoryItem.selected
++        value: "transparent"
++        restoreMode: Binding.RestoreBindingOrValue
++    }
+     signal menuSelected
+     signal menuDeselected
+ 
+--- a/qml/Panel/PanelMenuPage.qml
++++ b/qml/Panel/PanelMenuPage.qml
+@@ -28,6 +28,7 @@
+     property var submenuIndex: undefined
+     property QtObject menuModel: null
+     property Component factory
++    property bool glassCards: false
+ 
+     Connections {
+         id: dynamicChanges
+@@ -73,6 +74,10 @@
+         id: pageComponent
+         Page {
+             id: page
++            theme: ThemeSettings {
++                name: root.glassCards && root.theme.palette.normal.background.hslLightness < 0.5
++                    ? "Lomiri.Components.Themes.SuruDark" : root.theme.name
++            }
+ 
+             property alias menuModel: listView.model
+             property alias title: backLabel.title
+@@ -101,11 +106,14 @@
+             ListView {
+                 id: listView
+                 objectName: "listView"
++                spacing: root.glassCards ? units.gu(1) : 0
+ 
+                 anchors {
+                     top: page.isSubmenu ? backLabel.bottom : parent.top
+                     left: parent.left
+                     right: parent.right
++                    leftMargin: root.glassCards ? units.gu(2) : 0
++                    rightMargin: root.glassCards ? units.gu(2) : 0
+                     bottom: parent.bottom
+                     bottomMargin: Qt.inputMethod.visible ? (Qt.inputMethod.keyboardRectangle.height - root.anchors.bottomMargin) : 0
+ 
+@@ -173,6 +181,19 @@
+ 
+                     property int modelIndex: index
+                     sourceComponent: page.factory.load(model)
++
++                    Rectangle {
++                        anchors.fill: parent
++                        z: -1
++                        radius: units.gu(2.5)
++                        color: root.theme.palette.normal.background.hslLightness >= 0.5
++                            ? "#e8f7faff" : "#e1354657"
++                        border.color: root.theme.palette.normal.background.hslLightness >= 0.5
++                            ? "#9fb3c9" : "#526477"
++                        border.width: 1
++                        visible: root.glassCards && loader.status === Loader.Ready
++                                && /messages\.(messageitem|sourceitem)$/.test(model.type || "")
++                    }
+ 
+                     onLoaded: {
+                         if (item.hasOwnProperty("selected")) {
+--- a/qml/Panel/WithCutouts/LomiriPanel/Panel.qml
++++ b/qml/Panel/WithCutouts/LomiriPanel/Panel.qml
+@@ -51,6 +51,11 @@
+     property bool fullscreenMode: false
+     property real panelAreaShowProgress: 1.0
+     property bool greeterShown: false
++    property bool glassCentersEnabled: false
++    property bool glassActionsAllowed: false
++    property color glassStatusBarColor: Qt.rgba(0.07, 0.08, 0.15, 0.48)
++    property color glassStatusTextColor: "white"
++    property bool glassAppInFront: false
+     property bool hasKeyboard: false
+     property bool supportsMultiColorLed: true
+     property var blurSource : null
+@@ -173,7 +178,8 @@
+ 
+         Rectangle {
+             id: panelAreaBackground
+-            color: callHint.visible ? theme.palette.normal.activity :
++            color: callHint.visible ? theme.palette.normal.activity : root.glassCentersEnabled
++                    ? root.glassStatusBarColor :
+                        Qt.hsla(0, 0, Math.round(theme.palette.normal.background.hslLightness), 1)
+             anchors {
+                 top: parent.top
+@@ -414,12 +420,18 @@
+         PanelMenu {
+             id: __indicators
+             objectName: "indicators"
++            glassEnabled: root.glassCentersEnabled
++            glassActionsAllowed: root.glassActionsAllowed
++            glassStatusBarColor: root.glassStatusBarColor
++            glassStatusTextColor: root.glassStatusTextColor
++            glassAppInFront: root.glassAppInFront
++            alignment: root.glassCentersEnabled ? Qt.AlignLeft : Qt.AlignRight
+ 
+             anchors {
+                 top: parent.top
+                 right: parent.right
+             }
+-            width: root.menuWidth
++            width: root.glassCentersEnabled ? root.width : root.menuWidth
+             minimizedPanelHeight: root.minimizedPanelHeight
+             expandedPanelHeight: root.expandedPanelHeight
+             openedHeight: root.height
+@@ -453,14 +465,17 @@
+ 
+                 property int ownIndex: index
+                 // FIXME: there was logic here to not clash with app menus without clip: true, bring it back with app menus
+-                readonly property bool hidden: !expanded && (!indicatorVisible || hideSessionIndicator || hideKeyboardIndicator)
++                readonly property bool hidden: !expanded && (!indicatorVisible || hideSessionIndicator || hideKeyboardIndicator || (glassStyle && !glassCompactVisible))
+                 // HACK for indicator-session
+                 readonly property bool hideSessionIndicator: identifier == "ayatana-indicator-session" && Math.min(Screen.width, Screen.height) <= units.gu(60)
+                 // HACK for indicator-keyboard
+                 readonly property bool hideKeyboardIndicator: identifier == "ayatana-indicator-keyboard" && !hasKeyboard
+ 
+                 height: parent.height
+-                expanded: indicators.expanded
++                expanded: indicators.expanded && !__indicators.glassActive
++                glassStyle: root.glassCentersEnabled && !root.greeterShown
++                onNotificationTapped: __indicators.openGlassNotifications()
++                // Native services remain the authority for every icon state.
+                 finishedExpanding: Math.floor(height) == Math.floor(__indicators.expandedPanelHeight)
+                 selected: index == indicators.currentMenuIndex
+ 
+@@ -469,21 +484,72 @@
+                 actionsObjectPath: indicatorProperties.actionsObjectPath
+                 menuObjectPath: indicatorProperties.menuObjectPath
+ 
++                // Both panel variants bridge the real indicator state into
++                // an ordered Glass status strip. The native menus and their
++                // service-owned data stay intact.
++                Binding {
++                    target: __indicators
++                    property: "glassNetworkIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /network$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassBluetoothIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /bluetooth$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassLocationIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /location$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassSoundIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /sound$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassMessageIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /messages$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassPowerIcons"
++                    value: indicatorItem.icons || []
++                    when: indicatorItem.glassStyle && /power$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassPowerLabel"
++                    value: String(indicatorItem.rightLabel || indicatorItem.leftLabel || "")
++                    when: indicatorItem.glassStyle && /power$/.test(indicatorItem.identifier)
++                }
++
+                 opacity: hidden ? 0.0 : 1.0
+                 Behavior on opacity { LomiriNumberAnimation { duration: LomiriAnimation.SnapDuration } }
+ 
+-                width: ((expanded || indicatorVisible) && !hideSessionIndicator && !hideKeyboardIndicator) ? implicitWidth : 0
++                width: ((expanded || (indicatorVisible && (!glassStyle || glassCompactVisible))) && !hideSessionIndicator && !hideKeyboardIndicator) ? implicitWidth : 0
+ 
+                 Behavior on width { LomiriNumberAnimation { duration: LomiriAnimation.SnapDuration } }
+             }
+ 
+             pageDelegate: PanelMenuPage {
++                id: indicatorPage
+                 objectName: modelData.identifier + "-page"
++                glassCards: __indicators.glassActive && __indicators.glassNotificationView
++                        && (modelData.identifier === "ayatana-indicator-messages"
++                            || modelData.identifier === "indicator-messages")
+                 submenuIndex: 0
+ 
+                 menuModel: delegate.menuModel
+ 
+                 factory: IndicatorMenuItemFactory {
++                    glassStyle: indicatorPage.glassCards
+                     indicator: {
+                         var context = modelData.identifier;
+                         if (context && context.indexOf("fake-") === 0) {
+--- a/qml/Panel/WithCutouts/LomiriPanel/PanelMenu.qml
++++ b/qml/Panel/WithCutouts/LomiriPanel/PanelMenu.qml
+@@ -21,6 +21,7 @@
+ import "../../../Components"
+ import "../../Indicators"
+ import "../.."
++import "../../Glass" as Glass
+ 
+ Showable {
+     id: root
+@@ -37,6 +38,58 @@
+     property color panelColor: Qt.hsla(0, 0, Math.round(theme.palette.normal.background.hslLightness), 1)
+     property real menuContentX: 0
+ 
++    // The shell owns the greeter and modal policy. Application menus never set
++    // this flag, and a component load error leaves the stock content visible.
++    property bool glassEnabled: false
++    property bool glassActionsAllowed: false
++    property color glassStatusBarColor: Qt.rgba(0.07, 0.08, 0.15, 0.48)
++    property color glassStatusTextColor: "white"
++    property bool glassAppInFront: false
++    readonly property bool glassActive: glassEnabled && glassLoader.status === Loader.Ready
++    readonly property bool glassNotificationView: glassActive && glassLoader.item.notificationView
++    property bool glassGestureChosen: false
++    property var glassNetworkIcons: []
++    property var glassBluetoothIcons: []
++    property var glassLocationIcons: []
++    property var glassSoundIcons: []
++    property var glassMessageIcons: []
++    property var glassPowerIcons: []
++    property string glassPowerLabel: ""
++
++    function glassHardwareIcons() {
++        var groups = [glassNetworkIcons, glassBluetoothIcons,
++                      glassLocationIcons, glassSoundIcons, glassMessageIcons];
++        var result = [];
++        for (var group = 0; group < groups.length; ++group) {
++            var candidates = groups[group] || [];
++            for (var i = 0; i < candidates.length; ++i)
++                result.push(candidates[i]);
++        }
++        return result;
++    }
++
++    onGlassEnabledChanged: {
++        // Discard an in-progress session interaction before returning to the
++        // stock greeter/desktop panel. Its ordinary access rules still apply.
++        if (!glassEnabled && root.unitProgress > 0)
++            root.hideNow();
++    }
++
++    function chooseGlassView(horizontalPosition) {
++        if (!glassActive || glassGestureChosen)
++            return;
++        glassGestureChosen = true;
++        glassLoader.item.beginGesture(Math.max(0, Math.min(1, horizontalPosition / width)));
++    }
++
++    function openGlassNotifications() {
++        if (!glassActive)
++            return;
++        glassGestureChosen = true;
++        glassLoader.item.selectView("notifications");
++        root.show();
++    }
++
+     property alias alignment: bar.alignment
+     property alias hideRow: bar.hideRow
+     property alias rowItemDelegate: bar.rowItemDelegate
+@@ -51,7 +104,7 @@
+     readonly property bool fullyOpened: unitProgress >= 1
+     readonly property bool partiallyOpened: unitProgress > 0 && unitProgress < 1.0
+     readonly property bool fullyClosed: unitProgress == 0
+-    readonly property alias expanded: bar.expanded
++    readonly property bool expanded: glassActive ? unitProgress > 0 : bar.expanded
+     readonly property int barWidth: bar.width
+     readonly property alias currentMenuIndex: bar.currentItemIndex
+ 
+@@ -100,13 +153,16 @@
+         y: 0
+         width: root.blurRect.width
+         height: root.blurRect.height
+-        visible: root.height > root.minimizedPanelHeight
++        // Avoid an extra live blur pass in the first phone trial. Rounded
++        // translucent surfaces are rendered by GlassCenter without a shader.
++        visible: root.height > root.minimizedPanelHeight && !root.glassActive
+         sourceItem: root.blurSource
+         blurRect: root.blurRect
+         occluding: false
+     }
+ 
+     Item {
++        id: contentArea
+         anchors {
+             left: parent.left
+             right: parent.right
+@@ -120,32 +176,59 @@
+                            root.panelColor.g,
+                            root.panelColor.b,
+                            1.0)
+-            opacity: 0.85
++            opacity: root.glassActive ? 0 : 0.85
+             anchors.fill: parent
+         }
+ 
+         // eater
+         MouseArea {
+-            anchors.fill: content
++            anchors.fill: parent
+             hoverEnabled: true
+             acceptedButtons: Qt.AllButtons
+             onWheel: wheel.accepted = true;
+             enabled: root.state != "initial"
+-            visible: content.visible
++            visible: root.unitProgress > 0
++        }
++
++        Loader {
++            id: glassLoader
++            anchors.fill: parent
++            anchors.bottomMargin: handle.height
++            active: root.glassEnabled
++            visible: root.glassActive && root.unitProgress > 0
++            source: "../../Glass/GlassPane.qml"
++            onLoaded: {
++                item.indicatorModel = Qt.binding(function() { return root.model; });
++                item.applicationBehind = Qt.binding(function() { return root.glassAppInFront; });
++                item.panelVisible = Qt.binding(function() { return root.unitProgress > 0; });
++                item.actionsAllowed = Qt.binding(function() {
++                    return root.glassActionsAllowed && root.available && root.enabled && root.fullyOpened;
++                });
++            }
++        }
++
++        Connections {
++            target: glassLoader.item
++            function onMenuIndexRequested(index) { bar.setCurrentItemIndex(index); }
++            function onCloseRequested() { root.hide(); }
+         }
+ 
+         MenuContent {
+             id: content
+             objectName: "menuContent"
++            // Only the visual parent changes. The native model, factories,
++            // notification actions and PageStack remain the same objects.
++            parent: root.glassActive ? glassLoader.item.nativeContentHost : contentArea
+ 
+             anchors {
+                 left: parent.left
+                 right: parent.right
+                 top: parent.top
+             }
+-            height: openedHeight - bar.height - handle.height
++            height: root.glassActive ? parent.height : openedHeight - bar.height - handle.height
+             model: root.model
+-            visible: root.unitProgress > 0
++            visible: root.unitProgress > 0 && (!root.glassActive || glassLoader.item.nativeVisible)
++            enabled: visible && (!root.glassActive || root.glassActionsAllowed)
+             currentMenuIndex: bar.currentItemIndex
+         }
+     }
+@@ -165,15 +248,15 @@
+ 
+     Rectangle {
+         anchors.fill: bar
+-        color: panelColor
++        color: root.glassActive ? root.glassStatusBarColor : panelColor
+         visible: !root.fullyClosed
+     }
+ 
+     Keys.onPressed: {
+-        if (event.key === Qt.Key_Left) {
++        if (event.key === Qt.Key_Left && !root.glassActive) {
+             bar.selectPreviousItem();
+             event.accepted = true;
+-        } else if (event.key === Qt.Key_Right) {
++        } else if (event.key === Qt.Key_Right && !root.glassActive) {
+             bar.selectNextItem();
+             event.accepted = true;
+         } else if (event.key === Qt.Key_Escape) {
+@@ -190,18 +273,141 @@
+             left: parent.left
+             right: parent.right
+         }
++        opacity: root.glassActive ? 0 : 1
+         expanded: false
+         enableLateralChanges: false
+         finishedExpanding: !indicatorsBarHeightAnimation.running
+         lateralPosition: -1
+         unitProgress: root.unitProgress
+ 
+-        height: expanded ? expandedPanelHeight : minimizedPanelHeight
++        height: root.glassActive ? minimizedPanelHeight : expanded ? expandedPanelHeight : minimizedPanelHeight
+         Behavior on height {
+             NumberAnimation {
+                 id: indicatorsBarHeightAnimation
+                 duration: LomiriAnimation.SnapDuration
+                 easing: LomiriAnimation.StandardEasing
++            }
++        }
++    }
++
++    // The camera and status strip are part of the collapsed shell, not the
++    // full-screen Glass control surface. Read time from the system clock.
++    Text {
++        id: glassClock
++        objectName: "glassStatusClock"
++        property date currentTime: new Date()
++        anchors.left: parent.left
++        anchors.leftMargin: units.gu(3.0)
++        anchors.top: parent.top
++        height: root.minimizedPanelHeight
++        verticalAlignment: Text.AlignVCenter
++        font.family: "Ubuntu"
++        font.weight: Font.DemiBold
++        font.pixelSize: units.gu(1.9)
++        color: root.glassStatusTextColor
++        text: Qt.formatTime(currentTime, "hh:mm")
++        visible: root.glassActive
++        z: 3
++        Timer {
++            interval: 15000
++            repeat: true
++            running: root.glassActive
++            onTriggered: glassClock.currentTime = new Date()
++        }
++    }
++
++    // Reserve the camera clearance without painting a false black hole.
++    Item {
++        id: glassCameraClearance
++        objectName: "glassCameraClearance"
++        anchors.top: parent.top
++        anchors.right: parent.right
++        width: visible ? root.width * 0.27 : 0
++        height: root.minimizedPanelHeight
++        visible: root.glassActive && root.width < root.openedHeight
++    }
++
++    Row {
++        id: glassBattery
++        objectName: "glassBatteryNearCamera"
++        anchors.top: parent.top
++        anchors.right: glassCameraClearance.left
++        anchors.rightMargin: units.gu(0.65)
++        height: root.minimizedPanelHeight
++        spacing: units.gu(0.3)
++        visible: root.glassActive
++        z: 3
++
++        Repeater {
++            model: root.glassPowerIcons && root.glassPowerIcons.length ? [root.glassPowerIcons[0]] : []
++            Item {
++                width: units.gu(2.0)
++                height: glassBattery.height
++                Glass.GlassStatusIcon {
++                    id: glassSymbol
++                    anchors.centerIn: parent
++                    width: units.gu(1.95)
++                    height: width
++                    iconSource: String(modelData)
++                    tint: root.glassStatusTextColor
++                    visible: supported
++                }
++                Icon {
++                    anchors.fill: glassSymbol
++                    source: modelData
++                    color: root.glassStatusTextColor
++                    visible: !glassSymbol.supported
++                }
++            }
++        }
++        Text {
++            height: glassBattery.height
++            verticalAlignment: Text.AlignVCenter
++            text: root.glassPowerLabel
++            color: root.glassStatusTextColor
++            font.family: "Ubuntu"
++            font.pixelSize: units.gu(1.65)
++            font.weight: Font.DemiBold
++        }
++    }
++
++    Item {
++        id: glassStatusMiddle
++        objectName: "glassOrderedHardwareIndicators"
++        anchors.left: glassClock.right
++        anchors.leftMargin: units.gu(0.8)
++        anchors.right: glassBattery.left
++        anchors.rightMargin: units.gu(0.8)
++        anchors.top: parent.top
++        height: root.minimizedPanelHeight
++        clip: true
++        visible: root.glassActive
++        z: 3
++
++        Row {
++            height: parent.height
++            spacing: units.gu(0.5)
++            Repeater {
++                model: root.glassHardwareIcons()
++                Item {
++                    width: units.gu(2.1)
++                    height: glassStatusMiddle.height
++                    Glass.GlassStatusIcon {
++                        id: glassSymbol
++                        anchors.centerIn: parent
++                        width: units.gu(2.0)
++                        height: width
++                        iconSource: String(modelData)
++                        tint: root.glassStatusTextColor
++                        visible: supported
++                    }
++                    Icon {
++                        anchors.fill: glassSymbol
++                        source: modelData
++                        color: root.glassStatusTextColor
++                        visible: !glassSymbol.supported
++                    }
++                }
+             }
+         }
+     }
+@@ -242,7 +448,12 @@
+         enabled: __showDragHandle.enabled && showOnClick
+         onClicked: {
+             var barPosition = mapToItem(bar, mouseX, mouseY);
+-            bar.selectItemAt(barPosition.x)
++            if (root.glassActive) {
++                root.glassGestureChosen = false;
++                root.chooseGlassView(barPosition.x);
++            } else {
++                bar.selectItemAt(barPosition.x);
++            }
+             root.show()
+         }
+     }
+@@ -263,6 +474,7 @@
+ 
+         onPressedChanged: {
+             if (pressed) {
++                root.glassGestureChosen = false;
+                 touchPressTime = new Date().getTime();
+             } else {
+                 var touchReleaseTime = new Date().getTime();
+@@ -372,17 +584,22 @@
+                 script: {
+                     yVelocityCalculator.reset();
+                     // initial item selection
+-                    if (!d.hasCommitted) bar.selectItemAt(d.rowMappedLateralPosition);
++                    if (!d.hasCommitted) {
++                        if (root.glassActive)
++                            root.chooseGlassView(d.rowMappedLateralPosition);
++                        else
++                            bar.selectItemAt(d.rowMappedLateralPosition);
++                    }
+                     d.hasCommitted = false;
+                 }
+             }
+             PropertyChanges {
+                 target: bar
+-                expanded: true
++                expanded: !root.glassActive
+                 // changes to lateral touch position effect which indicator is selected
+                 lateralPosition: d.rowMappedLateralPosition
+                 // vertical velocity determines if changes in lateral position has an effect
+-                enableLateralChanges: d.activeDragHandle &&
++                enableLateralChanges: !root.glassActive && d.activeDragHandle &&
+                                       !yVelocityCalculator.velocityAboveThreshold
+             }
+             // left scroll bar handling
+@@ -412,13 +629,13 @@
+                     d.lastHideTouchX = hideDragHandle.touchPosition.x;
+                 }
+             }
+-            PropertyChanges { target: bar; expanded: true }
++            PropertyChanges { target: bar; expanded: !root.glassActive }
+         },
+         State {
+             name: "commit"
+             extend: "locked"
+             PropertyChanges { target: root; focus: true }
+-            PropertyChanges { target: bar; interactive: true }
++            PropertyChanges { target: bar; interactive: !root.glassActive }
+             PropertyChanges {
+                 target: d;
+                 hasCommitted: true
+--- a/qml/Panel/WithoutCutouts/LomiriPanel/Panel.qml
++++ b/qml/Panel/WithoutCutouts/LomiriPanel/Panel.qml
+@@ -50,6 +50,11 @@
+     property bool fullscreenMode: false
+     property real panelAreaShowProgress: 1.0
+     property bool greeterShown: false
++    property bool glassCentersEnabled: false
++    property bool glassActionsAllowed: false
++    property color glassStatusBarColor: Qt.rgba(0.07, 0.08, 0.15, 0.48)
++    property color glassStatusTextColor: "white"
++    property bool glassAppInFront: false
+     property bool hasKeyboard: false
+     property bool supportsMultiColorLed: true
+     property var blurSource : null
+@@ -172,7 +177,8 @@
+ 
+         Rectangle {
+             id: panelAreaBackground
+-            color: callHint.visible ? theme.palette.normal.activity :
++            color: callHint.visible ? theme.palette.normal.activity : root.glassCentersEnabled
++                    ? root.glassStatusBarColor :
+                        Qt.hsla(0, 0, Math.round(theme.palette.normal.background.hslLightness), 1)
+             anchors {
+                 top: parent.top
+@@ -412,12 +418,20 @@
+         PanelMenu {
+             id: __indicators
+             objectName: "indicators"
++            glassEnabled: root.glassCentersEnabled
++            glassActionsAllowed: root.glassActionsAllowed
++            glassStatusBarColor: root.glassStatusBarColor
++            glassStatusTextColor: root.glassStatusTextColor
++            glassAppInFront: root.glassAppInFront
++            // Glass uses the left status region. The camera pill takes the
++            // far-right part of the S10+ portrait header.
++            alignment: root.glassCentersEnabled ? Qt.AlignLeft : Qt.AlignRight
+ 
+             anchors {
+                 top: parent.top
+                 right: parent.right
+             }
+-            width: root.menuWidth
++            width: root.glassCentersEnabled ? root.width : root.menuWidth
+             minimizedPanelHeight: root.minimizedPanelHeight
+             expandedPanelHeight: root.expandedPanelHeight
+             openedHeight: root.height
+@@ -449,14 +463,17 @@
+ 
+                 property int ownIndex: index
+                 readonly property bool overflow: parent.width - (x - __indicators.rowContentX) > __indicators.overFlowWidth
+-                readonly property bool hidden: !expanded && (overflow || !indicatorVisible || hideSessionIndicator || hideKeyboardIndicator)
++                readonly property bool hidden: !expanded && (overflow || !indicatorVisible || hideSessionIndicator || hideKeyboardIndicator || (glassStyle && !glassCompactVisible))
+                 // HACK for indicator-session
+                 readonly property bool hideSessionIndicator: identifier == "ayatana-indicator-session" && Math.min(Screen.width, Screen.height) <= units.gu(60)
+                 // HACK for indicator-keyboard
+                 readonly property bool hideKeyboardIndicator: identifier == "ayatana-indicator-keyboard" && !hasKeyboard
+ 
+                 height: parent.height
+-                expanded: indicators.expanded
++                expanded: indicators.expanded && !__indicators.glassActive
++                glassStyle: root.glassCentersEnabled && !root.greeterShown
++                onNotificationTapped: __indicators.openGlassNotifications()
++                // Native services remain the authority for every icon state.
+                 selected: ListView.isCurrentItem
+ 
+                 identifier: model.identifier
+@@ -464,21 +481,73 @@
+                 actionsObjectPath: indicatorProperties.actionsObjectPath
+                 menuObjectPath: indicatorProperties.menuObjectPath
+ 
++                // Give the compact Glass strip live values from the same
++                // native indicator delegates that own the stock menus. The
++                // strip can now order icons without changing model order or
++                // synthesizing disconnected hardware state.
++                Binding {
++                    target: __indicators
++                    property: "glassNetworkIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /network$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassBluetoothIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /bluetooth$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassLocationIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /location$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassSoundIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /sound$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassMessageIcons"
++                    value: indicatorItem.glassVisibleIcons
++                    when: indicatorItem.glassStyle && /messages$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassPowerIcons"
++                    value: indicatorItem.icons || []
++                    when: indicatorItem.glassStyle && /power$/.test(indicatorItem.identifier)
++                }
++                Binding {
++                    target: __indicators
++                    property: "glassPowerLabel"
++                    value: String(indicatorItem.rightLabel || indicatorItem.leftLabel || "")
++                    when: indicatorItem.glassStyle && /power$/.test(indicatorItem.identifier)
++                }
++
+                 opacity: hidden ? 0.0 : 1.0
+                 Behavior on opacity { LomiriNumberAnimation { duration: LomiriAnimation.SnapDuration } }
+ 
+-                width: ((expanded || indicatorVisible) && !hideSessionIndicator && !hideKeyboardIndicator) ? implicitWidth : 0
++                width: ((expanded || (indicatorVisible && (!glassStyle || glassCompactVisible))) && !hideSessionIndicator && !hideKeyboardIndicator) ? implicitWidth : 0
+ 
+                 Behavior on width { LomiriNumberAnimation { duration: LomiriAnimation.SnapDuration } }
+             }
+ 
+             pageDelegate: PanelMenuPage {
++                id: indicatorPage
+                 objectName: modelData.identifier + "-page"
++                glassCards: __indicators.glassActive && __indicators.glassNotificationView
++                        && (modelData.identifier === "ayatana-indicator-messages"
++                            || modelData.identifier === "indicator-messages")
+                 submenuIndex: 0
+ 
+                 menuModel: delegate.menuModel
+ 
+                 factory: IndicatorMenuItemFactory {
++                    glassStyle: indicatorPage.glassCards
+                     indicator: {
+                         var context = modelData.identifier;
+                         if (context && context.indexOf("fake-") === 0) {
+--- a/qml/Panel/WithoutCutouts/LomiriPanel/PanelMenu.qml
++++ b/qml/Panel/WithoutCutouts/LomiriPanel/PanelMenu.qml
+@@ -21,6 +21,7 @@
+ import "../../../Components"
+ import "../../Indicators"
+ import "../.."
++import "../../Glass" as Glass
+ 
+ Showable {
+     id: root
+@@ -37,6 +38,60 @@
+     property color panelColor: Qt.hsla(0, 0, Math.round(theme.palette.normal.background.hslLightness), 1)
+     property real menuContentX: 0
+ 
++    // The shell owns the greeter and modal policy. Application menus never set
++    // this flag, and a component load error leaves the stock content visible.
++    property bool glassEnabled: false
++    property bool glassActionsAllowed: false
++    property color glassStatusBarColor: Qt.rgba(0.07, 0.08, 0.15, 0.48)
++    property color glassStatusTextColor: "white"
++    property bool glassAppInFront: false
++    readonly property bool glassActive: glassEnabled && glassLoader.status === Loader.Ready
++    readonly property bool glassNotificationView: glassActive && glassLoader.item.notificationView
++    property bool glassGestureChosen: false
++    property var glassNetworkIcons: []
++    property var glassBluetoothIcons: []
++    property var glassLocationIcons: []
++    property var glassSoundIcons: []
++    property var glassMessageIcons: []
++    property var glassPowerIcons: []
++    property string glassPowerLabel: ""
++
++    function glassHardwareIcons() {
++        // The visual order is independent of the native indicator model.
++        // Every symbol still originates from its native service delegate.
++        var groups = [glassNetworkIcons, glassBluetoothIcons,
++                      glassLocationIcons, glassSoundIcons, glassMessageIcons];
++        var result = [];
++        for (var group = 0; group < groups.length; ++group) {
++            var candidates = groups[group] || [];
++            for (var i = 0; i < candidates.length; ++i)
++                result.push(candidates[i]);
++        }
++        return result;
++    }
++
++    onGlassEnabledChanged: {
++        // Discard an in-progress session interaction before returning to the
++        // stock greeter/desktop panel. Its ordinary access rules still apply.
++        if (!glassEnabled && root.unitProgress > 0)
++            root.hideNow();
++    }
++
++    function chooseGlassView(horizontalPosition) {
++        if (!glassActive || glassGestureChosen)
++            return;
++        glassGestureChosen = true;
++        glassLoader.item.beginGesture(Math.max(0, Math.min(1, horizontalPosition / width)));
++    }
++
++    function openGlassNotifications() {
++        if (!glassActive)
++            return;
++        glassGestureChosen = true;
++        glassLoader.item.selectView("notifications");
++        root.show();
++    }
++
+     property alias alignment: bar.alignment
+     property alias hideRow: bar.hideRow
+     property alias rowItemDelegate: bar.rowItemDelegate
+@@ -49,7 +104,7 @@
+     readonly property bool fullyOpened: unitProgress >= 1
+     readonly property bool partiallyOpened: unitProgress > 0 && unitProgress < 1.0
+     readonly property bool fullyClosed: unitProgress == 0
+-    readonly property alias expanded: bar.expanded
++    readonly property bool expanded: glassActive ? unitProgress > 0 : bar.expanded
+     readonly property int barWidth: bar.width
+     readonly property alias currentMenuIndex: bar.currentItemIndex
+ 
+@@ -98,13 +153,16 @@
+         y: 0
+         width: root.blurRect.width
+         height: root.blurRect.height
+-        visible: root.height > root.minimizedPanelHeight
++        // Avoid an extra live blur pass in the first phone trial. Rounded
++        // translucent surfaces are rendered by GlassCenter without a shader.
++        visible: root.height > root.minimizedPanelHeight && !root.glassActive
+         sourceItem: root.blurSource
+         blurRect: root.blurRect
+         occluding: false
+     }
+ 
+     Item {
++        id: contentArea
+         anchors {
+             left: parent.left
+             right: parent.right
+@@ -118,32 +176,59 @@
+                            root.panelColor.g,
+                            root.panelColor.b,
+                            1.0)
+-            opacity: 0.85
++            opacity: root.glassActive ? 0 : 0.85
+             anchors.fill: parent
+         }
+ 
+         // eater
+         MouseArea {
+-            anchors.fill: content
++            anchors.fill: parent
+             hoverEnabled: true
+             acceptedButtons: Qt.AllButtons
+             onWheel: wheel.accepted = true;
+             enabled: root.state != "initial"
+-            visible: content.visible
++            visible: root.unitProgress > 0
++        }
++
++        Loader {
++            id: glassLoader
++            anchors.fill: parent
++            anchors.bottomMargin: handle.height
++            active: root.glassEnabled
++            visible: root.glassActive && root.unitProgress > 0
++            source: "../../Glass/GlassPane.qml"
++            onLoaded: {
++                item.indicatorModel = Qt.binding(function() { return root.model; });
++                item.applicationBehind = Qt.binding(function() { return root.glassAppInFront; });
++                item.panelVisible = Qt.binding(function() { return root.unitProgress > 0; });
++                item.actionsAllowed = Qt.binding(function() {
++                    return root.glassActionsAllowed && root.available && root.enabled && root.fullyOpened;
++                });
++            }
++        }
++
++        Connections {
++            target: glassLoader.item
++            function onMenuIndexRequested(index) { bar.setCurrentItemIndex(index); }
++            function onCloseRequested() { root.hide(); }
+         }
+ 
+         MenuContent {
+             id: content
+             objectName: "menuContent"
++            // Only the visual parent changes. The native model, factories,
++            // notification actions and PageStack remain the same objects.
++            parent: root.glassActive ? glassLoader.item.nativeContentHost : contentArea
+ 
+             anchors {
+                 left: parent.left
+                 right: parent.right
+                 top: parent.top
+             }
+-            height: openedHeight - bar.height - handle.height
++            height: root.glassActive ? parent.height : openedHeight - bar.height - handle.height
+             model: root.model
+-            visible: root.unitProgress > 0
++            visible: root.unitProgress > 0 && (!root.glassActive || glassLoader.item.nativeVisible)
++            enabled: visible && (!root.glassActive || root.glassActionsAllowed)
+             currentMenuIndex: bar.currentItemIndex
+         }
+     }
+@@ -163,15 +248,15 @@
+ 
+     Rectangle {
+         anchors.fill: bar
+-        color: panelColor
++        color: root.glassActive ? root.glassStatusBarColor : panelColor
+         visible: !root.fullyClosed
+     }
+ 
+     Keys.onPressed: {
+-        if (event.key === Qt.Key_Left) {
++        if (event.key === Qt.Key_Left && !root.glassActive) {
+             bar.selectPreviousItem();
+             event.accepted = true;
+-        } else if (event.key === Qt.Key_Right) {
++        } else if (event.key === Qt.Key_Right && !root.glassActive) {
+             bar.selectNextItem();
+             event.accepted = true;
+         } else if (event.key === Qt.Key_Escape) {
+@@ -188,12 +273,15 @@
+             left: parent.left
+             right: parent.right
+         }
++        // The original model continues to operate the menus. Its visual
++        // ordering is replaced only in the collapsed Glass strip below.
++        opacity: root.glassActive ? 0 : 1
+         expanded: false
+         enableLateralChanges: false
+         lateralPosition: -1
+         unitProgress: root.unitProgress
+ 
+-        height: expanded ? expandedPanelHeight : minimizedPanelHeight
++        height: root.glassActive ? minimizedPanelHeight : expanded ? expandedPanelHeight : minimizedPanelHeight
+         Behavior on height { NumberAnimation { duration: LomiriAnimation.SnapDuration; easing: LomiriAnimation.StandardEasing } }
+     }
+ 
+@@ -233,8 +321,135 @@
+         enabled: __showDragHandle.enabled && showOnClick
+         onClicked: {
+             var barPosition = mapToItem(bar, mouseX, mouseY);
+-            bar.selectItemAt(barPosition.x)
++            if (root.glassActive) {
++                root.glassGestureChosen = false;
++                root.chooseGlassView(barPosition.x);
++            } else {
++                bar.selectItemAt(barPosition.x);
++            }
+             root.show()
++        }
++    }
++
++    Text {
++        id: glassClock
++        objectName: "glassStatusClock"
++        property date currentTime: new Date()
++        anchors.left: parent.left
++        // Leave room for the curved corner and the damaged left glass.
++        anchors.leftMargin: units.gu(3.0)
++        anchors.top: parent.top
++        height: root.minimizedPanelHeight
++        verticalAlignment: Text.AlignVCenter
++        font.family: "Ubuntu"
++        font.weight: Font.DemiBold
++        font.pixelSize: units.gu(1.9)
++        color: root.glassStatusTextColor
++        text: Qt.formatTime(currentTime, "hh:mm")
++        visible: root.glassActive
++        z: 3
++        Timer {
++            interval: 15000
++            repeat: true
++            running: root.glassActive
++            onTriggered: glassClock.currentTime = new Date()
++        }
++    }
++
++    Item {
++        id: glassCameraClearance
++        objectName: "glassCameraClearance"
++        anchors.top: parent.top
++        anchors.right: parent.right
++        // The real camera hole is physical. Do not draw a fake black pill
++        // on the wallpaper; simply reserve its uncalibrated right-side area.
++        width: visible ? root.width * 0.27 : 0
++        height: root.minimizedPanelHeight
++        visible: root.glassActive && root.width < root.openedHeight
++    }
++
++    Row {
++        id: glassBattery
++        objectName: "glassBatteryNearCamera"
++        anchors.top: parent.top
++        anchors.right: glassCameraClearance.left
++        anchors.rightMargin: units.gu(0.65)
++        height: root.minimizedPanelHeight
++        spacing: units.gu(0.3)
++        visible: root.glassActive
++        z: 3
++
++        Repeater {
++            model: root.glassPowerIcons && root.glassPowerIcons.length ? [root.glassPowerIcons[0]] : []
++            Item {
++                width: units.gu(2.0)
++                height: glassBattery.height
++                Glass.GlassStatusIcon {
++                    id: glassSymbol
++                    anchors.centerIn: parent
++                    width: units.gu(1.95)
++                    height: width
++                    iconSource: String(modelData)
++                    tint: root.glassStatusTextColor
++                    visible: supported
++                }
++                Icon {
++                    anchors.fill: glassSymbol
++                    source: modelData
++                    color: root.glassStatusTextColor
++                    visible: !glassSymbol.supported
++                }
++            }
++        }
++        Text {
++            height: glassBattery.height
++            verticalAlignment: Text.AlignVCenter
++            text: root.glassPowerLabel
++            color: root.glassStatusTextColor
++            font.family: "Ubuntu"
++            font.pixelSize: units.gu(1.65)
++            font.weight: Font.DemiBold
++        }
++    }
++
++    Item {
++        id: glassStatusMiddle
++        objectName: "glassOrderedHardwareIndicators"
++        anchors.left: glassClock.right
++        anchors.leftMargin: units.gu(0.8)
++        anchors.right: glassBattery.left
++        anchors.rightMargin: units.gu(0.8)
++        anchors.top: parent.top
++        height: root.minimizedPanelHeight
++        clip: true
++        visible: root.glassActive
++        z: 3
++
++        Row {
++            height: parent.height
++            spacing: units.gu(0.5)
++            Repeater {
++                model: root.glassHardwareIcons()
++                Item {
++                    width: units.gu(2.1)
++                    height: glassStatusMiddle.height
++                    Glass.GlassStatusIcon {
++                        id: glassSymbol
++                        anchors.centerIn: parent
++                        width: units.gu(2.0)
++                        height: width
++                        iconSource: String(modelData)
++                        tint: root.glassStatusTextColor
++                        visible: supported
++                    }
++                    Icon {
++                        anchors.fill: glassSymbol
++                        source: modelData
++                        color: root.glassStatusTextColor
++                        visible: !glassSymbol.supported
++                    }
++                }
++            }
+         }
+     }
+ 
+@@ -254,6 +469,7 @@
+ 
+         onPressedChanged: {
+             if (pressed) {
++                root.glassGestureChosen = false;
+                 touchPressTime = new Date().getTime();
+             } else {
+                 var touchReleaseTime = new Date().getTime();
+@@ -363,17 +579,22 @@
+                 script: {
+                     yVelocityCalculator.reset();
+                     // initial item selection
+-                    if (!d.hasCommitted) bar.selectItemAt(d.rowMappedLateralPosition);
++                    if (!d.hasCommitted) {
++                        if (root.glassActive)
++                            root.chooseGlassView(d.rowMappedLateralPosition);
++                        else
++                            bar.selectItemAt(d.rowMappedLateralPosition);
++                    }
+                     d.hasCommitted = false;
+                 }
+             }
+             PropertyChanges {
+                 target: bar
+-                expanded: true
++                expanded: !root.glassActive
+                 // changes to lateral touch position effect which indicator is selected
+                 lateralPosition: d.rowMappedLateralPosition
+                 // vertical velocity determines if changes in lateral position has an effect
+-                enableLateralChanges: d.activeDragHandle &&
++                enableLateralChanges: !root.glassActive && d.activeDragHandle &&
+                                       !yVelocityCalculator.velocityAboveThreshold
+             }
+             // left scroll bar handling
+@@ -403,13 +624,13 @@
+                     d.lastHideTouchX = hideDragHandle.touchPosition.x;
+                 }
+             }
+-            PropertyChanges { target: bar; expanded: true }
++            PropertyChanges { target: bar; expanded: !root.glassActive }
+         },
+         State {
+             name: "commit"
+             extend: "locked"
+             PropertyChanges { target: root; focus: true }
+-            PropertyChanges { target: bar; interactive: true }
++            PropertyChanges { target: bar; interactive: !root.glassActive }
+             PropertyChanges {
+                 target: d;
+                 hasCommitted: true
+--- a/qml/Shell.qml
++++ b/qml/Shell.qml
+@@ -34,6 +34,7 @@
+ import "Greeter"
+ import "Launcher"
+ import "Panel"
++import "Panel/Glass"
+ import "Components"
+ import "Notifications"
+ import "Stage"
+@@ -54,6 +55,39 @@
+         id: deviceConfig
+     }
+ 
++    // Opt-in source overlay: returning this to false restores the stock panel.
++    // The shipped phone image is not changed by preparing this overlay.
++    property bool glassCentersEnabled: true
++    // Keep a separate Home presentation state: Lomiri may retain running
++    // applications while the user has returned to Home. atDesktop alone is
++    // therefore insufficient after replacing the Drawer/launcher gesture.
++    property bool uosHomeRequested: false
++    readonly property bool uosUnlockedPhone: glassCentersEnabled
++            && usageScenario === "phone" && screenIndex === 0
++            && mode !== "greeter" && mode !== "full-greeter"
++            && greeter && !greeter.active && !waitingOnGreeter
++    // QtMir exposes optional launch/header colors through ApplicationInfo,
++    // not the current rendered pixels of a third-party application. Only
++    // accept a declared, opaque color; unspecified colors use a theme-aware
++    // fallback (including the observed light Morph browser chrome).
++    readonly property bool glassAppInFront: mainApp !== null
++            && !atDesktop && !uosHomeRequested
++    readonly property color glassAppHeaderColor: {
++        if (!glassAppInFront)
++            return Qt.rgba(0.07, 0.08, 0.15, 0.48);
++        var header = mainApp.splashColorHeader;
++        if (header && header.a >= 0.95)
++            return header;
++        var splash = mainApp.splashColor;
++        if (splash && splash.a >= 0.95)
++            return splash;
++        var identifier = String(mainApp.appId || "").toLowerCase();
++        if (/morph|browser/.test(identifier))
++            return "#f8f9fc";
++        return lightMode ? "#f8f9fc" : "#171925";
++    }
++    readonly property color glassAppHeaderInk: glassAppInFront
++            && glassAppHeaderColor.hslLightness >= 0.62 ? "#1d2432" : "#ffffff"
+     readonly property bool lightMode: settings.lightMode
+     theme.name: lightMode ? "Lomiri.Components.Themes.Ambiance" :
+                             "Lomiri.Components.Themes.SuruDark"
+@@ -129,11 +163,13 @@
+     }
+ 
+     onMainAppChanged: {
++        if (mainApp) uosHomeRequested = false;
+         _onMainAppChanged((mainApp ? mainApp.appId : ""));
+     }
+     Connections {
+         target: ApplicationManager
+         function onFocusRequested(appId) {
++            if (appId !== "") shell.uosHomeRequested = false;
+             if (shell.mainApp && shell.mainApp.appId === appId) {
+                 _onMainAppChanged(appId);
+             }
+@@ -314,9 +350,7 @@
+         onHomeKeyActivated: {
+             // Ignore when greeter is active, to avoid pocket presses
+             if (!greeter.active) {
+-                launcher.toggleDrawer(/* focusInputField */  false,
+-                                      /* onlyOpen */         false,
+-                                      /* alsoToggleLauncher */ true);
++                showHome();
+             }
+         }
+         onTouchBegun: { cursor.opacity = 0; }
+@@ -333,7 +367,8 @@
+         id: availableDesktopAreaItem
+         anchors.fill: parent
+         anchors.topMargin: panel.fullscreenMode ? 0 : panel.minimizedPanelHeight
+-        anchors.leftMargin: (launcher.lockedByUser && launcher.lockAllowed) ? launcher.panelWidth : 0
++        anchors.leftMargin: !shell.uosUnlockedPhone && launcher.lockedByUser
++                && launcher.lockAllowed ? launcher.panelWidth : 0
+     }
+ 
+     GSettings {
+@@ -367,7 +402,7 @@
+             inputMethodRect: inputMethod.visibleRect
+             rightEdgePushProgress: rightEdgeBarrier.progress
+             availableDesktopArea: availableDesktopAreaItem
+-            launcherLeftMargin: launcher.visibleWidth
++            launcherLeftMargin: shell.uosUnlockedPhone ? 0 : launcher.visibleWidth
+ 
+             property string usageScenario: shell.usageScenario === "phone" || greeter.hasLockedApp
+                                                        ? "phone"
+@@ -401,6 +436,31 @@
+             }
+         }
+ 
++        // uOS27 Home shows every installed app (native AppDrawerModel) over
++        // Stage's wallpaper. A return-home request also displays it over a
++        // still-running app; the same user wallpaper hides private app pixels.
++        GlassHome {
++            id: glassHome
++            anchors.fill: parent
++            language: i18n.language
++            anchors.leftMargin: shell.uosUnlockedPhone ? 0
++                    : (launcher.lockedVisible ? launcher.panelWidth : 0)
++            topInset: panel.panelHeight
++            wallpaper: wallpaperResolver.resolvedImage
++            wallpaperCoverVisible: shell.uosHomeRequested && !shell.atDesktop
++            visible: shell.glassCentersEnabled && shell.usageScenario === "phone"
++                    && shell.screenIndex === 0
++                    && (shell.atDesktop || shell.uosHomeRequested)
++                    && shell.mode !== "greeter" && shell.mode !== "full-greeter"
++                    && greeter && !greeter.shown && !stage.spreadShown
++            enabled: visible && !panel.indicators.shown && !wizard.active
++            onApplicationSelected: {
++                greeter.notifyUserRequestedApp();
++                shell.uosHomeRequested = false;
++                shell.activateApplication(appId);
++            }
++        }
++
+         TouchGestureArea {
+             anchors.fill: stage
+ 
+@@ -422,7 +482,12 @@
+                 if (status !== TouchGestureArea.Recognized) {
+                     if (status === TouchGestureArea.WaitingForTouch) {
+                         if (wasPressed && !dragging) {
+-                            launcher.toggleDrawer(true);
++                            if (shell.uosUnlockedPhone) {
++                                showHome();
++                                glassHome.openSearch();
++                            } else {
++                                launcher.toggleDrawer(true);
++                            }
+                         }
+                     }
+                     wasPressed = false;
+@@ -437,7 +502,8 @@
+         anchors {
+             fill: parent
+             topMargin: panel.panelHeight
+-            leftMargin: (launcher.lockedByUser && launcher.lockAllowed) ? launcher.panelWidth : 0
++            leftMargin: !shell.uosUnlockedPhone && launcher.lockedByUser
++                    && launcher.lockAllowed ? launcher.panelWidth : 0
+         }
+         z: notifications.useModal || panel.indicators.shown || wizard.active || tutorial.running || launcher.drawerShown ? overlay.z + 1 : overlay.z - 1
+     }
+@@ -465,7 +531,11 @@
+ 
+                 // Show drawer in case showHome() requests it
+                 if (greeterLoader.toggleDrawerAfterUnlock) {
+-                    launcher.toggleDrawer(false);
++                    if (shell.uosUnlockedPhone) {
++                        shell.uosHomeRequested = true;
++                    } else {
++                        launcher.toggleDrawer(false);
++                    }
+                     greeterLoader.toggleDrawerAfterUnlock = false;
+                 } else {
+                     launcher.hide();
+@@ -579,6 +649,12 @@
+ 
+         if (shell.mode === "greeter") {
+             SessionBroadcast.requestHomeShown(AccountsService.user);
++        } else if (shell.uosUnlockedPhone) {
++            if (wizard.active || dialogs.hasActiveDialog) return;
++            panel.indicators.hide();
++            panel.applicationMenus.hide();
++            stage.closeSpread();
++            shell.uosHomeRequested = true;
+         } else {
+             if (!greeter.active) {
+                 launcher.toggleDrawer(false);
+@@ -593,6 +669,52 @@
+         z: 10
+ 
+         anchors.fill: parent
++
++        // iOS-style Home gesture replaces the LEFT launcher's edge swipe,
++        // without removing Lomiri's independent RIGHT-edge app switcher.
++        // Recognise only a deliberate upward drag from the centre bottom.
++        SwipeArea {
++            id: uosHomeGesture
++            objectName: "uos27HomeGesture"
++            z: panel.z + 2
++            direction: SwipeArea.Upwards
++            immediateRecognition: false
++            width: units.gu(12)
++            height: units.gu(2.4)
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.bottom: parent.bottom
++            enabled: shell.uosUnlockedPhone && !glassHome.visible
++                    && !greeter.shown && !wizard.active
++                    && !panel.indicators.shown && !notifications.useModal
++                    && !dialogs.hasActiveDialog && !screenshotEditor.visible
++                    && inputMethod.visibleRect.height === 0
++            property real farthestUp: 0
++            onTouchPositionChanged: {
++                if (dragging) farthestUp = Math.max(farthestUp, -touchPosition.y);
++            }
++            onDraggingChanged: {
++                if (dragging) {
++                    farthestUp = 0;
++                } else if (farthestUp >= units.gu(7.5)) {
++                    showHome();
++                }
++            }
++        }
++
++        // The handle hints at navigation but does not intercept taps.
++        Rectangle {
++            objectName: "uos27HomeIndicator"
++            z: panel.z + 3
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.bottom: parent.bottom
++            anchors.bottomMargin: units.gu(0.8)
++            width: units.gu(13)
++            height: units.gu(0.55)
++            radius: height / 2
++            color: shell.glassAppHeaderInk
++            opacity: 0.84
++            visible: uosHomeGesture.enabled
++        }
+ 
+         SwipeArea {
+             objectName: "fullscreenSwipeDown"
+@@ -629,13 +751,34 @@
+             blurSource: shell.blurSource
+             z: screenshotEditor.visible ? screenshotEditorContainer.z + 1 : 0
+             mode: shell.usageScenario == "desktop" ? "windowed" : "staged"
+-            minimizedPanelHeight: shell.screenIndex === 0
++            // Photo-calibrated 0.9.3 candidate: the 0.9.2 strip continued
++            // beneath the dual camera hole. Stock/greeter stays untouched.
++            minimizedPanelHeight: panel.glassCentersEnabled
+                                && shell.orientation === Qt.PortraitOrientation
+-                               && deviceConfig.collapsedPanelHeight
+-                               || units.gu(3)
+-            expandedPanelHeight: units.gu(7)
+-            applicationMenuContentX: launcher.lockedVisible ? launcher.panelWidth : 0
++                               ? units.gu(5.4)
++                               : (shell.screenIndex === 0
++                                  && shell.orientation === Qt.PortraitOrientation
++                                  && deviceConfig.collapsedPanelHeight
++                                  || units.gu(3))
++            expandedPanelHeight: panel.glassCentersEnabled
++                              && shell.orientation === Qt.PortraitOrientation
++                              ? units.gu(6.4) : units.gu(7)
++            applicationMenuContentX: shell.uosUnlockedPhone ? 0
++                    : (launcher.lockedVisible ? launcher.panelWidth : 0)
+             screenIndex: shell.screenIndex
++            glassCentersEnabled: shell.glassCentersEnabled
++                    && shell.usageScenario === "phone"
++                    && shell.screenIndex === 0
++                    && shell.mode !== "greeter"
++                    && (!greeter || (!greeter.locked && !greeter.shown))
++                    && !shell.waitingOnGreeter
++            glassActionsAllowed: glassCentersEnabled
++                    && !notifications.useModal
++                    && !dialogs.hasActiveDialog
++                    && !screenshotEditor.visible
++            glassStatusBarColor: shell.glassAppHeaderColor
++            glassStatusTextColor: shell.glassAppHeaderInk
++            glassAppInFront: shell.glassAppInFront
+ 
+             indicators {
+                 hides: [launcher]
+@@ -694,22 +837,28 @@
+             anchors.topMargin: panel.panelHeight
+             anchors.bottom: parent.bottom
+             width: parent.width
+-            dragAreaWidth: shell.edgeSize
+-            available: tutorial.launcherEnabled
++            dragAreaWidth: shell.uosUnlockedPhone ? 0 : shell.edgeSize
++            available: !shell.uosUnlockedPhone && tutorial.launcherEnabled
+                     && (!greeter.locked || AccountsService.enableLauncherWhileLocked)
+                     && !greeter.hasLockedApp
+                     && !shell.waitingOnGreeter
+                     && shell.mode !== "greeter"
+                     && !screenshotEditor.visible
+-            visible: shell.mode !== "greeter"
++            visible: !shell.uosUnlockedPhone && shell.mode !== "greeter"
+             inverted: shell.usageScenario !== "desktop"
+             superPressed: physicalKeysMapper.superPressed
+             superTabPressed: physicalKeysMapper.superTabPressed
+             panelWidth: units.gu(settings.launcherWidth)
+-            lockedVisible: (lockedByUser || shell.atDesktop) && lockAllowed
++            // The phone Home is now a real grid/dock. Keep the old vertical
++            // launcher available by edge gesture, but do not layer its rail
++            // permanently over the new dock.
++            lockedVisible: !shell.uosUnlockedPhone && (lockedByUser ||
++                           (shell.atDesktop && !(shell.glassCentersEnabled
++                                 && shell.usageScenario === "phone"))) && lockAllowed
+             blurSource: shell.blurSource
+             topPanelHeight: panel.panelHeight
+-            drawerEnabled: !greeter.active && tutorial.launcherLongSwipeEnabled
++            drawerEnabled: !shell.uosUnlockedPhone
++                    && !greeter.active && tutorial.launcherLongSwipeEnabled
+             privateMode: greeter.active
+             background: wallpaperResolver.resolvedImage
+ 
+@@ -750,7 +899,12 @@
+             GlobalShortcut {
+                 shortcut: Qt.MetaModifier | Qt.Key_A
+                 onTriggered: {
+-                    launcher.toggleDrawer(true);
++                    if (shell.uosUnlockedPhone) {
++                        showHome();
++                        glassHome.openSearch();
++                    } else {
++                        launcher.toggleDrawer(true);
++                    }
+                 }
+             }
+             GlobalShortcut {
+@@ -839,6 +993,8 @@
+             id: notifications
+ 
+             model: NotificationBackend.Model
++            glassStyle: shell.glassCentersEnabled && shell.usageScenario === "phone"
++                    && shell.mode !== "greeter" && (!greeter || !greeter.locked)
+             margin: units.gu(1)
+             hasMouse: shell.hasMouse
+             background: wallpaperResolver.resolvedImage
+--- a/qml/Stage/Spread/Spread.qml
++++ b/qml/Stage/Spread/Spread.qml
+@@ -17,6 +17,7 @@
+ import QtQuick 2.15
+ import Lomiri.Components 1.3
+ import "MathUtils.js" as MathUtils
++import "../../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: root
+@@ -28,14 +29,16 @@
+     property var spreadFlickable
+ 
+     // some config options
+-    property real contentMargin: 0.1 * root.height
++    // Preserve native right-edge window lifecycle, touch hit targets and
++    // preview math. Flatten only the visual perspective for a card switcher.
++    property real contentMargin: Math.min(units.gu(10), 0.09 * root.height)
+     property real contentTopMargin: contentMargin + root.y + windowTitle.height
+     property real contentBottomMargin: contentMargin
+     property real windowTitleTopMargin: contentMargin - windowTitle.height
+     property int stackItemCount: 3
+-    property real leftRotationAngle: 22
+-    property real rightRotationAngle: 32
+-    property real leftStackScale: .82
++    property real leftRotationAngle: 4
++    property real rightRotationAngle: 6
++    property real leftStackScale: .94
+     property real rightStackScale: 1
+     property real rightEdgeBreakPoint: Math.min(units.gu(40) / root.width, .35)
+ 
+@@ -81,10 +84,10 @@
+     }
+     readonly property real itemOverlap: {
+         var spreadAspectRatioReferencePoint = 1.0 // ref screen height in gu
+-        var valueAtReferencePoint = 0.74 // of screen height at the reference point
++        var valueAtReferencePoint = 0.50 // uOS27 flatter horizontal card rail
+         var itemOverlapValueChange = -0.068
+-        var minOverlap = 0.55
+-        var maxOverlap = 0.82
++        var minOverlap = 0.33
++        var maxOverlap = 0.64
+         var spreadAspectRatio = spreadWidth / stackHeight // spread stack aspect ratio (app info not included)
+ 
+         return MathUtils.clamp(valueAtReferencePoint + itemOverlapValueChange * (spreadAspectRatio - spreadAspectRatioReferencePoint), minOverlap, maxOverlap)
+@@ -112,8 +115,9 @@
+         readonly property var highlightedApp: root.model ? root.model.applicationAt(root.highlightedIndex) : null
+         text: root.highlightedIndex >= 0 && highlightedSurface && highlightedSurface.name != "" ? highlightedSurface.name :
+                                                                                                   highlightedApp ? highlightedApp.name : ""
+-        fontSize: root.height < units.gu(85) ? 'medium' : 'large'
+-        color: "#FFFFFF"
++        fontSize: root.height < units.gu(85) ? 'large' : 'x-large'
++        font.weight: Font.DemiBold
++        color: UOS.ink
+         opacity: root.highlightedIndex >= 0 ? 1 : 0
+         Behavior on opacity { LomiriNumberAnimation { } }
+     }
+--- a/qml/Stage/Spread/WorkspacePreview.qml
++++ b/qml/Stage/Spread/WorkspacePreview.qml
+@@ -21,6 +21,7 @@
+ import Utils 0.1
+ import ".."
+ import "../../Components"
++import "../../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: previewSpace
+@@ -154,8 +155,9 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        border.color: LomiriColors.porcelain
++        border.color: UOS.accent
+         border.width: units.gu(.5)
++        radius: units.gu(UOS.smallRadiusGU)
+         color: "transparent"
+         opacity: 0.3
+         antialiasing: true
+@@ -164,8 +166,9 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        border.color: LomiriColors.porcelain
++        border.color: UOS.ink
+         border.width: units.gu(.3)
++        radius: units.gu(UOS.smallRadiusGU)
+         color: "transparent"
+         opacity: 0.3
+         antialiasing: true
+@@ -174,7 +177,7 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        color: LomiriColors.jet
++        color: "#142137"
+         opacity: previewSpace.isSelected || previewSpace.isActive
+                     || previewSpace.containsDragLeft || previewSpace.containsDragRight ? 0 : 0.5
+         antialiasing: true

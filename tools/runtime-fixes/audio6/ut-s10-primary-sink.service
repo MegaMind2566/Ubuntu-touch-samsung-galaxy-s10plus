@@ -1,0 +1,16 @@
+# S10+ Ubuntu Touch: choose stable droid sink; never modifies PulseAudio itself.
+[Unit]
+Description=Galaxy S10+ - select stable PulseAudio output
+Requires=pulseaudio.service
+After=pulseaudio.service
+
+[Service]
+Type=oneshot
+TimeoutStartSec=20s
+Environment=LC_ALL=C
+Environment=PULSE_SERVER=unix:/run/user/32011/pulse/native
+UnsetEnvironment=LD_PRELOAD LD_LIBRARY_PATH PULSE_SINK PULSE_SOURCE PULSE_CLIENTCONFIG
+ExecStart=/usr/bin/pactl set-default-sink sink.primary-out
+
+[Install]
+WantedBy=pulseaudio.service

@@ -1,0 +1,16 @@
+{
+  "fontColor": "#1c2433",
+  "selectionColor": "#477bff",
+  "backgroundColor": "#dce1e9",
+  "dividerColor": "#b7c1d0",
+  "annotationFontColor": "#647083",
+  "charKeyColor": "#ffffff",
+  "charKeyPressedColor": "#bfc9d8",
+  "actionKeyColor": "#aeb8c8",
+  "actionKeyPressedColor": "#8797ad",
+  "toolkitTheme": "Lomiri.Components.Themes.Ambiance",
+  "popupBorderColor": "#8794a8",
+  "keyBorderEnabled": false,
+  "charKeyBorderColor": "#c6ccd6",
+  "actionKeyBorderColor": "#9ca9bb"
+}
