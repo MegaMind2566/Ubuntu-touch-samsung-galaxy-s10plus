@@ -34,12 +34,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee "$RUNNER_TEMP/dependency-setup.log") 2>&1
           test "$(dpkg --print-architecture)" = arm64
           curl --fail --silent --show-error --location https://repo.ubports.com/keyring.gpg --output "$RUNNER_TEMP/ubports-keyring.gpg"
           echo "b9834f239d7eef9c919292b454f4ecb5098b969704cdc6ea91d5ccc652bce0ca  $RUNNER_TEMP/ubports-keyring.gpg" | sha256sum --check -
           sudo install -m 0644 "$RUNNER_TEMP/ubports-keyring.gpg" /usr/share/keyrings/ubports-keyring.gpg
           echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/ubports-keyring.gpg] https://repo.ubports.com/ 24.04-2.x main' | sudo tee /etc/apt/sources.list.d/ubports.list
+          # Keep the complete libhybris binary family at the handset's source version.
+          # This version is present in the signed 24.04-2.x index; do not mix October APIs.
+          printf 'Package: libhybris* libandroid-properties* libhardware* libmedia* libvulkan1-hybris*\nPin: version %s\nPin-Priority: 1001\n' "$S10_HYBRIS_VERSION" | sudo tee /etc/apt/preferences.d/s10-libhybris
           sudo apt-get update
+          apt-cache policy libhybris libhybris-common1 libandroid-properties1 libhybris-dev libandroid-properties-dev
       - name: Install the native build and test dependencies
         run: |
           sudo apt-get install -y --no-install-recommends build-essential git cmake cmake-extras debhelper dh-apport android-headers dbus dbus-x11 googletest libgtest-dev "libdeviceinfo-dev=$S10_DEVICEINFO_VERSION" "libgbinder-dev=$S10_GBINDER_VERSION" libglib2.0-dev "libhybris-dev=$S10_HYBRIS_VERSION" pkgconf systemd-dev python3
@@ -56,6 +61,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: |
+            ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/repowerd-invocation.log
             ${{ runner.temp }}/s10-repowerd/**/*.deb
             ${{ runner.temp }}/s10-repowerd/**/*.buildinfo
@@ -80,12 +86,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee "$RUNNER_TEMP/dependency-setup.log") 2>&1
           test "$(dpkg --print-architecture)" = arm64
           curl --fail --silent --show-error --location https://repo.ubports.com/keyring.gpg --output "$RUNNER_TEMP/ubports-keyring.gpg"
           echo "b9834f239d7eef9c919292b454f4ecb5098b969704cdc6ea91d5ccc652bce0ca  $RUNNER_TEMP/ubports-keyring.gpg" | sha256sum --check -
           sudo install -m 0644 "$RUNNER_TEMP/ubports-keyring.gpg" /usr/share/keyrings/ubports-keyring.gpg
           echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/ubports-keyring.gpg] https://repo.ubports.com/ 24.04-2.x main' | sudo tee /etc/apt/sources.list.d/ubports.list
+          # Keep the complete libhybris binary family at the handset's source version.
+          # This version is present in the signed 24.04-2.x index; do not mix October APIs.
+          printf 'Package: libhybris* libandroid-properties* libhardware* libmedia* libvulkan1-hybris*\nPin: version %s\nPin-Priority: 1001\n' "$S10_HYBRIS_VERSION" | sudo tee /etc/apt/preferences.d/s10-libhybris
           sudo apt-get update
+          apt-cache policy libhybris libhybris-common1 libandroid-properties1 libhybris-dev libandroid-properties-dev
       - name: Install the native build and test dependencies
         run: |
           sudo apt-get install -y --no-install-recommends build-essential git clang debhelper dpkg-dev quilt libsystemd-dev libpam0g-dev libaudit-dev android-libbase-dev android-libcutils-dev android-libselinux-dev android-libboringssl-dev android-libutils-dev libbrotli-dev libcap-dev libgtest-dev liblz4-dev libprotobuf-dev libsafe-iop-dev libusb-1.0-0-dev libzstd-dev pandoc protobuf-compiler zlib1g-dev "libandroid-properties-dev=$S10_HYBRIS_VERSION" libavahi-compat-libdnssd-dev python3
@@ -102,6 +113,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: |
+            ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/adbd-invocation.log
             ${{ runner.temp }}/s10-adbd/**/*.deb
             ${{ runner.temp }}/s10-adbd/**/*.buildinfo

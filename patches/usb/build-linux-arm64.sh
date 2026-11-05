@@ -2,6 +2,10 @@
 # Native Ubuntu arm64 package build only; never accesses or installs on a phone.
 set -euo pipefail
 export LC_ALL=C.UTF-8
+[[ ${GITHUB_ACTIONS:-} = true && ${GITHUB_SERVER_URL:-} = https://github.com ]] || {
+    printf '%s\n' 'Build only in the public, standard GitHub Actions workflow.' >&2
+    exit 1
+}
 PACKAGING=6391ffe9e12162de349fe595fdf8d92b5cbf443f
 UPSTREAM=b8016a7210eba240788f262e1e4214576aa6fdd8
 VERSION=1:14.0.0+r45-0ubports1+s10reconnect.20261105
