@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "observed": "2026-11-05",
+  "repository": "https://repo.ubports.com/",
+  "suite": "24.04-2.x",
+  "component": "main",
+  "architecture": "arm64",
+  "key_url": "https://repo.ubports.com/keyring.gpg",
+  "key_sha256": "b9834f239d7eef9c919292b454f4ecb5098b969704cdc6ea91d5ccc652bce0ca",
+  "key_fingerprint": "A8DF67CB20262175118B863720049BF75A816E99",
+  "inrelease_sha256": "e4e9110422e408fa51c82fbf6283018beb7d42c2dcf3eb396f696910fb949ecd",
+  "packages_index_sha256": "33cb304c2166b04b9d5ebe4e5dbbfd88a6a55785b80852b8514d18adc3e7c3d3",
+  "verification": "Current 2026 key signature was good; second legacy key not in keyring. Index SHA256 matched InRelease. APT must validate signatures normally at build time.",
+  "packages": [
+    {
+      "Package": "libhybris-dev",
+      "Version": "0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b",
+      "Architecture": "arm64",
+      "Depends": "libhybris (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b), android-headers-29, libandroid-properties-dev (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b), libhardware-dev (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b), libmedia-dev (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b), libhybris-common-dev (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b), libgles2-mesa-dev",
+      "Filename": "pool/main/libh/libhybris/libhybris-dev_0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b_arm64.deb",
+      "SHA256": "7e5ebbf68af074936d6d9586e20dc4e9146cd7ec64cc45666c499b22afa116dd"
+    },
+    {
+      "Package": "libandroid-properties-dev",
+      "Version": "0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b",
+      "Architecture": "arm64",
+      "Depends": "libandroid-properties1 (= 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b)",
+      "Filename": "pool/main/libh/libhybris/libandroid-properties-dev_0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b_arm64.deb",
+      "SHA256": "48e9b440f8218676b4aca015cfc68ff571d5bbec67fa99ba7e500c08e2da3e1d"
+    },
+    {
+      "Package": "libdeviceinfo-dev",
+      "Version": "0.2.4+0~20260329172905.22+ubports24.04.2~1.gbp84bff0",
+      "Architecture": "arm64",
+      "Depends": "libdeviceinfo0 (= 0.2.4+0~20260329172905.22+ubports24.04.2~1.gbp84bff0)",
+      "Filename": "pool/main/d/deviceinfo/libdeviceinfo-dev_0.2.4+0~20260329172905.22+ubports24.04.2~1.gbp84bff0_arm64.deb",
+      "SHA256": "cb799d55462edc81bc3f1adc6ae0d6722b7375ec6f59a02d97a6f0bd38ffbff4"
+    },
+    {
+      "Package": "libgbinder-dev",
+      "Version": "1.1.52-0ubports1~20260911100623.2~d4855b1+ubports24.04.2",
+      "Architecture": "arm64",
+      "Depends": "libgbinder (= 1.1.52-0ubports1~20260911100623.2~d4855b1+ubports24.04.2), libglibutil-dev (>= 1.0.52)",
+      "Filename": "pool/main/libg/libgbinder/libgbinder-dev_1.1.52-0ubports1~20260911100623.2~d4855b1+ubports24.04.2_arm64.deb",
+      "SHA256": "c4deeef7bbd3c92b064f783d4a50b7cac8ad5c313a1385a4c47dfa2a6d7ef759"
+    }
+  ]
+}

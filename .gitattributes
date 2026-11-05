@@ -1,3 +1,18 @@
 # Linux PID 1 script is a binary firmware payload; keep LF on Windows too.
 tools/boot-diagnostic/init text eol=lf
 tools/boot-observer/* text eol=lf
+
+# Graphics payload identities are SHA-256 pinned; checkout must preserve LF.
+tools/graphics-permissions/apply-permissions.py text eol=lf
+tools/graphics-permissions/ubuntu-touch-graphics-permissions.service text eol=lf
+tools/graphics-permissions/99-ubuntu-touch-s10plus-graphics.rules text eol=lf
+tools/graphics-permissions/50-ubuntu-touch-graphics-permissions.conf text eol=lf
+tools/graphics-probe/probe.sh text eol=lf
+tools/graphics-probe/mapper-probe.py text eol=lf
+tools/graphics-probe/ubuntu-touch-graphics-probe.service text eol=lf
+
+# Recovered runtime source identities are pinned by tools/runtime-fixes/manifest.json.
+tools/runtime-fixes/** text eol=lf
+
+# The saved-mode helper and systemd unit run on the handset.
+tools/usb-mode-restore/** text eol=lf

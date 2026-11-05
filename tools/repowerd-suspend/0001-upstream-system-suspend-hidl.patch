@@ -1,0 +1,379 @@
+From d87b74538c368cd7bebef64c5b81c5c377ae3f88 Mon Sep 17 00:00:00 2001
+From: Azkali <a.ffcc7@gmail.com>
+Date: Wed, 17 Jun 2026 18:39:38 +0700
+Subject: [PATCH] src/adapters: add SystemSuspend HIDL system power control
+
+Android 10 moved the suspend/wakelock loop out of libsuspend's
+/sys/power/autosleep and into the android.system.suspend@1.0
+SystemSuspend HAL, which owns /sys/power/wake_lock and runs the
+autosuspend thread itself. Writing those nodes directly from repowerd
+conflicts with the service on such devices.
+
+Add an adapter that talks to ISystemSuspend over hwbinder and holds an
+IWakeLock for the duration of any suspend disallowance, mirroring the
+libsuspend allow/disallow bookkeeping. It is preferred over libsuspend
+and falls back to it when hwbinder or the service is unavailable.
+---
+ src/adapters/CMakeLists.txt                |   1 +
+ src/adapters/hidl_system_power_control.cpp | 216 +++++++++++++++++++++
+ src/adapters/hidl_system_power_control.h   |  73 +++++++
+ src/default_daemon_config.cpp              |  19 +-
+ 4 files changed, 308 insertions(+), 1 deletion(-)
+ create mode 100644 src/adapters/hidl_system_power_control.cpp
+ create mode 100644 src/adapters/hidl_system_power_control.h
+
+diff --git a/src/adapters/CMakeLists.txt b/src/adapters/CMakeLists.txt
+index abd368bd9aa2a05bf80744ee985ab4c4c1ae42f3..652a0dead3025ba1f988bdd4c079139139d36131 100644
+--- a/src/adapters/CMakeLists.txt
++++ b/src/adapters/CMakeLists.txt
+@@ -25,6 +25,7 @@ endif()
+ if (REPOWERD_ENABLE_BINDER)
+     set(REPOWERD_ADAPTER_BINDER_SRCS
+         binder_performance_booster.cpp
++        hidl_system_power_control.cpp
+     )
+ endif()
+ 
+diff --git a/src/adapters/hidl_system_power_control.cpp b/src/adapters/hidl_system_power_control.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..512065d3954d81b76ef2fd6ae131857e51f564f4
+--- /dev/null
++++ b/src/adapters/hidl_system_power_control.cpp
+@@ -0,0 +1,216 @@
++/*
++ * Copyright © 2026 UBports Foundation
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Azkali <a.ffcc7@gmail.com>
++ */
++
++#include "hidl_system_power_control.h"
++
++#include "src/core/log.h"
++
++#include <cstdlib>
++#include <stdexcept>
++
++#include <unistd.h>
++
++namespace
++{
++char const* const log_tag = "HidlSystemPowerControl";
++
++char const* const hwbinder_dev = "/dev/hwbinder";
++char const* const suspend_iface = "android.system.suspend@1.0::ISystemSuspend";
++char const* const suspend_fqname = "android.system.suspend@1.0::ISystemSuspend/default";
++char const* const wake_lock_iface = "android.system.suspend@1.0::IWakeLock";
++
++int const wake_lock_type_partial = 0;
++
++int const suspend_transact_acquire_wake_lock = 1;
++int const wake_lock_transact_release = 1;
++}
++
++repowerd::HidlSystemPowerControl::HidlSystemPowerControl(
++    std::shared_ptr<Log> const& log)
++    : log{log},
++      sm{nullptr},
++      remote{nullptr},
++      client{nullptr},
++      wake_lock_remote{nullptr},
++      wake_lock_client{nullptr}
++{
++    if (access(hwbinder_dev, F_OK) != 0)
++        throw std::runtime_error{"No hwbinder interface available"};
++
++    sm = gbinder_servicemanager_new(hwbinder_dev);
++    if (!sm)
++        throw std::runtime_error{"Failed to connect to hwservicemanager"};
++
++    remote = gbinder_servicemanager_get_service_sync(sm, suspend_fqname, nullptr);
++    if (!remote)
++    {
++        gbinder_servicemanager_unref(sm);
++        sm = nullptr;
++        throw std::runtime_error{"SystemSuspend service not available"};
++    }
++
++    client = gbinder_client_new(remote, suspend_iface);
++    if (!client)
++    {
++        gbinder_remote_object_unref(remote);
++        gbinder_servicemanager_unref(sm);
++        remote = nullptr;
++        sm = nullptr;
++        throw std::runtime_error{"Failed to create SystemSuspend client"};
++    }
++
++    log->logDebug(log_tag, "Initialized using %s", suspend_fqname);
++}
++
++repowerd::HidlSystemPowerControl::~HidlSystemPowerControl()
++{
++    release_wake_lock();
++
++    if (client)
++        gbinder_client_unref(client);
++    if (remote)
++        gbinder_remote_object_unref(remote);
++    if (sm)
++        gbinder_servicemanager_unref(sm);
++}
++
++void repowerd::HidlSystemPowerControl::acquire_wake_lock()
++{
++    if (wake_lock_client)
++        return;
++
++    int status = -1;
++    GBinderLocalRequest* req = gbinder_client_new_request(client);
++    GBinderWriter writer;
++
++    gbinder_local_request_init_writer(req, &writer);
++    gbinder_writer_append_int32(&writer, wake_lock_type_partial);
++    gbinder_writer_append_hidl_string(&writer, "repowerd");
++
++    GBinderRemoteReply* reply = gbinder_client_transact_sync_reply(
++        client, suspend_transact_acquire_wake_lock, req, &status);
++
++    if (reply)
++    {
++        GBinderReader reader;
++        gbinder_remote_reply_init_reader(reply, &reader);
++        gbinder_reader_read_int32(&reader, nullptr);
++        wake_lock_remote = gbinder_reader_read_object(&reader);
++        gbinder_remote_reply_unref(reply);
++    }
++
++    gbinder_local_request_unref(req);
++
++    if (wake_lock_remote)
++        wake_lock_client = gbinder_client_new(wake_lock_remote, wake_lock_iface);
++
++    if (!wake_lock_client)
++        log->logWarning(log_tag, "Failed to acquire wake lock (status %d)", status);
++}
++
++void repowerd::HidlSystemPowerControl::release_wake_lock()
++{
++    if (!wake_lock_client)
++        return;
++
++    GBinderLocalRequest* req = gbinder_client_new_request(wake_lock_client);
++    gbinder_client_transact_sync_oneway(wake_lock_client, wake_lock_transact_release, req);
++    gbinder_local_request_unref(req);
++
++    gbinder_client_unref(wake_lock_client);
++    gbinder_remote_object_unref(wake_lock_remote);
++    wake_lock_client = nullptr;
++    wake_lock_remote = nullptr;
++}
++
++void repowerd::HidlSystemPowerControl::start_processing()
++{
++}
++
++repowerd::HandlerRegistration
++repowerd::HidlSystemPowerControl::register_system_resume_handler(
++    SystemResumeHandler const&)
++{
++    return HandlerRegistration{};
++}
++
++repowerd::HandlerRegistration
++repowerd::HidlSystemPowerControl::register_system_allow_suspend_handler(
++    SystemAllowSuspendHandler const&)
++{
++    return HandlerRegistration{};
++}
++
++repowerd::HandlerRegistration
++repowerd::HidlSystemPowerControl::register_system_disallow_suspend_handler(
++    SystemDisallowSuspendHandler const&)
++{
++    return HandlerRegistration{};
++}
++
++void repowerd::HidlSystemPowerControl::allow_automatic_suspend(
++    std::string const& id)
++{
++    std::lock_guard<std::mutex> lock{suspend_mutex};
++
++    log->logDebug(log_tag, "allow_suspend(%s)", id.c_str());
++
++    if (suspend_disallowances.erase(id) > 0 &&
++        suspend_disallowances.empty())
++    {
++        log->logDebug(log_tag, "Releasing wake lock");
++        release_wake_lock();
++    }
++}
++
++void repowerd::HidlSystemPowerControl::disallow_automatic_suspend(
++    std::string const& id)
++{
++    std::lock_guard<std::mutex> lock{suspend_mutex};
++
++    log->logDebug(log_tag, "disallow_suspend(%s)", id.c_str());
++
++    auto const could_be_suspended = suspend_disallowances.empty();
++
++    suspend_disallowances.insert(id);
++
++    if (could_be_suspended)
++    {
++        log->logDebug(log_tag, "Acquiring wake lock");
++        acquire_wake_lock();
++    }
++}
++
++void repowerd::HidlSystemPowerControl::power_off()
++{
++    log->logDebug(log_tag, "power_off()");
++
++    if (system("shutdown -P now")) {}
++}
++
++void repowerd::HidlSystemPowerControl::suspend()
++{
++}
++
++void repowerd::HidlSystemPowerControl::allow_default_system_handlers()
++{
++}
++
++void repowerd::HidlSystemPowerControl::disallow_default_system_handlers()
++{
++}
+diff --git a/src/adapters/hidl_system_power_control.h b/src/adapters/hidl_system_power_control.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..0296f9e711125c1f0f0937a929f7b42debf2ee57
+--- /dev/null
++++ b/src/adapters/hidl_system_power_control.h
+@@ -0,0 +1,73 @@
++/*
++ * Copyright © 2026 UBports Foundation
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Azkali <a.ffcc7@gmail.com>
++ */
++
++#pragma once
++
++#include "src/core/system_power_control.h"
++
++#include <gbinder.h>
++
++#include <memory>
++#include <mutex>
++#include <unordered_set>
++
++namespace repowerd
++{
++class Log;
++
++class HidlSystemPowerControl : public SystemPowerControl
++{
++public:
++    HidlSystemPowerControl(std::shared_ptr<Log> const& log);
++    ~HidlSystemPowerControl();
++
++    void start_processing() override;
++    HandlerRegistration register_system_resume_handler(
++        SystemResumeHandler const& system_resume_handler) override;
++    HandlerRegistration register_system_allow_suspend_handler(
++        SystemAllowSuspendHandler const& system_allow_suspend_handler) override;
++    HandlerRegistration register_system_disallow_suspend_handler(
++        SystemDisallowSuspendHandler const& system_disallow_suspend_handler) override;
++
++    void allow_automatic_suspend(std::string const& id) override;
++    void disallow_automatic_suspend(std::string const& id) override;
++
++    void power_off() override;
++    void suspend() override;
++
++    void allow_default_system_handlers() override;
++    void disallow_default_system_handlers() override;
++
++private:
++    void acquire_wake_lock();
++    void release_wake_lock();
++
++    std::shared_ptr<Log> const log;
++
++    GBinderServiceManager* sm;
++    GBinderRemoteObject* remote;
++    GBinderClient* client;
++
++    GBinderRemoteObject* wake_lock_remote;
++    GBinderClient* wake_lock_client;
++
++    std::mutex suspend_mutex;
++    std::unordered_set<std::string> suspend_disallowances;
++};
++
++}
+diff --git a/src/default_daemon_config.cpp b/src/default_daemon_config.cpp
+index 3b7750ecccda83b072ae926fbe7f01d7b00aec58..9068e6abfe3a72e42e76d7c15f6030dddf5bf720 100644
+--- a/src/default_daemon_config.cpp
++++ b/src/default_daemon_config.cpp
+@@ -59,6 +59,7 @@
+ // Binder
+ #ifdef REPOWERD_ENABLE_BINDER
+ #include "adapters/binder_performance_booster.h"
++#include "adapters/hidl_system_power_control.h"
+ #endif
+ // Sensorfw
+ #include "adapters/sensorfw/sensorfw_light_sensor.h"
+@@ -349,12 +350,28 @@ repowerd::DefaultDaemonConfig::the_system_power_control()
+ {
+     if (!system_power_control)
+     {
++#ifdef REPOWERD_ENABLE_BINDER
+         try
+         {
+-            system_power_control = std::make_shared<LibsuspendSystemPowerControl>(
++            system_power_control = std::make_shared<HidlSystemPowerControl>(
+                 the_log());
+         }
+         catch (std::exception const& e)
++        {
++            the_log()->logWarning(log_tag, "Failed to create HidlSystemPowerControl: %s", e.what());
++            the_log()->logWarning(log_tag, "Trying LibsuspendSystemPowerControl");
++        }
++#endif
++
++        try
++        {
++            if (!system_power_control)
++            {
++                system_power_control = std::make_shared<LibsuspendSystemPowerControl>(
++                    the_log());
++            }
++        }
++        catch (std::exception const& e)
+         {
+             the_log()->logWarning(log_tag, "Failed to create LibsuspendSystemPowerControl: %s", e.what());
+             the_log()->logWarning(log_tag, "Trying LogindSystemPowerControl");

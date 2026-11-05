@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "date": "2026-11-05",
+  "official_repository": "https://gitlab.com/ubports/development/core/repowerd.git",
+  "upstream_commit": "d87b74538c368cd7bebef64c5b81c5c377ae3f88",
+  "patch_sha256": "a811a6547382f9f757678694f9582c1dc9988ef18f3743cd7680e9bb9b9c41c5",
+  "preferred_base": "36575160752bdd0a983bee1b53e041ccc4ceaa60",
+  "verified_bases": {
+    "2025.09": "631d17f7654915d65b04b766d0abd3d38aa51eb2",
+    "installed_24.04_2x": "36575160752bdd0a983bee1b53e041ccc4ceaa60"
+  },
+  "libgbinder_api_headers": {
+    "tag": "1.1.52",
+    "commit": "e906afcffbfa51b7fbefe042a13b933d9e8dfdd9",
+    "symbols_found": 17
+  },
+  "verification": [
+    "git apply --check --verbose passed on both exact bases",
+    "git apply followed by git diff --check passed on both bases",
+    "new HIDL adapter source/header equal upstream commit with LF normalization",
+    "base SystemPowerControl interface, CMake dependencies, debian/control and debian/rules unchanged"
+  ],
+  "compiled": false,
+  "upstream_tests_run": false,
+  "device_installed": false,
+  "runtime_suspend_verified": false
+}

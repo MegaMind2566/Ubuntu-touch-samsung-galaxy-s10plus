@@ -1,0 +1,189 @@
+From: S10+ port maintenance
+Subject: [PATCH] adbd: complete workers portably and retain FunctionFS control
+
+Candidate for UBports packaging 6391ffe9e12162de349fe595fdf8d92b5cbf443f
+with Android android-14.0.0_r45 / b8016a7210eba240788f262e1e4214576aa6fdd8.
+Append after the existing Debian patch series. No auth, UDC or mode changes.
+
+--- a/daemon/usb.cpp
++++ b/daemon/usb.cpp
+@@ -32,6 +32,7 @@
+ 
+ #include <algorithm>
+ #include <array>
++#include <atomic>
+ #include <future>
+ #include <memory>
+ #include <mutex>
+@@ -142,13 +143,20 @@
+     aio_context_t context_ = 0;
+ };
+ 
++// The open thread owns ep0 across transport reconnects. Only usb-moded owns UDC.
++// Monitor threads run serially: destruction/join precedes the next connection.
++struct UsbFfsControl {
++    unique_fd fd;
++    bool bound = false;
++};
++
+ struct UsbFfsConnection : public Connection {
+-    UsbFfsConnection(unique_fd control, unique_fd read, unique_fd write,
++    UsbFfsConnection(std::shared_ptr<UsbFfsControl> control, unique_fd read, unique_fd write,
+                      std::promise<void> destruction_notifier)
+         : worker_started_(false),
+           stopped_(false),
+           destruction_notifier_(std::move(destruction_notifier)),
+-          control_fd_(std::move(control)),
++          control_(std::move(control)),
+           read_fd_(std::move(read)),
+           write_fd_(std::move(write)) {
+         LOG(INFO) << "UsbFfsConnection constructed";
+@@ -173,7 +181,6 @@
+         // We need to explicitly close our file descriptors before we notify our destruction,
+         // because the thread listening on the future will immediately try to reopen the endpoint.
+         aio_context_.reset();
+-        control_fd_.reset();
+         read_fd_.reset();
+         write_fd_.reset();
+ 
+@@ -260,12 +267,12 @@
+             adb_thread_setname("UsbFfs-monitor");
+             LOG(INFO) << "UsbFfs-monitor thread spawned";
+ 
+-            bool bound = false;
++            bool& bound = control_->bound;
+             bool enabled = false;
+             bool running = true;
+             while (running) {
+                 adb_pollfd pfd[2] = {
+-                  { .fd = control_fd_.get(), .events = POLLIN, .revents = 0 },
++                  { .fd = control_->fd.get(), .events = POLLIN, .revents = 0 },
+                   { .fd = monitor_event_fd_.get(), .events = POLLIN, .revents = 0 },
+                 };
+ 
+@@ -286,7 +293,7 @@
+                 }
+ 
+                 struct usb_functionfs_event event;
+-                rc = TEMP_FAILURE_RETRY(adb_read(control_fd_.get(), &event, sizeof(event)));
++                rc = TEMP_FAILURE_RETRY(adb_read(control_->fd.get(), &event, sizeof(event)));
+                 if (rc == -1) {
+                     PLOG(FATAL) << "failed to read functionfs event";
+                 } else if (rc == 0) {
+@@ -370,7 +377,7 @@
+ 
+                         if ((event.u.setup.bRequestType & USB_DIR_IN)) {
+                             LOG(INFO) << "acking device-to-host control transfer";
+-                            ssize_t rc = adb_write(control_fd_.get(), "", 0);
++                            ssize_t rc = adb_write(control_->fd.get(), "", 0);
+                             if (rc != 0) {
+                                 PLOG(ERROR) << "failed to write empty packet to host";
+                                 break;
+@@ -379,7 +386,7 @@
+                             std::string buf;
+                             buf.resize(event.u.setup.wLength + 1);
+ 
+-                            ssize_t rc = adb_read(control_fd_.get(), buf.data(), buf.size());
++                            ssize_t rc = adb_read(control_->fd.get(), buf.data(), buf.size());
+                             if (rc != event.u.setup.wLength) {
+                                 LOG(ERROR)
+                                         << "read " << rc
+@@ -402,7 +409,12 @@
+     void StartWorker() {
+         CHECK(!worker_started_);
+         worker_started_ = true;
++        worker_exited_.store(false, std::memory_order_relaxed);
+         worker_thread_ = std::thread([this]() {
++            struct MarkExited {
++                std::atomic<bool>& flag;
++                ~MarkExited() { flag.store(true, std::memory_order_release); }
++            } mark_exited{worker_exited_};
+             adb_thread_setname("UsbFfs-worker");
+             LOG(INFO) << "UsbFfs-worker thread spawned";
+ 
+@@ -435,8 +447,10 @@
+             return;
+         }
+ 
++        // Wake eventfd waits and stop normal work before interrupting io_submit.
++        Stop();
+         pthread_t worker_thread_handle = worker_thread_.native_handle();
+-        while (true) {
++        while (!worker_exited_.load(std::memory_order_acquire)) {
+             int rc = pthread_kill(worker_thread_handle, kInterruptionSignal);
+             if (rc != 0) {
+                 LOG(ERROR) << "failed to send interruption signal to worker: " << strerror(rc);
+@@ -445,17 +459,10 @@
+ 
+             std::this_thread::sleep_for(100ms);
+ 
+-            rc = pthread_kill(worker_thread_handle, 0);
+-            if (rc == 0) {
+-                continue;
+-            } else if (rc == ESRCH) {
+-                break;
+-            } else {
+-                LOG(ERROR) << "failed to send interruption signal to worker: " << strerror(rc);
+-            }
+         }
+ 
+         worker_thread_.join();
++        worker_started_ = false;
+     }
+ 
+     void PrepareReadBlock(IoReadBlock* block, uint64_t id) {
+@@ -708,6 +715,7 @@
+     std::thread monitor_thread_;
+ 
+     bool worker_started_;
++    std::atomic<bool> worker_exited_{false};
+     std::thread worker_thread_;
+ 
+     std::atomic<bool> stopped_;
+@@ -718,7 +726,7 @@
+     unique_fd monitor_event_fd_;
+ 
+     ScopedAioContext aio_context_;
+-    unique_fd control_fd_;
++    std::shared_ptr<UsbFfsControl> control_;
+     unique_fd read_fd_;
+     unique_fd write_fd_;
+ 
+@@ -762,11 +770,11 @@
+     });
+     #endif
+ 
++    auto control = std::make_shared<UsbFfsControl>();
+     while (true) {
+-        unique_fd control;
+         unique_fd bulk_out;
+         unique_fd bulk_in;
+-        if (!open_functionfs(&control, &bulk_out, &bulk_in)) {
++        if (!open_functionfs(&control->fd, &bulk_out, &bulk_in)) {
+             std::this_thread::sleep_for(1s);
+             continue;
+         }
+@@ -784,7 +792,7 @@
+         std::promise<void> destruction_notifier;
+         std::future<void> future = destruction_notifier.get_future();
+         transport->SetConnection(std::make_unique<UsbFfsConnection>(
+-                std::move(control), std::move(bulk_out), std::move(bulk_in),
++                control, std::move(bulk_out), std::move(bulk_in),
+                 std::move(destruction_notifier)));
+         register_transport(transport);
+         future.wait();
+--- a/daemon/usb_ffs.cpp
++++ b/daemon/usb_ffs.cpp
+@@ -315,7 +315,11 @@
+         return false;
+     }
+ 
+-    *out_control = std::move(control);
++    // Reconnect reuses ep0; assigning an empty local fd would close it and
++    // unregister FunctionFS without Android's property-driven UDC rebind.
++    if (control.get() >= 0) {
++        *out_control = std::move(control);
++    }
+     *out_bulk_in = std::move(bulk_in);
+     *out_bulk_out = std::move(bulk_out);
+     return true;

@@ -1,0 +1,10 @@
+{
+  "create_rc": 0,
+  "join_rc": 0,
+  "kill_zero_before_join_rc": 0,
+  "kind": "joinable-pthread-lifetime-probe",
+  "libc": "glibc 2.39",
+  "schema": 1,
+  "symbol_version": "GLIBC_2.34",
+  "worker_task_absent_before_join": true
+}
