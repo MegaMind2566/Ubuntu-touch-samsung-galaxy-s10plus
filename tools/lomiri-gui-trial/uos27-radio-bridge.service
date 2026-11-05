@@ -1,0 +1,13 @@
+[Unit]
+Description=Bounded native GUI trial radio/capability bridge
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.cache/ut-s10-gui-trial-20261105/uos27_radio_bridge.py --serve --ttl 720
+Restart=no
+RuntimeMaxSec=750
+TimeoutStopSec=5
+NoNewPrivileges=yes
+UMask=0077
+
+# No Install section: start explicitly as the Lomiri user on its existing bus.

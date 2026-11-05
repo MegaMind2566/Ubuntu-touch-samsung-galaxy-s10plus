@@ -20,9 +20,11 @@ tools/usb-mode-restore/** text eol=lf
 # Pinned source candidates and the brightness profile must preserve LF.
 patches/usb/** text eol=lf
 tools/automatic-brightness/** text eol=lf
+tools/mtp-reconnect/** text eol=lf
 
 # Recovered/revised native shell files carry exact source and module identities.
 shell/lomiri-glass/** text eol=lf
 shell/uos27-native/** text eol=lf
 scripts/lomiri_glass.py text eol=lf
 scripts/lomiri_glass_cutout.py text eol=lf
+tools/lomiri-gui-trial/** text eol=lf

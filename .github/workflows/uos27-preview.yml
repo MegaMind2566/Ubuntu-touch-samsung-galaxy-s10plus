@@ -7,6 +7,8 @@ on:
       - 'shell/**'
       - 'scripts/lomiri_glass.py'
       - 'scripts/lomiri_glass_cutout.py'
+      - 'tools/lomiri-gui-trial/**'
+      - 'tests/test_lomiri_gui_trial.py'
       - '.github/workflows/uos27-preview.yml'
 permissions:
   contents: read
@@ -33,6 +35,8 @@ jobs:
         run: /usr/bin/python3 shell/lomiri-glass/tests/test_qml_surface.py --report out/lomiri-glass/surface-tests.json
       - name: Reject missing or unreadable preview SVG assets
         run: /usr/bin/python3 shell/lomiri-glass/tests/test_preview_assets.py
+      - name: Check timed GUI trial safety with inert service and mount fixtures
+        run: /usr/bin/python3 -m unittest discover -s tests -p test_lomiri_gui_trial.py -v
       - name: Check capability and automatic-brightness gates with inert services
         run: /usr/bin/python3 shell/lomiri-glass/tests/test_backend_capabilities_host.py --report out/lomiri-glass/capabilities-tests.json
       - name: Exercise native Home catalog, search and dock
