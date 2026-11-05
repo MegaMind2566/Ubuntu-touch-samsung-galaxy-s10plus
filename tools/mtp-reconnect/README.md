@@ -1,6 +1,6 @@
 # MTP reconnect user-session candidate
 
-Source-only candidate prepared 5 November 2026. It has not yet passed Linux/private-bus CI or a handset reconnect trial. Nineteen interpreted parser/lifecycle fixtures passed on Windows; two real Gio/private-bus cases await free GitHub Actions. The required physical `USB_STATE` event source was confirmed on the phone with the candidate not running.
+Revision 2 prepared 5 November 2026. The first candidate passed free Linux CI but **failed its first locked physical reconnect safely**: the watcher exited 77 and MTP remained stopped without an automatic restart storm. Direct read-only Gio calls reproduced `NoSuchUnit` for the garbage-collected native unit. This revision handles that precise documented lifecycle and adds remote-error identifiers to its logs; its own free CI and replacement handset trial remain pending. Nineteen parser/lifecycle fixtures pass on Windows, and four real Gio/private-bus cases are prepared. The physical `USB_STATE` event source is confirmed.
 
 ## Exact baseline and observed failure
 
@@ -24,6 +24,8 @@ Received events are drained in bounded batches and coalesced; any disconnect inv
 
 One-second Gio call timeouts bound the method acknowledgment wait; they do not prove a systemd start/stop job has completed. The installer and handset acceptance must read back actual active state and PID. A method timeout fails closed with a subsequent stop request; that request can itself fail and is reported without an automatic retry.
 
+After a longer disconnected stop, systemd may garbage-collect the inactive unit object. In [official systemd-stable v255.4 source](https://github.com/systemd/systemd-stable/blob/387a14a7b67b8b76adaed4175e14bb7e39b2f738/src/core/dbus-manager.c), `ResetFailedUnit` intentionally does not load units because an unloaded unit cannot be failed; `RestartUnit` loads the named unit itself. Therefore **only** `ResetFailedUnit` returning exact remote error `org.freedesktop.systemd1.NoSuchUnit` is an already-clear state. The helper then continues its existing physical readiness check and one restart request for the fixed, preflight-verified unit. It adds no explicit load, retry or polling. The same error from restart, access denial, timeout and all other failures still stop the sequence. Error logs contain sanitized method/domain/code/remote-name identifiers, never a free-form remote message or bus address.
+
 The binary, `/dev/mtp_usb`, USB mode/configuration, authentication, kernel settings and greeter are unchanged. A restarted native server evaluates `com.lomiri.LomiriGreeter.IsActive` itself before initially exposing storage. This preserves that existing implementation; it does not claim to improve its lock behavior or prove privacy by a parser fixture.
 
 ## Reviewed installation boundary
@@ -39,3 +41,7 @@ Rollback removes only the three owned files after matching their recorded hashes
 ## Verification
 
 Use the standard free public `.github/workflows/runtime-tools.yml` job. It runs the parser/lifecycle fixtures and real Gio calls against a private mock user-systemd bus. No test contacts the handset. No C++ compilation is required because the native MTP binary is unchanged.
+
+The prior [run `42043525716`](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/actions/runs/42043525716), job `127300261795`, tested commit `072f8e3e504969c225f977fefed16dfafd28031a` successfully on the standard `ubuntu-24.04` runner. Its helper SHA-256 was `166cbf1ea05ba0bf02a4e81fe920ca67633d523d15663b197c7920fea26c0c04`. The parent retrieved its completed logs: 19 MTP fixtures, two actual Gio cases and 146 total runtime cases passed, with zero skips. Those mocks omitted inactive-unit garbage collection. They do not override the failed physical result or validate this revised helper.
+
+The first actual locked unplug/replug reached `DISCONNECTED`, `CONNECTED`, `CONFIGURED`, then the generic unit-call failure. MTP was inactive/PID 0 with zero automatic restarts and the native greeter remained active. A later direct Gio `GetUnit` and `ResetFailedUnit` each returned `org.freedesktop.systemd1.NoSuchUnit`, domain `g-io-error-quark`, code 36, with the unit not loaded. Revision 2 adds a private-bus model of that unloaded state, verifies restart loads it, and verifies `NoSuchUnit` from the wrong method still fails without retry. Its helper SHA-256 is `ec436288c69c27b00a79ea131bc3dcc38500599df1adf0f3aae7a2ed6544d5ff`. Hardware file transfer and privacy acceptance remain unproven for this revision.

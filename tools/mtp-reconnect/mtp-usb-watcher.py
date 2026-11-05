@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import signal
 import socket
 import sys
@@ -19,10 +20,20 @@ UNIT = "mtp-server.service"
 USB_NAME = "com.meego.usb_moded"
 USB_PATH = "/com/meego/usb_moded"
 FAILURE = 77
+NO_SUCH_UNIT = "org.freedesktop.systemd1.NoSuchUnit"
 
 
 def report(event, **fields):
     print(json.dumps({"event": event, **fields}, sort_keys=True), flush=True)
+
+
+def dbus_error_fields(error, Gio):
+    """Log identifiers, never free-form remote messages or bus addresses."""
+    def identifier(value):
+        value = str(value or "")
+        return value if re.fullmatch(r"[A-Za-z0-9_.-]{1,160}", value) else "redacted"
+    return {"domain": identifier(error.domain), "code": int(error.code),
+            "remote_error": identifier(Gio.DBusError.get_remote_error(error))}
 
 
 def parse_uevent(data, sender, flags=0):
@@ -107,8 +118,19 @@ class UnitControl:
             raise ValueError("unsupported-unit-operation")
         values = (UNIT,) if method == "ResetFailedUnit" else (UNIT, "replace")
         signature = "(s)" if method == "ResetFailedUnit" else "(ss)"
-        self.proxy.call_sync(method, self.GLib.Variant(signature, values),
-                             self.Gio.DBusCallFlags.NO_AUTO_START, 1000, None)
+        try:
+            self.proxy.call_sync(method, self.GLib.Variant(signature, values),
+                                 self.Gio.DBusCallFlags.NO_AUTO_START, 1000, None)
+        except self.GLib.Error as error:
+            fields = dbus_error_fields(error, self.Gio)
+            report("unit-call-error", method=method, **fields)
+            if method == "ResetFailedUnit" and fields["remote_error"] == NO_SUCH_UNIT:
+                # systemd intentionally does not load for ResetFailedUnit:
+                # an unloaded unit has no failed state. RestartUnit loads this
+                # fixed, preflight-verified unit itself. No retry or extra load.
+                report("unit-reset-unloaded", unit=UNIT)
+                return
+            raise
 
 
 def apply_kernel_states(gate, states):

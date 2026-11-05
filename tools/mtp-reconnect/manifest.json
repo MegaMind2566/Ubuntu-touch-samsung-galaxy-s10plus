@@ -1,6 +1,7 @@
 {
   "schema": 1,
-  "status": "physical-event-source-confirmed-awaiting-linux-ci-and-candidate-trial",
+  "status": "revision2-gc-fix-awaiting-free-ci-and-replacement-trial",
+  "revision": 2,
   "source": {
     "repository": "https://gitlab.com/ubports/development/core/mtp.git",
     "commit": "4f4ce14c3b81bfabfd9ed3acfe158561c4c1c703",
@@ -43,7 +44,7 @@
     {
       "source": "mtp-usb-watcher.py",
       "target": "%h/.local/libexec/ut-s10-mtp-usb-watcher.py",
-      "sha256": "166cbf1ea05ba0bf02a4e81fe920ca67633d523d15663b197c7920fea26c0c04",
+      "sha256": "ec436288c69c27b00a79ea131bc3dcc38500599df1adf0f3aae7a2ed6544d5ff",
       "mode": "0644"
     },
     {
@@ -79,11 +80,55 @@
   },
   "tests": {
     "windows_interpreted_fixtures_passed": 19,
-    "linux_real_gio_private_bus_cases_prepared": 2,
+    "linux_real_gio_private_bus_cases_prepared": 4,
     "linux_real_gio_private_bus_passed": false,
     "handset_physical_event_readback_verified": true,
     "handset_candidate_installed": false,
     "handset_roundtrip_reconnect_verified": false
+  },
+  "previous_revision_ci": {
+    "helper_sha256": "166cbf1ea05ba0bf02a4e81fe920ca67633d523d15663b197c7920fea26c0c04",
+    "provider": "public free standard GitHub Actions ubuntu-24.04",
+    "run_id": 42043525716,
+    "job_id": 127300261795,
+    "commit": "072f8e3e504969c225f977fefed16dfafd28031a",
+    "url": "https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/actions/runs/42043525716",
+    "conclusion": "success",
+    "mtp_parser_lifecycle_cases_passed": 19,
+    "mtp_real_gio_private_bus_cases_passed": 2,
+    "all_runtime_cases_passed": 146,
+    "all_runtime_cases_skipped": 0,
+    "evidence": "parent retrieved and checked completed job logs; no phone installation or hardware transfer performed by CI"
+  },
+  "previous_revision_trial": {
+    "helper_sha256": "166cbf1ea05ba0bf02a4e81fe920ca67633d523d15663b197c7920fea26c0c04",
+    "installed": true,
+    "physical_reconnect": "failed-safely",
+    "screen_locked": true,
+    "observed_states": ["DISCONNECTED", "CONNECTED", "CONFIGURED"],
+    "watcher_exit_status": 77,
+    "mtp_active": false,
+    "mtp_main_pid": 0,
+    "mtp_automatic_restarts": 0,
+    "native_greeter_is_active": true,
+    "original_journal_error": "kernel-event-or-unit-call-failed; no remote error details in revision1",
+    "post_trial_direct_gio_reproducer": {
+      "GetUnit": "org.freedesktop.systemd1.NoSuchUnit",
+      "ResetFailedUnit": "org.freedesktop.systemd1.NoSuchUnit",
+      "message": "Unit mtp-server.service not loaded.",
+      "domain": "g-io-error-quark",
+      "code": 36
+    },
+    "boundary": "Old source failed physical acceptance; revised source not yet installed or validated. No disconnected restart storm or storage exposure occurred."
+  },
+  "gc_fix_contract": {
+    "upstream_reference": "systemd-stable v255.4",
+    "commit": "387a14a7b67b8b76adaed4175e14bb7e39b2f738",
+    "source": "https://github.com/systemd/systemd-stable/blob/387a14a7b67b8b76adaed4175e14bb7e39b2f738/src/core/dbus-manager.c",
+    "ResetFailedUnit": "does not load units because unloaded units cannot be failed",
+    "RestartUnit": "method_start_unit_generic loads the fixed named unit",
+    "only_benign_error": "ResetFailedUnit with exact remote org.freedesktop.systemd1.NoSuchUnit",
+    "all_other_errors": "log sanitized domain/code/remote name and fail-stop; no blind retry or explicit LoadUnit"
   },
   "observed_event_source": {
     "date": "2026-11-05",

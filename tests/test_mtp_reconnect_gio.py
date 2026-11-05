@@ -2,6 +2,7 @@
 import contextlib
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
 import threading
@@ -24,6 +25,8 @@ SPEC.loader.exec_module(mod)
 class PrivateUnitTests(unittest.TestCase):
     def setUp(self):
         self.calls, self.failure = [], None
+        self.failure_name = "org.example.Fixture.Refused"
+        self.loaded = True
         self.ready = threading.Event()
         self.context = GLib.MainContext.new()
         self.loop = GLib.MainLoop.new(self.context, False)
@@ -50,10 +53,14 @@ class PrivateUnitTests(unittest.TestCase):
         def method(_connection, _sender, _path, _interface, name, parameters, invocation):
             self.calls.append((name, parameters.get_type_string(), parameters.unpack()))
             if name == self.failure:
-                invocation.return_dbus_error("org.example.Fixture.Refused", "fixture error")
+                invocation.return_dbus_error(self.failure_name, "fixture error; private address is not logged")
+            elif name == "ResetFailedUnit" and not self.loaded:
+                invocation.return_dbus_error(mod.NO_SUCH_UNIT, "Unit mtp-server.service not loaded.")
             elif name == "ResetFailedUnit":
                 invocation.return_value(GLib.Variant("()", ()))
             else:
+                if name == "RestartUnit":
+                    self.loaded = True
                 invocation.return_value(GLib.Variant("(o)", ("/org/freedesktop/systemd1/job/1",)))
         registration = connection.register_object("/org/freedesktop/systemd1", node.interfaces[0], method, None, None)
         connection.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
@@ -96,6 +103,34 @@ class PrivateUnitTests(unittest.TestCase):
                 gate.set_mode("mtp_adb")
             gate.set_mode("mtp_adb")
         self.assertEqual([call[0] for call in self.calls], ["StopUnit", "ResetFailedUnit"])
+
+    def test_unloaded_unit_reset_is_idempotent_and_restart_can_load(self):
+        gate = mod.Gate(self.control)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            gate.set_state("CONFIGURED")
+            self.loaded = False  # model systemd garbage-collection after stop
+            gate.set_mode("mtp_adb")
+        self.assertEqual([call[0] for call in self.calls], ["StopUnit", "ResetFailedUnit", "RestartUnit"])
+        records = [json.loads(line) for line in output.getvalue().splitlines()]
+        failure = next(record for record in records if record["event"] == "unit-call-error")
+        self.assertEqual(failure["remote_error"], mod.NO_SUCH_UNIT)
+        self.assertEqual(failure["domain"], "g-io-error-quark")
+        self.assertIsInstance(failure["code"], int)
+        self.assertNotIn("private address", output.getvalue())
+        self.assertTrue(gate.running)
+        self.assertTrue(self.loaded)
+
+    def test_no_such_unit_from_restart_is_not_ignored_or_retried(self):
+        gate = mod.Gate(self.control)
+        with contextlib.redirect_stdout(io.StringIO()):
+            gate.set_state("CONFIGURED")
+            self.failure = "RestartUnit"
+            self.failure_name = mod.NO_SUCH_UNIT
+            with self.assertRaises(GLib.Error):
+                gate.set_mode("mtp_adb")
+            gate.set_mode("mtp_adb")
+        self.assertEqual([call[0] for call in self.calls], ["StopUnit", "ResetFailedUnit", "RestartUnit"])
 
 
 if __name__ == "__main__":
