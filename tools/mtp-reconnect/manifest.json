@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "status": "physical-event-source-confirmed-awaiting-linux-ci-and-candidate-trial",
+  "source": {
+    "repository": "https://gitlab.com/ubports/development/core/mtp.git",
+    "commit": "4f4ce14c3b81bfabfd9ed3acfe158561c4c1c703",
+    "packages": ["mtp-server", "libmtpserver1"],
+    "version": "0.1.0~20260518151229.67~4f4ce14+ubports24.04.2"
+  },
+  "guards": {
+    "kernel": "4.14.280-gb9b70b29c94c-dirty",
+    "os_id": "ubuntu",
+    "os_version_id": "24.04",
+    "device": "beyond2lte",
+    "model": "SM-G975F",
+    "effective_uid": "existing non-root Lomiri session user",
+    "root_session_or_new_private_session_bus_allowed": false,
+    "kernel_event_source": "NETLINK_KOBJECT_UEVENT protocol15 group1; senderPID0; android_usb/android0 USB_STATE",
+    "kernel_state_path": "/sys/class/android_usb/android0/state"
+  },
+  "originals": [
+    {
+      "path": "/usr/libexec/mtp-server-usb-moded-watcher",
+      "sha256": "f256116519038da1c53c19e7199070f4c4fa03a51b0b90a1ccd287cca71578c5"
+    },
+    {
+      "path": "/usr/bin/mtp-server",
+      "sha256": "d738ebdfef962656e0804b6cc434842d02eaeb25ac9bfa50311062846dae9980",
+      "identity_source": "parent's read-only live ELF hash, unchanged by this candidate"
+    },
+    {
+      "path": "/usr/lib/systemd/user/mtp-server.service",
+      "sha256": "a8de700b5cb6641ef61693d32e74db9d28508d1aea05afce4053a0c2fd644ce2",
+      "expected_exec_start": "/usr/bin/mtp-server"
+    },
+    {
+      "path": "/usr/lib/systemd/user/mtp-server-usb-moded-watcher.service",
+      "sha256": "e55be9e42a818f73d8edbb39bfd0bbf08e4f13534616ae64c9a5c9e23bc92dcd",
+      "expected_exec_start": "/usr/libexec/mtp-server-usb-moded-watcher"
+    }
+  ],
+  "payloads": [
+    {
+      "source": "mtp-usb-watcher.py",
+      "target": "%h/.local/libexec/ut-s10-mtp-usb-watcher.py",
+      "sha256": "166cbf1ea05ba0bf02a4e81fe920ca67633d523d15663b197c7920fea26c0c04",
+      "mode": "0644"
+    },
+    {
+      "source": "mtp-server-reconnect.conf",
+      "target": "%h/.config/systemd/user/mtp-server.service.d/90-ut-s10-mtp-reconnect.conf",
+      "sha256": "3c0e25b18e654b9c16d6ea345b236d334da255089fc4b5c5faf6cc993177897d",
+      "mode": "0644"
+    },
+    {
+      "source": "mtp-watcher-reconnect.conf",
+      "target": "%h/.config/systemd/user/mtp-server-usb-moded-watcher.service.d/90-ut-s10-mtp-reconnect.conf",
+      "sha256": "e89fa33fc621852f95039c1a1396bf051919d912ae262632cbaa8f3addb5a622",
+      "mode": "0644"
+    }
+  ],
+  "installation": {
+    "installer": "parent-owned private staged normal-user installer, no phone action from source preparation",
+    "reject_existing_target_collisions": true,
+    "reject_symlinks_or_shared_writable_directories": true,
+    "preserve_exact_prior_state": true,
+    "partial_failure_requires_rollback": true,
+    "reload_user_manager_then_restart_only_original_watcher": true,
+    "hash_readback_required": true,
+    "observed_parent_permissions": {
+      "%h": "0750",
+      "%h/.local/libexec": "0700",
+      "%h/.config": "0700",
+      "%h/.config/systemd": "0775, uid/gid32011",
+      "%h/.config/systemd/user": "0775, uid/gid32011"
+    },
+    "parent_permission_adjustment": "private installer records exact prior modes and tightens only the two 0775 systemd parents to 0755 before promotion; restores exact prior modes on rollback",
+    "root_twrp_boot_system_vendor_package_database_writes": false
+  },
+  "tests": {
+    "windows_interpreted_fixtures_passed": 19,
+    "linux_real_gio_private_bus_cases_prepared": 2,
+    "linux_real_gio_private_bus_passed": false,
+    "handset_physical_event_readback_verified": true,
+    "handset_candidate_installed": false,
+    "handset_roundtrip_reconnect_verified": false
+  },
+  "observed_event_source": {
+    "date": "2026-11-05",
+    "candidate_running_during_observation": false,
+    "unprivileged_netlink_bind_verified": true,
+    "sender": "kernel PID0",
+    "action": "change",
+    "subsystem": "android_usb",
+    "devpath": "/devices/virtual/android_usb/android0",
+    "states_in_order": ["DISCONNECTED", "CONNECTED", "CONFIGURED"],
+    "host_observed_monotonic_seconds": [3135.167427566, 3151.034652436, 3151.139047761],
+    "usb_moded_dbus_signals_during_cycle": 0,
+    "usb_moded_mode": "mtp_adb",
+    "udc_state_stale_during_disconnect": true,
+    "boundary": "Confirms event transport and physical readiness source only; candidate not yet installed or MTP roundtrip tested."
+  }
+}

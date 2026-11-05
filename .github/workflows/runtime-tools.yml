@@ -18,6 +18,9 @@ on:
       - 'scripts/uos27_radio_bridge.py'
       - 'tests/test_uos27_brightness_capability.py'
       - 'tests/test_uos27_brightness_gio.py'
+      - 'tools/mtp-reconnect/**'
+      - 'tests/test_mtp_reconnect.py'
+      - 'tests/test_mtp_reconnect_gio.py'
       - '.github/workflows/runtime-tools.yml'
   pull_request:
     paths:
@@ -36,6 +39,9 @@ on:
       - 'scripts/uos27_radio_bridge.py'
       - 'tests/test_uos27_brightness_capability.py'
       - 'tests/test_uos27_brightness_gio.py'
+      - 'tools/mtp-reconnect/**'
+      - 'tests/test_mtp_reconnect.py'
+      - 'tests/test_mtp_reconnect_gio.py'
       - '.github/workflows/runtime-tools.yml'
 permissions:
   contents: read
@@ -61,10 +67,14 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_automatic_brightness_profile.py -v
       - name: Test strict native brightness capability parsing and lifecycle fixtures
         run: python3 -m unittest discover -s tests -p test_uos27_brightness_capability.py -v
+      - name: Test MTP physical USB lifecycle and strict kernel-event fixtures
+        run: python3 -m unittest discover -s tests -p test_mtp_reconnect.py -v
       - name: Prepare Python Gio private-bus test dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y python3-gi dbus
           /usr/bin/python3 -c 'from gi.repository import Gio, GLib'
       - name: Test real Gio readonly action and owner-change bindings on a private mock bus
-        run: dbus-run-session -- /usr/bin/python3 -m unittest discover -s tests -p test_uos27_brightness_gio.py -v
+        run: dbus-run-session -- env UOS27_TEST_PRIVATE_BUS=1 /usr/bin/python3 -m unittest discover -s tests -p test_uos27_brightness_gio.py -v
+      - name: Test real MTP watcher Gio method signatures on a private mock user bus
+        run: dbus-run-session -- env S10_MTP_PRIVATE_BUS=1 /usr/bin/python3 -m unittest discover -s tests -p test_mtp_reconnect_gio.py -v
