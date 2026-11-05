@@ -158,13 +158,19 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--progress", action="store_true", help="Flush fixture stage markers for native crash diagnosis")
     args = parser.parse_args()
+    def progress(stage):
+        if args.progress:
+            print(json.dumps({"home_fixture_stage":stage}), flush=True)
+    progress("starting")
     source = args.source / "qml/Panel/Glass"
     if not (source / "GlassHome.qml").is_file():
         raise SystemExit("Home module is missing from the prepared tree")
     messages = []
     qInstallMessageHandler(lambda kind, context, message: messages.append(message))
     app = QGuiApplication([])
+    progress("application-created")
     qmlRegisterType(MockAppDrawerModel, "Lomiri.Launcher", 0, 1, "AppDrawerModel")
     qmlRegisterType(MockAppDrawerProxyModel, "Utils", 0, 1, "AppDrawerProxyModel")
     pinned = MockApplications()
@@ -199,6 +205,7 @@ Item {
         view.rootContext().setContextProperty("LauncherModel", pinned)
         view.rootContext().setContextProperty("i18n", I18n(view))
         view.setSource(QUrl.fromLocalFile(str(fixture / "GlassHome.qml")))
+        progress("qml-loaded")
         if view.status() != QQuickView.Ready:
             raise AssertionError([str(x.toString()) for x in view.errors()])
         root = view.rootObject()
@@ -219,6 +226,7 @@ Item {
             assert grid.property("y") >= 0
             assert dock.property("x") >= 0 and dock.property("width") <= width
             checks.append(f"native Qt5 Home layout loads at {width}x{height}")
+            progress(f"layout-{width}x{height}")
         view.resize(412, 915)
         QTest.qWait(100)
         browser = scene_item(root, "uos27HomeApp_browser")
@@ -230,6 +238,7 @@ Item {
         assert browser.x() < calendar.x() < camera.x()
         assert messages_item.y() > browser.y()
         checks.append("Portrait catalog fills four columns in row order instead of down columns")
+        progress("portrait-row-order")
         first = scene_item(root, "uos27HomeApp_file-manager")
         assert first, ("An UNPINNED installed app is absent from Home", messages,
                        grid.property("count"))
@@ -238,6 +247,7 @@ Item {
         QTest.qWait(20)
         assert launched == ["file-manager"], launched
         checks.append("Unpinned installed icon launches via native app id")
+        progress("native-launch-request")
         search = root.findChild(QObject, "uos27HomeSearchTrigger")
         center = search.mapToScene(QPointF(search.width()/2, search.height()/2)).toPoint()
         QTest.mouseClick(view, Qt.LeftButton, Qt.NoModifier, center)
@@ -250,11 +260,13 @@ Item {
         root.closeSearch()
         QTest.qWait(20)
         checks.append("Integrated Home search filters installed apps without opening Drawer")
+        progress("search-filtered")
 
         catalog = MockAppDrawerModel.instances[-1]
         catalog.beginResetModel()
         catalog.apps.extend(("test-app-" + str(n), "App " + str(n), "") for n in range(48))
         catalog.endResetModel()
+        progress("catalog-reset")
         QTest.qWait(90)
         assert grid.property("pageCount") > 1, (grid.property("pageCount"), messages)
         pagination = root.findChild(QObject, "uos27HomePagination")
@@ -263,6 +275,7 @@ Item {
         QTest.qWait(50)
         assert grid.property("currentPage") >= 1, grid.property("currentPage")
         checks.append("Newly installed apps appear on multiple Home pages with native pagination")
+        progress("native-pagination")
         previous_page = grid.property("currentPage")
         root.setProperty("visible", False)
         QTest.qWait(20)
@@ -278,6 +291,7 @@ Item {
         assert len(pinned.apps) == 6
         assert grid.property("count") > len(pinned.apps)
         checks.append("Dock model remains distinct from complete installed-app Home model")
+        progress("all-model-checks-complete")
         problems = [m for m in messages if any(needle in m for needle in (
             "ReferenceError", "TypeError", "Binding loop", "Cannot assign",
             "Cannot anchor", "is not a type", "is not a function"))]
@@ -288,9 +302,12 @@ Item {
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report, indent=2))
+        progress("report-written")
         root.setProperty("wallpaperCoverVisible", False)
         QTest.qWait(75)
         view.close()
+        progress("view-closed")
+    progress("fixture-files-cleaned")
 
 
 if __name__ == "__main__":
