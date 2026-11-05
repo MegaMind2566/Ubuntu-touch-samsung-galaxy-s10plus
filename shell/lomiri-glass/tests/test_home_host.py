@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -24,6 +25,8 @@ from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import qmlRegisterType
 from PyQt5.QtQuick import QQuickItem, QQuickView
 from PyQt5.QtTest import QTest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "preview"))
+from runtime import dispose_view
 
 
 class MockApplications(QAbstractListModel):
@@ -173,8 +176,8 @@ def main() -> None:
     progress("application-created")
     qmlRegisterType(MockAppDrawerModel, "Lomiri.Launcher", 0, 1, "AppDrawerModel")
     qmlRegisterType(MockAppDrawerProxyModel, "Utils", 0, 1, "AppDrawerProxyModel")
-    pinned = MockApplications()
-    units = Units()
+    pinned = MockApplications(app)
+    units = Units(app)
     with tempfile.TemporaryDirectory(prefix="uos27-home-fixture-") as temporary:
         directory = Path(temporary)
         fixture = directory / "qml/Glass"
@@ -305,9 +308,11 @@ Item {
         progress("report-written")
         root.setProperty("wallpaperCoverVisible", False)
         QTest.qWait(75)
-        view.close()
-        progress("view-closed")
+        dispose_view(view)
+        MockAppDrawerModel.instances.clear()
+        progress("window-and-engine-destroyed")
     progress("fixture-files-cleaned")
+    qInstallMessageHandler(None)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt5.QtTest import QTest
 
-from runtime import create_view, save_screenshot
+from runtime import create_view, save_screenshot, dispose_view
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
         "evidence": "Qt 5 desktop software rendering, fixture service states; not handset execution",
         "screenshots": captures,
     }, indent=2))
-    view.close()
+    dispose_view(view)
 
 
 if __name__ == "__main__":

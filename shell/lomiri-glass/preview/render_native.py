@@ -16,7 +16,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
-from runtime import create_view, save_screenshot
+from runtime import create_view, save_screenshot, dispose_view
 from test_integrated_cover_host import (fixtures, write, TestLightDM, UnitsWithDp,
                                         Haptics, I18n, OneUser, MockGSettings, scene_item)
 from test_greeter_flow_host import MockSettingsSchema
@@ -147,7 +147,7 @@ def main():
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     app, font_view, _ = create_view()
-    font_view.close()
+    dispose_view(font_view)
     qmlRegisterUncreatableType(MockSettingsSchema,"GSettings",1,0,"Schema","Owned by GSettings")
     qmlRegisterType(Settings, "GSettings", 1, 0, "GSettings")
     qmlRegisterType(WindowRows,"Fixture",1,0,"FixtureWindowModel")
@@ -200,7 +200,7 @@ def main():
             prompt.canceled.emit()
             QTest.qWait(80)
             assert not greeter.property("integratedPinVisible") and cover.property("shown")
-            view.close()
+            dispose_view(view)
         identities.update(add_surfaces(target,args.source,write,module))
         for width,height in ((360,760),(412,870)):
             view=make_native_view(target/"NotificationsHarness.qml",target,lightdm,units,haptics,i18n,users)
@@ -216,7 +216,7 @@ def main():
             QTest.qWait(80)
             assert not body.isVisible() and scene_item(root,"privacySummaryLabel").isVisible()
             captures.append(save_screenshot(view,args.output/f"native-notifications-private-{width}x{height}.png"))
-            view.close()
+            dispose_view(view)
             view=make_native_view(target/"SpreadHarness.qml",target,lightdm,units,haptics,i18n,users)
             view.resize(width,height)
             view.show()
@@ -234,7 +234,7 @@ def main():
             assert root.property("closeRequests")==1
             QTest.keyClick(view,Qt.Key_Escape)
             assert root.property("leaveRequests")==1
-            view.close()
+            dispose_view(view)
     errors=[m for m in messages if any(x in m for x in ("ReferenceError","TypeError","Binding loop","Cannot anchor","Unable to assign","Cannot assign","is not a type","failed to load"))]
     assert not errors,errors
     report={"result":"pass","source_prepared_only":True,"captures":captures,"exact_native_components":identities,

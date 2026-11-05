@@ -10,7 +10,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QSG_RENDER_LOOP", "basic")
 
-from PyQt5.QtCore import QObject, QUrl, QEventLoop, QTimer, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, QUrl, QEventLoop, QTimer, QCoreApplication, QEvent, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt5 import sip
 from PyQt5.QtGui import QGuiApplication, QFontDatabase, QFont
 from PyQt5.QtQuick import QQuickView
 from PyQt5.QtTest import QTest
@@ -164,3 +165,19 @@ def save_screenshot(view, destination):
     if shot.isNull() or not shot.save(str(destination)):
         raise RuntimeError(f"Could not capture actual Qt frame to {destination}")
     return {"path": str(destination), "width": shot.width(), "height": shot.height()}
+
+
+def dispose_view(view):
+    """Destroy window and QQmlEngine while their application/models still live.
+
+    Closing a QWindow only hides it. Letting Python's frame/interpreter teardown
+    destroy QGuiApplication first can leave QQmlThread and SIP wrappers alive.
+    Explicit deferred deletion preserves Qt's ordinary GUI-thread lifecycle.
+    """
+    view.close()
+    view.setSource(QUrl())
+    view.engine().collectGarbage()
+    view.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    if not sip.isdeleted(view):
+        raise RuntimeError("The fixture window/engine was not destroyed before application teardown")

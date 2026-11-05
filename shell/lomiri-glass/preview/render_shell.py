@@ -11,7 +11,7 @@ import shutil
 import sys
 import tempfile
 
-from runtime import create_view, save_screenshot
+from runtime import create_view, save_screenshot, dispose_view
 from PyQt5.QtGui import QImageReader
 from PyQt5.QtCore import QObject, QUrl
 from PyQt5.QtQml import qmlRegisterType
@@ -121,7 +121,8 @@ Item {
         checks.append("Home uses the production installed-app catalog view and production pinned dock")
         checks.append("Status icons do not intersect the same 27 percent right-side camera reserve as production")
         MockAppDrawerModel.__init__ = original_init
-        view.close()
+        dispose_view(view)
+        MockAppDrawerModel.instances.clear()
     report = {"evidence": "Actual Qt 5 desktop software rendering; simulated catalog/state/wallpaper, no phone execution", "checks": checks, "screenshots": captures, "surface_scope": {"home": "production GlassHome with catalog fixture", "controls": "production GlassCenter with inert backend", "lock": "composition fixture plus production unlock gesture; native cover captures are separate", "notifications": "production GlassCenter with empty native-host fixture", "switcher": "empty-state layout fixture; native Spread capture is separate"}, "not_validated": ["handset", "real LightDM challenge", "GPU effects", "Lomiri notification service", "full iOS feature parity"]}
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / "shell-preview.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
