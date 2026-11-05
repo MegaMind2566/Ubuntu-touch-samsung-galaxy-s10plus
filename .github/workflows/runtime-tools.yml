@@ -15,6 +15,9 @@ on:
       - 'tests/test_runtime_fix_sources.py'
       - 'tools/automatic-brightness/**'
       - 'tests/test_automatic_brightness_profile.py'
+      - 'scripts/uos27_radio_bridge.py'
+      - 'tests/test_uos27_brightness_capability.py'
+      - 'tests/test_uos27_brightness_gio.py'
       - '.github/workflows/runtime-tools.yml'
   pull_request:
     paths:
@@ -30,6 +33,9 @@ on:
       - 'tests/test_runtime_fix_sources.py'
       - 'tools/automatic-brightness/**'
       - 'tests/test_automatic_brightness_profile.py'
+      - 'scripts/uos27_radio_bridge.py'
+      - 'tests/test_uos27_brightness_capability.py'
+      - 'tests/test_uos27_brightness_gio.py'
       - '.github/workflows/runtime-tools.yml'
 permissions:
   contents: read
@@ -53,3 +59,12 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_runtime_fix_sources.py -v
       - name: Test pinned brightness profile installation and exact rollback with fixtures
         run: python3 -m unittest discover -s tests -p test_automatic_brightness_profile.py -v
+      - name: Test strict native brightness capability parsing and lifecycle fixtures
+        run: python3 -m unittest discover -s tests -p test_uos27_brightness_capability.py -v
+      - name: Prepare Python Gio private-bus test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y python3-gi dbus
+          /usr/bin/python3 -c 'from gi.repository import Gio, GLib'
+      - name: Test real Gio readonly action and owner-change bindings on a private mock bus
+        run: dbus-run-session -- /usr/bin/python3 -m unittest discover -s tests -p test_uos27_brightness_gio.py -v

@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-05",
+  "target": "SM-G975F / beyond2lte",
+  "test": "first normal boot after userdata-only saved-mode service installation",
+  "kernel_release": "4.14.280-gb9b70b29c94c-dirty",
+  "host_adb_state": "device",
+  "adb_shell_uid": 32011,
+  "unit": {
+    "enabled": true,
+    "Result": "success",
+    "ExecMainStatus": 0,
+    "ActiveState": "inactive",
+    "SubState": "dead",
+    "journal": {
+      "event": "restored",
+      "mode": "mtp_adb"
+    }
+  },
+  "mode_current": "mtp_adb",
+  "mode_saved": "mtp_adb",
+  "adbd_service": "active",
+  "adbd_prepare_service": "active",
+  "power": {
+    "usb_online": 1,
+    "battery_status": "Charging",
+    "capacity_percent": 99
+  },
+  "scope": {
+    "normal_boots_with_new_service_verified": 1,
+    "manual_mode_selection_after_boot": false,
+    "adb_authentication_disabled": false,
+    "firmware_written": false,
+    "driver_changed": false
+  },
+  "remaining": [
+    "Windows MTP interface has problem code 28; no PC MTP transfer verified",
+    "mass-storage charging-only fallback not enabled in BOOT6; separate issue",
+    "longer charging, full-cycle/endurance and repeated-boot reliability remain unverified"
+  ],
+  "installed_payloads": {
+    "restore-saved-mode.py": {
+      "sha256": "b83df7103e2d55d84129bb75582a94be785388becb6e7d2ada55f32606e1d505",
+      "bytes": 4427
+    },
+    "ut-s10-usb-restore-saved-mode.service": {
+      "sha256": "99d384eb210f0958af031c900876dd3854785ab8515123027b8671645a73ebf0",
+      "bytes": 460
+    }
+  },
+  "charging_followup": {
+    "device_time": "2026-11-05T11:53:18+01:00",
+    "usb_online": 1,
+    "battery_status": "Full",
+    "capacity_percent": 100,
+    "interpretation": "short observed progression from post-boot Charging/99% to Full/100%; no current-rate, full-cycle or endurance certification"
+  },
+  "adbd_secure_setting": 1,
+  "later_evidence": {
+    "record": "mtp-windows-roundtrip-2026-11-05.json",
+    "description": "The remaining list above describes this earlier USB-mode acceptance. Later compatible Windows MTP driver selection and one small-file transfer per direction were verified separately; see the dated MTP record."
+  }
+}

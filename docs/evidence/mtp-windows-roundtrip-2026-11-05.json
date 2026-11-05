@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-05",
+  "target": "SM-G975F / beyond2lte",
+  "protocol": "MTP via Windows Shell WPD namespace",
+  "windows_driver": "wpdmtphw.inf / WUDFWpdMtp",
+  "windows_problem_code": 0,
+  "phone_to_pc": {
+    "verified": true,
+    "sha256": "d94b5fd308a65d60b3df7597eda0d6bffc78f41535fd452cda96151132282983",
+    "bytes": 72050
+  },
+  "pc_to_phone": {
+    "verified": true,
+    "sha256": "ad0eb227de63fbfa2c43f70dd9d6b266d99736904bb737f8601baa98107691fc",
+    "bytes": 72050
+  },
+  "verification": "MTP copies in both directions; cross-checked SHA256 against generated host source and target read via authenticated ADB",
+  "privacy": "Only newly generated diagnostic text files copied; no personal file opened",
+  "limits": "One small-file round trip; large files, sustained reconnect and throughput untested",
+  "diagnostic_phone_files_removed": true
+}

@@ -1,9 +1,13 @@
 # adbd USB reconnect candidate
 
-Source candidate for the S10+ ADB reconnect regression, not an installed fix.
+Built candidate for the S10+ ADB reconnect regression, not an installed fix.
 Compilation is restricted to the public repository's standard free
 `ubuntu-24.04-arm` GitHub Actions workflow. No local or paid builder is used.
-Hardware acceptance remains required after successful build and review.
+The free GitHub native ARM64 package build and all eight candidate source-method
+fixtures passed in run `42025861432`; both required baseline failures were reproduced.
+The verified handset loader resolved all staged candidate libraries without
+starting the candidate daemon. Hardware acceptance remains required; see the
+[dated build record](../../docs/evidence/runtime-arm64-build-2026-11-05.md).
 
 ## Exact source and evidence
 

@@ -1,6 +1,8 @@
 # repowerd SystemSuspend HIDL backport candidate
 
-Source-only candidate, prepared 5 November 2026. **Not compiled, packaged, installed or hardware-validated.** It is not part of the alpha.1 ROM and is not a suspend fix proven on this handset.
+Prepared 5 November 2026. The unchanged upstream HIDL variant was built successfully in [free native ARM64 CI run 42025861432](https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/actions/runs/42025861432), including two passing upstream CTest suites and matching daemon/data/tools packages. Deployment was held for the follow-up ownership/activation work. It is not part of alpha.1 and proves no handset suspend result.
+
+The second, guarded activation variant in `activation/` is a separate source candidate, not yet compiled or deployed until its own build record says otherwise. See [first-build evidence](../../docs/evidence/runtime-arm64-build-2026-11-05.md) and [activation design/build instructions](activation/README.md).
 
 ## Scope and provenance
 

@@ -1,0 +1,72 @@
+name: Free ARM64 guarded suspend activation candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feature/s10-runtime-20261105']
+    paths:
+      - 'tools/repowerd-suspend/activation/**'
+      - 'tools/repowerd-suspend/build-linux-arm64.sh'
+      - '.github/workflows/suspend-activation-build.yml'
+env:
+  S10_HYBRIS_VERSION: 0.1.0+git20250630+0cedf90-0ubports2+0~20260911145803.1+ubports24.04.2~1.gbp61f88b
+  S10_DEVICEINFO_VERSION: 0.2.4+0~20260329172905.22+ubports24.04.2~1.gbp84bff0
+  S10_GBINDER_VERSION: 1.1.52-0ubports1~20260911100623.2~d4855b1+ubports24.04.2
+permissions:
+  contents: read
+concurrency:
+  group: suspend-activation-arm64-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  activation:
+    if: ${{ github.event.repository.private == false && github.ref == 'refs/heads/feature/s10-runtime-20261105' }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    env:
+      DEBFULLNAME: S10 runtime candidate builder
+      DEBEMAIL: builder@localhost
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Configure the official signed UBports repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec > >(tee "$RUNNER_TEMP/dependency-setup.log") 2>&1
+          test "$(dpkg --print-architecture)" = arm64
+          curl --fail --silent --show-error --location https://repo.ubports.com/keyring.gpg --output "$RUNNER_TEMP/ubports-keyring.gpg"
+          echo "b9834f239d7eef9c919292b454f4ecb5098b969704cdc6ea91d5ccc652bce0ca  $RUNNER_TEMP/ubports-keyring.gpg" | sha256sum --check -
+          sudo install -m 0644 "$RUNNER_TEMP/ubports-keyring.gpg" /usr/share/keyrings/ubports-keyring.gpg
+          echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/ubports-keyring.gpg] https://repo.ubports.com/ 24.04-2.x main' | sudo tee /etc/apt/sources.list.d/ubports.list
+          # Keep the complete libhybris binary family at the handset's source version.
+          # This version is present in the signed 24.04-2.x index; do not mix October APIs.
+          printf 'Package: libhybris* libandroid-properties* libhardware* libmedia* libvulkan1-hybris*\nPin: version %s\nPin-Priority: 1001\n' "$S10_HYBRIS_VERSION" | sudo tee /etc/apt/preferences.d/s10-libhybris
+          sudo apt-get update
+          apt-cache policy libhybris libhybris-common1 libandroid-properties1 libhybris-dev libandroid-properties-dev
+      - name: Install the native build and test dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends build-essential git cmake cmake-extras debhelper dh-apport android-headers dbus dbus-x11 googletest libgtest-dev "libdeviceinfo-dev=$S10_DEVICEINFO_VERSION" "libgbinder-dev=$S10_GBINDER_VERSION" libglib2.0-dev "libhybris-dev=$S10_HYBRIS_VERSION" pkgconf systemd-dev python3
+      - name: Build guarded activation with actual-adapter fake Binder fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          S10_ENABLE_AIDL_ACTIVATION=1 bash tools/repowerd-suspend/build-linux-arm64.sh "$RUNNER_TEMP/s10-repowerd" 2>&1 | tee "$RUNNER_TEMP/repowerd-invocation.log"
+      - name: Retain candidate packages, manifests and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: repowerd-activation-arm64-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/dependency-setup.log
+            ${{ runner.temp }}/repowerd-invocation.log
+            ${{ runner.temp }}/s10-repowerd/**/*.deb
+            ${{ runner.temp }}/s10-repowerd/**/*.buildinfo
+            ${{ runner.temp }}/s10-repowerd/**/*.changes
+            ${{ runner.temp }}/s10-repowerd/**/SHA256SUMS
+            ${{ runner.temp }}/s10-repowerd/**/activation-tests/results.json
+            ${{ runner.temp }}/s10-repowerd/**/*.log
+            ${{ runner.temp }}/s10-repowerd/**/build-status.txt
+            ${{ runner.temp }}/s10-repowerd/**/builder-package-versions.txt
+            ${{ runner.temp }}/s10-repowerd/**/pkg-config-versions.txt

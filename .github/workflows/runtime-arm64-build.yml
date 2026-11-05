@@ -5,6 +5,7 @@ on:
     branches: ['feature/s10-runtime-20261105']
     paths:
       - 'tools/repowerd-suspend/**'
+      - '!tools/repowerd-suspend/activation/**'
       - 'patches/usb/**'
       - 'tests/test_suspend_clock.py'
       - 'tests/test_adbd_worker_stop.py'
@@ -19,8 +20,41 @@ concurrency:
   group: runtime-arm64-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  repowerd:
+  changes:
     if: ${{ github.event.repository.private == false && github.ref == 'refs/heads/feature/s10-runtime-20261105' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      repowerd: ${{ steps.paths.outputs.repowerd }}
+      adbd: ${{ steps.paths.outputs.adbd }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: paths
+        env:
+          BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          import os, re, subprocess
+          if os.environ['EVENT'] == 'workflow_dispatch':
+              power = adb = True
+          else:
+              before = os.environ['BEFORE']
+              if not re.fullmatch('[0-9a-f]{40}', before) or set(before) == {'0'}:
+                  power = adb = True
+              else:
+                  paths = subprocess.check_output(['git', 'diff', '--name-only', before, 'HEAD', '--'], text=True).splitlines()
+                  power = any(p.startswith('tools/repowerd-suspend/') and not p.startswith('tools/repowerd-suspend/activation/') for p in paths)
+                  adb = any(p.startswith('patches/usb/') for p in paths)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'repowerd={str(power).lower()}\nadbd={str(adb).lower()}\n')
+          PYTHON
+  repowerd:
+    needs: changes
+    if: ${{ github.event.repository.private == false && needs.changes.outputs.repowerd == 'true' && github.ref == 'refs/heads/feature/s10-runtime-20261105' }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     env:
@@ -72,7 +106,8 @@ jobs:
             ${{ runner.temp }}/s10-repowerd/**/builder-package-versions.txt
             ${{ runner.temp }}/s10-repowerd/**/pkg-config-versions.txt
   adbd:
-    if: ${{ github.event.repository.private == false && github.ref == 'refs/heads/feature/s10-runtime-20261105' }}
+    needs: changes
+    if: ${{ github.event.repository.private == false && needs.changes.outputs.adbd == 'true' && github.ref == 'refs/heads/feature/s10-runtime-20261105' }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     env:

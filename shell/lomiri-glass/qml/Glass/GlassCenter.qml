@@ -717,7 +717,7 @@ FocusScope {
                         && root.backend.automaticBrightnessAvailable === true
                     Accessible.role: Accessible.Button
                     Accessible.name: "Luminosità automatica"
-                    Accessible.description: supported ? "Apri le impostazioni schermo" : "Adattamento del sensore da completare"
+                      Accessible.description: supported ? "Apri le impostazioni schermo" : "Disponibilità da verificare"
                     Accessible.onPressAction: root.openDetail("power")
                     Keys.onReturnPressed: root.openDetail("power")
                     Rectangle {
@@ -732,13 +732,45 @@ FocusScope {
                         width: root.gu * 3.0; height: width; name: "sun"
                     }
                     Column {
-                        x: root.gu * 7.0; width: parent.width - x - root.gu * 4
+                          x: root.gu * 7.0; width: parent.width - x - root.gu * 11
                         anchors.verticalCenter: parent.verticalCenter; spacing: root.gu * 0.5
-                        Text { text: "Schermo e luminosità"; color: "white"; font.pixelSize: root.gu * 1.8; font.weight: Font.DemiBold }
-                        Text { width: parent.width; text: automaticDisplay.supported ? "Luminosità automatica" : "Automatica · da configurare"; color: "#d7e5f5"; font.pixelSize: root.gu * 1.5; elide: Text.ElideRight }
+                          Text { width: parent.width; text: "Luminosità"; color: "white"; font.pixelSize: root.gu * 1.8; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                          Text { width: parent.width; text: automaticDisplay.supported ? "Automatica" : root.backend !== null && root.backend.automaticBrightnessSupportKnown === true ? "Automatica non disponibile" : "Verifica disponibilità…"; color: "#d7e5f5"; font.pixelSize: root.gu * 1.5; elide: Text.ElideRight }
                     }
-                    GlassIcon { anchors.right: parent.right; anchors.rightMargin: root.gu * 2; anchors.verticalCenter: parent.verticalCenter; width: root.gu * 1.6; height: width; name: "chevron" }
                     MouseArea { anchors.fill: parent; enabled: root.actionsAllowed; onClicked: root.openDetail("power") }
+                      FocusScope {
+                          id: automaticSwitch
+                          objectName: "automaticBrightnessSwitch"
+                          anchors.right: parent.right; anchors.rightMargin: root.gu * 2
+                          anchors.verticalCenter: parent.verticalCenter
+                          width: root.gu * 7.0; height: root.gu * 5.5
+                          activeFocusOnTab: automaticDisplay.supported && root.actionsAllowed
+                          readonly property bool checked: root.backend !== null && root.backend.brightnessAutomatic === true
+                          readonly property bool available: automaticDisplay.supported && root.actionsAllowed
+                          function requestToggle() {
+                              if (available) root.backend.setAutomaticBrightness(!checked);
+                          }
+                          Accessible.role: Accessible.CheckBox
+                          Accessible.name: "Luminosità automatica"
+                          Accessible.checked: checked
+                          Accessible.onPressAction: requestToggle()
+                          Keys.onSpacePressed: requestToggle()
+                          Keys.onReturnPressed: requestToggle()
+                          Rectangle {
+                              anchors.centerIn: parent; width: root.gu * 6.3; height: root.gu * 3.8
+                              radius: height / 2
+                              color: automaticSwitch.checked ? "#37bc82" : "#58738b"
+                              opacity: automaticSwitch.available ? 1 : 0.42
+                              border.width: automaticSwitch.activeFocus ? 2 : 0; border.color: "white"
+                              Rectangle {
+                                  width: parent.height - root.gu * 0.6; height: width; radius: height / 2
+                                  x: automaticSwitch.checked ? parent.width - width - root.gu * 0.3 : root.gu * 0.3
+                                  y: root.gu * 0.3; color: "white"
+                                  Behavior on x { NumberAnimation { duration: root.reducedMotion ? 0 : 170; easing.type: Easing.OutCubic } }
+                              }
+                          }
+                          MouseArea { anchors.fill: parent; enabled: automaticSwitch.available; onClicked: automaticSwitch.requestToggle() }
+                      }
                 }
             }
         }

@@ -17,8 +17,11 @@ function Get-BootUsbIdentifier {
 function Test-BootUsbCandidate {
     param([string]$InstanceId,[string]$Name)
     # Includes Samsung and the actual pinned Halium panic gadget 18D1:D001.
+    # Recovered usb-moded defaults declare 1209:0002..0005 for MTP/ADB/RNDIS.
+    # These IDs identify collection candidates, not a handset model.
     # RNDIS/Halium names also cover usb-moded's other USB IDs.
     return ($InstanceId -match '(?i)^USB\\VID_(04E8|18D1|1D6B|0FCE)&PID_' -or
+            $InstanceId -match '(?i)^USB\\VID_1209&PID_000[2-5](?:&MI_[0-9a-f]{2})?\\' -or
             ($InstanceId -match '(?i)^USB\\' -and $Name -match '(?i)Halium|GNU/Linux|RNDIS|Remote NDIS'))
 }
 

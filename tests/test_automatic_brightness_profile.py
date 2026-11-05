@@ -172,7 +172,7 @@ class AutomaticBrightnessProfileTests(unittest.TestCase):
         path = self.root / profile.TARGET
         path.parent.mkdir(parents=True, exist_ok=True)
         os.mkfifo(path)
-        with self.assertRaisesRegex(ValueError, "regular file"):
+        with self.assertRaisesRegex(ValueError, "regular file|unsafe type"):
             profile.install(self.root)
         self.assertFalse((self.root / profile.STATE).exists())
 

@@ -182,7 +182,7 @@ def install(root):
         saved = {"schema": 1, "installed_sha256": digest(data),
                  "previous": base64.b64encode(current).decode() if current is not None else None,
                  "mode": stat.S_IMODE(info.st_mode) & 0o777 if info else 0o644,
-                 "uid": info.st_uid if info else 0, "gid": info.st_gid if info else 0}
+                 "uid": info.st_uid if info else ROOT_UID, "gid": info.st_gid if info else 0}
         state.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         validate_layout(root)
         atomic_write(state, (json.dumps(saved, sort_keys=True) + "\n").encode(), 0o600)

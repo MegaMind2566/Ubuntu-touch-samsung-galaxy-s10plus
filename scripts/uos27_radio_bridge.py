@@ -10,6 +10,10 @@ BlueZ property. It is never installed as an autostart service.
 It cannot bypass BlueZ/polkit permissions, and it never claims success before
 reading Adapter1.Powered back. No device address, pairing, or discovery data
 is logged or exported. Designed to be started for one bounded shell trial.
+
+Two disabled state-only actions also expose repowerd's native automatic-brightness
+capability. This is a bounded asynchronous read at startup/name-owner changes,
+not an ALS measurement, physical acceptance result or power-control request.
 """
 from __future__ import annotations
 
@@ -25,6 +29,10 @@ BLUEZ_IFACE = "org.bluez.Adapter1"
 SESSION_NAME = "org.uos27.Control"
 ACTION_PATH = "/org/uos27/Control"
 ACTION_NAME = "bluetooth-enabled"
+REPOWERD_NAME = "com.lomiri.Repowerd"
+REPOWERD_PATH = "/com/lomiri/Repowerd"
+BRIGHTNESS_KNOWN = "auto-brightness-known"
+BRIGHTNESS_SUPPORTED = "auto-brightness-supported"
 
 
 def backlight_readback(path: Path = Path("/sys/class/backlight/panel")) -> dict:
@@ -117,6 +125,113 @@ def gi_modules():
     return Gio, GLib
 
 
+def brightness_supported(reply) -> bool | None:
+    """Validate native getBrightnessParams; False is known unsupported, not unknown."""
+    try:
+        if callable(getattr(reply, "get_type_string", None)) and reply.get_type_string() != "((iiiib))":
+            return None
+        value = unpack_value(reply)
+        if type(value) is not tuple or len(value) != 1 or type(value[0]) is not tuple or len(value[0]) != 5:
+            return None
+        dim, minimum, maximum, default, supported = value[0]
+        if any(type(number) is not int or not 0 <= number < 2**31
+               for number in (dim, minimum, maximum, default)) or type(supported) is not bool:
+            return None
+        if not maximum or dim > maximum or not minimum <= default <= maximum:
+            return None
+        return supported
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+class RepowerdCapabilityReader:
+    """One asynchronous read at startup/owner change; no power mutation or polling."""
+
+    def __init__(self, connection, gio, glib, publish):
+        self.connection, self.Gio, self.GLib, self.publish = connection, gio, glib, publish
+        self.generation, self.subscription = 0, 0
+        self.pending, self.closed = None, False
+
+    def start(self):
+        self.subscription = self.connection.signal_subscribe(
+            "org.freedesktop.DBus", "org.freedesktop.DBus", "NameOwnerChanged",
+            "/org/freedesktop/DBus", REPOWERD_NAME, self.Gio.DBusSignalFlags.NONE,
+            self.owner_changed, None)
+        self.refresh()
+
+    def invalidate(self):
+        self.generation += 1
+        if self.pending is not None:
+            self.pending.cancel()
+            self.pending = None
+        self.publish(None)
+
+    def refresh(self):
+        if self.closed:
+            return
+        self.invalidate()
+        self.pending = self.Gio.Cancellable.new()
+        try:
+            self.connection.call(
+                REPOWERD_NAME, REPOWERD_PATH, REPOWERD_NAME, "getBrightnessParams", None,
+                self.GLib.VariantType.new("((iiiib))"), self.Gio.DBusCallFlags.NO_AUTO_START,
+                3000, self.pending, self.finished, self.generation)
+        except Exception:
+            self.pending = None
+
+    def finished(self, connection, result, generation):
+        try:
+            value = brightness_supported(connection.call_finish(result))
+        except Exception:
+            value = None
+        if not self.closed and generation == self.generation:
+            self.pending = None
+            self.publish(value)
+
+    def owner_changed(self, connection, sender, path, interface, signal, parameters, data):
+        if self.closed:
+            return
+        value = unpack_value(parameters)
+        if type(value) is not tuple or len(value) != 3 or value[0] != REPOWERD_NAME:
+            return
+        if all(type(item) is str for item in value) and value[2]:
+            self.refresh()
+        else:
+            self.invalidate()
+
+    def close(self):
+        self.closed = True
+        self.invalidate()
+        if self.subscription:
+            self.connection.signal_unsubscribe(self.subscription)
+            self.subscription = 0
+
+
+class BrightnessCapabilityActions:
+    """Disabled state-only actions; clients cannot activate/change the readback."""
+
+    def __init__(self, gio, glib, group):
+        self.GLib = glib
+        self.actions = {}
+        for name in (BRIGHTNESS_KNOWN, BRIGHTNESS_SUPPORTED):
+            action = gio.SimpleAction.new_stateful(name, None, glib.Variant("b", False))
+            action.set_enabled(False)
+            action.connect("activate", lambda *args: None)
+            action.connect("change-state", lambda *args: None)
+            group.add_action(action)
+            self.actions[name] = action
+
+    def publish(self, supported):
+        def state(name, value):
+            self.actions[name].set_state(self.GLib.Variant("b", value))
+        if supported is None:
+            state(BRIGHTNESS_KNOWN, False)
+            state(BRIGHTNESS_SUPPORTED, False)
+        else:
+            state(BRIGHTNESS_SUPPORTED, supported)
+            state(BRIGHTNESS_KNOWN, True)
+
+
 class BluezReader:
     """System bus operations executed as the normal phablet session user."""
 
@@ -196,6 +311,7 @@ class ShortLivedBridge:
         self.action.set_enabled(initial is not None)
         self.action.connect("activate", self.on_activate)
         self.group.add_action(self.action)
+        self.brightness_actions = BrightnessCapabilityActions(gio, glib, self.group)
         self.export_id = self.session.export_action_group(ACTION_PATH, self.group)
         # QDBusActionGroup keeps cached values when a name vanishes. This
         # empty menu makes AyatanaMenuModel.nameOwner a reliable lifecycle
@@ -205,6 +321,9 @@ class ShortLivedBridge:
         self.bus_owner = gio.bus_own_name_on_connection(
             self.session, SESSION_NAME, gio.BusNameOwnerFlags.NONE,
             lambda *args: None, lambda *args: self.loop.quit())
+        self.brightness_reader = RepowerdCapabilityReader(
+            reader.connection, gio, glib, self.brightness_actions.publish)
+        self.brightness_reader.start()
 
     def refresh(self):
         powered = self.reader.power()
@@ -287,6 +406,7 @@ class ShortLivedBridge:
         try:
             self.loop.run()
         finally:
+            self.brightness_reader.close()
             self.Gio.bus_unown_name(self.bus_owner)
             self.session.unexport_menu_model(self.menu_export_id)
             self.session.unexport_action_group(self.export_id)

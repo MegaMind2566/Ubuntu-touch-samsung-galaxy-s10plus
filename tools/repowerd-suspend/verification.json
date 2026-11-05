@@ -20,8 +20,17 @@
     "new HIDL adapter source/header equal upstream commit with LF normalization",
     "base SystemPowerControl interface, CMake dependencies, debian/control and debian/rules unchanged"
   ],
-  "compiled": false,
-  "upstream_tests_run": false,
+  "compiled": true,
+  "upstream_tests_run": true,
   "device_installed": false,
-  "runtime_suspend_verified": false
+  "runtime_suspend_verified": false,
+  "scope": "unchanged first upstream HIDL backport; activation variant tracked separately",
+  "first_build": {
+    "provider": "public free standard GitHub Actions ubuntu-24.04-arm",
+    "run_id": 42025861432,
+    "run_url": "https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/actions/runs/42025861432",
+    "ctest_suites_passed": 2,
+    "deployment": "held for follow-up ownership and activation changes; no runtime suspend result"
+  },
+  "activation_candidate": "activation/candidate.json"
 }

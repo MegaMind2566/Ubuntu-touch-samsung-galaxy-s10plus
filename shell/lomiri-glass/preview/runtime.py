@@ -33,6 +33,7 @@ DEFAULTS = {
     "brightnessAvailable": True,
     "brightnessAutomatic": False,
     "automaticBrightnessAvailable": False,
+    "automaticBrightnessSupportKnown": False,
     "ambientLuxAvailable": False,
     "brightnessValue": 0.64,
     "volumeAvailable": True,
@@ -107,6 +108,10 @@ class MockBackend(QObject):
     @pyqtSlot(float)
     def setVolume(self, value):
         self.calls.append(("volume", value))
+
+    @pyqtSlot(bool)
+    def setAutomaticBrightness(self, value):
+        self.calls.append(("automaticBrightness", value))
 
 
 def create_view(width=412, height=915):

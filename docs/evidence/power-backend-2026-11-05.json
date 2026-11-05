@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "kind": "power-backend-read-only-inventory",
+  "device_time_utc": "2026-11-05T11:45:18+00:00",
+  "packages": [
+    "libgbinder 1.1.52-0ubports1~20260911100623.2~d4855b1+ubports24.04.2",
+    "libglibutil 1.0.82-0ubports1~20260529000726.16~d2f43c4+ubports24.04.2",
+    "repowerd 2025.09+0~20260819165104.1+ubports24.04.2~1.gbp365751"
+  ],
+  "paths": {
+    "/sys/power/state": {
+      "exists": true,
+      "mode": "0o660",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "/sys/power/wake_lock": {
+      "exists": true,
+      "mode": "0o660",
+      "uid": 1001,
+      "gid": 3010
+    },
+    "/sys/power/autosleep": {
+      "exists": false,
+      "error": "No such file or directory"
+    },
+    "/dev/hwbinder": {
+      "exists": true,
+      "mode": "0o666",
+      "uid": 0,
+      "gid": 0
+    }
+  },
+  "suspend_stats": {
+    "returncode": 0,
+    "text": "success: 0\nfail: 0\nfailed_freeze: 0\nfailed_prepare: 0\nfailed_suspend: 0\nfailed_suspend_late: 0\nfailed_suspend_noirq: 0\nfailed_resume: 0\nfailed_resume_early: 0\nfailed_resume_noirq: 0\nfailures:\n  last_failed_dev:\t\n\t\t\t\n  last_failed_errno:\t0\n\t\t\t0\n  last_failed_step:\t\n\t\t\t\n",
+    "error": ""
+  },
+  "system_suspend_hidl": {
+    "returncode": 72,
+    "matching_lines": [
+      "FM    Y android.system.suspend@1.0::ISystemSuspend/default                                       N/A 61  "
+    ],
+    "other_service_warnings_present": true
+  },
+  "repowerd_requests": {
+    "returncode": 0,
+    "text": "({'request_sys_state': <@a(sits) []>, 'keep_display_on': <@a(sit) []>, 'active_notifications': <@a(sti) []>},)\n",
+    "error": ""
+  },
+  "logind_inhibitors": {
+    "returncode": 0,
+    "entries": [
+      {
+        "what": "sleep",
+        "who": "NetworkManager",
+        "mode": "delay"
+      },
+      {
+        "what": "shutdown:sleep",
+        "who": "Telepathy",
+        "mode": "delay"
+      },
+      {
+        "what": "idle:handle-lid-switch",
+        "who": "repowerd",
+        "mode": "block"
+      },
+      {
+        "what": "handle-power-key:handle-suspend-key:handle-hibernate-key",
+        "who": "Lomiri",
+        "mode": "block"
+      },
+      {
+        "what": "sleep",
+        "who": "UPower",
+        "mode": "delay"
+      }
+    ]
+  },
+  "repowerd_startup": {
+    "returncode": 0,
+    "selected_lines": [
+      "main: Starting repowerd 2025.09",
+      "DefaultDaemonConfig: Failed to create LibsuspendSystemPowerControl: Failed to initialize libsuspend",
+      "DefaultDaemonConfig: Trying LogindSystemPowerControl"
+    ],
+    "error": ""
+  },
+  "boundary": "Collected while awake with USB connected after the physical trial; no power controls written. No historical inhibitor inference."
+}

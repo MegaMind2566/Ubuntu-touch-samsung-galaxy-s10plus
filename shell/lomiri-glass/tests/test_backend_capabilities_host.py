@@ -44,7 +44,9 @@ QtObject { property QtObject model; property int index; property string name; pr
 QtObject {
  property int busType; property string busName; property string objectPath
  property QtObject observed: QtObject { property var state: 0.64; function activate(value) {} function updateState(value) {} }
- function start() {} function action(name) { return observed; }
+ property QtObject known: QtObject { property var state: false }
+ property QtObject supported: QtObject { property var state: false }
+ function start() {} function action(name) { return name === "auto-brightness-known" ? known : name === "auto-brightness-supported" ? supported : observed; }
 }
 ''')
         write("imports/QMenuModel/DBus.qml", "pragma Singleton\nimport QtQml 2.15\nQtObject { enum BusType { SessionBus, SystemBus } }\n")
@@ -88,21 +90,45 @@ QtObject {
         QTest.qWait(40)
         settings = backend.findChild(QObject, "fixtureSettings")
         assert settings is not None
-        assert backend.property("automaticBrightnessCapability") == "needs-adaptation"
+        assert backend.property("automaticBrightnessCapability") == "unknown"
         assert not backend.property("automaticBrightnessAvailable")
         backend.setProperty("actionsAllowed", True)
         backend.setAutomaticBrightness(True)
         assert not settings.property("autoBrightness")
-        checks.append("Unverified ALS profile rejects a toggle even when actions are allowed")
-        backend.setProperty("automaticBrightnessProfileVerified", True)
+        checks.append("Unknown native ALS support rejects a toggle even when actions are allowed")
+        reader = backend.findChild(QObject, "automaticBrightnessCapabilityReader")
+        assert reader is not None
+        reader.property("known").setProperty("state", True)
+        assert backend.property("automaticBrightnessCapability") == "unsupported"
+        backend.setAutomaticBrightness(True)
+        assert not settings.property("autoBrightness")
+        checks.append("Known unsupported repowerd configuration cannot enable automatic brightness")
+        reader.property("supported").setProperty("state", True)
+        assert backend.property("automaticBrightnessCapability") == "supported-unverified"
+        assert backend.property("automaticBrightnessAvailable")
         backend.setAutomaticBrightness(True)
         assert settings.property("autoBrightness") and backend.property("brightnessAutomatic")
         assert not backend.property("brightnessAvailable")
-        checks.append("Verified-profile request follows GSettings readback and disables manual input in automatic mode")
-        backend.setProperty("automaticBrightnessProfileVerified", False)
+        checks.append("Native-supported request follows GSettings readback without claiming physical acceptance")
+        backend.setProperty("automaticBrightnessProfileVerified", True)
+        assert backend.property("automaticBrightnessCapability") == "ready"
+        bridge_model = backend.findChild(QObject, "org.uos27.Control")
+        assert bridge_model is not None
+        bridge_model.setProperty("nameOwner", "")
+        assert not backend.property("automaticBrightnessAvailable")
         backend.setAutomaticBrightness(False)
         assert settings.property("autoBrightness")
-        checks.append("Revoked profile cannot silently disable the saved automatic preference")
+        checks.append("Bridge owner loss revokes stale support and cannot silently change the saved preference")
+        bridge_model.setProperty("nameOwner", "fixture")
+        reader.property("supported").setProperty("state", "malformed")
+        assert backend.property("automaticBrightnessCapability") == "unknown"
+        assert not backend.property("automaticBrightnessAvailable")
+        checks.append("Malformed support readback is unknown and unavailable")
+        reader.property("supported").setProperty("state", True)
+        backend.setProperty("actionsAllowed", False)
+        backend.setAutomaticBrightness(False)
+        assert settings.property("autoBrightness")
+        checks.append("Closed action policy rejects automatic-brightness changes despite supported service")
         settings.setProperty("autoBrightness", False)
         power_model = backend.findChild(QObject, "org.ayatana.indicator.power")
         assert power_model is not None and backend.property("brightnessStateKnown")

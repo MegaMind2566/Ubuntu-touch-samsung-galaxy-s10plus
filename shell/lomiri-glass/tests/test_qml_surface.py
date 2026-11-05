@@ -95,6 +95,27 @@ class NativeQmlSurfaceTests(unittest.TestCase):
                          "Unsolicited state updates must not create user-action popups")
         self.assert_no_qml_errors()
 
+    def test_automatic_brightness_switch_waits_for_native_readback(self):
+        self.backend.set_state(automaticBrightnessAvailable=True,
+                               automaticBrightnessSupportKnown=True,
+                               brightnessAutomatic=False)
+        switch = self.item("automaticBrightnessSwitch")
+        self.reveal(switch)
+        self.click(switch)
+        self.assertEqual(self.backend.calls, [("automaticBrightness", True)])
+        self.assertFalse(switch.property("checked"))
+        self.backend.set_state(brightnessAutomatic=True)
+        QTest.qWait(30)
+        self.assertTrue(switch.property("checked"))
+        self.assertEqual(len(self.backend.calls), 1)
+        self.backend.set_state(actionsAllowed=False)
+        switch.requestToggle()
+        self.assertEqual(len(self.backend.calls), 1)
+        self.backend.set_state(actionsAllowed=True, automaticBrightnessAvailable=False)
+        switch.requestToggle()
+        self.assertEqual(len(self.backend.calls), 1)
+        self.assert_no_qml_errors()
+
     def test_toggle_waits_for_authoritative_state(self):
         tile = self.item("wifiTile")
         self.click(tile)

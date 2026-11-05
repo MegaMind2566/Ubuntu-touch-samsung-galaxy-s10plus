@@ -75,17 +75,31 @@ Item {
 
     readonly property bool automaticBrightnessKnown: typeof systemSettings.autoBrightness === "boolean"
     readonly property bool brightnessAutomatic: automaticBrightnessKnown && systemSettings.autoBrightness
-    // A saved preference is not evidence that the ALS/panel adaptation works.
-    // The S10+ currently has no verified automatic-brightness profile. The
-    // shell host may enable this only after the profile passes hardware tests.
+    // Read-only repowerd capability, distinct from the saved preference and
+    // from physical acceptance. A stale QStateAction must lose authority when
+    // its bridge owner disappears. These state-only actions are disabled by
+    // design; action.enabled is deliberately not a support indication.
+    readonly property bool automaticBrightnessSupportKnown: String(bluezBridgeModel.nameOwner) !== ""
+            && autoBrightnessBridge.knownActionObject !== null
+            && autoBrightnessBridge.knownActionObject !== undefined
+            && typeof autoBrightnessBridge.knownActionObject.state === "boolean"
+            && autoBrightnessBridge.knownActionObject.state === true
+            && autoBrightnessBridge.supportedActionObject !== null
+            && autoBrightnessBridge.supportedActionObject !== undefined
+            && typeof autoBrightnessBridge.supportedActionObject.state === "boolean"
+    readonly property bool automaticBrightnessSupported: automaticBrightnessSupportKnown
+            && autoBrightnessBridge.supportedActionObject.state === true
+    // Acceptance metadata only. Availability follows the live native service;
+    // publishing a source profile or a saved preference does not set this flag.
     property bool automaticBrightnessProfileVerified: false
     property bool ambientLuxAvailable: false
     property real ambientLuxValue: NaN
     readonly property bool automaticBrightnessAvailable: automaticBrightnessKnown
-                                                       && automaticBrightnessProfileVerified
+            && automaticBrightnessSupportKnown && automaticBrightnessSupported
     readonly property string automaticBrightnessCapability: !automaticBrightnessKnown
-            ? "unavailable" : !automaticBrightnessProfileVerified
-              ? "needs-adaptation" : "ready"
+            || !automaticBrightnessSupportKnown ? "unknown"
+            : !automaticBrightnessSupported ? "unsupported"
+            : !automaticBrightnessProfileVerified ? "supported-unverified" : "ready"
     readonly property var capabilities: ({
         wifi: { available: wifiAvailable, state: wifiEnabled, source: "Ubuntu indicator" },
         bluetooth: { available: bluetoothAvailable, state: bluetoothEnabled,
@@ -94,7 +108,10 @@ Item {
         brightness: { available: brightnessAvailable, known: brightnessStateKnown,
                       value: brightnessValue, source: "Ayatana power GAction" },
         automaticBrightness: { available: automaticBrightnessAvailable,
-             state: brightnessAutomatic, status: automaticBrightnessCapability },
+             known: automaticBrightnessSupportKnown, supported: automaticBrightnessSupported,
+             state: brightnessAutomatic, status: automaticBrightnessCapability,
+             physicallyVerified: automaticBrightnessProfileVerified,
+             source: "repowerd getBrightnessParams via read-only GAction bridge" },
         ambientLight: { available: ambientLuxAvailable, lux: ambientLuxAvailable ? ambientLuxValue : null },
         volume: { available: volumeAvailable, value: volumeValue }
     })
@@ -333,6 +350,16 @@ Item {
         busName: "org.uos27.Control"
         objectPath: "/org/uos27/Control"
         property var actionObject: action("bluetooth-enabled")
+        Component.onCompleted: start()
+    }
+    QDBusActionGroup {
+        id: autoBrightnessBridge
+        objectName: "automaticBrightnessCapabilityReader"
+        busType: DBus.SessionBus
+        busName: "org.uos27.Control"
+        objectPath: "/org/uos27/Control"
+        property var knownActionObject: action("auto-brightness-known")
+        property var supportedActionObject: action("auto-brightness-supported")
         Component.onCompleted: start()
     }
     // A QStateAction can retain its last state after the bus name vanishes.

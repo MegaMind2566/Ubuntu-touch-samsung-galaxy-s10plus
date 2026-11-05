@@ -1,0 +1,511 @@
+From: S10+ port contributors
+Subject: [PATCH 2/2] Guard and bound Android SDK32 autosuspend activation
+
+Apply after unchanged upstream d87b745 on installed-source 3657516.
+No forceSuspend or sysfs writes. Activation failure keeps existing guard only
+while this client and HAL remain alive; later acquire failures are explicit.
+
+--- a/src/adapters/hidl_system_power_control.cpp
++++ b/src/adapters/hidl_system_power_control.cpp
+@@ -17,200 +17,194 @@
+  */
+ 
+ #include "hidl_system_power_control.h"
+-
++#include "bounded_suspend_binder.h"
+ #include "src/core/log.h"
+-
+ #include <cstdlib>
+ #include <stdexcept>
+-
+ #include <unistd.h>
+ 
+-namespace
+-{
++namespace {
+ char const* const log_tag = "HidlSystemPowerControl";
+-
+-char const* const hwbinder_dev = "/dev/hwbinder";
+ char const* const suspend_iface = "android.system.suspend@1.0::ISystemSuspend";
+-char const* const suspend_fqname = "android.system.suspend@1.0::ISystemSuspend/default";
+-char const* const wake_lock_iface = "android.system.suspend@1.0::IWakeLock";
+-
+-int const wake_lock_type_partial = 0;
+-
+-int const suspend_transact_acquire_wake_lock = 1;
+-int const wake_lock_transact_release = 1;
+-}
+-
+-repowerd::HidlSystemPowerControl::HidlSystemPowerControl(
+-    std::shared_ptr<Log> const& log)
+-    : log{log},
+-      sm{nullptr},
+-      remote{nullptr},
+-      client{nullptr},
+-      wake_lock_remote{nullptr},
+-      wake_lock_client{nullptr}
+-{
+-    if (access(hwbinder_dev, F_OK) != 0)
+-        throw std::runtime_error{"No hwbinder interface available"};
+-
+-    sm = gbinder_servicemanager_new(hwbinder_dev);
+-    if (!sm)
+-        throw std::runtime_error{"Failed to connect to hwservicemanager"};
+-
+-    remote = gbinder_servicemanager_get_service_sync(sm, suspend_fqname, nullptr);
+-    if (!remote)
+-    {
+-        gbinder_servicemanager_unref(sm);
+-        sm = nullptr;
+-        throw std::runtime_error{"SystemSuspend service not available"};
+-    }
+-
+-    client = gbinder_client_new(remote, suspend_iface);
+-    if (!client)
+-    {
+-        gbinder_remote_object_unref(remote);
+-        gbinder_servicemanager_unref(sm);
+-        remote = nullptr;
+-        sm = nullptr;
+-        throw std::runtime_error{"Failed to create SystemSuspend client"};
+-    }
+-
+-    log->logDebug(log_tag, "Initialized using %s", suspend_fqname);
++char const* const suspend_name = "android.system.suspend@1.0::ISystemSuspend/default";
++char const* const lock_iface = "android.system.suspend@1.0::IWakeLock";
++char const* const control_iface = "android.system.suspend.internal.ISuspendControlServiceInternal";
++// Android SDK32 pinned AIDL: first method, no arguments, boolean result.
++constexpr guint32 enable_autosuspend_transaction = 1;
++using namespace repowerd::suspend_binder;
++}
++
++repowerd::HidlSystemPowerControl::HidlSystemPowerControl(std::shared_ptr<Log> const& log)
++    : log{log}, sm{nullptr}, remote{nullptr}, client{nullptr},
++      wake_lock_remote{nullptr}, wake_lock_client{nullptr}
++{
++    try {
++        if (access("/dev/hwbinder", F_OK)) throw std::runtime_error{"No hwbinder interface"};
++        Context context;
++        if (!context.available()) throw std::runtime_error{"Binder context already owned"};
++        sm = gbinder_servicemanager_new("/dev/hwbinder");
++        if (!sm) throw std::runtime_error{"No hwservicemanager"};
++        auto found = lookup(context, sm, suspend_name, deadline());
++        if (!found->accepted) throw std::runtime_error{"SystemSuspend discovery failed/deadline"};
++        remote = gbinder_remote_object_ref(found->object); // own, never an autoreleased lookup result
++        client = gbinder_client_new(remote, suspend_iface);
++        if (!client || !acquire_wake_lock())
++            throw std::runtime_error{"Verified bootstrap wake lock unavailable; activation forbidden"};
++        log->logInfo(log_tag, "Verified bootstrap wake lock; activation not attempted");
++    } catch (...) {
++        cleanup();
++        throw;
++    }
+ }
+ 
+ repowerd::HidlSystemPowerControl::~HidlSystemPowerControl()
+ {
+-    release_wake_lock();
+-
+-    if (client)
+-        gbinder_client_unref(client);
+-    if (remote)
+-        gbinder_remote_object_unref(remote);
+-    if (sm)
+-        gbinder_servicemanager_unref(sm);
+-}
+-
+-void repowerd::HidlSystemPowerControl::acquire_wake_lock()
+-{
+-    if (wake_lock_client)
+-        return;
+-
+-    int status = -1;
+-    GBinderLocalRequest* req = gbinder_client_new_request(client);
++    if (activation != Activation::not_attempted)
++        log->logWarning(log_tag, "Backend stopping releases Binder locks; reboot required for rollback");
++    cleanup();
++}
++
++void repowerd::HidlSystemPowerControl::cleanup()
++{
++    // Dropping all IWakeLock references releases it by the pinned HAL contract.
++    // No false promise of a process-independent lock surviving daemon death.
++    if (wake_lock_client) gbinder_client_unref(wake_lock_client);
++    if (wake_lock_remote) gbinder_remote_object_unref(wake_lock_remote);
++    if (client) gbinder_client_unref(client);
++    if (remote) gbinder_remote_object_unref(remote);
++    if (sm) gbinder_servicemanager_unref(sm);
++    wake_lock_client = nullptr;
++    wake_lock_remote = nullptr;
++    client = nullptr;
++    remote = nullptr;
++    sm = nullptr;
++}
++
++bool repowerd::HidlSystemPowerControl::acquire_wake_lock()
++{
++    if (wake_lock_client && wake_lock_remote && !gbinder_remote_object_is_dead(wake_lock_remote))
++        return true;
++    if (!client || !remote || gbinder_remote_object_is_dead(remote)) return false;
++    Context context;
++    if (!context.available()) return false;
++    auto* request = gbinder_client_new_request(client);
++    if (!request) return false;
+     GBinderWriter writer;
+-
+-    gbinder_local_request_init_writer(req, &writer);
+-    gbinder_writer_append_int32(&writer, wake_lock_type_partial);
++    gbinder_local_request_init_writer(request, &writer);
++    gbinder_writer_append_int32(&writer, 0); // PARTIAL
+     gbinder_writer_append_hidl_string(&writer, "repowerd");
+-
+-    GBinderRemoteReply* reply = gbinder_client_transact_sync_reply(
+-        client, suspend_transact_acquire_wake_lock, req, &status);
+-
+-    if (reply)
+-    {
+-        GBinderReader reader;
+-        gbinder_remote_reply_init_reader(reply, &reader);
+-        gbinder_reader_read_int32(&reader, nullptr);
+-        wake_lock_remote = gbinder_reader_read_object(&reader);
+-        gbinder_remote_reply_unref(reply);
+-    }
+-
+-    gbinder_local_request_unref(req);
+-
+-    if (wake_lock_remote)
+-        wake_lock_client = gbinder_client_new(wake_lock_remote, wake_lock_iface);
+-
+-    if (!wake_lock_client)
+-        log->logWarning(log_tag, "Failed to acquire wake lock (status %d)", status);
+-}
+-
+-void repowerd::HidlSystemPowerControl::release_wake_lock()
+-{
+-    if (!wake_lock_client)
+-        return;
+-
+-    GBinderLocalRequest* req = gbinder_client_new_request(wake_lock_client);
+-    gbinder_client_transact_sync_oneway(wake_lock_client, wake_lock_transact_release, req);
+-    gbinder_local_request_unref(req);
+-
++    auto result = transact(context, client, 1, request, Reply::wake_lock, deadline());
++    gbinder_local_request_unref(request);
++    if (!result->accepted) return false;
++    auto* lock_client = gbinder_client_new(result->object, lock_iface);
++    if (!lock_client) return false;
++    if (gbinder_remote_object_is_dead(result->object) || gbinder_remote_object_is_dead(remote)) {
++        gbinder_client_unref(lock_client);
++        return false;
++    }
++    if (wake_lock_client) gbinder_client_unref(wake_lock_client);
++    if (wake_lock_remote) gbinder_remote_object_unref(wake_lock_remote);
++    wake_lock_remote = gbinder_remote_object_ref(result->object);
++    wake_lock_client = lock_client;
++    return true;
++}
++
++bool repowerd::HidlSystemPowerControl::release_wake_lock()
++{
++    if (!wake_lock_client || !wake_lock_remote || gbinder_remote_object_is_dead(wake_lock_remote))
++        return false;
++    auto* request = gbinder_client_new_request(wake_lock_client);
++    if (!request) return false;
++    // IWakeLock.release is oneway. Bound the worker transaction too: a timed
++    // out delivery may still release server-side, so retain refs but report UNKNOWN.
++    Context context;
++    auto result = transact(context, wake_lock_client, 1, request, Reply::release, deadline());
++    gbinder_local_request_unref(request);
++    if (!result->accepted) return false;
+     gbinder_client_unref(wake_lock_client);
+     gbinder_remote_object_unref(wake_lock_remote);
+     wake_lock_client = nullptr;
+     wake_lock_remote = nullptr;
+-}
+-
+-void repowerd::HidlSystemPowerControl::start_processing()
+-{
+-}
+-
+-repowerd::HandlerRegistration
+-repowerd::HidlSystemPowerControl::register_system_resume_handler(
+-    SystemResumeHandler const&)
+-{
+-    return HandlerRegistration{};
+-}
+-
+-repowerd::HandlerRegistration
+-repowerd::HidlSystemPowerControl::register_system_allow_suspend_handler(
+-    SystemAllowSuspendHandler const&)
+-{
+-    return HandlerRegistration{};
+-}
+-
+-repowerd::HandlerRegistration
+-repowerd::HidlSystemPowerControl::register_system_disallow_suspend_handler(
+-    SystemDisallowSuspendHandler const&)
+-{
+-    return HandlerRegistration{};
+-}
+-
+-void repowerd::HidlSystemPowerControl::allow_automatic_suspend(
+-    std::string const& id)
++    return true;
++}
++
++bool repowerd::HidlSystemPowerControl::activate_autosuspend()
++{
++    Context context;
++    if (!context.available()) return false;
++    auto const until = deadline(); // shared budget for discovery and activation
++    auto* manager = gbinder_servicemanager_new2("/dev/binder", "aidl3", "aidl4");
++    if (!manager) return false;
++    auto found = lookup(context, manager, "suspend_control_internal", until);
++    gbinder_servicemanager_unref(manager);
++    if (!found->accepted || std::chrono::steady_clock::now() >= until
++        || !remote || gbinder_remote_object_is_dead(remote)
++        || !wake_lock_remote || gbinder_remote_object_is_dead(wake_lock_remote)) return false;
++    auto* control = gbinder_client_new(found->object, control_iface);
++    if (!control) return false;
++    auto* request = gbinder_client_new_request(control);
++    bool accepted = false;
++    if (request) {
++        auto result = transact(context, control, enable_autosuspend_transaction,
++                               request, Reply::activation, until);
++        accepted = result->accepted && !gbinder_remote_object_is_dead(found->object)
++            && !gbinder_remote_object_is_dead(remote)
++            && wake_lock_remote && !gbinder_remote_object_is_dead(wake_lock_remote);
++        gbinder_local_request_unref(request);
++    }
++    gbinder_client_unref(control);
++    return accepted;
++}
++
++void repowerd::HidlSystemPowerControl::allow_automatic_suspend(std::string const& id)
+ {
+     std::lock_guard<std::mutex> lock{suspend_mutex};
+-
+-    log->logDebug(log_tag, "allow_suspend(%s)", id.c_str());
+-
+-    if (suspend_disallowances.erase(id) > 0 &&
+-        suspend_disallowances.empty())
+-    {
+-        log->logDebug(log_tag, "Releasing wake lock");
+-        release_wake_lock();
+-    }
+-}
+-
+-void repowerd::HidlSystemPowerControl::disallow_automatic_suspend(
+-    std::string const& id)
++    if (!suspend_disallowances.erase(id) || !suspend_disallowances.empty()) return;
++    if (activation == Activation::failed) {
++        log->logWarning(log_tag, "Activation/inhibition failed; no retry and no guard release");
++        return;
++    }
++    if (!wake_lock_client || !wake_lock_remote || gbinder_remote_object_is_dead(wake_lock_remote)
++        || !remote || gbinder_remote_object_is_dead(remote)) {
++        activation = Activation::failed;
++        log->logWarning(log_tag, "inhibition-unavailable; activation forbidden");
++        return;
++    }
++    if (activation == Activation::not_attempted) {
++        // Latch before the mutating call: timeout may have committed server-side.
++        activation = Activation::failed;
++        if (!activate_autosuspend()) {
++            log->logWarning(log_tag, "Activation failed/unknown; existing bootstrap guard retained; reboot required");
++            return;
++        }
++        activation = Activation::enabled;
++        log->logInfo(log_tag, "Android autosuspend activation acknowledged under verified guard");
++    }
++    if (!release_wake_lock()) {
++        activation = Activation::failed;
++        log->logWarning(log_tag, "Wake-lock release status unknown; refs retained, no retry; reboot required");
++    }
++}
++
++void repowerd::HidlSystemPowerControl::disallow_automatic_suspend(std::string const& id)
+ {
+     std::lock_guard<std::mutex> lock{suspend_mutex};
+-
+-    log->logDebug(log_tag, "disallow_suspend(%s)", id.c_str());
+-
+-    auto const could_be_suspended = suspend_disallowances.empty();
+-
+     suspend_disallowances.insert(id);
+-
+-    if (could_be_suspended)
+-    {
+-        log->logDebug(log_tag, "Acquiring wake lock");
+-        acquire_wake_lock();
+-    }
+-}
+-
+-void repowerd::HidlSystemPowerControl::power_off()
+-{
+-    log->logDebug(log_tag, "power_off()");
+-
+-    if (system("shutdown -P now")) {}
+-}
+-
+-void repowerd::HidlSystemPowerControl::suspend()
+-{
+-}
+-
+-void repowerd::HidlSystemPowerControl::allow_default_system_handlers()
+-{
+-}
+-
+-void repowerd::HidlSystemPowerControl::disallow_default_system_handlers()
+-{
+-}
++    if (activation == Activation::failed) {
++        log->logWarning(log_tag, "inhibition-unavailable: backend latched failed; retaining any existing guard");
++        return;
++    }
++    if (!acquire_wake_lock()) {
++        activation = Activation::failed;
++        log->logWarning(log_tag, "inhibition-unavailable: wake-lock reacquisition failed; no retry; reboot required");
++    }
++}
++
++void repowerd::HidlSystemPowerControl::start_processing() {}
++repowerd::HandlerRegistration repowerd::HidlSystemPowerControl::register_system_resume_handler(SystemResumeHandler const&) { return {}; }
++repowerd::HandlerRegistration repowerd::HidlSystemPowerControl::register_system_allow_suspend_handler(SystemAllowSuspendHandler const&) { return {}; }
++repowerd::HandlerRegistration repowerd::HidlSystemPowerControl::register_system_disallow_suspend_handler(SystemDisallowSuspendHandler const&) { return {}; }
++void repowerd::HidlSystemPowerControl::power_off() { if (system("shutdown -P now")) {} }
++void repowerd::HidlSystemPowerControl::suspend() {}
++void repowerd::HidlSystemPowerControl::allow_default_system_handlers() {}
++void repowerd::HidlSystemPowerControl::disallow_default_system_handlers() {}
+--- a/src/adapters/hidl_system_power_control.h
++++ b/src/adapters/hidl_system_power_control.h
+@@ -54,8 +54,12 @@
+     void disallow_default_system_handlers() override;
+ 
+ private:
+-    void acquire_wake_lock();
+-    void release_wake_lock();
++    bool acquire_wake_lock();
++    bool release_wake_lock();
++    bool activate_autosuspend();
++    void cleanup();
++    enum class Activation { not_attempted, enabled, failed };
++    Activation activation{Activation::not_attempted};
+ 
+     std::shared_ptr<Log> const log;
+ 
+--- /dev/null
++++ b/src/adapters/bounded_suspend_binder.h
+@@ -0,0 +1,112 @@
++// SPDX-License-Identifier: GPL-3.0-only
++// Included by the adapter patch; also compiled unchanged against fake Binder boundaries.
++#pragma once
++#include <gbinder.h>
++#include <atomic>
++#include <chrono>
++#include <memory>
++#include <thread>
++
++namespace repowerd { namespace suspend_binder {
++using Deadline = std::chrono::steady_clock::time_point;
++inline Deadline deadline() { return std::chrono::steady_clock::now() + std::chrono::seconds{3}; }
++
++// libgbinder 1.1.52 dispatches on the global default context, not a thread-default
++// context. Refuse concurrent ownership instead of nesting another daemon's loop.
++class Context {
++public:
++    Context() : context{g_main_context_default()}, owned{g_main_context_acquire(context) != FALSE} {}
++    ~Context() { if (owned) g_main_context_release(context); }
++    bool available() const { return owned; }
++    template<class State> bool wait(std::shared_ptr<State> const& state, Deadline until) {
++        while (std::chrono::steady_clock::now() < until) {
++            if (state->done.load(std::memory_order_acquire)) return true;
++            g_main_context_iteration(context, FALSE);
++            if (state->done.load(std::memory_order_acquire))
++                return std::chrono::steady_clock::now() < until;
++            std::this_thread::sleep_for(std::chrono::milliseconds{1});
++        }
++        return false;
++    }
++private:
++    GMainContext* context;
++    bool owned;
++};
++
++struct Result {
++    std::atomic<bool> done{false};
++    bool accepted{false};
++    GBinderRemoteObject* object{nullptr};
++    ~Result() { if (object) gbinder_remote_object_unref(object); }
++};
++using Holder = std::shared_ptr<Result>;
++
++inline Holder lookup(Context& context, GBinderServiceManager* manager,
++                     char const* name, Deadline until) {
++    auto result = std::make_shared<Result>();
++    if (!context.available() || std::chrono::steady_clock::now() >= until) return result;
++    auto* holder = new Holder{result};
++    auto const id = gbinder_servicemanager_get_service(manager, name,
++        [](GBinderServiceManager*, GBinderRemoteObject* object, int status, void* data) {
++            std::unique_ptr<Holder> holder{static_cast<Holder*>(data)};
++            auto& result = **holder;
++            if (!status && object && !gbinder_remote_object_is_dead(object)) {
++                result.object = gbinder_remote_object_ref(object); // callback object is borrowed
++                result.accepted = true;
++            }
++            result.done.store(true, std::memory_order_release);
++        }, holder);
++    if (!id) { delete holder; return result; }
++    if (!context.wait(result, until)) result->accepted = false;
++    // This API has no userdata destructor. Do not cancel: the eventual callback
++    // owns the heap holder. If kernel Binder never returns, at most one holder
++    // survives for that lookup until process exit. It never references the adapter.
++    return result;
++}
++
++enum class Reply { wake_lock, activation, release };
++struct RequestState : Result { Reply kind; explicit RequestState(Reply value) : kind{value} {} };
++using RequestHolder = std::shared_ptr<RequestState>;
++
++inline RequestHolder transact(Context& context, GBinderClient* client,
++                              guint32 code, GBinderLocalRequest* request,
++                              Reply kind, Deadline until) {
++    auto result = std::make_shared<RequestState>(kind);
++    if (!context.available() || std::chrono::steady_clock::now() >= until) return result;
++    auto* holder = new RequestHolder{result};
++    auto const id = gbinder_client_transact(client, code, kind == Reply::release ? GBINDER_TX_FLAG_ONEWAY : 0, request,
++        [](GBinderClient*, GBinderRemoteReply* reply, int status, void* data) {
++            auto& result = **static_cast<RequestHolder*>(data);
++            if (result.kind == Reply::release) {
++                result.accepted = status == 0; // oneway has no reply parcel
++            } else if (!status && reply) {
++                GBinderReader reader;
++                gint32 exception = -1;
++                gbinder_remote_reply_init_reader(reply, &reader);
++                if (gbinder_reader_read_int32(&reader, &exception) && exception == 0) {
++                    if (result.kind == Reply::activation) {
++                        gint32 value = 0;
++                        result.accepted = gbinder_reader_read_int32(&reader, &value)
++                            && value == 1 && gbinder_reader_at_end(&reader);
++                    } else {
++                        auto* object = gbinder_reader_read_object(&reader); // returns owned reference
++                        if (object && !gbinder_remote_object_is_dead(object)
++                            && gbinder_reader_at_end(&reader)) {
++                            result.object = object;
++                            result.accepted = true;
++                        } else if (object) gbinder_remote_object_unref(object);
++                    }
++                }
++            }
++            result.done.store(true, std::memory_order_release);
++        }, [](void* data) { delete static_cast<RequestHolder*>(data); }, holder);
++    if (!id) { delete holder; return result; }
++    if (!context.wait(result, until)) {
++        result->accepted = false;
++        // cancel suppresses delivery, not server execution. The deferred destroy
++        // callback owns holder; no stack/adapter pointer can become dangling.
++        gbinder_client_cancel(client, id);
++    }
++    return result;
++}
++}}

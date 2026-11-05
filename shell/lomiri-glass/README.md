@@ -20,8 +20,11 @@ codice e' Qt Quick/Lomiri nativo, non una dashboard React.
   luminosita' provengono dai servizi Ubuntu. I comandi attendono readback e non
   accendono graficamente un hardware che non ha confermato il cambiamento.
 - Il backend espone `capabilities` con disponibilita', provenienza e stato.
-  `automaticBrightnessProfileVerified` resta false: la preferenza GSettings non
-  basta a dimostrare un profilo ALS funzionante. Il progetto del profilo reale
+  il supporto automatico proviene dalla query di sola lettura repowerd del bridge
+  e viene revocato se il servizio sparisce. Il comando cambia la preferenza
+  GSettings e attende readback. `automaticBrightnessProfileVerified` registra
+  separatamente la prova fisica: il supporto annunciato dal servizio non basta
+  a dimostrare un profilo ALS funzionante. Il progetto del profilo reale
   e' in [tools/automatic-brightness](../../tools/automatic-brightness/README.md).
 - LightDM conserva verifica delle credenziali, retry, annullamento e fallback;
   le notifiche riusano il modello filtrato della shell. L'anteprima non verifica
@@ -45,7 +48,17 @@ in ogni cattura. Non legge D-Bus o dati personali del telefono.
 python3 shell/lomiri-glass/tests/test_qml_surface.py --report out/lomiri-glass/surface-tests.json
 python3 shell/lomiri-glass/preview/render.py --output out/lomiri-glass/controls
 python3 shell/lomiri-glass/preview/render_shell.py --output out/lomiri-glass/shell
+python3 shell/lomiri-glass/preview/prepare_native.py --output out/native-source
+python3 shell/lomiri-glass/preview/render_native.py --source out/native-source --output out/lomiri-glass/native
 ```
+
+Le catture `native/` usano CoverPage/orologio/PIN, card Notification con privacy
+e Spread/WorkspacePreview del sorgente preparato, con identita' SHA-256 nel
+report. Lo swipe Qt apre il prompt originale, quattro tasti inviano una sola
+risposta di prova, errore e annullamento restano bloccati. Le superfici app,
+servizi e primitive C++ sono fixture: nessuna credenziale reale o successo
+LightDM viene simulato. Il [record della revisione](../../docs/evidence/uos27-review-2026-11-05.md)
+elenca controlli e limiti, distinti dalla vecchia prova v015 sul telefono.
 
 Qt software non prova rifrazione Liquid Glass, blur/GPU Mali, animazioni sul
 telefono, gesti reali, sicurezza LightDM o flusso notifiche in esecuzione. Mancano

@@ -1,0 +1,18 @@
+{
+  "boottime_delta_ns": 253131824041,
+  "evidence": "no-positive-suspend-time-resolved",
+  "kind": "suspend-clock-comparison",
+  "limitations": "Kernel clock accounting only; no deep-sleep, UI-wake or endurance claim.",
+  "monotonic_delta_ns": 253131823945,
+  "same_boot": true,
+  "schema": 1,
+  "status": "ok",
+  "suspend_estimate_ns": 96,
+  "suspend_interval_ns": [
+    0,
+    3270
+  ],
+  "uncertainty_ns": 3174,
+  "user_observation": "Normal power-button wake; screen and touch worked before USB reconnect.",
+  "test_context": "USB unplugged; no ADB/SSH during the user-requested approximately 2-minute rest. Snapshot interval also includes active user/host overhead; after snapshot read over authenticated Wi-Fi SSH because USB ADB returned offline."
+}

@@ -63,14 +63,16 @@ Item {
             "camera": ("#b8c5d2", '<rect x="12" y="21" width="40" height="29" rx="6" fill="#293446"/><path d="M23 21v-5h18v5" fill="#293446"/><circle cx="32" cy="35" r="11" fill="#7f9ab5"/><circle cx="32" cy="35" r="7" fill="#192f49"/>'),
             "gallery": ("#fafafa", '<g fill="#f67f59"><ellipse cx="32" cy="21" rx="7" ry="13"/><ellipse cx="32" cy="21" rx="7" ry="13" transform="rotate(60 32 32)" fill="#f4c94b"/><ellipse cx="32" cy="21" rx="7" ry="13" transform="rotate(120 32 32)" fill="#73c565"/><ellipse cx="32" cy="21" rx="7" ry="13" transform="rotate(180 32 32)" fill="#48bed2"/><ellipse cx="32" cy="21" rx="7" ry="13" transform="rotate(240 32 32)" fill="#757fda"/><ellipse cx="32" cy="21" rx="7" ry="13" transform="rotate(300 32 32)" fill="#e878ad"/></g>'),
             "settings": ("#8c9caa", '<circle cx="32" cy="32" r="19" fill="none" stroke="#e7edf4" stroke-width="7"/><circle cx="32" cy="32" r="9" fill="#4e6277"/>'),
-            "notes": ("#fffef3", '<path d="M0 0h64v19H0z" fill="#f7ca4b"/><path d="M13 30h38m-38 9h38m-38 9h25" stroke="#c0c5c9" stroke-width="2"/>'),
-            "calendar": ("#ffffff", '<path d="M0 0h64v15H0z" fill="#e55f55"/><text x="32" y="48" text-anchor="middle" font-family="sans-serif" font-size="35" fill="#1d2938">5</text>'),
+            "notes": ("#fffef3", '<path d="M15 0h34a15 15 0 0 1 15 15v4H0v-4A15 15 0 0 1 15 0z" fill="#f7ca4b"/><path d="M13 30h38m-38 9h38m-38 9h25" stroke="#c0c5c9" stroke-width="2"/>'),
+            "calendar": ("#ffffff", '<path d="M15 0h34a15 15 0 0 1 15 15H0A15 15 0 0 1 15 0z" fill="#e55f55"/><text x="32" y="48" text-anchor="middle" font-family="sans-serif" font-size="35" fill="#1d2938">5</text>'),
             "file-manager": ("#70c3ed", '<path d="M8 19h19l6 6h23v27H8z" fill="#eefaff"/><path d="M8 19v-7h19l6 7" fill="#d6edf7"/>')
         }
         icons = {}
         for key, (color, path) in artwork.items():
             icon = fixture / (key + ".svg")
-            icon.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><defs><clipPath id="edge"><rect width="64" height="64" rx="15"/></clipPath></defs><g clip-path="url(#edge)"><rect width="64" height="64" fill="' + color + '"/>' + path + '</g></svg>', encoding="utf-8")
+            # QtSvg's SVG Tiny renderer ignores clipPath. All authored shapes
+            # are bounded explicitly, including the two colored top headers.
+            icon.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="15" fill="' + color + '"/>' + path + '</svg>', encoding="utf-8")
             icons[key] = icon.as_uri()
         original_init = MockAppDrawerModel.__init__
         def initialize_catalog(self, parent=None):

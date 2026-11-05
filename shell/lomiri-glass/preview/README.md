@@ -21,6 +21,29 @@ The Qt software renderer produces portrait previews at 360 × 780 and
 explicit placeholder: production uses the existing Lomiri menu and its native
 message actions. No notification-history mock is presented as real output.
 
+The broader component run additionally prepares the exact official upstream
+source (26 input hashes plus the local patch/module identities) and renders
+native CoverPage/Clock/PIN, populated Notification with privacy mode, and
+Spread/WorkspacePreview at 360x760 and 412x870:
+
+```sh
+python3 shell/lomiri-glass/preview/prepare_native.py --output out/native-source
+python3 shell/lomiri-glass/preview/render_native.py \
+  --source out/native-source --output out/lomiri-glass/native
+```
+
+Its JSON lists copied native component hashes, assertions and service/theme
+boundaries. Mir application textures, notification icons/blur and wallpaper are
+synthetic. Successful authentication is never simulated; a fixture response
+leaves the greeter locked. The production notification card layout and native
+privacy suppression are exercised; live notification delivery is not.
+
+On Ubuntu 24.04 the free distro dependencies are `python3-pyqt5`,
+`python3-pyqt5.qtquick`, `qml-module-qtquick2`, `qml-module-qtquick-window2`,
+`qml-module-qtqml` and `fonts-dejavu-core`. QtTest belongs to `python3-pyqt5`;
+there is no separate `python3-pyqt5.qttest` package. See the
+[official Ubuntu package](https://packages.ubuntu.com/noble/python3-pyqt5).
+
 These tests exercise input, unavailable controls, backend-driven state, automatic
 brightness protection, slider value requests, cancellation after native volume
 policy decisions and responsive layouts. They do not

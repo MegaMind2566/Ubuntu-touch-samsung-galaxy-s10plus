@@ -143,7 +143,7 @@
 -        anchors.centerIn: parent
 +        anchors.horizontalCenter: parent.horizontalCenter
 +        anchors.verticalCenter: parent.verticalCenter
-+        anchors.verticalCenterOffset: root.roundGlassKeys && root.telephoneLetters.length ? -units.gu(0.55) : 0
++        anchors.verticalCenterOffset: root.roundGlassKeys && root.telephoneLetters.length ? -units.gu(1.0) : 0
          horizontalAlignment: Text.AlignHCenter
          color: root.foregroundColor
          fontSize: "x-large"
@@ -162,7 +162,7 @@
 +        visible: root.roundGlassKeys && root.telephoneLetters.length > 0
 +        anchors.horizontalCenter: parent.horizontalCenter
 +        anchors.verticalCenter: parent.verticalCenter
-+        anchors.verticalCenterOffset: units.gu(1.8)
++        anchors.verticalCenterOffset: units.gu(2.1)
 +        text: root.telephoneLetters
 +        font.pixelSize: units.gu(1.1)
 +        font.weight: Font.DemiBold
@@ -550,10 +550,13 @@
  
          onShowProgressChanged: {
              if (showProgress === 0) {
-@@ -371,9 +421,27 @@
+@@ -370,10 +420,29 @@
+ 
          Clock {
              id: clock
-             anchors.centerIn: parent
+-            anchors.centerIn: parent
++            anchors.horizontalCenter: parent.horizontalCenter
++            anchors.verticalCenter: parent.verticalCenter
 +            opacity: root.integratedPinVisible ? 0 : 1
 +            Behavior on opacity { NumberAnimation { duration: 170 } }
          }
@@ -578,7 +581,7 @@
              State {
                  name: "landscape-with-infographics"
                  when: isLandscape && coverPage.showInfographic
-@@ -416,7 +484,7 @@
+@@ -416,7 +485,7 @@
              },
              State {
                  name: "without-infographics"
@@ -2429,6 +2432,104 @@
              PropertyChanges {
                  target: d;
                  hasCommitted: true
+--- a/qml/Stage/Spread/Spread.qml
++++ b/qml/Stage/Spread/Spread.qml
+@@ -17,6 +17,7 @@
+ import QtQuick 2.15
+ import Lomiri.Components 1.3
+ import "MathUtils.js" as MathUtils
++import "../../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: root
+@@ -28,14 +29,16 @@
+     property var spreadFlickable
+ 
+     // some config options
+-    property real contentMargin: 0.1 * root.height
++    // Preserve native right-edge window lifecycle, touch hit targets and
++    // preview math. Flatten only the visual perspective for a card switcher.
++    property real contentMargin: Math.min(units.gu(10), 0.09 * root.height)
+     property real contentTopMargin: contentMargin + root.y + windowTitle.height
+     property real contentBottomMargin: contentMargin
+     property real windowTitleTopMargin: contentMargin - windowTitle.height
+     property int stackItemCount: 3
+-    property real leftRotationAngle: 22
+-    property real rightRotationAngle: 32
+-    property real leftStackScale: .82
++    property real leftRotationAngle: 4
++    property real rightRotationAngle: 6
++    property real leftStackScale: .94
+     property real rightStackScale: 1
+     property real rightEdgeBreakPoint: Math.min(units.gu(40) / root.width, .35)
+ 
+@@ -81,10 +84,10 @@
+     }
+     readonly property real itemOverlap: {
+         var spreadAspectRatioReferencePoint = 1.0 // ref screen height in gu
+-        var valueAtReferencePoint = 0.74 // of screen height at the reference point
++        var valueAtReferencePoint = 0.50 // uOS27 flatter horizontal card rail
+         var itemOverlapValueChange = -0.068
+-        var minOverlap = 0.55
+-        var maxOverlap = 0.82
++        var minOverlap = 0.33
++        var maxOverlap = 0.64
+         var spreadAspectRatio = spreadWidth / stackHeight // spread stack aspect ratio (app info not included)
+ 
+         return MathUtils.clamp(valueAtReferencePoint + itemOverlapValueChange * (spreadAspectRatio - spreadAspectRatioReferencePoint), minOverlap, maxOverlap)
+@@ -112,8 +115,9 @@
+         readonly property var highlightedApp: root.model ? root.model.applicationAt(root.highlightedIndex) : null
+         text: root.highlightedIndex >= 0 && highlightedSurface && highlightedSurface.name != "" ? highlightedSurface.name :
+                                                                                                   highlightedApp ? highlightedApp.name : ""
+-        fontSize: root.height < units.gu(85) ? 'medium' : 'large'
+-        color: "#FFFFFF"
++        fontSize: root.height < units.gu(85) ? 'large' : 'x-large'
++        font.weight: Font.DemiBold
++        color: UOS.ink
+         opacity: root.highlightedIndex >= 0 ? 1 : 0
+         Behavior on opacity { LomiriNumberAnimation { } }
+     }
+--- a/qml/Stage/Spread/WorkspacePreview.qml
++++ b/qml/Stage/Spread/WorkspacePreview.qml
+@@ -21,6 +21,7 @@
+ import Utils 0.1
+ import ".."
+ import "../../Components"
++import "../../Panel/Glass/GlassTheme.js" as UOS
+ 
+ Item {
+     id: previewSpace
+@@ -154,8 +155,9 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        border.color: LomiriColors.porcelain
++        border.color: UOS.accent
+         border.width: units.gu(.5)
++        radius: units.gu(UOS.smallRadiusGU)
+         color: "transparent"
+         opacity: 0.3
+         antialiasing: true
+@@ -164,8 +166,9 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        border.color: LomiriColors.porcelain
++        border.color: UOS.ink
+         border.width: units.gu(.3)
++        radius: units.gu(UOS.smallRadiusGU)
+         color: "transparent"
+         opacity: 0.3
+         antialiasing: true
+@@ -174,7 +177,7 @@
+ 
+     Rectangle {
+         anchors.fill: parent
+-        color: LomiriColors.jet
++        color: "#142137"
+         opacity: previewSpace.isSelected || previewSpace.isActive
+                     || previewSpace.containsDragLeft || previewSpace.containsDragRight ? 0 : 0.5
+         antialiasing: true
 --- a/qml/Shell.qml
 +++ b/qml/Shell.qml
 @@ -34,6 +34,7 @@
@@ -2755,101 +2856,3 @@
              margin: units.gu(1)
              hasMouse: shell.hasMouse
              background: wallpaperResolver.resolvedImage
---- a/qml/Stage/Spread/Spread.qml
-+++ b/qml/Stage/Spread/Spread.qml
-@@ -17,6 +17,7 @@
- import QtQuick 2.15
- import Lomiri.Components 1.3
- import "MathUtils.js" as MathUtils
-+import "../../Panel/Glass/GlassTheme.js" as UOS
- 
- Item {
-     id: root
-@@ -28,14 +29,16 @@
-     property var spreadFlickable
- 
-     // some config options
--    property real contentMargin: 0.1 * root.height
-+    // Preserve native right-edge window lifecycle, touch hit targets and
-+    // preview math. Flatten only the visual perspective for a card switcher.
-+    property real contentMargin: Math.min(units.gu(10), 0.09 * root.height)
-     property real contentTopMargin: contentMargin + root.y + windowTitle.height
-     property real contentBottomMargin: contentMargin
-     property real windowTitleTopMargin: contentMargin - windowTitle.height
-     property int stackItemCount: 3
--    property real leftRotationAngle: 22
--    property real rightRotationAngle: 32
--    property real leftStackScale: .82
-+    property real leftRotationAngle: 4
-+    property real rightRotationAngle: 6
-+    property real leftStackScale: .94
-     property real rightStackScale: 1
-     property real rightEdgeBreakPoint: Math.min(units.gu(40) / root.width, .35)
- 
-@@ -81,10 +84,10 @@
-     }
-     readonly property real itemOverlap: {
-         var spreadAspectRatioReferencePoint = 1.0 // ref screen height in gu
--        var valueAtReferencePoint = 0.74 // of screen height at the reference point
-+        var valueAtReferencePoint = 0.50 // uOS27 flatter horizontal card rail
-         var itemOverlapValueChange = -0.068
--        var minOverlap = 0.55
--        var maxOverlap = 0.82
-+        var minOverlap = 0.33
-+        var maxOverlap = 0.64
-         var spreadAspectRatio = spreadWidth / stackHeight // spread stack aspect ratio (app info not included)
- 
-         return MathUtils.clamp(valueAtReferencePoint + itemOverlapValueChange * (spreadAspectRatio - spreadAspectRatioReferencePoint), minOverlap, maxOverlap)
-@@ -112,8 +115,9 @@
-         readonly property var highlightedApp: root.model ? root.model.applicationAt(root.highlightedIndex) : null
-         text: root.highlightedIndex >= 0 && highlightedSurface && highlightedSurface.name != "" ? highlightedSurface.name :
-                                                                                                   highlightedApp ? highlightedApp.name : ""
--        fontSize: root.height < units.gu(85) ? 'medium' : 'large'
--        color: "#FFFFFF"
-+        fontSize: root.height < units.gu(85) ? 'large' : 'x-large'
-+        font.weight: Font.DemiBold
-+        color: UOS.ink
-         opacity: root.highlightedIndex >= 0 ? 1 : 0
-         Behavior on opacity { LomiriNumberAnimation { } }
-     }
---- a/qml/Stage/Spread/WorkspacePreview.qml
-+++ b/qml/Stage/Spread/WorkspacePreview.qml
-@@ -21,6 +21,7 @@
- import Utils 0.1
- import ".."
- import "../../Components"
-+import "../../Panel/Glass/GlassTheme.js" as UOS
- 
- Item {
-     id: previewSpace
-@@ -154,8 +155,9 @@
- 
-     Rectangle {
-         anchors.fill: parent
--        border.color: LomiriColors.porcelain
-+        border.color: UOS.accent
-         border.width: units.gu(.5)
-+        radius: units.gu(UOS.smallRadiusGU)
-         color: "transparent"
-         opacity: 0.3
-         antialiasing: true
-@@ -164,8 +166,9 @@
- 
-     Rectangle {
-         anchors.fill: parent
--        border.color: LomiriColors.porcelain
-+        border.color: UOS.ink
-         border.width: units.gu(.3)
-+        radius: units.gu(UOS.smallRadiusGU)
-         color: "transparent"
-         opacity: 0.3
-         antialiasing: true
-@@ -174,7 +177,7 @@
- 
-     Rectangle {
-         anchors.fill: parent
--        color: LomiriColors.jet
-+        color: "#142137"
-         opacity: previewSpace.isSelected || previewSpace.isActive
-                     || previewSpace.containsDragLeft || previewSpace.containsDragRight ? 0 : 0.5
-         antialiasing: true

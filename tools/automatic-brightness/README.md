@@ -82,11 +82,15 @@ initialization error. A real ambient-light change and a user preference toggle
 must then produce the expected readback and physical brightness response. Merely
 seeing a profile file or a saved preference is insufficient.
 
-The uOS27 native host keeps `automaticBrightnessProfileVerified=false` until that
-acceptance evidence exists. Its setter continues to use the real
-`com.lomiri.touch.system` auto-brightness preference and readback. This profile
-does not provide a live lux value to the UI, so `ambientLuxAvailable` stays false
-unless a separate real sensor interface is verified.
+The uOS27 native host keeps `automaticBrightnessProfileVerified=false` as physical
+acceptance metadata until that evidence exists. Native availability instead uses
+a known preference plus the live bridge's read-only `auto-brightness-known` and
+`auto-brightness-supported` states from repowerd's checked `getBrightnessParams`
+reply. Those states reset on service-owner loss; they are not inferred from the
+Ayatana toggle merely existing/enabled. The setter still requires `actionsAllowed`
+and uses the real native preference with readback. Reported backend support does
+not prove the ALS/display response. This profile does not provide a live lux value
+to the UI, so `ambientLuxAvailable` stays false unless a real sensor interface is verified.
 
 Run offline Python fixtures with
 `python3 -m unittest discover -s tests -p test_automatic_brightness_profile.py -v`.

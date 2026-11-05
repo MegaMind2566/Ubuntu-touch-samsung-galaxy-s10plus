@@ -1,0 +1,200 @@
+{
+  "alimentazione": [
+    {
+      "dispositivo": "ac",
+      "valori": {
+        "online": "0",
+        "temp": "317",
+        "type": "Mains"
+      }
+    },
+    {
+      "dispositivo": "battery",
+      "valori": {
+        "capacity": "100",
+        "charge_full": "4100000",
+        "charge_full_design": "4100000",
+        "charge_now": "1",
+        "charge_type": "Fast",
+        "current_avg": "-235",
+        "current_now": "-652",
+        "health": "Good",
+        "online": "4",
+        "power_now": "1030",
+        "present": "1",
+        "status": "Full",
+        "temp": "282",
+        "time_to_full_now": "83",
+        "type": "Battery",
+        "voltage_now": "4253000"
+      }
+    },
+    {
+      "dispositivo": "max77705-charger",
+      "valori": {
+        "type": "Unknown"
+      }
+    },
+    {
+      "dispositivo": "max77705-fuelgauge",
+      "valori": {
+        "type": "Unknown"
+      }
+    },
+    {
+      "dispositivo": "mfc-charger",
+      "valori": {
+        "type": "Unknown"
+      }
+    },
+    {
+      "dispositivo": "otg",
+      "valori": {
+        "online": "0",
+        "type": "OTG"
+      }
+    },
+    {
+      "dispositivo": "ps",
+      "valori": {
+        "online": "0",
+        "status": "Unknown",
+        "type": "POWER_SHARING"
+      }
+    },
+    {
+      "dispositivo": "usb",
+      "valori": {
+        "online": "1",
+        "type": "USB"
+      }
+    },
+    {
+      "dispositivo": "wireless",
+      "valori": {
+        "online": "0",
+        "present": "1",
+        "type": "Wireless"
+      }
+    }
+  ],
+  "avvisi": {},
+  "evento": "inventario_energia",
+  "gestione_sospensione": {
+    "mem_sleep": "s2idle [deep]"
+  },
+  "gestione_sospensione_campi_omessi": [
+    "wakeup_count",
+    "autosleep"
+  ],
+  "lettura_sola": true,
+  "nota": "Inventario limitato: non prova ricarica, autonomia, sospensione o risveglio. Campi di sospensione potenzialmente bloccanti intenzionalmente omessi. Nessuna seriale o log privato.",
+  "orario_locale": "2026-11-05T11:44:38+01:00",
+  "retroilluminazione": [
+    {
+      "dispositivo": "panel",
+      "valori": {
+        "actual_brightness": "800",
+        "bl_power": "0",
+        "brightness": "48600",
+        "max_brightness": "48600"
+      }
+    }
+  ],
+  "servizi_energetici": {
+    "powerd.service": {
+      "ActiveState": "inactive",
+      "LoadState": "not-found"
+    },
+    "repowerd.service": {
+      "ActiveState": "active",
+      "LoadState": "loaded"
+    },
+    "upower.service": {
+      "ActiveState": "active",
+      "LoadState": "loaded"
+    }
+  },
+  "sospensione_forzata": false,
+  "sudo_richiesto": false,
+  "tempo_esecuzione_secondi": 0.71,
+  "termiche": [
+    {
+      "sensore": "thermal_zone6",
+      "temperatura_C": 28.2,
+      "temperatura_mC": 28200,
+      "tipo": "battery"
+    }
+  ],
+  "upower": [
+    {
+      "dispositivo": "line_power_otg",
+      "valori": {
+        "online": "no",
+        "power supply": "yes",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "line_power_ac",
+      "valori": {
+        "online": "no",
+        "power supply": "yes",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "battery_battery",
+      "valori": {
+        "capacity": "100%",
+        "energy": "17.4373 Wh",
+        "energy-full": "17.4373 Wh",
+        "energy-full-design": "17.4373 Wh",
+        "energy-rate": "0.00107176 W",
+        "percentage": "100%",
+        "power supply": "yes",
+        "state": "fully-charged",
+        "voltage": "4.253 V",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "line_power_ps",
+      "valori": {
+        "online": "no",
+        "power supply": "yes",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "line_power_usb",
+      "valori": {
+        "online": "yes",
+        "power supply": "yes",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "line_power_wireless",
+      "valori": {
+        "online": "no",
+        "power supply": "yes",
+        "warning-level": "none"
+      }
+    },
+    {
+      "dispositivo": "DisplayDevice",
+      "valori": {
+        "energy": "17.4373 Wh",
+        "energy-full": "17.4373 Wh",
+        "energy-rate": "0.00107176 W",
+        "percentage": "100%",
+        "power supply": "yes",
+        "state": "fully-charged",
+        "warning-level": "none"
+      }
+    }
+  ],
+  "uptime_secondi": 683.0,
+  "versione": "2026-10-24.power-inventory-v2"
+}

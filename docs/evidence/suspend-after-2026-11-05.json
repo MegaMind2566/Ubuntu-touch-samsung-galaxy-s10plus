@@ -1,0 +1,14 @@
+{
+  "boot_token": "605f4621eb465c7c905d3178d295cd398542ce3f1ec80a05a1224553819b6676",
+  "clocks": {
+    "boottime_ns": 2433351171316,
+    "monotonic_ns": 2433351171893,
+    "uncertainty_ns": 1424
+  },
+  "device_time_utc": "2026-11-05T11:31:15.461+00:00",
+  "errors": [],
+  "kernel_release": "4.14.280-gb9b70b29c94c-dirty",
+  "kind": "suspend-clock-snapshot",
+  "schema": 1,
+  "session": "77d752f6132506caeeb624d43338272f"
+}

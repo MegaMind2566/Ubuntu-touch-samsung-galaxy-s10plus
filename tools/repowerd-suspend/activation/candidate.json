@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "source-candidate-unbuilt",
+  "base": "36575160752bdd0a983bee1b53e041ccc4ceaa60",
+  "patch1_commit": "d87b74538c368cd7bebef64c5b81c5c377ae3f88",
+  "patch1_sha256": "a811a6547382f9f757678694f9582c1dc9988ef18f3743cd7680e9bb9b9c41c5",
+  "patch2_sha256": "2e81296201ef72e812a72e2a08687c484a32b4da7325d2dd7b93bc8c7ff4d189",
+  "source_after_sha256": {
+    "src/adapters/hidl_system_power_control.cpp": "1c4fced78a8c5653ac728a989989f76a48bf36ce17df0533cb6fe9084d0af2d7",
+    "src/adapters/hidl_system_power_control.h": "e55f0317d3336373e2d4e444022cb9848c27c5ae4bc1454d0220839255e6931a",
+    "src/adapters/bounded_suspend_binder.h": "259999e4c25e4d14f0a324ff081c0083bd206d7c42197c3224d0280d339e6329"
+  },
+  "platform": "Android SDK32; normal binder SM aidl3 and RPC aidl4",
+  "compiled": false,
+  "installed": false
+}

@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "status": "adbd-built-trial-pending-repowerd-first-build-held",
+  "date": "2026-11-05",
+  "build": {
+    "provider": "GitHub Actions, public repository, standard free hosted runner",
+    "runner": "ubuntu-24.04-arm",
+    "run_id": 42025861432,
+    "run_url": "https://github.com/MegaMind2566/Ubuntu-touch-samsung-galaxy-s10plus/actions/runs/42025861432",
+    "repository_commit": "5ce6823d290a60fa15d0a270059b728cdf06ca51",
+    "adbd_job_id": 127239780231,
+    "adbd_job_result": "success",
+    "repowerd_job_id": 127239779931,
+    "repowerd_job_result": "success-first-hidl-backport-only"
+  },
+  "adbd_sources": {
+    "packaging_commit": "6391ffe9e12162de349fe595fdf8d92b5cbf443f",
+    "android_commit": "b8016a7210eba240788f262e1e4214576aa6fdd8",
+    "android_tag": "android-14.0.0_r45",
+    "patch_sha256": "68369d20a8063d10bf14f806de30c7c6820a4a87b4c381c22d6ba7a018277cb7"
+  },
+  "verified_download": {
+    "archive_name": "adbd-arm64-42025861432.zip",
+    "archive_sha256": "0d6a4517fa6735fbdedeb84c5216ba518c97d3ed2e0b7868ec4dcbf8df184415",
+    "package_name": "adbd_14.0.0+r45-0ubports1+s10reconnect.20261105_arm64.deb",
+    "package_version": "1:14.0.0+r45-0ubports1+s10reconnect.20261105",
+    "package_sha256": "fccb17fc6393a25e919ee24c42918ab950d867bb288f543ba40660638c3d01a3",
+    "binary_path_in_package": "usr/bin/adbd",
+    "binary_bytes": 399160,
+    "binary_sha256": "7b7c034e0d0039e8c6f8cd867122fc67db6915547a1fec11b5904e1b666ddf43"
+  },
+  "fixtures": {
+    "method": "exact hash-checked lifecycle method bodies and usb_ffs.cpp, compiled with external boundaries simulated",
+    "baseline": {
+      "early_worker_exit": "required timeout observed",
+      "existing_control_fd_reuse": "required assertion failure observed"
+    },
+    "candidate_passed": [
+      "early",
+      "idle",
+      "interrupt",
+      "retained",
+      "unbind",
+      "stopped-enabled",
+      "pending-disable",
+      "ffs"
+    ],
+    "candidate_pass_count": 8,
+    "source_sha256": {
+      "daemon/usb.cpp": "1b41055b778cc39417bbc66ddf24f86de9086e59ed4b08de0e79e36bcd7b3606",
+      "daemon/usb_ffs.cpp": "9f7c45b8fd0fd343ffa8d6e119d8a236f59d80c0a149f5c372cd680cd7a607ea"
+    }
+  },
+  "handset_preflight": {
+    "method": "installed dynamic loader --list on a staged temporary candidate",
+    "all_required_libraries_resolved": true,
+    "candidate_adbd_daemon_started": false,
+    "candidate_installed": false,
+    "proves": "loader dependency resolution only"
+  },
+  "boundaries": [
+    "No handset USB hotplug fix has been verified by this build record.",
+    "No ADB authorization, USB mode ownership, firmware or package deployment is implied.",
+    "Userspace fixtures do not exercise the S10 kernel FunctionFS/AIO implementation or real host transfers.",
+    "The full Linux repository suite and a new SYSTEM/BOOT image are not established by these jobs.",
+    "The first repowerd artifact is held for follow-up lifetime/activation work; no runtime suspend/resume result is established."
+  ],
+  "repowerd_first_build": {
+    "source_commit": "36575160752bdd0a983bee1b53e041ccc4ceaa60",
+    "upstream_hidl_commit": "d87b74538c368cd7bebef64c5b81c5c377ae3f88",
+    "patch_sha256": "a811a6547382f9f757678694f9582c1dc9988ef18f3743cd7680e9bb9b9c41c5",
+    "artifact_id": 13413278920,
+    "archive_name": "repowerd-arm64-42025861432.zip",
+    "archive_sha256": "dc2ed22a6a5dca77f668bded4a4d9a431b059a9551f87bc37a50a85389412158",
+    "package_version": "2025.09+s10hidl.20261105",
+    "packages": {
+      "repowerd-data_2025.09+s10hidl.20261105_all.deb": "738fe4a04a5236b2369168043cb2989e34833e7090bd67c5c860568ebb87d778",
+      "repowerd-tools_2025.09+s10hidl.20261105_arm64.deb": "5b4cb80dcd9347ac691569bee3538b1b6aeb21dffdc7acbaa09aa5484312c9c1",
+      "repowerd_2025.09+s10hidl.20261105_arm64.deb": "42795ba4a6b432c15f7c2c961d7f59fbf79a3c63b84e6436ff8f4d9fe17ad576"
+    },
+    "binary_path_in_package": "usr/sbin/repowerd",
+    "binary_bytes": 591992,
+    "binary_sha256": "43f64c581861bee5af2c89c8f4cb4db82a7381e251c4b6ddb812eb3c7a3b6aa0",
+    "ctest_suites_passed": 2,
+    "ctest_pass_percent": 100,
+    "ctest_seconds": 3.67,
+    "installed_loader_all_libraries_resolved": true,
+    "candidate_daemon_started": false,
+    "candidate_installed": false,
+    "deployment_status": "held pending source review fixes for wake-lock ownership lifetime and Android autosuspend activation; no suspend fix verified"
+  }
+}
