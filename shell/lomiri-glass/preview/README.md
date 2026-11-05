@@ -40,7 +40,7 @@ privacy suppression are exercised; live notification delivery is not.
 
 On Ubuntu 24.04 the free distro dependencies are `python3-pyqt5`,
 `python3-pyqt5.qtquick`, `qml-module-qtquick2`, `qml-module-qtquick-window2`,
-`qml-module-qtqml` and `fonts-dejavu-core`. QtTest belongs to `python3-pyqt5`;
+`qml-module-qtqml`, `libqt5svg5` and `fonts-dejavu-core`. QtTest belongs to `python3-pyqt5`;
 there is no separate `python3-pyqt5.qttest` package. See the
 [official Ubuntu package](https://packages.ubuntu.com/noble/python3-pyqt5).
 

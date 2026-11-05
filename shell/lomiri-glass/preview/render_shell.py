@@ -12,6 +12,7 @@ import sys
 import tempfile
 
 from runtime import create_view, save_screenshot
+from PyQt5.QtGui import QImageReader
 from PyQt5.QtCore import QObject, QUrl
 from PyQt5.QtQml import qmlRegisterType
 from PyQt5.QtTest import QTest
@@ -20,11 +21,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from test_home_host import MockAppDrawerModel, MockAppDrawerProxyModel, MockApplications, I18n, Units
 
 
+def require_svg_renderer(reader_type=QImageReader):
+    if b"svg" not in [bytes(fmt) for fmt in reader_type.supportedImageFormats()]:
+        raise RuntimeError("SVG renderer missing: install the free libqt5svg5 package before capturing Home")
+
+
+def validate_demo_icon(path, reader_type=QImageReader):
+    reader = reader_type(str(path))
+    if not reader.canRead() or reader.read().isNull():
+        raise RuntimeError("Demo icon cannot be rendered: " + Path(path).name)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=Path("out/lomiri-glass/shell"))
     args = parser.parse_args()
     app, view, backend = create_view()
+    require_svg_renderer()
     # Appearance fixtures have simulated readbacks, but unavailable hardware
     # actions. They must never make a toggle look like an acknowledged change.
     backend.set_state(**{key: False for key in backend.values if key.endswith("Available")})
@@ -73,6 +86,7 @@ Item {
             # QtSvg's SVG Tiny renderer ignores clipPath. All authored shapes
             # are bounded explicitly, including the two colored top headers.
             icon.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="15" fill="' + color + '"/>' + path + '</svg>', encoding="utf-8")
+            validate_demo_icon(icon)
             icons[key] = icon.as_uri()
         original_init = MockAppDrawerModel.__init__
         def initialize_catalog(self, parent=None):

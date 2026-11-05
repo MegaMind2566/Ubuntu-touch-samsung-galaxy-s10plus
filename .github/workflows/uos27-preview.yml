@@ -26,9 +26,11 @@ jobs:
       - name: Install free distro Qt 5 preview dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python3-pyqt5 python3-pyqt5.qtquick qml-module-qtquick2 qml-module-qtquick-window2 qml-module-qtqml fonts-dejavu-core
+          sudo apt-get install -y --no-install-recommends python3-pyqt5 python3-pyqt5.qtquick qml-module-qtquick2 qml-module-qtquick-window2 qml-module-qtqml libqt5svg5 fonts-dejavu-core
       - name: Exercise native controls without phone services
         run: /usr/bin/python3 shell/lomiri-glass/tests/test_qml_surface.py --report out/lomiri-glass/surface-tests.json
+      - name: Reject missing or unreadable preview SVG assets
+        run: /usr/bin/python3 shell/lomiri-glass/tests/test_preview_assets.py
       - name: Check capability and automatic-brightness gates with inert services
         run: /usr/bin/python3 shell/lomiri-glass/tests/test_backend_capabilities_host.py --report out/lomiri-glass/capabilities-tests.json
       - name: Exercise native Home catalog, search and dock

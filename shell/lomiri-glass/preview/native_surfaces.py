@@ -31,7 +31,9 @@ Item { id:shape; enum Aspect { Flat } property color backgroundColor:"transparen
 ''')
     write(lomiri / "ShapedIcon.qml", '''import QtQuick 2.15
 Rectangle { property url fileSource; property bool shaped:true; color:"#50bc91"; radius:shaped ? width*.23 : 0
- Text {anchors.centerIn:parent; text:"✉"; color:"white"; font.pixelSize:parent.height*.55} }
+ Canvas {anchors.fill:parent;anchors.margins:parent.width*.22
+  onPaint: {var c=getContext("2d");c.reset();c.strokeStyle="white";c.lineWidth=width*.08;c.strokeRect(1,height*.16,width-2,height*.68);c.beginPath();c.moveTo(1,height*.18);c.lineTo(width/2,height*.52);c.lineTo(width-1,height*.18);c.stroke();}
+ } }
 ''')
     write(lomiri / "ProgressBar.qml", 'import QtQuick 2.15\nItem {property real value; property real minimumValue; property real maximumValue; property bool showProgressPercentage}\n')
     module(target, "Lomiri.Components.ListItems", {"ThinDivider 1.3": 'import QtQuick 2.15\nRectangle {height:1;color:"#50ffffff"}'})
